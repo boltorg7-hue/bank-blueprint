@@ -11,12 +11,13 @@ Ce dossier est la **source de vérité** du projet. Chaque phase de construction
 | 02 | [02-public-website-acquisition.md](./02-public-website-acquisition.md) | Site public, landing page, acquisition | reçu |
 | 03 | [03-auth-registration-kyc-onboarding.md](./03-auth-registration-kyc-onboarding.md) | Authentification, inscription, KYC, onboarding | reçu |
 | 04 | [04-customer-app-shell-navigation.md](./04-customer-app-shell-navigation.md) | Shell de l'app client, navigation, expérience membre | reçu |
-| 05 | — | à définir | en attente |
-| 06 | — | à définir | en attente |
-| 07 | — | à définir | en attente |
-| 08 | — | à définir | en attente |
-| 09 | — | à définir | en attente |
+| 05 | [05-customer-dashboard-accounts-balances.md](./05-customer-dashboard-accounts-balances.md) | Dashboard client, comptes bancaires, soldes | reçu |
+| 06 | [06-double-entry-ledger-transactions.md](./06-double-entry-ledger-transactions.md) | Grand livre en partie double, transactions, activité | reçu |
+| 07 | [07-beneficiaries-internal-transfers.md](./07-beneficiaries-internal-transfers.md) | Bénéficiaires, virements internes, mouvements de fonds | reçu |
+| 08 | [08-transfer-routing-compliance-external.md](./08-transfer-routing-compliance-external.md) | Routage des virements, parcours conformité 0→100, virements externes | reçu |
+| 09 | [09-statements-pdf-document-center.md](./09-statements-pdf-document-center.md) | Relevés, PDF, impression, centre de documents | reçu |
 | 10 | — | à définir | en attente |
+
 | 11 | — | à définir | en attente |
 | 12 | — | à définir | en attente |
 | 13 | — | à définir | en attente |
