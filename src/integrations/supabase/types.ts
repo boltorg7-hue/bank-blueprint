@@ -233,10 +233,15 @@ export type Database = {
           destination_bank_type: string
           destination_currency: string
           display_name: string
+          external_account_identifier: string | null
+          external_bank_name: string | null
+          external_country: string | null
+          external_routing_code: string | null
           id: string
           last_used_at: string | null
           nickname: string | null
           public_reference: string
+          settlement_rail_id: string | null
           status: Database["public"]["Enums"]["beneficiary_status"]
           updated_at: string
           user_id: string
@@ -249,10 +254,15 @@ export type Database = {
           destination_bank_type?: string
           destination_currency: string
           display_name: string
+          external_account_identifier?: string | null
+          external_bank_name?: string | null
+          external_country?: string | null
+          external_routing_code?: string | null
           id?: string
           last_used_at?: string | null
           nickname?: string | null
           public_reference: string
+          settlement_rail_id?: string | null
           status?: Database["public"]["Enums"]["beneficiary_status"]
           updated_at?: string
           user_id: string
@@ -265,10 +275,15 @@ export type Database = {
           destination_bank_type?: string
           destination_currency?: string
           display_name?: string
+          external_account_identifier?: string | null
+          external_bank_name?: string | null
+          external_country?: string | null
+          external_routing_code?: string | null
           id?: string
           last_used_at?: string | null
           nickname?: string | null
           public_reference?: string
+          settlement_rail_id?: string | null
           status?: Database["public"]["Enums"]["beneficiary_status"]
           updated_at?: string
           user_id?: string
@@ -279,6 +294,13 @@ export type Database = {
             columns: ["destination_account_id"]
             isOneToOne: false
             referencedRelation: "bank_accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "beneficiaries_settlement_rail_id_fkey"
+            columns: ["settlement_rail_id"]
+            isOneToOne: false
+            referencedRelation: "external_settlement_rails"
             referencedColumns: ["id"]
           },
         ]
@@ -322,6 +344,51 @@ export type Database = {
           region?: string | null
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      external_settlement_rails: {
+        Row: {
+          code: string
+          country: string
+          created_at: string
+          currency: string
+          display_name: string
+          document_threshold_minor: number
+          id: string
+          is_active: boolean
+          is_simulation: boolean
+          provider_key: string
+          requires_compliance_review: boolean
+          updated_at: string
+        }
+        Insert: {
+          code: string
+          country: string
+          created_at?: string
+          currency: string
+          display_name: string
+          document_threshold_minor?: number
+          id?: string
+          is_active?: boolean
+          is_simulation?: boolean
+          provider_key: string
+          requires_compliance_review?: boolean
+          updated_at?: string
+        }
+        Update: {
+          code?: string
+          country?: string
+          created_at?: string
+          currency?: string
+          display_name?: string
+          document_threshold_minor?: number
+          id?: string
+          is_active?: boolean
+          is_simulation?: boolean
+          provider_key?: string
+          requires_compliance_review?: boolean
+          updated_at?: string
         }
         Relationships: []
       }
@@ -587,6 +654,131 @@ export type Database = {
         }
         Relationships: []
       }
+      transfer_compliance_cases: {
+        Row: {
+          created_at: string
+          decision_at: string | null
+          documents_required: boolean
+          id: string
+          internal_note: string | null
+          opened_at: string
+          review_required: boolean
+          reviewed_at: string | null
+          risk_category: string | null
+          status: Database["public"]["Enums"]["transfer_compliance_status"]
+          transfer_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          decision_at?: string | null
+          documents_required?: boolean
+          id?: string
+          internal_note?: string | null
+          opened_at?: string
+          review_required?: boolean
+          reviewed_at?: string | null
+          risk_category?: string | null
+          status?: Database["public"]["Enums"]["transfer_compliance_status"]
+          transfer_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          decision_at?: string | null
+          documents_required?: boolean
+          id?: string
+          internal_note?: string | null
+          opened_at?: string
+          review_required?: boolean
+          reviewed_at?: string | null
+          risk_category?: string | null
+          status?: Database["public"]["Enums"]["transfer_compliance_status"]
+          transfer_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transfer_compliance_cases_transfer_id_fkey"
+            columns: ["transfer_id"]
+            isOneToOne: true
+            referencedRelation: "transfers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      transfer_documents: {
+        Row: {
+          created_at: string
+          document_type: Database["public"]["Enums"]["transfer_requirement_type"]
+          id: string
+          mime_type: string | null
+          original_filename: string | null
+          rejection_reason_code: string | null
+          requirement_id: string | null
+          reviewed_at: string | null
+          size_bytes: number | null
+          status: Database["public"]["Enums"]["transfer_document_status"]
+          storage_path: string
+          transfer_id: string
+          updated_at: string
+          uploaded_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          document_type: Database["public"]["Enums"]["transfer_requirement_type"]
+          id?: string
+          mime_type?: string | null
+          original_filename?: string | null
+          rejection_reason_code?: string | null
+          requirement_id?: string | null
+          reviewed_at?: string | null
+          size_bytes?: number | null
+          status?: Database["public"]["Enums"]["transfer_document_status"]
+          storage_path: string
+          transfer_id: string
+          updated_at?: string
+          uploaded_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          document_type?: Database["public"]["Enums"]["transfer_requirement_type"]
+          id?: string
+          mime_type?: string | null
+          original_filename?: string | null
+          rejection_reason_code?: string | null
+          requirement_id?: string | null
+          reviewed_at?: string | null
+          size_bytes?: number | null
+          status?: Database["public"]["Enums"]["transfer_document_status"]
+          storage_path?: string
+          transfer_id?: string
+          updated_at?: string
+          uploaded_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transfer_documents_requirement_id_fkey"
+            columns: ["requirement_id"]
+            isOneToOne: false
+            referencedRelation: "transfer_requirements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transfer_documents_transfer_id_fkey"
+            columns: ["transfer_id"]
+            isOneToOne: false
+            referencedRelation: "transfers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       transfer_limits: {
         Row: {
           created_at: string
@@ -616,6 +808,68 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      transfer_requirements: {
+        Row: {
+          created_at: string
+          description: string | null
+          expires_at: string | null
+          id: string
+          is_mandatory: boolean
+          rejection_reason_code: string | null
+          requested_at: string
+          requirement_type: Database["public"]["Enums"]["transfer_requirement_type"]
+          reviewed_at: string | null
+          status: Database["public"]["Enums"]["transfer_requirement_status"]
+          submitted_at: string | null
+          title: string
+          transfer_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          expires_at?: string | null
+          id?: string
+          is_mandatory?: boolean
+          rejection_reason_code?: string | null
+          requested_at?: string
+          requirement_type: Database["public"]["Enums"]["transfer_requirement_type"]
+          reviewed_at?: string | null
+          status?: Database["public"]["Enums"]["transfer_requirement_status"]
+          submitted_at?: string | null
+          title: string
+          transfer_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          expires_at?: string | null
+          id?: string
+          is_mandatory?: boolean
+          rejection_reason_code?: string | null
+          requested_at?: string
+          requirement_type?: Database["public"]["Enums"]["transfer_requirement_type"]
+          reviewed_at?: string | null
+          status?: Database["public"]["Enums"]["transfer_requirement_status"]
+          submitted_at?: string | null
+          title?: string
+          transfer_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transfer_requirements_transfer_id_fkey"
+            columns: ["transfer_id"]
+            isOneToOne: false
+            referencedRelation: "transfers"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       transfer_status_history: {
         Row: {
@@ -661,17 +915,26 @@ export type Database = {
       transfers: {
         Row: {
           amount_minor: number
+          approved_at: string | null
           beneficiary_id: string | null
           cancelled_at: string | null
           completed_at: string | null
+          compliance_case_id: string | null
           confirmed_at: string | null
           created_at: string
           currency: string
+          current_requirement_id: string | null
           customer_reference: string | null
           destination_account_id: string | null
           destination_masked_snapshot: string
+          documents_requested_at: string | null
+          external_provider_reference: string | null
+          external_status:
+            | Database["public"]["Enums"]["external_settlement_status"]
+            | null
           failed_at: string | null
           failure_code: string | null
+          finalized_at: string | null
           hold_id: string | null
           id: string
           idempotency_key: string
@@ -679,27 +942,43 @@ export type Database = {
           metadata: Json
           processing_stage: string | null
           processing_started_at: string | null
+          progress_percent: number
+          progress_state: Database["public"]["Enums"]["transfer_progress_state"]
           public_reference: string
           recipient_display_snapshot: string
+          security_confirmed_at: string | null
           sender_user_id: string
+          settlement_rail_id: string | null
+          settlement_submitted_at: string | null
           source_account_id: string
           source_masked_snapshot: string
           status: Database["public"]["Enums"]["transfer_status"]
+          transfer_kind: Database["public"]["Enums"]["transfer_kind"]
           updated_at: string
+          validated_at: string | null
         }
         Insert: {
           amount_minor: number
+          approved_at?: string | null
           beneficiary_id?: string | null
           cancelled_at?: string | null
           completed_at?: string | null
+          compliance_case_id?: string | null
           confirmed_at?: string | null
           created_at?: string
           currency: string
+          current_requirement_id?: string | null
           customer_reference?: string | null
           destination_account_id?: string | null
           destination_masked_snapshot: string
+          documents_requested_at?: string | null
+          external_provider_reference?: string | null
+          external_status?:
+            | Database["public"]["Enums"]["external_settlement_status"]
+            | null
           failed_at?: string | null
           failure_code?: string | null
+          finalized_at?: string | null
           hold_id?: string | null
           id?: string
           idempotency_key: string
@@ -707,27 +986,43 @@ export type Database = {
           metadata?: Json
           processing_stage?: string | null
           processing_started_at?: string | null
+          progress_percent?: number
+          progress_state?: Database["public"]["Enums"]["transfer_progress_state"]
           public_reference: string
           recipient_display_snapshot: string
+          security_confirmed_at?: string | null
           sender_user_id: string
+          settlement_rail_id?: string | null
+          settlement_submitted_at?: string | null
           source_account_id: string
           source_masked_snapshot: string
           status?: Database["public"]["Enums"]["transfer_status"]
+          transfer_kind?: Database["public"]["Enums"]["transfer_kind"]
           updated_at?: string
+          validated_at?: string | null
         }
         Update: {
           amount_minor?: number
+          approved_at?: string | null
           beneficiary_id?: string | null
           cancelled_at?: string | null
           completed_at?: string | null
+          compliance_case_id?: string | null
           confirmed_at?: string | null
           created_at?: string
           currency?: string
+          current_requirement_id?: string | null
           customer_reference?: string | null
           destination_account_id?: string | null
           destination_masked_snapshot?: string
+          documents_requested_at?: string | null
+          external_provider_reference?: string | null
+          external_status?:
+            | Database["public"]["Enums"]["external_settlement_status"]
+            | null
           failed_at?: string | null
           failure_code?: string | null
+          finalized_at?: string | null
           hold_id?: string | null
           id?: string
           idempotency_key?: string
@@ -735,13 +1030,20 @@ export type Database = {
           metadata?: Json
           processing_stage?: string | null
           processing_started_at?: string | null
+          progress_percent?: number
+          progress_state?: Database["public"]["Enums"]["transfer_progress_state"]
           public_reference?: string
           recipient_display_snapshot?: string
+          security_confirmed_at?: string | null
           sender_user_id?: string
+          settlement_rail_id?: string | null
+          settlement_submitted_at?: string | null
           source_account_id?: string
           source_masked_snapshot?: string
           status?: Database["public"]["Enums"]["transfer_status"]
+          transfer_kind?: Database["public"]["Enums"]["transfer_kind"]
           updated_at?: string
+          validated_at?: string | null
         }
         Relationships: [
           {
@@ -749,6 +1051,20 @@ export type Database = {
             columns: ["beneficiary_id"]
             isOneToOne: false
             referencedRelation: "beneficiaries"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transfers_compliance_case_fkey"
+            columns: ["compliance_case_id"]
+            isOneToOne: false
+            referencedRelation: "transfer_compliance_cases"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transfers_current_requirement_fkey"
+            columns: ["current_requirement_id"]
+            isOneToOne: false
+            referencedRelation: "transfer_requirements"
             referencedColumns: ["id"]
           },
           {
@@ -770,6 +1086,13 @@ export type Database = {
             columns: ["ledger_transaction_id"]
             isOneToOne: true
             referencedRelation: "ledger_transactions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transfers_settlement_rail_id_fkey"
+            columns: ["settlement_rail_id"]
+            isOneToOne: false
+            referencedRelation: "external_settlement_rails"
             referencedColumns: ["id"]
           },
           {
@@ -929,6 +1252,18 @@ export type Database = {
       }
     }
     Functions: {
+      apply_external_settlement_result: {
+        Args: {
+          _provider_reference?: string
+          _provider_status: Database["public"]["Enums"]["external_settlement_status"]
+          _reference: string
+        }
+        Returns: {
+          progress_percent: number
+          status: Database["public"]["Enums"]["transfer_status"]
+          transaction_reference: string
+        }[]
+      }
       cancel_transfer: {
         Args: { _reference: string; _user_id: string }
         Returns: Database["public"]["Enums"]["transfer_status"]
@@ -941,6 +1276,32 @@ export type Database = {
           ledger_computed: number
           matches: boolean
           projection_value: number
+        }[]
+      }
+      classify_transfer_destination: {
+        Args: { _beneficiary_id: string }
+        Returns: {
+          kind: Database["public"]["Enums"]["transfer_kind"]
+          rail_id: string
+          reason: string
+          supported: boolean
+        }[]
+      }
+      confirm_customer_transfer: {
+        Args: { _reference: string; _user_id: string }
+        Returns: {
+          failure_code: string
+          progress_percent: number
+          status: Database["public"]["Enums"]["transfer_status"]
+          transaction_reference: string
+        }[]
+      }
+      confirm_external_transfer: {
+        Args: { _reference: string; _user_id: string }
+        Returns: {
+          failure_code: string
+          progress_percent: number
+          status: Database["public"]["Enums"]["transfer_status"]
         }[]
       }
       confirm_internal_transfer: {
@@ -959,6 +1320,29 @@ export type Database = {
           _idempotency_key: string
           _reason_type: string
           _source_reference: string
+        }
+        Returns: string
+      }
+      create_customer_transfer: {
+        Args: {
+          _amount_minor: number
+          _beneficiary_reference: string
+          _customer_reference?: string
+          _source_account_reference: string
+          _user_id: string
+        }
+        Returns: string
+      }
+      create_external_beneficiary: {
+        Args: {
+          _account_identifier: string
+          _bank_name: string
+          _country: string
+          _currency: string
+          _display_name: string
+          _nickname?: string
+          _routing_code?: string
+          _user_id: string
         }
         Returns: string
       }
@@ -992,8 +1376,21 @@ export type Database = {
         Args: { _user_id: string }
         Returns: string
       }
+      decide_transfer_compliance: {
+        Args: {
+          _decision: string
+          _reason_code?: string
+          _reference: string
+          _staff_id: string
+        }
+        Returns: undefined
+      }
       ensure_bank_account_ledger_account: {
         Args: { _bank_account_id: string }
+        Returns: string
+      }
+      ensure_settlement_clearing_account: {
+        Args: { _currency: string }
         Returns: string
       }
       has_role: {
@@ -1070,6 +1467,43 @@ export type Database = {
           public_reference: string
         }[]
       }
+      review_transfer_document: {
+        Args: {
+          _accept: boolean
+          _document_id: string
+          _reason_code?: string
+          _staff_id: string
+        }
+        Returns: undefined
+      }
+      set_transfer_progress: {
+        Args: {
+          _freeze?: boolean
+          _state: Database["public"]["Enums"]["transfer_progress_state"]
+          _transfer_id: string
+        }
+        Returns: undefined
+      }
+      submit_external_settlement: {
+        Args: { _reference: string }
+        Returns: undefined
+      }
+      submit_transfer_document: {
+        Args: {
+          _mime_type?: string
+          _original_filename?: string
+          _reference: string
+          _requirement_id: string
+          _size_bytes?: number
+          _storage_path: string
+          _user_id: string
+        }
+        Returns: string
+      }
+      transfer_progress_for_state: {
+        Args: { _state: Database["public"]["Enums"]["transfer_progress_state"] }
+        Returns: number
+      }
     }
     Enums: {
       account_hold_status: "ACTIVE" | "RELEASED" | "CAPTURED" | "EXPIRED"
@@ -1114,6 +1548,14 @@ export type Database = {
         | "RESTRICTED"
         | "SUSPENDED"
         | "CLOSED"
+      external_settlement_status:
+        | "NOT_SUBMITTED"
+        | "SUBMITTED"
+        | "PENDING"
+        | "SUCCEEDED"
+        | "FAILED"
+        | "CANCELLED"
+        | "UNKNOWN"
       identity_verification_status:
         | "NOT_STARTED"
         | "IN_PROGRESS"
@@ -1150,6 +1592,53 @@ export type Database = {
         | "REVIEW"
         | "COMPLETED"
       transfer_actor_type: "CUSTOMER" | "SYSTEM" | "STAFF" | "COMPLIANCE"
+      transfer_compliance_status:
+        | "NOT_REQUIRED"
+        | "OPEN"
+        | "CUSTOMER_ACTION_REQUIRED"
+        | "DOCUMENTS_RECEIVED"
+        | "UNDER_REVIEW"
+        | "APPROVED"
+        | "REJECTED"
+        | "CLOSED"
+      transfer_document_status:
+        | "UPLOADED"
+        | "UNDER_REVIEW"
+        | "ACCEPTED"
+        | "REJECTED"
+        | "REPLACEMENT_REQUIRED"
+      transfer_kind: "INTERNAL_TRANSFER" | "EXTERNAL_TRANSFER"
+      transfer_progress_state:
+        | "CREATED"
+        | "ACCOUNT_VALIDATED"
+        | "FUNDS_VALIDATED"
+        | "SECURITY_CONFIRMED"
+        | "COMPLIANCE_CHECK"
+        | "DOCUMENT_REQUIRED"
+        | "DOCUMENT_REVIEW"
+        | "FINAL_REVIEW"
+        | "APPROVED"
+        | "SETTLEMENT_PENDING"
+        | "COMPLETED"
+        | "FAILED"
+        | "CANCELLED"
+        | "BLOCKED"
+      transfer_requirement_status:
+        | "REQUIRED"
+        | "SUBMITTED"
+        | "UNDER_REVIEW"
+        | "SATISFIED"
+        | "REPLACEMENT_REQUIRED"
+        | "WAIVED"
+        | "EXPIRED"
+      transfer_requirement_type:
+        | "IDENTITY_DOCUMENT"
+        | "SOURCE_OF_FUNDS"
+        | "INVOICE"
+        | "CONTRACT"
+        | "PROOF_OF_PAYMENT_PURPOSE"
+        | "PROOF_OF_ADDRESS"
+        | "OTHER_SUPPORTING_DOCUMENT"
       transfer_status:
         | "DRAFT"
         | "READY_FOR_CONFIRMATION"
@@ -1164,6 +1653,8 @@ export type Database = {
         | "CANCELLED"
         | "BLOCKED"
         | "REVERSED"
+        | "SETTLEMENT_PENDING"
+        | "REJECTED"
       verification_document_status:
         | "UPLOADED"
         | "UNDER_REVIEW"
@@ -1350,6 +1841,15 @@ export const Constants = {
         "SUSPENDED",
         "CLOSED",
       ],
+      external_settlement_status: [
+        "NOT_SUBMITTED",
+        "SUBMITTED",
+        "PENDING",
+        "SUCCEEDED",
+        "FAILED",
+        "CANCELLED",
+        "UNKNOWN",
+      ],
       identity_verification_status: [
         "NOT_STARTED",
         "IN_PROGRESS",
@@ -1390,6 +1890,58 @@ export const Constants = {
         "COMPLETED",
       ],
       transfer_actor_type: ["CUSTOMER", "SYSTEM", "STAFF", "COMPLIANCE"],
+      transfer_compliance_status: [
+        "NOT_REQUIRED",
+        "OPEN",
+        "CUSTOMER_ACTION_REQUIRED",
+        "DOCUMENTS_RECEIVED",
+        "UNDER_REVIEW",
+        "APPROVED",
+        "REJECTED",
+        "CLOSED",
+      ],
+      transfer_document_status: [
+        "UPLOADED",
+        "UNDER_REVIEW",
+        "ACCEPTED",
+        "REJECTED",
+        "REPLACEMENT_REQUIRED",
+      ],
+      transfer_kind: ["INTERNAL_TRANSFER", "EXTERNAL_TRANSFER"],
+      transfer_progress_state: [
+        "CREATED",
+        "ACCOUNT_VALIDATED",
+        "FUNDS_VALIDATED",
+        "SECURITY_CONFIRMED",
+        "COMPLIANCE_CHECK",
+        "DOCUMENT_REQUIRED",
+        "DOCUMENT_REVIEW",
+        "FINAL_REVIEW",
+        "APPROVED",
+        "SETTLEMENT_PENDING",
+        "COMPLETED",
+        "FAILED",
+        "CANCELLED",
+        "BLOCKED",
+      ],
+      transfer_requirement_status: [
+        "REQUIRED",
+        "SUBMITTED",
+        "UNDER_REVIEW",
+        "SATISFIED",
+        "REPLACEMENT_REQUIRED",
+        "WAIVED",
+        "EXPIRED",
+      ],
+      transfer_requirement_type: [
+        "IDENTITY_DOCUMENT",
+        "SOURCE_OF_FUNDS",
+        "INVOICE",
+        "CONTRACT",
+        "PROOF_OF_PAYMENT_PURPOSE",
+        "PROOF_OF_ADDRESS",
+        "OTHER_SUPPORTING_DOCUMENT",
+      ],
       transfer_status: [
         "DRAFT",
         "READY_FOR_CONFIRMATION",
@@ -1404,6 +1956,8 @@ export const Constants = {
         "CANCELLED",
         "BLOCKED",
         "REVERSED",
+        "SETTLEMENT_PENDING",
+        "REJECTED",
       ],
       verification_document_status: [
         "UPLOADED",
