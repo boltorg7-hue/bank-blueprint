@@ -56,6 +56,7 @@ import { Route as OnboardingStatusRouteImport } from './routes/onboarding.status
 import { Route as AppAccountsIndexRouteImport } from './routes/app.accounts.index'
 import { Route as AppAccountsAccountRefRouteImport } from './routes/app.accounts.$accountRef'
 import { Route as AppTransactionsIndexRouteImport } from './routes/app.transactions.index'
+import { Route as AppTransactionsTransactionRefRouteImport } from './routes/app.transactions.$transactionRef'
 import { Route as AppTransfersIndexRouteImport } from './routes/app.transfers.index'
 import { Route as AppTransfersNewRouteImport } from './routes/app.transfers.new'
 
@@ -294,6 +295,12 @@ const AppTransactionsIndexRoute = AppTransactionsIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AppTransactionsRoute,
 } as any)
+const AppTransactionsTransactionRefRoute =
+  AppTransactionsTransactionRefRouteImport.update({
+    id: '/$transactionRef',
+    path: '/$transactionRef',
+    getParentRoute: () => AppTransactionsRoute,
+  } as any)
 const AppTransfersIndexRoute = AppTransfersIndexRouteImport.update({
   id: '/transfers/',
   path: '/transfers/',
@@ -351,6 +358,7 @@ export interface FileRoutesByFullPath {
   '/app/': typeof AppIndexRoute
   '/onboarding/': typeof OnboardingIndexRoute
   '/app/accounts/$accountRef': typeof AppAccountsAccountRefRoute
+  '/app/transactions/$transactionRef': typeof AppTransactionsTransactionRefRoute
   '/app/transfers/new': typeof AppTransfersNewRoute
   '/app/accounts/': typeof AppAccountsIndexRoute
   '/app/transactions/': typeof AppTransactionsIndexRoute
@@ -397,6 +405,7 @@ export interface FileRoutesByTo {
   '/app': typeof AppIndexRoute
   '/onboarding': typeof OnboardingIndexRoute
   '/app/accounts/$accountRef': typeof AppAccountsAccountRefRoute
+  '/app/transactions/$transactionRef': typeof AppTransactionsTransactionRefRoute
   '/app/transfers/new': typeof AppTransfersNewRoute
   '/app/accounts': typeof AppAccountsIndexRoute
   '/app/transactions': typeof AppTransactionsIndexRoute
@@ -449,6 +458,7 @@ export interface FileRoutesById {
   '/app/': typeof AppIndexRoute
   '/onboarding/': typeof OnboardingIndexRoute
   '/app/accounts/$accountRef': typeof AppAccountsAccountRefRoute
+  '/app/transactions/$transactionRef': typeof AppTransactionsTransactionRefRoute
   '/app/transfers/new': typeof AppTransfersNewRoute
   '/app/accounts/': typeof AppAccountsIndexRoute
   '/app/transactions/': typeof AppTransactionsIndexRoute
@@ -502,6 +512,7 @@ export interface FileRouteTypes {
     | '/app/'
     | '/onboarding/'
     | '/app/accounts/$accountRef'
+    | '/app/transactions/$transactionRef'
     | '/app/transfers/new'
     | '/app/accounts/'
     | '/app/transactions/'
@@ -548,6 +559,7 @@ export interface FileRouteTypes {
     | '/app'
     | '/onboarding'
     | '/app/accounts/$accountRef'
+    | '/app/transactions/$transactionRef'
     | '/app/transfers/new'
     | '/app/accounts'
     | '/app/transactions'
@@ -599,6 +611,7 @@ export interface FileRouteTypes {
     | '/app/'
     | '/onboarding/'
     | '/app/accounts/$accountRef'
+    | '/app/transactions/$transactionRef'
     | '/app/transfers/new'
     | '/app/accounts/'
     | '/app/transactions/'
@@ -961,6 +974,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppTransactionsIndexRouteImport
       parentRoute: typeof AppTransactionsRoute
     }
+    '/app/transactions/$transactionRef': {
+      id: '/app/transactions/$transactionRef'
+      path: '/$transactionRef'
+      fullPath: '/app/transactions/$transactionRef'
+      preLoaderRoute: typeof AppTransactionsTransactionRefRouteImport
+      parentRoute: typeof AppTransactionsRoute
+    }
     '/app/transfers/': {
       id: '/app/transfers/'
       path: '/transfers'
@@ -1005,10 +1025,12 @@ const AppAccountsRouteWithChildren = AppAccountsRoute._addFileChildren(
 )
 
 interface AppTransactionsRouteChildren {
+  AppTransactionsTransactionRefRoute: typeof AppTransactionsTransactionRefRoute
   AppTransactionsIndexRoute: typeof AppTransactionsIndexRoute
 }
 
 const AppTransactionsRouteChildren: AppTransactionsRouteChildren = {
+  AppTransactionsTransactionRefRoute: AppTransactionsTransactionRefRoute,
   AppTransactionsIndexRoute: AppTransactionsIndexRoute,
 }
 
