@@ -12,6 +12,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { PUBLIC_NAV } from "@/config/navigation";
+import { ThemeToggle } from "@/components/providers/ThemeProvider";
 
 function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
   return (
