@@ -54,6 +54,7 @@ import { Route as OnboardingProfileRouteImport } from './routes/onboarding.profi
 import { Route as OnboardingReviewRouteImport } from './routes/onboarding.review'
 import { Route as OnboardingStatusRouteImport } from './routes/onboarding.status'
 import { Route as AppAccountsIndexRouteImport } from './routes/app.accounts.index'
+import { Route as AppAccountsAccountRefRouteImport } from './routes/app.accounts.$accountRef'
 import { Route as AppTransfersIndexRouteImport } from './routes/app.transfers.index'
 import { Route as AppTransfersNewRouteImport } from './routes/app.transfers.new'
 
@@ -282,6 +283,11 @@ const AppAccountsIndexRoute = AppAccountsIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AppAccountsRoute,
 } as any)
+const AppAccountsAccountRefRoute = AppAccountsAccountRefRouteImport.update({
+  id: '/$accountRef',
+  path: '/$accountRef',
+  getParentRoute: () => AppAccountsRoute,
+} as any)
 const AppTransfersIndexRoute = AppTransfersIndexRouteImport.update({
   id: '/transfers/',
   path: '/transfers/',
@@ -338,6 +344,7 @@ export interface FileRoutesByFullPath {
   '/admin/': typeof AdminIndexRoute
   '/app/': typeof AppIndexRoute
   '/onboarding/': typeof OnboardingIndexRoute
+  '/app/accounts/$accountRef': typeof AppAccountsAccountRefRoute
   '/app/transfers/new': typeof AppTransfersNewRoute
   '/app/accounts/': typeof AppAccountsIndexRoute
   '/app/transfers/': typeof AppTransfersIndexRoute
@@ -383,6 +390,7 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminIndexRoute
   '/app': typeof AppIndexRoute
   '/onboarding': typeof OnboardingIndexRoute
+  '/app/accounts/$accountRef': typeof AppAccountsAccountRefRoute
   '/app/transfers/new': typeof AppTransfersNewRoute
   '/app/accounts': typeof AppAccountsIndexRoute
   '/app/transfers': typeof AppTransfersIndexRoute
@@ -433,6 +441,7 @@ export interface FileRoutesById {
   '/admin/': typeof AdminIndexRoute
   '/app/': typeof AppIndexRoute
   '/onboarding/': typeof OnboardingIndexRoute
+  '/app/accounts/$accountRef': typeof AppAccountsAccountRefRoute
   '/app/transfers/new': typeof AppTransfersNewRoute
   '/app/accounts/': typeof AppAccountsIndexRoute
   '/app/transfers/': typeof AppTransfersIndexRoute
@@ -484,6 +493,7 @@ export interface FileRouteTypes {
     | '/admin/'
     | '/app/'
     | '/onboarding/'
+    | '/app/accounts/$accountRef'
     | '/app/transfers/new'
     | '/app/accounts/'
     | '/app/transfers/'
@@ -529,6 +539,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/app'
     | '/onboarding'
+    | '/app/accounts/$accountRef'
     | '/app/transfers/new'
     | '/app/accounts'
     | '/app/transfers'
@@ -578,6 +589,7 @@ export interface FileRouteTypes {
     | '/admin/'
     | '/app/'
     | '/onboarding/'
+    | '/app/accounts/$accountRef'
     | '/app/transfers/new'
     | '/app/accounts/'
     | '/app/transfers/'
@@ -925,6 +937,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAccountsIndexRouteImport
       parentRoute: typeof AppAccountsRoute
     }
+    '/app/accounts/$accountRef': {
+      id: '/app/accounts/$accountRef'
+      path: '/$accountRef'
+      fullPath: '/app/accounts/$accountRef'
+      preLoaderRoute: typeof AppAccountsAccountRefRouteImport
+      parentRoute: typeof AppAccountsRoute
+    }
     '/app/transfers/': {
       id: '/app/transfers/'
       path: '/transfers'
@@ -955,10 +974,12 @@ const AdminRouteChildren: AdminRouteChildren = {
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
 interface AppAccountsRouteChildren {
+  AppAccountsAccountRefRoute: typeof AppAccountsAccountRefRoute
   AppAccountsIndexRoute: typeof AppAccountsIndexRoute
 }
 
 const AppAccountsRouteChildren: AppAccountsRouteChildren = {
+  AppAccountsAccountRefRoute: AppAccountsAccountRefRoute,
   AppAccountsIndexRoute: AppAccountsIndexRoute,
 }
 
