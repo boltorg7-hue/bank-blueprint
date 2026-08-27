@@ -8,9 +8,9 @@ export function PageHeader({
   status,
 }: {
   title: string;
-  description?: string;
-  action?: ReactNode;
-  status?: ReactNode;
+  description?: string | undefined;
+  action?: ReactNode | undefined;
+  status?: ReactNode | undefined;
 }) {
   return (
     <div className="mb-5 flex flex-col gap-3 sm:mb-7 sm:flex-row sm:items-start sm:justify-between">

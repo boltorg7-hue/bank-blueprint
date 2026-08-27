@@ -36,10 +36,10 @@ export function StateBlock({
 }: {
   icon: LucideIcon;
   title: string;
-  description?: string;
-  tone?: StateTone;
-  actions?: ReactNode;
-  className?: string;
+  description?: string | undefined;
+  tone?: StateTone | undefined;
+  actions?: ReactNode | undefined;
+  className?: string | undefined;
 }) {
   const styles = toneStyles[tone];
 

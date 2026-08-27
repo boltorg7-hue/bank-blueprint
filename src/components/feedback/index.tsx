@@ -33,7 +33,7 @@ export function LoadingState({
 }
 
 /** Skeleton placeholder for content whose shape is known. */
-export function SkeletonBlock({ lines = 3, className }: { lines?: number; className?: string }) {
+export function SkeletonBlock({ lines = 3, className }: { lines?: number | undefined; className?: string | undefined }) {
   return (
     <div className={cn("space-y-3", className)} aria-hidden="true">
       {Array.from({ length: lines }).map((_, index) => (
@@ -49,8 +49,8 @@ export function EmptyState({
   action,
 }: {
   title: string;
-  description?: string;
-  action?: React.ReactNode;
+  description?: string | undefined;
+  action?: React.ReactNode | undefined;
 }) {
   return (
     <StateBlock icon={Inbox} title={title} description={description} actions={action} />
@@ -62,9 +62,9 @@ export function ErrorState({
   description = "Une erreur est survenue de notre côté. Vous pouvez réessayer dans un instant.",
   onRetry,
 }: {
-  title?: string;
-  description?: string;
-  onRetry?: () => void;
+  title?: string | undefined;
+  description?: string | undefined;
+  onRetry?: (() => void) | undefined;
 }) {
   return (
     <StateBlock
@@ -87,7 +87,7 @@ export function ErrorState({
  * Network unavailable state. The application is online-first: banking data is
  * never served from a stale local cache as if it were current.
  */
-export function NetworkUnavailableState({ onRetry }: { onRetry?: () => void }) {
+export function NetworkUnavailableState({ onRetry }: { onRetry?: (() => void) | undefined }) {
   return (
     <StateBlock
       icon={WifiOff}
@@ -105,7 +105,7 @@ export function NetworkUnavailableState({ onRetry }: { onRetry?: () => void }) {
   );
 }
 
-export function PermissionDeniedState({ description }: { description?: string }) {
+export function PermissionDeniedState({ description }: { description?: string | undefined }) {
   return (
     <StateBlock
       icon={ShieldOff}
@@ -119,7 +119,7 @@ export function PermissionDeniedState({ description }: { description?: string })
   );
 }
 
-export function SessionExpiredState({ onSignIn }: { onSignIn?: () => void }) {
+export function SessionExpiredState({ onSignIn }: { onSignIn?: (() => void) | undefined }) {
   return (
     <StateBlock
       icon={Clock}

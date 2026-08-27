@@ -10,8 +10,8 @@ export function BrandMark({
   compact = false,
 }: {
   to?: "/" | "/app/dashboard" | "/admin/dashboard";
-  className?: string;
-  compact?: boolean;
+  className?: string | undefined;
+  compact?: boolean | undefined;
 }) {
   return (
     <Link
