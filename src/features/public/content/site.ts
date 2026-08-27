@@ -85,6 +85,47 @@ export const LEGAL_IDENTITY = {
   depositProtection: null as string | null,
 } as const;
 
+/**
+ * Canonical display order and labels for the bank's coordinates. Every surface
+ * (header tooltip, footer, contact, legal) renders from this list so the
+ * wording can never drift between pages.
+ */
+export type LegalIdentityRow = { label: string; value: string | null };
+
+export const LEGAL_IDENTITY_ROWS: LegalIdentityRow[] = [
+  { label: "Entité juridique", value: LEGAL_IDENTITY.legalEntity },
+  { label: "Immatriculation", value: LEGAL_IDENTITY.registrationNumber },
+  { label: "Siège social", value: LEGAL_IDENTITY.registeredOffice },
+  { label: "Adresse postale", value: LEGAL_IDENTITY.mailingAddress },
+  { label: "Code SWIFT/BIC", value: LEGAL_IDENTITY.swiftBic },
+  { label: "Date de création", value: LEGAL_IDENTITY.establishedOn },
+  { label: "Autorité de supervision", value: LEGAL_IDENTITY.regulator },
+  { label: "Capital social", value: LEGAL_IDENTITY.shareCapital },
+  { label: "Référence d'agrément", value: LEGAL_IDENTITY.licenceReference },
+  { label: "Protection des dépôts", value: LEGAL_IDENTITY.depositProtection },
+];
+
+/** Compact subset used where space is limited (footer, contact sidebar). */
+export const LEGAL_IDENTITY_SUMMARY_LABELS = [
+  "Entité juridique",
+  "Immatriculation",
+  "Siège social",
+  "Adresse postale",
+  "Code SWIFT/BIC",
+  "Autorité de supervision",
+] as const;
+
+export const LEGAL_IDENTITY_SUMMARY_ROWS: LegalIdentityRow[] = LEGAL_IDENTITY_ROWS.filter((row) =>
+  (LEGAL_IDENTITY_SUMMARY_LABELS as readonly string[]).includes(row.label),
+);
+
+export const LEGAL_IDENTITY_PENDING_LABEL = "À communiquer";
+
+export const LEGAL_IDENTITY_NOTICE =
+  "Aucune mention réglementaire n'est publiée avant sa confirmation officielle.";
+
+
+
 
 export const SECURITY_WARNING =
   "Ne communiquez jamais votre mot de passe, votre code PIN ni un code de vérification à usage unique.";
