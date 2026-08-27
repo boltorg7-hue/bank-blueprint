@@ -66,17 +66,25 @@ export const PUBLIC_FOOTER_GROUPS: { title: string; links: PublicNavLink[] }[] =
 ];
 
 /**
- * Legal entity information (§80). Values remain null until the operating
- * company supplies verified data — never fabricate them.
+ * Legal entity information (§80). Values supplied by the operating company.
+ * Anything not officially confirmed stays null — never fabricate.
  */
 export const LEGAL_IDENTITY = {
-  legalEntity: null as string | null,
-  registrationNumber: null as string | null,
-  registeredOffice: null as string | null,
-  regulator: null as string | null,
+  legalEntity: "RFC Royal FINANCE Bank",
+  registrationNumber:
+    "R 98(C) — Companies Registry, Registrar General's Department, Ministry of Legal Affairs, Trinidad and Tobago",
+  registeredOffice:
+    "St. Clair Place, 7-8 St. Clair Avenue, Port of Spain 107289, Trinidad and Tobago",
+  mailingAddress:
+    "Ms Jane Doe Street, Woodbrook 170505, Trinidad and Tobago",
+  regulator: "Central Bank of Trinidad and Tobago (CBTT)",
+  swiftBic: "RBTTTTPXXX",
+  establishedOn: "23 juillet 1972",
   licenceReference: null as string | null,
+  shareCapital: null as string | null,
   depositProtection: null as string | null,
 } as const;
+
 
 export const SECURITY_WARNING =
   "Ne communiquez jamais votre mot de passe, votre code PIN ni un code de vérification à usage unique.";
