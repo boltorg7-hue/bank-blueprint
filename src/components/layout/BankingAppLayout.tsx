@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 
 import { CustomerBottomNav } from "@/components/navigation/CustomerBottomNav";
 import { CustomerSidebar } from "@/components/navigation/CustomerSidebar";
-import { AccountContextProvider } from "@/features/customer-shell/context/AccountContext";
+import { AccountsShellProvider } from "@/features/accounts/components/AccountsShellProvider";
 import { CustomerAppHeader } from "@/features/customer-shell/components/CustomerAppHeader";
 import { NetworkStatusBanner } from "@/features/customer-shell/components/NetworkStatusBanner";
 
