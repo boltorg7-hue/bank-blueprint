@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 
 import { FeatureShellPage } from "@/features/customer-shell/components/FeatureShellPage";
 
-export const Route = createFileRoute("/app/transfers")({
+export const Route = createFileRoute("/app/transfers/")({
   head: () => ({
     meta: [
       { name: "robots", content: "noindex, nofollow" },

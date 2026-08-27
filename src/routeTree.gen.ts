@@ -32,7 +32,18 @@ import { Route as VerifyEmailRouteImport } from './routes/verify-email'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as AdminDashboardRouteImport } from './routes/admin.dashboard'
 import { Route as AppIndexRouteImport } from './routes/app.index'
+import { Route as AppAccountsRouteImport } from './routes/app.accounts'
+import { Route as AppActivityRouteImport } from './routes/app.activity'
+import { Route as AppBeneficiariesRouteImport } from './routes/app.beneficiaries'
 import { Route as AppDashboardRouteImport } from './routes/app.dashboard'
+import { Route as AppDocumentsRouteImport } from './routes/app.documents'
+import { Route as AppMessagesRouteImport } from './routes/app.messages'
+import { Route as AppNotificationsRouteImport } from './routes/app.notifications'
+import { Route as AppProfileRouteImport } from './routes/app.profile'
+import { Route as AppSecurityRouteImport } from './routes/app.security'
+import { Route as AppSettingsRouteImport } from './routes/app.settings'
+import { Route as AppStatementsRouteImport } from './routes/app.statements'
+import { Route as AppTransactionsRouteImport } from './routes/app.transactions'
 import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
 import { Route as DevDesignSystemRouteImport } from './routes/dev.design-system'
 import { Route as OnboardingIndexRouteImport } from './routes/onboarding.index'
@@ -41,6 +52,8 @@ import { Route as OnboardingDocumentsRouteImport } from './routes/onboarding.doc
 import { Route as OnboardingProfileRouteImport } from './routes/onboarding.profile'
 import { Route as OnboardingReviewRouteImport } from './routes/onboarding.review'
 import { Route as OnboardingStatusRouteImport } from './routes/onboarding.status'
+import { Route as AppTransfersIndexRouteImport } from './routes/app.transfers.index'
+import { Route as AppTransfersNewRouteImport } from './routes/app.transfers.new'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -157,9 +170,64 @@ const AppIndexRoute = AppIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AppRoute,
 } as any)
+const AppAccountsRoute = AppAccountsRouteImport.update({
+  id: '/accounts',
+  path: '/accounts',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppActivityRoute = AppActivityRouteImport.update({
+  id: '/activity',
+  path: '/activity',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppBeneficiariesRoute = AppBeneficiariesRouteImport.update({
+  id: '/beneficiaries',
+  path: '/beneficiaries',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppDashboardRoute = AppDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppDocumentsRoute = AppDocumentsRouteImport.update({
+  id: '/documents',
+  path: '/documents',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppMessagesRoute = AppMessagesRouteImport.update({
+  id: '/messages',
+  path: '/messages',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppNotificationsRoute = AppNotificationsRouteImport.update({
+  id: '/notifications',
+  path: '/notifications',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppProfileRoute = AppProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppSecurityRoute = AppSecurityRouteImport.update({
+  id: '/security',
+  path: '/security',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppSettingsRoute = AppSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppStatementsRoute = AppStatementsRouteImport.update({
+  id: '/statements',
+  path: '/statements',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppTransactionsRoute = AppTransactionsRouteImport.update({
+  id: '/transactions',
+  path: '/transactions',
   getParentRoute: () => AppRoute,
 } as any)
 const AuthCallbackRoute = AuthCallbackRouteImport.update({
@@ -202,6 +270,16 @@ const OnboardingStatusRoute = OnboardingStatusRouteImport.update({
   path: '/status',
   getParentRoute: () => OnboardingRoute,
 } as any)
+const AppTransfersIndexRoute = AppTransfersIndexRouteImport.update({
+  id: '/transfers/',
+  path: '/transfers/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppTransfersNewRoute = AppTransfersNewRouteImport.update({
+  id: '/transfers/new',
+  path: '/transfers/new',
+  getParentRoute: () => AppRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -225,7 +303,18 @@ export interface FileRoutesByFullPath {
   '/terms': typeof TermsRoute
   '/verify-email': typeof VerifyEmailRoute
   '/admin/dashboard': typeof AdminDashboardRoute
+  '/app/accounts': typeof AppAccountsRoute
+  '/app/activity': typeof AppActivityRoute
+  '/app/beneficiaries': typeof AppBeneficiariesRoute
   '/app/dashboard': typeof AppDashboardRoute
+  '/app/documents': typeof AppDocumentsRoute
+  '/app/messages': typeof AppMessagesRoute
+  '/app/notifications': typeof AppNotificationsRoute
+  '/app/profile': typeof AppProfileRoute
+  '/app/security': typeof AppSecurityRoute
+  '/app/settings': typeof AppSettingsRoute
+  '/app/statements': typeof AppStatementsRoute
+  '/app/transactions': typeof AppTransactionsRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/dev/design-system': typeof DevDesignSystemRoute
   '/onboarding/address': typeof OnboardingAddressRoute
@@ -236,6 +325,8 @@ export interface FileRoutesByFullPath {
   '/admin/': typeof AdminIndexRoute
   '/app/': typeof AppIndexRoute
   '/onboarding/': typeof OnboardingIndexRoute
+  '/app/transfers/new': typeof AppTransfersNewRoute
+  '/app/transfers/': typeof AppTransfersIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -256,7 +347,18 @@ export interface FileRoutesByTo {
   '/terms': typeof TermsRoute
   '/verify-email': typeof VerifyEmailRoute
   '/admin/dashboard': typeof AdminDashboardRoute
+  '/app/accounts': typeof AppAccountsRoute
+  '/app/activity': typeof AppActivityRoute
+  '/app/beneficiaries': typeof AppBeneficiariesRoute
   '/app/dashboard': typeof AppDashboardRoute
+  '/app/documents': typeof AppDocumentsRoute
+  '/app/messages': typeof AppMessagesRoute
+  '/app/notifications': typeof AppNotificationsRoute
+  '/app/profile': typeof AppProfileRoute
+  '/app/security': typeof AppSecurityRoute
+  '/app/settings': typeof AppSettingsRoute
+  '/app/statements': typeof AppStatementsRoute
+  '/app/transactions': typeof AppTransactionsRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/dev/design-system': typeof DevDesignSystemRoute
   '/onboarding/address': typeof OnboardingAddressRoute
@@ -267,6 +369,8 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminIndexRoute
   '/app': typeof AppIndexRoute
   '/onboarding': typeof OnboardingIndexRoute
+  '/app/transfers/new': typeof AppTransfersNewRoute
+  '/app/transfers': typeof AppTransfersIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -291,7 +395,18 @@ export interface FileRoutesById {
   '/terms': typeof TermsRoute
   '/verify-email': typeof VerifyEmailRoute
   '/admin/dashboard': typeof AdminDashboardRoute
+  '/app/accounts': typeof AppAccountsRoute
+  '/app/activity': typeof AppActivityRoute
+  '/app/beneficiaries': typeof AppBeneficiariesRoute
   '/app/dashboard': typeof AppDashboardRoute
+  '/app/documents': typeof AppDocumentsRoute
+  '/app/messages': typeof AppMessagesRoute
+  '/app/notifications': typeof AppNotificationsRoute
+  '/app/profile': typeof AppProfileRoute
+  '/app/security': typeof AppSecurityRoute
+  '/app/settings': typeof AppSettingsRoute
+  '/app/statements': typeof AppStatementsRoute
+  '/app/transactions': typeof AppTransactionsRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/dev/design-system': typeof DevDesignSystemRoute
   '/onboarding/address': typeof OnboardingAddressRoute
@@ -302,6 +417,8 @@ export interface FileRoutesById {
   '/admin/': typeof AdminIndexRoute
   '/app/': typeof AppIndexRoute
   '/onboarding/': typeof OnboardingIndexRoute
+  '/app/transfers/new': typeof AppTransfersNewRoute
+  '/app/transfers/': typeof AppTransfersIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -327,7 +444,18 @@ export interface FileRouteTypes {
     | '/terms'
     | '/verify-email'
     | '/admin/dashboard'
+    | '/app/accounts'
+    | '/app/activity'
+    | '/app/beneficiaries'
     | '/app/dashboard'
+    | '/app/documents'
+    | '/app/messages'
+    | '/app/notifications'
+    | '/app/profile'
+    | '/app/security'
+    | '/app/settings'
+    | '/app/statements'
+    | '/app/transactions'
     | '/auth/callback'
     | '/dev/design-system'
     | '/onboarding/address'
@@ -338,6 +466,8 @@ export interface FileRouteTypes {
     | '/admin/'
     | '/app/'
     | '/onboarding/'
+    | '/app/transfers/new'
+    | '/app/transfers/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -358,7 +488,18 @@ export interface FileRouteTypes {
     | '/terms'
     | '/verify-email'
     | '/admin/dashboard'
+    | '/app/accounts'
+    | '/app/activity'
+    | '/app/beneficiaries'
     | '/app/dashboard'
+    | '/app/documents'
+    | '/app/messages'
+    | '/app/notifications'
+    | '/app/profile'
+    | '/app/security'
+    | '/app/settings'
+    | '/app/statements'
+    | '/app/transactions'
     | '/auth/callback'
     | '/dev/design-system'
     | '/onboarding/address'
@@ -369,6 +510,8 @@ export interface FileRouteTypes {
     | '/admin'
     | '/app'
     | '/onboarding'
+    | '/app/transfers/new'
+    | '/app/transfers'
   id:
     | '__root__'
     | '/'
@@ -392,7 +535,18 @@ export interface FileRouteTypes {
     | '/terms'
     | '/verify-email'
     | '/admin/dashboard'
+    | '/app/accounts'
+    | '/app/activity'
+    | '/app/beneficiaries'
     | '/app/dashboard'
+    | '/app/documents'
+    | '/app/messages'
+    | '/app/notifications'
+    | '/app/profile'
+    | '/app/security'
+    | '/app/settings'
+    | '/app/statements'
+    | '/app/transactions'
     | '/auth/callback'
     | '/dev/design-system'
     | '/onboarding/address'
@@ -403,6 +557,8 @@ export interface FileRouteTypes {
     | '/admin/'
     | '/app/'
     | '/onboarding/'
+    | '/app/transfers/new'
+    | '/app/transfers/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -593,11 +749,88 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppIndexRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/accounts': {
+      id: '/app/accounts'
+      path: '/accounts'
+      fullPath: '/app/accounts'
+      preLoaderRoute: typeof AppAccountsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/activity': {
+      id: '/app/activity'
+      path: '/activity'
+      fullPath: '/app/activity'
+      preLoaderRoute: typeof AppActivityRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/beneficiaries': {
+      id: '/app/beneficiaries'
+      path: '/beneficiaries'
+      fullPath: '/app/beneficiaries'
+      preLoaderRoute: typeof AppBeneficiariesRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/dashboard': {
       id: '/app/dashboard'
       path: '/dashboard'
       fullPath: '/app/dashboard'
       preLoaderRoute: typeof AppDashboardRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/documents': {
+      id: '/app/documents'
+      path: '/documents'
+      fullPath: '/app/documents'
+      preLoaderRoute: typeof AppDocumentsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/messages': {
+      id: '/app/messages'
+      path: '/messages'
+      fullPath: '/app/messages'
+      preLoaderRoute: typeof AppMessagesRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/notifications': {
+      id: '/app/notifications'
+      path: '/notifications'
+      fullPath: '/app/notifications'
+      preLoaderRoute: typeof AppNotificationsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/profile': {
+      id: '/app/profile'
+      path: '/profile'
+      fullPath: '/app/profile'
+      preLoaderRoute: typeof AppProfileRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/security': {
+      id: '/app/security'
+      path: '/security'
+      fullPath: '/app/security'
+      preLoaderRoute: typeof AppSecurityRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/settings': {
+      id: '/app/settings'
+      path: '/settings'
+      fullPath: '/app/settings'
+      preLoaderRoute: typeof AppSettingsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/statements': {
+      id: '/app/statements'
+      path: '/statements'
+      fullPath: '/app/statements'
+      preLoaderRoute: typeof AppStatementsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/transactions': {
+      id: '/app/transactions'
+      path: '/transactions'
+      fullPath: '/app/transactions'
+      preLoaderRoute: typeof AppTransactionsRouteImport
       parentRoute: typeof AppRoute
     }
     '/auth/callback': {
@@ -656,6 +889,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OnboardingStatusRouteImport
       parentRoute: typeof OnboardingRoute
     }
+    '/app/transfers/': {
+      id: '/app/transfers/'
+      path: '/transfers'
+      fullPath: '/app/transfers/'
+      preLoaderRoute: typeof AppTransfersIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/transfers/new': {
+      id: '/app/transfers/new'
+      path: '/transfers/new'
+      fullPath: '/app/transfers/new'
+      preLoaderRoute: typeof AppTransfersNewRouteImport
+      parentRoute: typeof AppRoute
+    }
   }
 }
 
@@ -672,13 +919,39 @@ const AdminRouteChildren: AdminRouteChildren = {
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
 interface AppRouteChildren {
+  AppAccountsRoute: typeof AppAccountsRoute
+  AppActivityRoute: typeof AppActivityRoute
+  AppBeneficiariesRoute: typeof AppBeneficiariesRoute
   AppDashboardRoute: typeof AppDashboardRoute
+  AppDocumentsRoute: typeof AppDocumentsRoute
+  AppMessagesRoute: typeof AppMessagesRoute
+  AppNotificationsRoute: typeof AppNotificationsRoute
+  AppProfileRoute: typeof AppProfileRoute
+  AppSecurityRoute: typeof AppSecurityRoute
+  AppSettingsRoute: typeof AppSettingsRoute
+  AppStatementsRoute: typeof AppStatementsRoute
+  AppTransactionsRoute: typeof AppTransactionsRoute
   AppIndexRoute: typeof AppIndexRoute
+  AppTransfersNewRoute: typeof AppTransfersNewRoute
+  AppTransfersIndexRoute: typeof AppTransfersIndexRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
+  AppAccountsRoute: AppAccountsRoute,
+  AppActivityRoute: AppActivityRoute,
+  AppBeneficiariesRoute: AppBeneficiariesRoute,
   AppDashboardRoute: AppDashboardRoute,
+  AppDocumentsRoute: AppDocumentsRoute,
+  AppMessagesRoute: AppMessagesRoute,
+  AppNotificationsRoute: AppNotificationsRoute,
+  AppProfileRoute: AppProfileRoute,
+  AppSecurityRoute: AppSecurityRoute,
+  AppSettingsRoute: AppSettingsRoute,
+  AppStatementsRoute: AppStatementsRoute,
+  AppTransactionsRoute: AppTransactionsRoute,
   AppIndexRoute: AppIndexRoute,
+  AppTransfersNewRoute: AppTransfersNewRoute,
+  AppTransfersIndexRoute: AppTransfersIndexRoute,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
