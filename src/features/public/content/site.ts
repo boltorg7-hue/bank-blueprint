@@ -120,13 +120,19 @@ export const LEGAL_IDENTITY_SUMMARY_LABELS = [
   "Adresse postale",
   "Code SWIFT/BIC",
   "Autorité de supervision",
+  "Capital social",
 ] as const;
 
 export const LEGAL_IDENTITY_SUMMARY_ROWS: LegalIdentityRow[] = LEGAL_IDENTITY_ROWS.filter((row) =>
   (LEGAL_IDENTITY_SUMMARY_LABELS as readonly string[]).includes(row.label),
 );
 
-export const LEGAL_IDENTITY_PENDING_LABEL = "À communiquer";
+/**
+ * Explicit placeholder for regulatory values not yet officially supplied
+ * (share capital, licence reference, deposit protection). Never render an
+ * empty field: the absence must be stated, not implied.
+ */
+export const LEGAL_IDENTITY_PENDING_LABEL = "Non communiqué";
 
 export const LEGAL_IDENTITY_NOTICE =
   "Aucune mention réglementaire n'est publiée avant sa confirmation officielle.";
