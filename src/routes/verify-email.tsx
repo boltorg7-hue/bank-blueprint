@@ -17,9 +17,8 @@ const meta = publicMeta({
 const RESEND_COOLDOWN_SECONDS = 60;
 
 export const Route = createFileRoute("/verify-email")({
-  validateSearch: (search: Record<string, unknown>) => ({
-    email: typeof search["email"] === "string" ? search["email"] : undefined,
-  }),
+  validateSearch: (search: Record<string, unknown>): { email?: string } =>
+    typeof search["email"] === "string" ? { email: search["email"] } : {},
   head: () => ({
     ...meta,
     meta: [...meta.meta, { name: "robots", content: "noindex,nofollow" }],

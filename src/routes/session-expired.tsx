@@ -13,9 +13,8 @@ const meta = publicMeta({
 });
 
 export const Route = createFileRoute("/session-expired")({
-  validateSearch: (search: Record<string, unknown>) => ({
-    redirect: typeof search["redirect"] === "string" ? search["redirect"] : undefined,
-  }),
+  validateSearch: (search: Record<string, unknown>): { redirect?: string } =>
+    typeof search["redirect"] === "string" ? { redirect: search["redirect"] } : {},
   head: () => ({
     ...meta,
     meta: [...meta.meta, { name: "robots", content: "noindex,nofollow" }],
@@ -39,7 +38,7 @@ function SessionExpiredPage() {
           automatiquement après une expiration de session.
         </p>
         <Button asChild className="w-full touch-target">
-          <Link to="/login" search={safe ? { redirect: safe } : { redirect: undefined }}>
+          <Link to="/login" search={safe ? { redirect: safe } : {}}>
             Se reconnecter
           </Link>
         </Button>

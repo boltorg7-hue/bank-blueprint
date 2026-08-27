@@ -13,6 +13,8 @@ import {
 } from "@/components/ui/sheet";
 import { PUBLIC_CTA, PUBLIC_PRIMARY_NAV } from "@/features/public/content/site";
 import { ThemeToggle } from "@/components/providers/ThemeProvider";
+import { useSessionUser, useSignOut } from "@/features/auth/hooks/useSessionUser";
+
 
 function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
   return (
@@ -34,6 +36,8 @@ function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
 
 export function PublicHeader() {
   const [open, setOpen] = useState(false);
+  const { user, loading } = useSessionUser();
+  const signOut = useSignOut();
 
   return (
     <header className="safe-pt sticky top-0 z-40 border-b border-border bg-background/85 backdrop-blur">
@@ -46,16 +50,40 @@ export function PublicHeader() {
 
         <div className="flex items-center gap-2">
           <ThemeToggle className="touch-target" />
-          <Button asChild variant="ghost" size="sm" className="hidden touch-target sm:inline-flex">
-            <Link to={PUBLIC_CTA.secondaryTo} data-analytics-event="sign_in_clicked">
-              {PUBLIC_CTA.secondary}
-            </Link>
-          </Button>
-          <Button asChild size="sm" className="hidden touch-target lg:inline-flex">
-            <Link to={PUBLIC_CTA.primaryTo} data-analytics-event="open_account_clicked">
-              {PUBLIC_CTA.primary}
-            </Link>
-          </Button>
+          {loading ? null : user ? (
+            <>
+              <Button asChild size="sm" className="hidden touch-target sm:inline-flex">
+                <Link to="/app/dashboard">Mon espace</Link>
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="hidden touch-target sm:inline-flex"
+                onClick={() => void signOut()}
+              >
+                Se déconnecter
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button
+                asChild
+                variant="ghost"
+                size="sm"
+                className="hidden touch-target sm:inline-flex"
+              >
+                <Link to={PUBLIC_CTA.secondaryTo} data-analytics-event="sign_in_clicked">
+                  {PUBLIC_CTA.secondary}
+                </Link>
+              </Button>
+              <Button asChild size="sm" className="hidden touch-target lg:inline-flex">
+                <Link to={PUBLIC_CTA.primaryTo} data-analytics-event="open_account_clicked">
+                  {PUBLIC_CTA.primary}
+                </Link>
+              </Button>
+            </>
+          )}
+
 
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>
@@ -70,20 +98,43 @@ export function PublicHeader() {
               </SheetHeader>
               <nav aria-label="Navigation mobile" className="mt-2 flex flex-col gap-1 px-4 pb-6">
                 <NavLinks onNavigate={() => setOpen(false)} />
-                <Button asChild className="mt-4 touch-target">
-                  <Link
-                    to={PUBLIC_CTA.primaryTo}
-                    onClick={() => setOpen(false)}
-                    data-analytics-event="open_account_clicked"
-                  >
-                    {PUBLIC_CTA.primary}
-                  </Link>
-                </Button>
-                <Button asChild variant="outline" className="touch-target">
-                  <Link to={PUBLIC_CTA.secondaryTo} onClick={() => setOpen(false)}>
-                    {PUBLIC_CTA.secondary}
-                  </Link>
-                </Button>
+                {user ? (
+                  <>
+                    <Button asChild className="mt-4 touch-target">
+                      <Link to="/app/dashboard" onClick={() => setOpen(false)}>
+                        Mon espace
+                      </Link>
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="touch-target"
+                      onClick={() => {
+                        setOpen(false);
+                        void signOut();
+                      }}
+                    >
+                      Se déconnecter
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Button asChild className="mt-4 touch-target">
+                      <Link
+                        to={PUBLIC_CTA.primaryTo}
+                        onClick={() => setOpen(false)}
+                        data-analytics-event="open_account_clicked"
+                      >
+                        {PUBLIC_CTA.primary}
+                      </Link>
+                    </Button>
+                    <Button asChild variant="outline" className="touch-target">
+                      <Link to={PUBLIC_CTA.secondaryTo} onClick={() => setOpen(false)}>
+                        {PUBLIC_CTA.secondary}
+                      </Link>
+                    </Button>
+                  </>
+                )}
+
               </nav>
             </SheetContent>
           </Sheet>

@@ -39,6 +39,8 @@ import { Route as OnboardingIndexRouteImport } from './routes/onboarding.index'
 import { Route as OnboardingAddressRouteImport } from './routes/onboarding.address'
 import { Route as OnboardingDocumentsRouteImport } from './routes/onboarding.documents'
 import { Route as OnboardingProfileRouteImport } from './routes/onboarding.profile'
+import { Route as OnboardingReviewRouteImport } from './routes/onboarding.review'
+import { Route as OnboardingStatusRouteImport } from './routes/onboarding.status'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -190,6 +192,16 @@ const OnboardingProfileRoute = OnboardingProfileRouteImport.update({
   path: '/profile',
   getParentRoute: () => OnboardingRoute,
 } as any)
+const OnboardingReviewRoute = OnboardingReviewRouteImport.update({
+  id: '/review',
+  path: '/review',
+  getParentRoute: () => OnboardingRoute,
+} as any)
+const OnboardingStatusRoute = OnboardingStatusRouteImport.update({
+  id: '/status',
+  path: '/status',
+  getParentRoute: () => OnboardingRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -219,6 +231,8 @@ export interface FileRoutesByFullPath {
   '/onboarding/address': typeof OnboardingAddressRoute
   '/onboarding/documents': typeof OnboardingDocumentsRoute
   '/onboarding/profile': typeof OnboardingProfileRoute
+  '/onboarding/review': typeof OnboardingReviewRoute
+  '/onboarding/status': typeof OnboardingStatusRoute
   '/admin/': typeof AdminIndexRoute
   '/app/': typeof AppIndexRoute
   '/onboarding/': typeof OnboardingIndexRoute
@@ -248,6 +262,8 @@ export interface FileRoutesByTo {
   '/onboarding/address': typeof OnboardingAddressRoute
   '/onboarding/documents': typeof OnboardingDocumentsRoute
   '/onboarding/profile': typeof OnboardingProfileRoute
+  '/onboarding/review': typeof OnboardingReviewRoute
+  '/onboarding/status': typeof OnboardingStatusRoute
   '/admin': typeof AdminIndexRoute
   '/app': typeof AppIndexRoute
   '/onboarding': typeof OnboardingIndexRoute
@@ -281,6 +297,8 @@ export interface FileRoutesById {
   '/onboarding/address': typeof OnboardingAddressRoute
   '/onboarding/documents': typeof OnboardingDocumentsRoute
   '/onboarding/profile': typeof OnboardingProfileRoute
+  '/onboarding/review': typeof OnboardingReviewRoute
+  '/onboarding/status': typeof OnboardingStatusRoute
   '/admin/': typeof AdminIndexRoute
   '/app/': typeof AppIndexRoute
   '/onboarding/': typeof OnboardingIndexRoute
@@ -315,6 +333,8 @@ export interface FileRouteTypes {
     | '/onboarding/address'
     | '/onboarding/documents'
     | '/onboarding/profile'
+    | '/onboarding/review'
+    | '/onboarding/status'
     | '/admin/'
     | '/app/'
     | '/onboarding/'
@@ -344,6 +364,8 @@ export interface FileRouteTypes {
     | '/onboarding/address'
     | '/onboarding/documents'
     | '/onboarding/profile'
+    | '/onboarding/review'
+    | '/onboarding/status'
     | '/admin'
     | '/app'
     | '/onboarding'
@@ -376,6 +398,8 @@ export interface FileRouteTypes {
     | '/onboarding/address'
     | '/onboarding/documents'
     | '/onboarding/profile'
+    | '/onboarding/review'
+    | '/onboarding/status'
     | '/admin/'
     | '/app/'
     | '/onboarding/'
@@ -618,6 +642,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OnboardingProfileRouteImport
       parentRoute: typeof OnboardingRoute
     }
+    '/onboarding/review': {
+      id: '/onboarding/review'
+      path: '/review'
+      fullPath: '/onboarding/review'
+      preLoaderRoute: typeof OnboardingReviewRouteImport
+      parentRoute: typeof OnboardingRoute
+    }
+    '/onboarding/status': {
+      id: '/onboarding/status'
+      path: '/status'
+      fullPath: '/onboarding/status'
+      preLoaderRoute: typeof OnboardingStatusRouteImport
+      parentRoute: typeof OnboardingRoute
+    }
   }
 }
 
@@ -649,6 +687,8 @@ interface OnboardingRouteChildren {
   OnboardingAddressRoute: typeof OnboardingAddressRoute
   OnboardingDocumentsRoute: typeof OnboardingDocumentsRoute
   OnboardingProfileRoute: typeof OnboardingProfileRoute
+  OnboardingReviewRoute: typeof OnboardingReviewRoute
+  OnboardingStatusRoute: typeof OnboardingStatusRoute
   OnboardingIndexRoute: typeof OnboardingIndexRoute
 }
 
@@ -656,6 +696,8 @@ const OnboardingRouteChildren: OnboardingRouteChildren = {
   OnboardingAddressRoute: OnboardingAddressRoute,
   OnboardingDocumentsRoute: OnboardingDocumentsRoute,
   OnboardingProfileRoute: OnboardingProfileRoute,
+  OnboardingReviewRoute: OnboardingReviewRoute,
+  OnboardingStatusRoute: OnboardingStatusRoute,
   OnboardingIndexRoute: OnboardingIndexRoute,
 }
 
