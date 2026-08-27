@@ -1,17 +1,12 @@
 import { Link } from "@tanstack/react-router";
 
 import { APP_CONFIG } from "@/config/app";
-import { LEGAL_IDENTITY, PUBLIC_FOOTER_GROUPS } from "@/features/public/content/site";
+import { LegalIdentityList } from "@/features/public/components/LegalIdentityList";
+import { PUBLIC_FOOTER_GROUPS } from "@/features/public/content/site";
 
 /** Public footer with full site map and legal identity block (§55, §80). */
 export function PublicFooter() {
-  const legalRows = [
-    { label: "Entité juridique", value: LEGAL_IDENTITY.legalEntity },
-    { label: "Immatriculation", value: LEGAL_IDENTITY.registrationNumber },
-    { label: "Siège social", value: LEGAL_IDENTITY.registeredOffice },
-    { label: "Code SWIFT/BIC", value: LEGAL_IDENTITY.swiftBic },
-    { label: "Autorité de supervision", value: LEGAL_IDENTITY.regulator },
-  ];
+
 
   return (
     <footer className="safe-pb border-t border-border bg-surface-sunken">
