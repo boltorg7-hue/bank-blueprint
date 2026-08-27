@@ -7,34 +7,34 @@ import { useCustomerSummary } from "@/features/customer-shell/hooks/useCustomerS
 import { isAllowed } from "@/features/customer-shell/lib/route-access";
 import { TransactionHistory } from "@/features/transactions/components/TransactionHistory";
 
-export const Route = createFileRoute("/app/activity")({
+export const Route = createFileRoute("/app/transactions/")({
   head: () => ({
     meta: [
       { name: "robots", content: "noindex, nofollow" },
-      { title: "Activité — RFC Royal FINANCE Bank" },
+      { title: "Opérations — RFC Royal FINANCE Bank" },
       {
         name: "description",
-        content: "Le fil de vos opérations récentes, toutes catégories confondues.",
+        content: "Consultez et filtrez l'historique détaillé de vos opérations bancaires.",
       },
     ],
   }),
-  component: AppActivityRoute,
+  component: TransactionsIndexRoute,
 });
 
-function AppActivityRoute() {
+function TransactionsIndexRoute() {
   const { summary } = useCustomerSummary();
   const allowed = summary ? isAllowed(summary.lifecycleState, "banking-read") : true;
 
   return (
     <BankingContentContainer width="default">
       <PageHeader
-        title="Activité"
-        description="Le fil de vos opérations récentes, toutes catégories confondues."
+        title="Opérations"
+        description="L'historique complet de vos opérations, du plus récent au plus ancien."
       />
       {allowed ? (
-        <TransactionHistory pageSize={10} showFilters={false} />
+        <TransactionHistory />
       ) : (
-        <PermissionDeniedState description="Votre activité bancaire sera visible dès l'activation de votre compte." />
+        <PermissionDeniedState description="L'historique de vos opérations sera disponible dès l'activation de votre compte." />
       )}
     </BankingContentContainer>
   );
