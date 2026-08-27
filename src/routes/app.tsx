@@ -5,7 +5,8 @@ import { BankingAppLayout } from "@/components/layout/BankingAppLayout";
 import { Spinner } from "@/components/ui/spinner";
 import { supabase } from "@/integrations/supabase/client";
 import { useCustomerContext } from "@/features/onboarding/hooks/useCustomerContext";
-import { canUseBanking, nextRouteForLifecycle } from "@/types/customer-lifecycle";
+import { nextRouteForLifecycle } from "@/types/customer-lifecycle";
+import { canEnterBankingShell } from "@/features/customer-shell/lib/route-access";
 
 /**
  * Customer banking namespace (/app) — §24, §26.
@@ -35,7 +36,7 @@ function CustomerAppLayoutRoute() {
   const navigate = useNavigate();
   const { data: context, isPending } = useCustomerContext();
   const lifecycle = context?.profile.lifecycle_state;
-  const allowed = lifecycle ? canUseBanking(lifecycle) : false;
+  const allowed = lifecycle ? canEnterBankingShell(lifecycle) : false;
 
   useEffect(() => {
     if (!lifecycle || allowed) return;
