@@ -39,6 +39,9 @@ export const Route = createFileRoute("/dev/design-system")({
   component: DesignSystemPage,
 });
 
+const DEMO_TODAY = "2026-08-27T12:09:00.000Z";
+const DEMO_YESTERDAY = "2026-08-26T09:12:00.000Z";
+
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <section className="border-t border-border py-8">
@@ -127,7 +130,7 @@ function DesignSystemPage() {
               subtitle="Vaultis SA"
               amount={2450}
               direction="credit"
-              date={new Date()}
+              date={DEMO_TODAY}
               statusLabel="Exécuté"
             />
             <TransactionRow
@@ -135,7 +138,7 @@ function DesignSystemPage() {
               subtitle="Prélèvement"
               amount={12.99}
               direction="debit"
-              date={Date.now() - 86_400_000}
+              date={DEMO_YESTERDAY}
               statusLabel="En attente"
               statusTone="pending"
             />
