@@ -17,6 +17,7 @@ import type {
   CustomerAccountDetailsDto,
   CustomerAccountSummaryDto,
   DashboardSummaryDto,
+  ActivitySummaryItemDto,
   MonthlySummaryDto,
 } from "@/features/accounts/types/account";
 
@@ -204,16 +205,20 @@ export async function loadAccountDetails(
 
 /**
  * Monthly aggregate (§60 – §66). The authoritative source is the ledger
- * (PROMPT 06). Until posted entries exist, the aggregate is structurally zero
- * and flagged as such — no random or decorative figures are ever produced.
+ * (PROMPT 06): the figures come from a server-side aggregate over posted
+ * entries. No value is ever computed or guessed on the client.
  */
-function currentMonthSummary(account: CustomerAccountSummaryDto): MonthlySummaryDto {
+async function currentMonthSummary(
+  client: Client,
+  account: CustomerAccountSummaryDto,
+): Promise<MonthlySummaryDto> {
+  const { getMonthlyActivitySummary } = await import(
+    "@/features/transactions/services/transactions.server"
+  );
   const now = new Date();
-  const start = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
-  const end = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1));
-  return {
-    periodStart: start.toISOString(),
-    periodEnd: end.toISOString(),
+  const fallback: MonthlySummaryDto = {
+    periodStart: new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1)).toISOString(),
+    periodEnd: new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1)).toISOString(),
     currency: account.currency,
     minorUnit: account.minorUnit,
     moneyInMinor: 0,
@@ -221,6 +226,63 @@ function currentMonthSummary(account: CustomerAccountSummaryDto): MonthlySummary
     netMinor: 0,
     ledgerAvailable: false,
   };
+
+  try {
+    const summary = await getMonthlyActivitySummary(
+      client,
+      account.reference,
+      account.currency,
+      account.minorUnit,
+      now,
+    );
+    return {
+      periodStart: summary.periodStart,
+      periodEnd: summary.periodEnd,
+      currency: summary.currency,
+      minorUnit: summary.minorUnit,
+      moneyInMinor: summary.moneyInMinor,
+      moneyOutMinor: summary.moneyOutMinor,
+      netMinor: summary.netMinor,
+      ledgerAvailable: true,
+    };
+  } catch {
+    // Degraded, explicitly flagged — never a fabricated figure (§33).
+    return fallback;
+  }
+}
+
+/**
+ * Recent activity preview, read from the customer-safe ledger view (§67).
+ */
+async function recentActivityFor(
+  client: Client,
+  accountReference: string | null,
+): Promise<ActivitySummaryItemDto[]> {
+  if (!accountReference) return [];
+  const { getAccountActivity } = await import(
+    "@/features/transactions/services/transactions.server"
+  );
+  try {
+    const items = await getAccountActivity(client, accountReference, 5);
+    return items.map((item) => ({
+      reference: item.reference,
+      type: item.type,
+      direction: item.direction === "INCOMING" ? "credit" : "debit",
+      displayName: item.displayTitle,
+      amountMinor: item.amountMinor,
+      currency: item.currency,
+      minorUnit: item.minorUnit,
+      occurredAt: item.occurredAt,
+      status:
+        item.status === "COMPLETED"
+          ? "POSTED"
+          : item.status === "FAILED" || item.status === "CANCELLED"
+            ? "FAILED"
+            : "PENDING",
+    }));
+  } catch {
+    return [];
+  }
 }
 
 /**
@@ -240,12 +302,17 @@ export async function loadDashboardSummary(
   const accounts = await loadCustomerAccounts(client, userId);
   const primary = accounts.find((account) => account.isPrimary) ?? accounts[0] ?? null;
 
+  const [recentActivity, monthlySummary] = await Promise.all([
+    recentActivityFor(client, primary?.reference ?? null),
+    primary ? currentMonthSummary(client, primary) : Promise.resolve(null),
+  ]);
+
   return {
     accounts,
     primaryAccountReference: primary?.reference ?? null,
-    // Empty until the ledger posts entries — never fabricated (§71).
-    recentActivity: [],
-    monthlySummary: primary ? currentMonthSummary(primary) : null,
+    recentActivity,
+    monthlySummary,
     provisioningPending: lifecycleState === "ACTIVE" && accounts.length === 0,
   };
 }
+
