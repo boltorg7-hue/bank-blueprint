@@ -1,14 +1,15 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useState } from "react";
 
-import { PublicLayout } from "@/components/layout/PublicLayout";
-import { Button } from "@/components/ui/button";
 import { publicMeta } from "@/features/public/lib/seo";
-import { ONBOARDING_STEPS } from "@/features/public/content/home";
+import { AuthShell } from "@/features/auth/components/AuthShell";
+import { RegisterForm } from "@/features/auth/components/RegisterForm";
+import { GoogleSignInButton } from "@/features/auth/components/GoogleSignInButton";
 
 const meta = publicMeta({
   title: "Ouvrir un compte",
   description:
-    "Créez votre profil, confirmez vos coordonnées, renseignez les informations requises et vérifiez votre identité en ligne.",
+    "Créez votre compte en quelques minutes : informations essentielles, confirmation de votre e-mail, puis vérification d'identité en ligne.",
   path: "/register",
 });
 
@@ -17,47 +18,38 @@ export const Route = createFileRoute("/register")({
   component: RegisterPage,
 });
 
-/**
- * Placeholder shell for account opening.
- * The full onboarding journey is delivered with the registration phase; the
- * steps below describe the real process, without promising approval delays.
- */
 function RegisterPage() {
+  const [oauthError, setOauthError] = useState<string | null>(null);
+
   return (
-    <PublicLayout>
-      <section className="mx-auto w-full max-w-2xl px-4 py-16 sm:px-6">
-        <h1 className="text-heading-lg text-foreground">Ouvrir un compte</h1>
-        <p className="text-body mt-3 text-muted-foreground">
-          Le parcours d'ouverture en ligne sera activé avec la mise en service de l'inscription.
-          Voici les étapes prévues.
-        </p>
-        <ol className="mt-8 space-y-3">
-          {ONBOARDING_STEPS.map((step, index) => (
-            <li
-              key={step.title}
-              className="flex gap-3 rounded-xl border border-border bg-surface px-4 py-4"
-            >
-              <span className="text-numeric text-caption inline-flex size-7 shrink-0 items-center justify-center rounded-full bg-brand text-brand-foreground">
-                {index + 1}
-              </span>
-              <span className="min-w-0">
-                <span className="text-label block text-foreground">{step.title}</span>
-                <span className="text-body-sm mt-1 block text-muted-foreground">
-                  {step.description}
-                </span>
-              </span>
-            </li>
-          ))}
-        </ol>
-        <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-          <Button asChild variant="outline" className="touch-target">
-            <Link to="/accounts">Voir le compte courant</Link>
-          </Button>
-          <Button asChild variant="ghost" className="touch-target">
-            <Link to="/">Retour à l'accueil</Link>
-          </Button>
+    <AuthShell
+      title="Ouvrir un compte"
+      description="Commencez par l'essentiel. Les informations réglementaires sont demandées ensuite, étape par étape."
+      aside={
+        <div className="mt-6 space-y-4">
+          <div className="flex items-center gap-3">
+            <span className="h-px flex-1 bg-border" />
+            <span className="text-caption text-muted-foreground">ou</span>
+            <span className="h-px flex-1 bg-border" />
+          </div>
+          <GoogleSignInButton onError={setOauthError} />
+          {oauthError ? (
+            <p role="alert" className="text-caption text-destructive">
+              {oauthError}
+            </p>
+          ) : null}
         </div>
-      </section>
-    </PublicLayout>
+      }
+      footer={
+        <p className="text-body-sm text-muted-foreground">
+          Vous avez déjà un compte ?{" "}
+          <Link to="/login" className="text-brand underline-offset-4 hover:underline">
+            Se connecter
+          </Link>
+        </p>
+      }
+    >
+      <RegisterForm />
+    </AuthShell>
   );
 }

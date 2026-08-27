@@ -1,9 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useState } from "react";
 
-import { PublicLayout } from "@/components/layout/PublicLayout";
-import { Button } from "@/components/ui/button";
 import { publicMeta } from "@/features/public/lib/seo";
-import { SECURITY_WARNING } from "@/features/public/content/site";
+import { AuthShell } from "@/features/auth/components/AuthShell";
+import { LoginForm } from "@/features/auth/components/LoginForm";
+import { GoogleSignInButton } from "@/features/auth/components/GoogleSignInButton";
 
 const meta = publicMeta({
   title: "Connexion à votre espace",
@@ -13,6 +14,9 @@ const meta = publicMeta({
 });
 
 export const Route = createFileRoute("/login")({
+  validateSearch: (search: Record<string, unknown>) => ({
+    redirect: typeof search["redirect"] === "string" ? search["redirect"] : undefined,
+  }),
   head: () => ({
     ...meta,
     meta: [...meta.meta, { name: "robots", content: "noindex,nofollow" }],
@@ -20,32 +24,47 @@ export const Route = createFileRoute("/login")({
   component: LoginPage,
 });
 
-/**
- * Placeholder shell for the authentication entry point.
- * The real sign-in flow is delivered with the authentication phase; this route
- * exists so every public call to action resolves to a real page.
- */
 function LoginPage() {
+  const { redirect } = Route.useSearch();
+  const [oauthError, setOauthError] = useState<string | null>(null);
+
   return (
-    <PublicLayout>
-      <section className="mx-auto w-full max-w-md px-4 py-16 sm:px-6">
-        <h1 className="text-heading-lg text-foreground">Connexion</h1>
-        <p className="text-body mt-3 text-muted-foreground">
-          L'accès à l'espace client sera activé avec la mise en service de l'authentification. Les
-          identifiants ne sont pas encore acceptés.
-        </p>
-        <p className="text-body-sm mt-6 rounded-xl border border-warning/30 bg-warning-muted px-4 py-3 text-foreground">
-          {SECURITY_WARNING}
-        </p>
-        <div className="mt-8 flex flex-col gap-3">
-          <Button asChild variant="outline" className="touch-target">
-            <Link to="/help">Consulter le centre d'aide</Link>
-          </Button>
-          <Button asChild variant="ghost" className="touch-target">
-            <Link to="/">Retour à l'accueil</Link>
-          </Button>
+    <AuthShell
+      title="Connexion"
+      description="Saisissez vos identifiants pour accéder à votre espace."
+      aside={
+        <div className="mt-6 space-y-4">
+          <div className="flex items-center gap-3">
+            <span className="h-px flex-1 bg-border" />
+            <span className="text-caption text-muted-foreground">ou</span>
+            <span className="h-px flex-1 bg-border" />
+          </div>
+          <GoogleSignInButton onError={setOauthError} />
+          {oauthError ? (
+            <p role="alert" className="text-caption text-destructive">
+              {oauthError}
+            </p>
+          ) : null}
         </div>
-      </section>
-    </PublicLayout>
+      }
+      footer={
+        <div className="flex flex-col gap-2">
+          <Link
+            to="/forgot-password"
+            className="text-body-sm text-brand underline-offset-4 hover:underline"
+          >
+            Mot de passe oublié ?
+          </Link>
+          <p className="text-body-sm text-muted-foreground">
+            Pas encore client ?{" "}
+            <Link to="/register" className="text-brand underline-offset-4 hover:underline">
+              Ouvrir un compte
+            </Link>
+          </p>
+        </div>
+      }
+    >
+      <LoginForm redirectTo={redirect} />
+    </AuthShell>
   );
 }
