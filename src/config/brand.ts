@@ -13,7 +13,7 @@ export const BRAND = {
   name: APP_CONFIG.name,
   legalName: APP_CONFIG.legalName,
   /** Symbol-only mark (compact / favicon / document header). */
-  symbol: "V",
+  symbol: "R",
   /** Short descriptor used next to the wordmark where space allows. */
   descriptor: "Banque digitale",
   tagline: APP_CONFIG.tagline,
