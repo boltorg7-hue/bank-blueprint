@@ -10,6 +10,8 @@
  * - regulatory identity values stay null until officially supplied.
  */
 
+import type { AppPath } from "@/lib/routing";
+
 export const PUBLIC_CTA = {
   /** Primary conversion wording — must stay identical site-wide (§54). */
   primary: "Ouvrir un compte",
@@ -18,7 +20,7 @@ export const PUBLIC_CTA = {
   secondaryTo: "/login",
 } as const;
 
-export type PublicNavLink = { label: string; to: string; description?: string };
+export type PublicNavLink = { label: string; to: AppPath; description?: string };
 
 export const PUBLIC_PRIMARY_NAV: PublicNavLink[] = [
   { label: "Comptes", to: "/accounts", description: "Le compte courant Vaultis" },

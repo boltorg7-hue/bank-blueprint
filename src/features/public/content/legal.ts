@@ -6,6 +6,8 @@
  * "en cours de rédaction" notice instead of invented legal statements.
  */
 
+import type { AppPath } from "@/lib/routing";
+
 export type LegalSection = {
   id: string;
   title: string;
@@ -94,7 +96,7 @@ export const COOKIE_POSTURE = {
   ],
 } as const;
 
-export const LEGAL_HUB_LINKS: { label: string; to: string; description: string }[] = [
+export const LEGAL_HUB_LINKS: { label: string; to: AppPath; description: string }[] = [
   {
     label: "Conditions générales",
     to: "/terms",
