@@ -1,5 +1,5 @@
 /**
- * Server-only beneficiary service (PROMPT 07 §11 – §26, §111).
+ * Server-only beneficiary service (PROMPT 07 §11 – §26, §111 ; PROMPT 08 §61 – §64).
  *
  * Reads go through the request-scoped client (RLS applies as the customer).
  * Every write is a privileged database command: the SQL functions are revoked
@@ -12,6 +12,7 @@ import type {
   BeneficiaryDto,
   BeneficiaryStatus,
   ResolvedDestinationDto,
+  SettlementRailDto,
 } from "@/features/beneficiaries/types/beneficiary";
 
 type Client = SupabaseClient<any, any, any>;
@@ -22,7 +23,10 @@ export class BeneficiaryError extends Error {}
 const KNOWN_CODES = new Set([
   "ACCOUNT_RESTRICTED",
   "DESTINATION_UNAVAILABLE",
+  "DESTINATION_NOT_SUPPORTED",
+  "DESTINATION_IS_INTERNAL",
   "BENEFICIARY_UNAVAILABLE",
+  "INVALID_DESTINATION",
 ]);
 
 function toDomainError(raw: unknown): BeneficiaryError {
@@ -32,27 +36,34 @@ function toDomainError(raw: unknown): BeneficiaryError {
 }
 
 const COLUMNS =
-  "public_reference, display_name, nickname, destination_account_masked, destination_currency, status, last_used_at, created_at";
+  "public_reference, beneficiary_type, display_name, nickname, destination_account_masked, destination_currency, status, external_bank_name, external_country, last_used_at, created_at";
 
 type Row = {
   public_reference: string;
+  beneficiary_type: string;
   display_name: string;
   nickname: string | null;
   destination_account_masked: string;
   destination_currency: string;
   status: BeneficiaryStatus;
+  external_bank_name: string | null;
+  external_country: string | null;
   last_used_at: string | null;
   created_at: string;
 };
 
 function toDto(row: Row): BeneficiaryDto {
+  const isExternal = row.beneficiary_type === "EXTERNAL_BANK";
   return {
     reference: row.public_reference,
+    kind: isExternal ? "EXTERNAL" : "INTERNAL",
     displayName: row.display_name,
     nickname: row.nickname,
     maskedNumber: row.destination_account_masked,
     currency: row.destination_currency,
     status: row.status,
+    bankName: isExternal ? row.external_bank_name : null,
+    country: isExternal ? row.external_country : null,
     lastUsedAt: row.last_used_at,
     createdAt: row.created_at,
   };
@@ -71,6 +82,23 @@ export async function listBeneficiaries(
     .order("created_at", { ascending: false });
   if (error) throw new BeneficiaryError("BENEFICIARIES_UNAVAILABLE");
   return ((data ?? []) as unknown as Row[]).map(toDto);
+}
+
+/** Destinations the bank can actually reach today (§20, §62). */
+export async function listSettlementRails(client: Client): Promise<SettlementRailDto[]> {
+  const { data, error } = await client
+    .from("external_settlement_rails")
+    .select("code, display_name, country, currency, is_simulation")
+    .eq("is_active", true)
+    .order("display_name", { ascending: true });
+  if (error) return [];
+  return ((data ?? []) as any[]).map((row) => ({
+    code: row.code as string,
+    displayName: row.display_name as string,
+    country: row.country as string,
+    currency: row.currency as string,
+    isSimulated: Boolean(row.is_simulation),
+  }));
 }
 
 export async function resolveDestination(
@@ -110,6 +138,42 @@ export async function createBeneficiary(
 
   const list = await listBeneficiaries(client, userId);
   const created = list[0];
+  if (!created) throw new BeneficiaryError("UNEXPECTED_ERROR");
+  return created;
+}
+
+/**
+ * External destination. The routine refuses an account held with us: such a
+ * destination must stay an internal transfer (§19, §63).
+ */
+export async function createExternalBeneficiary(
+  client: Client,
+  userId: string,
+  input: {
+    displayName: string;
+    bankName: string;
+    identifier: string;
+    country: string;
+    currency: string;
+    routingCode: string | null;
+    nickname: string | null;
+  },
+): Promise<BeneficiaryDto> {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { error } = await supabaseAdmin.rpc("create_external_beneficiary", {
+    _user_id: userId,
+    _display_name: input.displayName,
+    _bank_name: input.bankName,
+    _account_identifier: input.identifier,
+    _country: input.country,
+    _currency: input.currency,
+    _routing_code: input.routingCode,
+    _nickname: input.nickname,
+  } as never);
+  if (error) throw toDomainError(error);
+
+  const list = await listBeneficiaries(client, userId);
+  const created = list.find((item) => item.kind === "EXTERNAL") ?? list[0];
   if (!created) throw new BeneficiaryError("UNEXPECTED_ERROR");
   return created;
 }

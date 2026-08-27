@@ -5,6 +5,7 @@ import {
   BENEFICIARY_REFERENCE_PATTERN,
   type BeneficiaryDto,
   type ResolvedDestinationDto,
+  type SettlementRailDto,
 } from "@/features/beneficiaries/types/beneficiary";
 
 /**
@@ -83,4 +84,52 @@ export const updateBeneficiaryNickname = createServerFn({ method: "POST" })
     const service = await import("@/features/beneficiaries/services/beneficiaries.server");
     await service.renameBeneficiary(context.userId, data.reference, data.nickname);
     return { reference: data.reference };
+  });
+
+/** Supported external destinations (PROMPT 08 §20, §62). */
+export const listSupportedDestinations = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }): Promise<SettlementRailDto[]> => {
+    const service = await import("@/features/beneficiaries/services/beneficiaries.server");
+    return service.listSettlementRails(context.supabase);
+  });
+
+export const addExternalBeneficiary = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator(
+    (input: {
+      displayName?: string;
+      bankName?: string;
+      identifier?: string;
+      country?: string;
+      currency?: string;
+      routingCode?: string;
+      nickname?: string;
+    }) => {
+      const displayName = String(input?.displayName ?? "").trim().slice(0, 120);
+      const bankName = String(input?.bankName ?? "").trim().slice(0, 120);
+      if (displayName.length < 2 || bankName.length < 2) throw new Error("INVALID_DESTINATION");
+
+      const country = String(input?.country ?? "").trim().toUpperCase();
+      if (!/^[A-Z]{2}$/.test(country)) throw new Error("INVALID_DESTINATION");
+
+      const currency = String(input?.currency ?? "").trim().toUpperCase();
+      if (!/^[A-Z]{3}$/.test(currency)) throw new Error("INVALID_DESTINATION");
+
+      const routing = String(input?.routingCode ?? "").replace(/\s+/g, "").toUpperCase().slice(0, 34);
+
+      return {
+        ...validateIdentifier(input),
+        displayName,
+        bankName,
+        country,
+        currency,
+        routingCode: routing.length > 0 ? routing : null,
+        nickname: normaliseNickname(input?.nickname),
+      };
+    },
+  )
+  .handler(async ({ data, context }): Promise<BeneficiaryDto> => {
+    const service = await import("@/features/beneficiaries/services/beneficiaries.server");
+    return service.createExternalBeneficiary(context.supabase, context.userId, data);
   });

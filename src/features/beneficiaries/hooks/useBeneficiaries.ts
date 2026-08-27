@@ -3,6 +3,8 @@ import { useServerFn } from "@tanstack/react-start";
 
 import {
   addBeneficiary,
+  addExternalBeneficiary,
+  listSupportedDestinations,
   deleteBeneficiary,
   listCustomerBeneficiaries,
   resolveBeneficiaryDestination,
@@ -11,6 +13,7 @@ import {
 import type {
   BeneficiaryDto,
   ResolvedDestinationDto,
+  SettlementRailDto,
 } from "@/features/beneficiaries/types/beneficiary";
 
 /**
@@ -70,6 +73,40 @@ export function useRenameBeneficiary() {
   const rename = useServerFn(updateBeneficiaryNickname);
   return useMutation<{ reference: string }, Error, { reference: string; nickname: string }>({
     mutationFn: (input) => rename({ data: input }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: BENEFICIARIES_KEY });
+    },
+  });
+}
+
+/** Destinations the bank can reach; changes rarely, so cached longer. */
+export function useSupportedDestinations() {
+  const fetchRails = useServerFn(listSupportedDestinations);
+  return useQuery<SettlementRailDto[]>({
+    queryKey: [...BENEFICIARIES_KEY, "destinations"],
+    queryFn: () => fetchRails(),
+    staleTime: 600_000,
+    gcTime: 900_000,
+  });
+}
+
+export function useAddExternalBeneficiary() {
+  const queryClient = useQueryClient();
+  const create = useServerFn(addExternalBeneficiary);
+  return useMutation<
+    BeneficiaryDto,
+    Error,
+    {
+      displayName: string;
+      bankName: string;
+      identifier: string;
+      country: string;
+      currency: string;
+      routingCode: string;
+      nickname: string;
+    }
+  >({
+    mutationFn: (input) => create({ data: input }),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: BENEFICIARIES_KEY });
     },

@@ -8,23 +8,28 @@ import { EmptyState, ErrorState, SkeletonBlock } from "@/components/feedback";
 import {
   useCancelTransfer,
   useConfirmTransfer,
+  useRefreshSettlement,
   useTransferDetail,
 } from "@/features/transfers/hooks/useTransfers";
+import { TransferProgressCard } from "@/features/transfers/components/TransferProgressCard";
+import { TransferRequirements } from "@/features/transfers/components/TransferRequirements";
 import { TERMINAL_TRANSFER_STATUSES } from "@/features/transfers/types/transfer";
 import {
   transferErrorMessage,
   transferFailureMessage,
+  transferKindLabel,
   transferStatusLabel,
   transferStatusTone,
 } from "@/features/transfers/utils/transfer-display";
 import { formatMoneyFromMinor } from "@/lib/format/currency";
 import { formatDateTime } from "@/lib/format/date";
 
-/** Transfer receipt and timeline (§150 – §157). */
+/** Transfer receipt, progress and timeline (§150 – §157 ; PROMPT 08 §65 – §80). */
 export function TransferDetail({ reference }: { reference: string }) {
   const { data, isPending, isError, refetch } = useTransferDetail(reference);
   const confirm = useConfirmTransfer();
   const cancel = useCancelTransfer();
+  const refreshSettlement = useRefreshSettlement();
 
   if (isPending) return <SkeletonBlock lines={5} />;
   if (isError) return <ErrorState onRetry={() => void refetch()} />;
@@ -37,15 +42,23 @@ export function TransferDetail({ reference }: { reference: string }) {
     );
   }
 
-  const pendingAction = !TERMINAL_TRANSFER_STATUSES.includes(data.status);
+  const isTerminal = TERMINAL_TRANSFER_STATUSES.includes(data.status);
+  /** Only an un-started transfer can still be confirmed or abandoned (§43). */
+  const awaitingCustomer = data.status === "READY_FOR_CONFIRMATION" || data.status === "DRAFT";
   const failureMessage = transferFailureMessage(data.failureCode);
 
   const rows: Array<{ label: string; value: string }> = [
+    { label: "Type de virement", value: transferKindLabel(data.kind) },
     { label: "Bénéficiaire", value: data.recipientDisplay },
+  ];
+  if (data.destinationBankName) {
+    rows.push({ label: "Banque destinataire", value: data.destinationBankName });
+  }
+  rows.push(
     { label: "Compte destinataire", value: `•••• ${data.destinationMasked}` },
     { label: "Compte débité", value: `•••• ${data.sourceMasked}` },
     { label: "Créé le", value: formatDateTime(data.createdAt) },
-  ];
+  );
   if (data.completedAt) rows.push({ label: "Exécuté le", value: formatDateTime(data.completedAt) });
   if (data.customerReference) rows.push({ label: "Référence", value: data.customerReference });
   rows.push({ label: "Référence du virement", value: data.reference });
@@ -91,7 +104,7 @@ export function TransferDetail({ reference }: { reference: string }) {
           </Button>
         ) : null}
 
-        {pendingAction ? (
+        {awaitingCustomer ? (
           <div className="flex flex-col-reverse gap-2 sm:flex-row">
             <Button
               variant="outline"
@@ -113,7 +126,9 @@ export function TransferDetail({ reference }: { reference: string }) {
                 confirm.mutate(data.reference, {
                   onSuccess: (outcome) => {
                     if (outcome.status === "COMPLETED") toast.success("Virement exécuté");
-                    else toast.error(transferFailureMessage(outcome.failureCode) ?? "Virement non exécuté");
+                    else if (outcome.failureCode)
+                      toast.error(transferFailureMessage(outcome.failureCode) as string);
+                    else toast.success("Virement transmis. Suivez son avancement ci-dessous.");
                   },
                   onError: (error) => toast.error(transferErrorMessage(error)),
                 })
@@ -123,7 +138,30 @@ export function TransferDetail({ reference }: { reference: string }) {
             </Button>
           </div>
         ) : null}
+
+        {!isTerminal && !awaitingCustomer ? (
+          <p className="text-caption text-muted-foreground">
+            Ce virement est engagé : il ne peut plus être annulé depuis votre espace. En cas de
+            besoin, contactez la banque avec sa référence.
+          </p>
+        ) : null}
       </Card>
+
+      <TransferProgressCard
+        transfer={data}
+        isRefreshing={refreshSettlement.isPending}
+        onRefresh={() =>
+          refreshSettlement.mutate(data.reference, {
+            onError: (error) => toast.error(transferErrorMessage(error)),
+          })
+        }
+      />
+
+      <TransferRequirements
+        reference={data.reference}
+        requirements={data.requirements}
+        documents={data.documents}
+      />
 
       <Card className="p-4 sm:p-5">
         <h2 className="text-sm font-semibold text-foreground">Suivi du virement</h2>
