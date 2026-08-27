@@ -22,7 +22,7 @@ export function PageHero({
 }) {
   return (
     <section className={cn("border-b border-border bg-surface-sunken px-4 py-12 sm:px-6 sm:py-16", className)}>
-      <div className="mx-auto grid w-full max-w-6xl gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
+      <div className="mx-auto grid grid-cols-[minmax(0,1fr)] w-full max-w-6xl gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
         <div className="min-w-0 space-y-4">
           {eyebrow && <p className="text-overline text-brand">{eyebrow}</p>}
           <h1 className="text-display text-balance text-foreground">{title}</h1>

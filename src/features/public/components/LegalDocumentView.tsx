@@ -8,7 +8,7 @@ import { formatDate } from "@/lib/format/date";
  */
 export function LegalDocumentView({ document }: { document: LegalDocument }) {
   return (
-    <div className="grid gap-10 lg:grid-cols-[220px_1fr]">
+    <div className="grid grid-cols-[minmax(0,1fr)] gap-10 lg:grid-cols-[220px_1fr]">
       <nav aria-label="Sommaire du document" className="lg:sticky lg:top-24 lg:self-start">
         <p className="text-overline text-muted-foreground">Sommaire</p>
         <ul className="mt-3 space-y-1">
