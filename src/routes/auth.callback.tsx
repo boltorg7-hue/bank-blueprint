@@ -14,9 +14,8 @@ import { resolvePostLoginRoute } from "@/features/auth/lib/post-login";
  */
 export const Route = createFileRoute("/auth/callback")({
   ssr: false,
-  validateSearch: (search: Record<string, unknown>) => ({
-    redirect: typeof search["redirect"] === "string" ? search["redirect"] : undefined,
-  }),
+  validateSearch: (search: Record<string, unknown>): { redirect?: string } =>
+    typeof search["redirect"] === "string" ? { redirect: search["redirect"] } : {},
   head: () => ({
     meta: [
       { title: "Connexion en cours — Vaultis" },

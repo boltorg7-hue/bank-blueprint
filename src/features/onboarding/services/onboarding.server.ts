@@ -151,7 +151,8 @@ const EDITABLE_VERIFICATION_STATUSES = [
   "IN_PROGRESS",
   "ADDITIONAL_INFORMATION_REQUIRED",
   "REJECTED",
-];
+] as const;
+
 
 export async function registerDocument(userId: string, input: unknown) {
   const data = documentUploadSchema.parse(input);
@@ -160,7 +161,7 @@ export async function registerDocument(userId: string, input: unknown) {
   }
 
   const verification = await requireVerification(userId);
-  if (!EDITABLE_VERIFICATION_STATUSES.includes(verification.status)) {
+  if (!(EDITABLE_VERIFICATION_STATUSES as readonly string[]).includes(verification.status)) {
     throw new OnboardingError("Votre dossier est en cours de vérification.");
   }
 
@@ -192,7 +193,7 @@ export async function registerDocument(userId: string, input: unknown) {
 
 export async function removeDocument(userId: string, documentId: string) {
   const verification = await requireVerification(userId);
-  if (!EDITABLE_VERIFICATION_STATUSES.includes(verification.status)) {
+  if (!(EDITABLE_VERIFICATION_STATUSES as readonly string[]).includes(verification.status)) {
     throw new OnboardingError("Ce document ne peut plus être retiré.");
   }
 
