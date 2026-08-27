@@ -38,6 +38,7 @@ import { Route as AppBeneficiariesRouteImport } from './routes/app.beneficiaries
 import { Route as AppDashboardRouteImport } from './routes/app.dashboard'
 import { Route as AppDocumentsRouteImport } from './routes/app.documents'
 import { Route as AppMessagesRouteImport } from './routes/app.messages'
+import { Route as AppMoreRouteImport } from './routes/app.more'
 import { Route as AppNotificationsRouteImport } from './routes/app.notifications'
 import { Route as AppProfileRouteImport } from './routes/app.profile'
 import { Route as AppSecurityRouteImport } from './routes/app.security'
@@ -200,6 +201,11 @@ const AppMessagesRoute = AppMessagesRouteImport.update({
   path: '/messages',
   getParentRoute: () => AppRoute,
 } as any)
+const AppMoreRoute = AppMoreRouteImport.update({
+  id: '/more',
+  path: '/more',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppNotificationsRoute = AppNotificationsRouteImport.update({
   id: '/notifications',
   path: '/notifications',
@@ -309,6 +315,7 @@ export interface FileRoutesByFullPath {
   '/app/dashboard': typeof AppDashboardRoute
   '/app/documents': typeof AppDocumentsRoute
   '/app/messages': typeof AppMessagesRoute
+  '/app/more': typeof AppMoreRoute
   '/app/notifications': typeof AppNotificationsRoute
   '/app/profile': typeof AppProfileRoute
   '/app/security': typeof AppSecurityRoute
@@ -353,6 +360,7 @@ export interface FileRoutesByTo {
   '/app/dashboard': typeof AppDashboardRoute
   '/app/documents': typeof AppDocumentsRoute
   '/app/messages': typeof AppMessagesRoute
+  '/app/more': typeof AppMoreRoute
   '/app/notifications': typeof AppNotificationsRoute
   '/app/profile': typeof AppProfileRoute
   '/app/security': typeof AppSecurityRoute
@@ -401,6 +409,7 @@ export interface FileRoutesById {
   '/app/dashboard': typeof AppDashboardRoute
   '/app/documents': typeof AppDocumentsRoute
   '/app/messages': typeof AppMessagesRoute
+  '/app/more': typeof AppMoreRoute
   '/app/notifications': typeof AppNotificationsRoute
   '/app/profile': typeof AppProfileRoute
   '/app/security': typeof AppSecurityRoute
@@ -450,6 +459,7 @@ export interface FileRouteTypes {
     | '/app/dashboard'
     | '/app/documents'
     | '/app/messages'
+    | '/app/more'
     | '/app/notifications'
     | '/app/profile'
     | '/app/security'
@@ -494,6 +504,7 @@ export interface FileRouteTypes {
     | '/app/dashboard'
     | '/app/documents'
     | '/app/messages'
+    | '/app/more'
     | '/app/notifications'
     | '/app/profile'
     | '/app/security'
@@ -541,6 +552,7 @@ export interface FileRouteTypes {
     | '/app/dashboard'
     | '/app/documents'
     | '/app/messages'
+    | '/app/more'
     | '/app/notifications'
     | '/app/profile'
     | '/app/security'
@@ -791,6 +803,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppMessagesRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/more': {
+      id: '/app/more'
+      path: '/more'
+      fullPath: '/app/more'
+      preLoaderRoute: typeof AppMoreRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/notifications': {
       id: '/app/notifications'
       path: '/notifications'
@@ -925,6 +944,7 @@ interface AppRouteChildren {
   AppDashboardRoute: typeof AppDashboardRoute
   AppDocumentsRoute: typeof AppDocumentsRoute
   AppMessagesRoute: typeof AppMessagesRoute
+  AppMoreRoute: typeof AppMoreRoute
   AppNotificationsRoute: typeof AppNotificationsRoute
   AppProfileRoute: typeof AppProfileRoute
   AppSecurityRoute: typeof AppSecurityRoute
@@ -943,6 +963,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppDashboardRoute: AppDashboardRoute,
   AppDocumentsRoute: AppDocumentsRoute,
   AppMessagesRoute: AppMessagesRoute,
+  AppMoreRoute: AppMoreRoute,
   AppNotificationsRoute: AppNotificationsRoute,
   AppProfileRoute: AppProfileRoute,
   AppSecurityRoute: AppSecurityRoute,
