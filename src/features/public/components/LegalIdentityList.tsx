@@ -36,9 +36,12 @@ export function LegalIdentityList({
           <dt className="text-overline text-muted-foreground">{row.label}</dt>
           <dd className="text-body-sm mt-1 break-words text-foreground">
             {row.value ?? (
-              <span className="text-muted-foreground">{LEGAL_IDENTITY_PENDING_LABEL}</span>
+              <span className="inline-flex items-center rounded-md border border-dashed border-border px-1.5 py-0.5 text-xs font-medium text-muted-foreground">
+                {LEGAL_IDENTITY_PENDING_LABEL}
+              </span>
             )}
           </dd>
+
         </div>
       ))}
     </dl>
