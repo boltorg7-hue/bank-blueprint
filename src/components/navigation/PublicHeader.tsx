@@ -11,36 +11,23 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { PUBLIC_NAV } from "@/config/navigation";
+import { PUBLIC_CTA, PUBLIC_PRIMARY_NAV } from "@/features/public/content/site";
 import { ThemeToggle } from "@/components/providers/ThemeProvider";
 
 function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
   return (
     <>
-      {PUBLIC_NAV.map((item) =>
-        item.upcoming ? (
-          <span
-            key={item.label}
-            className="flex items-center gap-2 px-1 py-2 text-sm text-muted-foreground"
-          >
-            {item.label}
-            <span className="rounded-full border border-border px-1.5 py-0.5 text-[0.625rem] uppercase tracking-wide">
-              Bientôt
-            </span>
-          </span>
-        ) : (
-          <Link
-            key={item.label}
-            to={item.to}
-            onClick={onNavigate}
-            activeOptions={{ exact: true }}
-            activeProps={{ className: "text-foreground font-medium" }}
-            className="px-1 py-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
-          >
-            {item.label}
-          </Link>
-        ),
-      )}
+      {PUBLIC_PRIMARY_NAV.map((item) => (
+        <Link
+          key={item.label}
+          to={item.to}
+          onClick={onNavigate}
+          activeProps={{ className: "text-foreground font-medium" }}
+          className="text-body-sm px-1 py-2 text-muted-foreground transition-colors hover:text-foreground"
+        >
+          {item.label}
+        </Link>
+      ))}
     </>
   );
 }
@@ -53,32 +40,48 @@ export function PublicHeader() {
       <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between gap-3 px-4 sm:px-6">
         <BrandMark />
 
-        <nav aria-label="Navigation principale" className="hidden items-center gap-6 md:flex">
+        <nav aria-label="Navigation principale" className="hidden items-center gap-5 lg:flex">
           <NavLinks />
         </nav>
 
         <div className="flex items-center gap-2">
           <ThemeToggle className="touch-target" />
           <Button asChild variant="ghost" size="sm" className="hidden touch-target sm:inline-flex">
-            <Link to="/app/dashboard">Espace client</Link>
+            <Link to={PUBLIC_CTA.secondaryTo} data-analytics-event="sign_in_clicked">
+              {PUBLIC_CTA.secondary}
+            </Link>
+          </Button>
+          <Button asChild size="sm" className="hidden touch-target lg:inline-flex">
+            <Link to={PUBLIC_CTA.primaryTo} data-analytics-event="open_account_clicked">
+              {PUBLIC_CTA.primary}
+            </Link>
           </Button>
 
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>
-              <Button variant="outline" size="icon" className="touch-target md:hidden">
+              <Button variant="outline" size="icon" className="touch-target lg:hidden">
                 <Menu className="size-5" aria-hidden="true" />
                 <span className="sr-only">Ouvrir le menu</span>
               </Button>
             </SheetTrigger>
-            <SheetContent side="right" className="safe-pt safe-pb w-[85vw] max-w-xs">
+            <SheetContent side="right" className="safe-pt safe-pb w-[85vw] max-w-xs overflow-y-auto">
               <SheetHeader>
                 <SheetTitle>Menu</SheetTitle>
               </SheetHeader>
-              <nav aria-label="Navigation mobile" className="mt-4 flex flex-col gap-1 px-4">
+              <nav aria-label="Navigation mobile" className="mt-2 flex flex-col gap-1 px-4 pb-6">
                 <NavLinks onNavigate={() => setOpen(false)} />
                 <Button asChild className="mt-4 touch-target">
-                  <Link to="/app/dashboard" onClick={() => setOpen(false)}>
-                    Espace client
+                  <Link
+                    to={PUBLIC_CTA.primaryTo}
+                    onClick={() => setOpen(false)}
+                    data-analytics-event="open_account_clicked"
+                  >
+                    {PUBLIC_CTA.primary}
+                  </Link>
+                </Button>
+                <Button asChild variant="outline" className="touch-target">
+                  <Link to={PUBLIC_CTA.secondaryTo} onClick={() => setOpen(false)}>
+                    {PUBLIC_CTA.secondary}
                   </Link>
                 </Button>
               </nav>
