@@ -18,6 +18,7 @@ import {
  */
 
 const ACCOUNT_PATTERN = /^ACC-\d{4}-\d{6}$/;
+const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 function requireTransferReference(input: { reference?: string } | undefined): { reference: string } {
   const reference = String(input?.reference ?? "").trim();
@@ -103,4 +104,62 @@ export const cancelTransferIntent = createServerFn({ method: "POST" })
   .handler(async ({ data, context }): Promise<{ reference: string; status: TransferStatus }> => {
     const service = await import("@/features/transfers/services/transfers.server");
     return service.cancelTransfer(context.userId, data.reference);
+  });
+
+/**
+ * Registers a document the customer has just uploaded to their private folder
+ * of the transfer bucket (PROMPT 08 §35, §97). The file itself never transits
+ * through this function; only its owner-scoped path does, and the routine
+ * re-checks that the path belongs to the caller.
+ */
+export const registerTransferDocument = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator(
+    (input: {
+      reference?: string;
+      requirementId?: string;
+      storagePath?: string;
+      originalFilename?: string;
+      mimeType?: string;
+      sizeBytes?: number;
+    }) => {
+      const { reference } = requireTransferReference(input);
+
+      const requirementId = String(input?.requirementId ?? "").trim();
+      if (!UUID_PATTERN.test(requirementId)) throw new Error("REQUIREMENT_UNAVAILABLE");
+
+      const storagePath = String(input?.storagePath ?? "").trim();
+      if (storagePath.length < 8 || storagePath.length > 400 || storagePath.includes("..")) {
+        throw new Error("INVALID_DOCUMENT_PATH");
+      }
+
+      const filename = String(input?.originalFilename ?? "").trim().slice(0, 200);
+      const mimeType = String(input?.mimeType ?? "").trim().slice(0, 100);
+      const size = Number(input?.sizeBytes);
+
+      return {
+        reference,
+        requirementId,
+        storagePath,
+        originalFilename: filename.length > 0 ? filename : null,
+        mimeType: mimeType.length > 0 ? mimeType : null,
+        sizeBytes: Number.isInteger(size) && size > 0 ? size : null,
+      };
+    },
+  )
+  .handler(async ({ data, context }): Promise<TransferDetailDto> => {
+    const service = await import("@/features/transfers/services/transfers.server");
+    return service.registerTransferDocument(context.supabase, context.userId, data);
+  });
+
+/**
+ * Pulls the authoritative settlement status of an external transfer (§55).
+ * A pending or unknown answer leaves the transfer exactly where it is.
+ */
+export const refreshTransferSettlement = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator(requireTransferReference)
+  .handler(async ({ data, context }): Promise<TransferDetailDto | null> => {
+    const service = await import("@/features/transfers/services/transfers.server");
+    return service.syncSettlement(context.supabase, context.userId, data.reference);
   });
