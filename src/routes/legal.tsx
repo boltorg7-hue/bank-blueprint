@@ -10,7 +10,8 @@ import {
   COOKIE_POSTURE,
   LEGAL_HUB_LINKS,
 } from "@/features/public/content/legal";
-import { LEGAL_IDENTITY } from "@/features/public/content/site";
+import { LEGAL_IDENTITY_NOTICE } from "@/features/public/content/site";
+import { LegalIdentityList } from "@/features/public/components/LegalIdentityList";
 
 const meta = publicMeta({
   title: "Informations légales",
@@ -88,33 +89,11 @@ function LegalPage() {
             </section>
 
             <section>
-              <h2 className="text-heading-sm text-foreground">Identité de l'entité</h2>
-              <dl className="mt-4 space-y-4 rounded-2xl border border-border bg-surface p-5">
-                {[
-                  { label: "Entité juridique", value: LEGAL_IDENTITY.legalEntity },
-                  { label: "Immatriculation", value: LEGAL_IDENTITY.registrationNumber },
-                  { label: "Siège social", value: LEGAL_IDENTITY.registeredOffice },
-                  { label: "Adresse postale", value: LEGAL_IDENTITY.mailingAddress },
-                  { label: "Code SWIFT/BIC", value: LEGAL_IDENTITY.swiftBic },
-                  { label: "Date de création", value: LEGAL_IDENTITY.establishedOn },
-                  { label: "Autorité de supervision", value: LEGAL_IDENTITY.regulator },
-                  { label: "Capital social", value: LEGAL_IDENTITY.shareCapital },
-                  { label: "Référence d'agrément", value: LEGAL_IDENTITY.licenceReference },
-                  { label: "Protection des dépôts", value: LEGAL_IDENTITY.depositProtection },
-
-                ].map((row) => (
-                  <div key={row.label}>
-                    <dt className="text-overline text-muted-foreground">{row.label}</dt>
-                    <dd className="text-body-sm mt-1 text-foreground">
-                      {row.value ?? <span className="text-muted-foreground">À communiquer</span>}
-                    </dd>
-                  </div>
-                ))}
-              </dl>
-              <p className="text-caption mt-3 text-muted-foreground">
-                Aucune mention réglementaire n'est publiée avant sa confirmation officielle.
-              </p>
+              <h2 className="text-heading-sm text-foreground">Coordonnées de la banque</h2>
+              <LegalIdentityList className="mt-4 rounded-2xl border border-border bg-surface p-5" />
+              <p className="text-caption mt-3 text-muted-foreground">{LEGAL_IDENTITY_NOTICE}</p>
             </section>
+
           </div>
         </div>
       </PublicSection>

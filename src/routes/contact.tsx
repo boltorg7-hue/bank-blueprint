@@ -6,7 +6,8 @@ import { PageHero } from "@/features/public/components/PageHero";
 import { PublicSection, SectionHeader } from "@/features/public/components/SectionHeader";
 import { PublicContactForm } from "@/features/public/components/PublicContactForm";
 import { publicMeta } from "@/features/public/lib/seo";
-import { LEGAL_IDENTITY } from "@/features/public/content/site";
+import { LEGAL_IDENTITY_NOTICE } from "@/features/public/content/site";
+import { LegalIdentityList } from "@/features/public/components/LegalIdentityList";
 
 const meta = publicMeta({
   title: "Contact",
@@ -93,29 +94,14 @@ function ContactPage() {
           </div>
 
           <aside className="min-w-0">
-            <h2 className="text-heading-sm text-foreground">Informations de l'entité</h2>
-            <dl className="mt-4 space-y-4 rounded-2xl border border-border bg-surface p-5">
-              {[
-                { label: "Entité juridique", value: LEGAL_IDENTITY.legalEntity },
-                { label: "Immatriculation", value: LEGAL_IDENTITY.registrationNumber },
-                { label: "Siège social", value: LEGAL_IDENTITY.registeredOffice },
-                { label: "Adresse postale", value: LEGAL_IDENTITY.mailingAddress },
-                { label: "Code SWIFT/BIC", value: LEGAL_IDENTITY.swiftBic },
-                { label: "Autorité de supervision", value: LEGAL_IDENTITY.regulator },
-
-              ].map((row) => (
-                <div key={row.label}>
-                  <dt className="text-overline text-muted-foreground">{row.label}</dt>
-                  <dd className="text-body-sm mt-1 text-foreground">
-                    {row.value ?? <span className="text-muted-foreground">À communiquer</span>}
-                  </dd>
-                </div>
-              ))}
-            </dl>
-            <p className="text-caption mt-4 text-muted-foreground">
-              Ces informations seront publiées dès qu'elles seront officiellement disponibles.
-            </p>
+            <h2 className="text-heading-sm text-foreground">Coordonnées de la banque</h2>
+            <LegalIdentityList
+              variant="summary"
+              className="mt-4 rounded-2xl border border-border bg-surface p-5"
+            />
+            <p className="text-caption mt-4 text-muted-foreground">{LEGAL_IDENTITY_NOTICE}</p>
           </aside>
+
         </div>
       </PublicSection>
     </PublicLayout>

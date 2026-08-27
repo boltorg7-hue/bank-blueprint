@@ -1,17 +1,12 @@
 import { Link } from "@tanstack/react-router";
 
 import { APP_CONFIG } from "@/config/app";
-import { LEGAL_IDENTITY, PUBLIC_FOOTER_GROUPS } from "@/features/public/content/site";
+import { LegalIdentityList } from "@/features/public/components/LegalIdentityList";
+import { PUBLIC_FOOTER_GROUPS } from "@/features/public/content/site";
 
 /** Public footer with full site map and legal identity block (§55, §80). */
 export function PublicFooter() {
-  const legalRows = [
-    { label: "Entité juridique", value: LEGAL_IDENTITY.legalEntity },
-    { label: "Immatriculation", value: LEGAL_IDENTITY.registrationNumber },
-    { label: "Siège social", value: LEGAL_IDENTITY.registeredOffice },
-    { label: "Code SWIFT/BIC", value: LEGAL_IDENTITY.swiftBic },
-    { label: "Autorité de supervision", value: LEGAL_IDENTITY.regulator },
-  ];
+
 
   return (
     <footer className="safe-pb border-t border-border bg-surface-sunken">
@@ -43,16 +38,12 @@ export function PublicFooter() {
           </nav>
         </div>
 
-        <dl className="mt-10 grid gap-4 border-t border-border pt-8 sm:grid-cols-2 lg:grid-cols-4">
-          {legalRows.map((row) => (
-            <div key={row.label}>
-              <dt className="text-overline text-muted-foreground">{row.label}</dt>
-              <dd className="text-body-sm mt-1 text-foreground">
-                {row.value ?? <span className="text-muted-foreground">À communiquer</span>}
-              </dd>
-            </div>
-          ))}
-        </dl>
+        <LegalIdentityList
+          variant="summary"
+          layout="grid"
+          className="mt-10 border-t border-border pt-8"
+        />
+
 
         <p className="text-caption mt-8 leading-relaxed text-muted-foreground">
           Environnement de développement. Cette plateforme illustre un produit bancaire digital et ne
