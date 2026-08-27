@@ -36,23 +36,31 @@ export function TransactionDetailCard({ transaction }: { transaction: Transactio
       >
         <p className="text-caption text-muted-foreground">{transaction.displayTitle}</p>
         <div className="mt-2 flex justify-center">
-          <AmountText
-            value={toMajorUnits(
-              transaction.direction === "OUTGOING"
-                ? -transaction.amountMinor
-                : transaction.amountMinor,
-              transaction.minorUnit,
-            )}
-            currency={transaction.currency}
-            size="xl"
-            signed
+          <span
             aria-label={transactionAmountAriaLabel(
               transaction.amountMinor,
               transaction.currency,
               transaction.minorUnit,
               transaction.direction,
             )}
-          />
+          >
+            <AmountText
+              amount={toMajorUnits(
+                transaction.direction === "OUTGOING"
+                  ? -transaction.amountMinor
+                  : transaction.amountMinor,
+                transaction.minorUnit,
+              )}
+              currency={transaction.currency}
+              direction={
+                transaction.direction === "INCOMING"
+                  ? "credit"
+                  : transaction.direction === "OUTGOING"
+                    ? "debit"
+                    : "neutral"
+              }
+            />
+          </span>
         </div>
         <div className="mt-3 flex justify-center">
           <StatusBadge

@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ErrorState, LoadingState, SkeletonBlock } from "@/components/feedback";
 import { useTransactionsPage } from "@/features/transactions/hooks/useTransactions";
-import type { TransactionFilters as Filters } from "@/features/transactions/types/transaction";
+import type { TransactionFilterState as Filters } from "@/features/transactions/types/transaction";
 import {
   EMPTY_FILTERS,
   TransactionFilters,

@@ -50,7 +50,7 @@ function validatePageRequest(input: TransactionPageRequest | undefined): Transac
     to: typeof raw.to === "string" ? raw.to : null,
     search,
     page: Number.isFinite(raw.page) ? Math.max(Number(raw.page), 1) : 1,
-    pageSize: Number.isFinite(raw.pageSize) ? Number(raw.pageSize) : undefined,
+    ...(Number.isFinite(raw.pageSize) ? { pageSize: Number(raw.pageSize) } : {}),
   };
 }
 

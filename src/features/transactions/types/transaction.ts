@@ -83,3 +83,13 @@ export type ActivitySummaryDto = {
   netMinor: number;
   operationCount: number;
 };
+
+/** Fully-specified filter state used by the UI (no undefined members). */
+export type TransactionFilterState = {
+  direction: TransactionDirection | "ALL";
+  status: CustomerTransactionStatus | "ALL";
+  datePreset: TransactionDateRangePreset;
+  search: string;
+  from: string | null;
+  to: string | null;
+};

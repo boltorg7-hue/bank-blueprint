@@ -13,8 +13,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import type {
+  CustomerTransactionStatus,
   TransactionDateRangePreset,
-  TransactionFilters as Filters,
+  TransactionDirection,
+  TransactionFilterState as Filters,
 } from "@/features/transactions/types/transaction";
 
 /**
@@ -77,7 +79,7 @@ function FilterFields({
         <Input
           id="filter-search"
           placeholder="Référence, libellé…"
-          value={filters.search ?? ""}
+          value={filters.search}
           onChange={(event) => onChange({ ...filters, search: event.target.value })}
         />
       </div>
@@ -85,8 +87,8 @@ function FilterFields({
       <div className="space-y-1.5">
         <Label htmlFor="filter-direction">Sens</Label>
         <Select
-          value={filters.direction ?? "ALL"}
-          onValueChange={(value) => onChange({ ...filters, direction: value as Filters["direction"] })}
+          value={filters.direction}
+          onValueChange={(value) => onChange({ ...filters, direction: value as TransactionDirection | "ALL" })}
         >
           <SelectTrigger id="filter-direction">
             <SelectValue />
@@ -104,8 +106,8 @@ function FilterFields({
       <div className="space-y-1.5">
         <Label htmlFor="filter-status">Statut</Label>
         <Select
-          value={filters.status ?? "ALL"}
-          onValueChange={(value) => onChange({ ...filters, status: value as Filters["status"] })}
+          value={filters.status}
+          onValueChange={(value) => onChange({ ...filters, status: value as CustomerTransactionStatus | "ALL" })}
         >
           <SelectTrigger id="filter-status">
             <SelectValue />
@@ -123,7 +125,7 @@ function FilterFields({
       <div className="space-y-1.5">
         <Label htmlFor="filter-period">Période</Label>
         <Select
-          value={filters.datePreset ?? "ALL"}
+          value={filters.datePreset}
           onValueChange={(value) =>
             onChange({ ...filters, datePreset: value as TransactionDateRangePreset })
           }
