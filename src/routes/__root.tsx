@@ -83,13 +83,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         name: "viewport",
         content: "width=device-width, initial-scale=1, viewport-fit=cover",
       },
-      { title: "Vaultis — Banque digitale" },
+      { title: "RFC — Banque digitale" },
       {
         name: "description",
         content:
-          "Vaultis : comptes, virements et suivi des opérations dans une plateforme bancaire digitale sécurisée.",
+          "RFC : comptes, virements et suivi des opérations dans une plateforme bancaire digitale sécurisée.",
       },
-      { property: "og:site_name", content: "Vaultis" },
+      { property: "og:site_name", content: "RFC" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],

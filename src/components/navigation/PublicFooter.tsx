@@ -9,6 +9,7 @@ export function PublicFooter() {
     { label: "Entité juridique", value: LEGAL_IDENTITY.legalEntity },
     { label: "Immatriculation", value: LEGAL_IDENTITY.registrationNumber },
     { label: "Siège social", value: LEGAL_IDENTITY.registeredOffice },
+    { label: "Code SWIFT/BIC", value: LEGAL_IDENTITY.swiftBic },
     { label: "Autorité de supervision", value: LEGAL_IDENTITY.regulator },
   ];
 

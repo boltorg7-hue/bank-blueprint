@@ -94,9 +94,14 @@ function LegalPage() {
                   { label: "Entité juridique", value: LEGAL_IDENTITY.legalEntity },
                   { label: "Immatriculation", value: LEGAL_IDENTITY.registrationNumber },
                   { label: "Siège social", value: LEGAL_IDENTITY.registeredOffice },
+                  { label: "Adresse postale", value: LEGAL_IDENTITY.mailingAddress },
+                  { label: "Code SWIFT/BIC", value: LEGAL_IDENTITY.swiftBic },
+                  { label: "Date de création", value: LEGAL_IDENTITY.establishedOn },
                   { label: "Autorité de supervision", value: LEGAL_IDENTITY.regulator },
+                  { label: "Capital social", value: LEGAL_IDENTITY.shareCapital },
                   { label: "Référence d'agrément", value: LEGAL_IDENTITY.licenceReference },
                   { label: "Protection des dépôts", value: LEGAL_IDENTITY.depositProtection },
+
                 ].map((row) => (
                   <div key={row.label}>
                     <dt className="text-overline text-muted-foreground">{row.label}</dt>

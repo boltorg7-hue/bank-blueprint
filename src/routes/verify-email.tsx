@@ -10,7 +10,7 @@ import { publicMeta } from "@/features/public/lib/seo";
 
 const meta = publicMeta({
   title: "Confirmez votre adresse e-mail",
-  description: "Confirmez votre adresse e-mail pour continuer l'ouverture de votre compte Vaultis.",
+  description: "Confirmez votre adresse e-mail pour continuer l'ouverture de votre compte RFC.",
   path: "/verify-email",
 });
 

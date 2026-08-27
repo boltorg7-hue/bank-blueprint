@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
  * Privacy mode (PROMPT 01 §29): hides monetary values so a customer can use
  * the app in public. Purely a display concern — no data is withheld or altered.
  */
-const STORAGE_KEY = "vaultis.privacy-mode";
+const STORAGE_KEY = "rfc.privacy-mode";
 
 type PrivacyModeContextValue = {
   privacyMode: boolean;

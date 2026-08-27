@@ -5,7 +5,7 @@
  */
 import { APP_CONFIG } from "@/config/app";
 
-const SITE_ORIGIN = "https://vaultis.example";
+const SITE_ORIGIN = "https://rfcroyalfinance.com";
 
 export function publicMeta({
   title,

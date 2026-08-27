@@ -99,7 +99,10 @@ function ContactPage() {
                 { label: "Entité juridique", value: LEGAL_IDENTITY.legalEntity },
                 { label: "Immatriculation", value: LEGAL_IDENTITY.registrationNumber },
                 { label: "Siège social", value: LEGAL_IDENTITY.registeredOffice },
+                { label: "Adresse postale", value: LEGAL_IDENTITY.mailingAddress },
+                { label: "Code SWIFT/BIC", value: LEGAL_IDENTITY.swiftBic },
                 { label: "Autorité de supervision", value: LEGAL_IDENTITY.regulator },
+
               ].map((row) => (
                 <div key={row.label}>
                   <dt className="text-overline text-muted-foreground">{row.label}</dt>
