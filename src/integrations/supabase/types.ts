@@ -224,6 +224,65 @@ export type Database = {
         }
         Relationships: []
       }
+      beneficiaries: {
+        Row: {
+          beneficiary_type: Database["public"]["Enums"]["beneficiary_type"]
+          created_at: string
+          destination_account_id: string | null
+          destination_account_masked: string
+          destination_bank_type: string
+          destination_currency: string
+          display_name: string
+          id: string
+          last_used_at: string | null
+          nickname: string | null
+          public_reference: string
+          status: Database["public"]["Enums"]["beneficiary_status"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          beneficiary_type?: Database["public"]["Enums"]["beneficiary_type"]
+          created_at?: string
+          destination_account_id?: string | null
+          destination_account_masked: string
+          destination_bank_type?: string
+          destination_currency: string
+          display_name: string
+          id?: string
+          last_used_at?: string | null
+          nickname?: string | null
+          public_reference: string
+          status?: Database["public"]["Enums"]["beneficiary_status"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          beneficiary_type?: Database["public"]["Enums"]["beneficiary_type"]
+          created_at?: string
+          destination_account_id?: string | null
+          destination_account_masked?: string
+          destination_bank_type?: string
+          destination_currency?: string
+          display_name?: string
+          id?: string
+          last_used_at?: string | null
+          nickname?: string | null
+          public_reference?: string
+          status?: Database["public"]["Enums"]["beneficiary_status"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "beneficiaries_destination_account_id_fkey"
+            columns: ["destination_account_id"]
+            isOneToOne: false
+            referencedRelation: "bank_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       customer_addresses: {
         Row: {
           address_line1: string
@@ -528,6 +587,200 @@ export type Database = {
         }
         Relationships: []
       }
+      transfer_limits: {
+        Row: {
+          created_at: string
+          currency: string
+          daily_limit_minor: number
+          id: string
+          max_per_transfer_minor: number
+          monthly_limit_minor: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          currency: string
+          daily_limit_minor: number
+          id?: string
+          max_per_transfer_minor: number
+          monthly_limit_minor: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          currency?: string
+          daily_limit_minor?: number
+          id?: string
+          max_per_transfer_minor?: number
+          monthly_limit_minor?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      transfer_status_history: {
+        Row: {
+          actor_reference: string | null
+          actor_type: Database["public"]["Enums"]["transfer_actor_type"]
+          created_at: string
+          from_status: Database["public"]["Enums"]["transfer_status"] | null
+          id: string
+          reason_code: string | null
+          to_status: Database["public"]["Enums"]["transfer_status"]
+          transfer_id: string
+        }
+        Insert: {
+          actor_reference?: string | null
+          actor_type?: Database["public"]["Enums"]["transfer_actor_type"]
+          created_at?: string
+          from_status?: Database["public"]["Enums"]["transfer_status"] | null
+          id?: string
+          reason_code?: string | null
+          to_status: Database["public"]["Enums"]["transfer_status"]
+          transfer_id: string
+        }
+        Update: {
+          actor_reference?: string | null
+          actor_type?: Database["public"]["Enums"]["transfer_actor_type"]
+          created_at?: string
+          from_status?: Database["public"]["Enums"]["transfer_status"] | null
+          id?: string
+          reason_code?: string | null
+          to_status?: Database["public"]["Enums"]["transfer_status"]
+          transfer_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transfer_status_history_transfer_id_fkey"
+            columns: ["transfer_id"]
+            isOneToOne: false
+            referencedRelation: "transfers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      transfers: {
+        Row: {
+          amount_minor: number
+          beneficiary_id: string | null
+          cancelled_at: string | null
+          completed_at: string | null
+          confirmed_at: string | null
+          created_at: string
+          currency: string
+          customer_reference: string | null
+          destination_account_id: string | null
+          destination_masked_snapshot: string
+          failed_at: string | null
+          failure_code: string | null
+          hold_id: string | null
+          id: string
+          idempotency_key: string
+          ledger_transaction_id: string | null
+          metadata: Json
+          processing_stage: string | null
+          processing_started_at: string | null
+          public_reference: string
+          recipient_display_snapshot: string
+          sender_user_id: string
+          source_account_id: string
+          source_masked_snapshot: string
+          status: Database["public"]["Enums"]["transfer_status"]
+          updated_at: string
+        }
+        Insert: {
+          amount_minor: number
+          beneficiary_id?: string | null
+          cancelled_at?: string | null
+          completed_at?: string | null
+          confirmed_at?: string | null
+          created_at?: string
+          currency: string
+          customer_reference?: string | null
+          destination_account_id?: string | null
+          destination_masked_snapshot: string
+          failed_at?: string | null
+          failure_code?: string | null
+          hold_id?: string | null
+          id?: string
+          idempotency_key: string
+          ledger_transaction_id?: string | null
+          metadata?: Json
+          processing_stage?: string | null
+          processing_started_at?: string | null
+          public_reference: string
+          recipient_display_snapshot: string
+          sender_user_id: string
+          source_account_id: string
+          source_masked_snapshot: string
+          status?: Database["public"]["Enums"]["transfer_status"]
+          updated_at?: string
+        }
+        Update: {
+          amount_minor?: number
+          beneficiary_id?: string | null
+          cancelled_at?: string | null
+          completed_at?: string | null
+          confirmed_at?: string | null
+          created_at?: string
+          currency?: string
+          customer_reference?: string | null
+          destination_account_id?: string | null
+          destination_masked_snapshot?: string
+          failed_at?: string | null
+          failure_code?: string | null
+          hold_id?: string | null
+          id?: string
+          idempotency_key?: string
+          ledger_transaction_id?: string | null
+          metadata?: Json
+          processing_stage?: string | null
+          processing_started_at?: string | null
+          public_reference?: string
+          recipient_display_snapshot?: string
+          sender_user_id?: string
+          source_account_id?: string
+          source_masked_snapshot?: string
+          status?: Database["public"]["Enums"]["transfer_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transfers_beneficiary_id_fkey"
+            columns: ["beneficiary_id"]
+            isOneToOne: false
+            referencedRelation: "beneficiaries"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transfers_destination_account_id_fkey"
+            columns: ["destination_account_id"]
+            isOneToOne: false
+            referencedRelation: "bank_accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transfers_hold_id_fkey"
+            columns: ["hold_id"]
+            isOneToOne: false
+            referencedRelation: "account_holds"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transfers_ledger_transaction_id_fkey"
+            columns: ["ledger_transaction_id"]
+            isOneToOne: true
+            referencedRelation: "ledger_transactions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transfers_source_account_id_fkey"
+            columns: ["source_account_id"]
+            isOneToOne: false
+            referencedRelation: "bank_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -676,6 +929,10 @@ export type Database = {
       }
     }
     Functions: {
+      cancel_transfer: {
+        Args: { _reference: string; _user_id: string }
+        Returns: Database["public"]["Enums"]["transfer_status"]
+      }
       capture_account_hold: { Args: { _hold_id: string }; Returns: undefined }
       check_balance_projection_integrity: {
         Args: never
@@ -686,6 +943,14 @@ export type Database = {
           projection_value: number
         }[]
       }
+      confirm_internal_transfer: {
+        Args: { _reference: string; _user_id: string }
+        Returns: {
+          failure_code: string
+          status: Database["public"]["Enums"]["transfer_status"]
+          transaction_reference: string
+        }[]
+      }
       create_account_hold: {
         Args: {
           _account_id: string
@@ -694,6 +959,20 @@ export type Database = {
           _idempotency_key: string
           _reason_type: string
           _source_reference: string
+        }
+        Returns: string
+      }
+      create_internal_beneficiary: {
+        Args: { _identifier: string; _nickname?: string; _user_id: string }
+        Returns: string
+      }
+      create_internal_transfer: {
+        Args: {
+          _amount_minor: number
+          _beneficiary_reference: string
+          _customer_reference?: string
+          _source_account_reference: string
+          _user_id: string
         }
         Returns: string
       }
@@ -709,6 +988,10 @@ export type Database = {
           operation_count: number
         }[]
       }
+      customer_safe_display_name: {
+        Args: { _user_id: string }
+        Returns: string
+      }
       ensure_bank_account_ledger_account: {
         Args: { _bank_account_id: string }
         Returns: string
@@ -722,7 +1005,9 @@ export type Database = {
       }
       is_staff: { Args: { _user_id: string }; Returns: boolean }
       next_account_public_reference: { Args: never; Returns: string }
+      next_beneficiary_public_reference: { Args: never; Returns: string }
       next_ledger_transaction_reference: { Args: never; Returns: string }
+      next_transfer_public_reference: { Args: never; Returns: string }
       post_ledger_transaction: {
         Args: {
           _created_by?: string
@@ -747,7 +1032,36 @@ export type Database = {
         Args: { _account_id: string }
         Returns: undefined
       }
+      record_transfer_status: {
+        Args: {
+          _actor: Database["public"]["Enums"]["transfer_actor_type"]
+          _actor_ref: string
+          _from: Database["public"]["Enums"]["transfer_status"]
+          _reason: string
+          _to: Database["public"]["Enums"]["transfer_status"]
+          _transfer_id: string
+        }
+        Returns: undefined
+      }
       release_account_hold: { Args: { _hold_id: string }; Returns: undefined }
+      remove_beneficiary: {
+        Args: { _reference: string; _user_id: string }
+        Returns: undefined
+      }
+      rename_beneficiary: {
+        Args: { _nickname: string; _reference: string; _user_id: string }
+        Returns: undefined
+      }
+      resolve_internal_destination: {
+        Args: { _identifier: string; _user_id: string }
+        Returns: {
+          currency: string
+          destination_account_id: string
+          display_name: string
+          is_own_account: boolean
+          masked_number: string
+        }[]
+      }
       reverse_ledger_transaction: {
         Args: { _created_by?: string; _reason: string; _transaction_id: string }
         Returns: {
@@ -778,6 +1092,12 @@ export type Database = {
         | "CLOSING"
         | "CLOSED"
       bank_account_type: "CURRENT" | "SAVINGS"
+      beneficiary_status:
+        | "ACTIVE"
+        | "DISABLED"
+        | "REMOVED"
+        | "PENDING_VERIFICATION"
+      beneficiary_type: "INTERNAL_CUSTOMER" | "EXTERNAL_BANK"
       customer_lifecycle_state:
         | "VISITOR"
         | "REGISTERED"
@@ -829,6 +1149,21 @@ export type Database = {
         | "DOCUMENTS"
         | "REVIEW"
         | "COMPLETED"
+      transfer_actor_type: "CUSTOMER" | "SYSTEM" | "STAFF" | "COMPLIANCE"
+      transfer_status:
+        | "DRAFT"
+        | "READY_FOR_CONFIRMATION"
+        | "CONFIRMED"
+        | "FUNDS_RESERVED"
+        | "PROCESSING"
+        | "COMPLIANCE_REVIEW"
+        | "DOCUMENT_REQUIRED"
+        | "APPROVED"
+        | "COMPLETED"
+        | "FAILED"
+        | "CANCELLED"
+        | "BLOCKED"
+        | "REVERSED"
       verification_document_status:
         | "UPLOADED"
         | "UNDER_REVIEW"
@@ -991,6 +1326,13 @@ export const Constants = {
         "CLOSED",
       ],
       bank_account_type: ["CURRENT", "SAVINGS"],
+      beneficiary_status: [
+        "ACTIVE",
+        "DISABLED",
+        "REMOVED",
+        "PENDING_VERIFICATION",
+      ],
+      beneficiary_type: ["INTERNAL_CUSTOMER", "EXTERNAL_BANK"],
       customer_lifecycle_state: [
         "VISITOR",
         "REGISTERED",
@@ -1046,6 +1388,22 @@ export const Constants = {
         "DOCUMENTS",
         "REVIEW",
         "COMPLETED",
+      ],
+      transfer_actor_type: ["CUSTOMER", "SYSTEM", "STAFF", "COMPLIANCE"],
+      transfer_status: [
+        "DRAFT",
+        "READY_FOR_CONFIRMATION",
+        "CONFIRMED",
+        "FUNDS_RESERVED",
+        "PROCESSING",
+        "COMPLIANCE_REVIEW",
+        "DOCUMENT_REQUIRED",
+        "APPROVED",
+        "COMPLETED",
+        "FAILED",
+        "CANCELLED",
+        "BLOCKED",
+        "REVERSED",
       ],
       verification_document_status: [
         "UPLOADED",
