@@ -18,7 +18,7 @@ export const Route = createFileRoute("/auth/callback")({
     typeof search["redirect"] === "string" ? { redirect: search["redirect"] } : {},
   head: () => ({
     meta: [
-      { title: "Connexion en cours — Vaultis" },
+      { title: "Connexion en cours — RFC" },
       { name: "robots", content: "noindex,nofollow" },
     ],
   }),

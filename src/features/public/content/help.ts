@@ -38,14 +38,14 @@ export const HELP_ARTICLES: HelpArticle[] = [
   {
     id: "start-what-is",
     category: "getting-started",
-    question: "Qu'est-ce que Vaultis ?",
+    question: "Qu'est-ce que RFC ?",
     answer:
-      "Vaultis est une banque digitale : compte courant, virements, suivi des opérations, relevés numériques, documents et messagerie sécurisée, accessibles en ligne.",
+      "RFC est une banque digitale : compte courant, virements, suivi des opérations, relevés numériques, documents et messagerie sécurisée, accessibles en ligne.",
   },
   {
     id: "start-devices",
     category: "getting-started",
-    question: "Sur quels appareils puis-je utiliser Vaultis ?",
+    question: "Sur quels appareils puis-je utiliser RFC ?",
     answer:
       "Sur smartphone, tablette et ordinateur, depuis un navigateur à jour. Une connexion internet est nécessaire : aucune donnée bancaire n'est conservée hors ligne.",
   },
@@ -149,7 +149,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
   {
     id: "security-phishing",
     category: "security",
-    question: "Vaultis peut-il me demander mon mot de passe ?",
+    question: "RFC peut-il me demander mon mot de passe ?",
     answer:
       "Non. La banque ne demande jamais votre mot de passe, votre code PIN ni un code de vérification, ni par e-mail, ni par téléphone, ni par message.",
   },

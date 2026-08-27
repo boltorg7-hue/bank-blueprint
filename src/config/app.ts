@@ -3,12 +3,12 @@
  * Keep marketing/product copy here so layouts stay presentational.
  */
 export const APP_CONFIG = {
-  name: "Vaultis",
-  legalName: "Vaultis Digital Bank",
+  name: "RFC",
+  legalName: "RFC Digital Bank",
   tagline: "La banque digitale, pensée pour votre quotidien",
   description:
-    "Vaultis est une plateforme bancaire digitale : comptes, virements et suivi de vos opérations, avec une sécurité de niveau bancaire.",
-  supportEmail: "support@vaultis.example",
+    "RFC est une plateforme bancaire digitale : comptes, virements et suivi de vos opérations, avec une sécurité de niveau bancaire.",
+  supportEmail: "support@rfcroyalfinance.com",
   /**
    * This project is a product implementation. It is NOT licensed banking
    * infrastructure — see docs/banking/00 §38.

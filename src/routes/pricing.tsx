@@ -12,7 +12,7 @@ import { PRICING_CATEGORIES, PRICING_DISCLAIMER } from "@/features/public/conten
 const meta = publicMeta({
   title: "Tarifs et conditions",
   description:
-    "Structure tarifaire du compte courant Vaultis : tenue de compte, virements, relevés et assistance. Conditions définitives publiées avant l'ouverture commerciale.",
+    "Structure tarifaire du compte courant RFC : tenue de compte, virements, relevés et assistance. Conditions définitives publiées avant l'ouverture commerciale.",
   path: "/pricing",
 });
 

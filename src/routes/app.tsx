@@ -24,8 +24,8 @@ export const Route = createFileRoute("/app")({
   head: () => ({
     meta: [
       { name: "robots", content: "noindex, nofollow" },
-      { title: "Espace client — Vaultis" },
-      { name: "description", content: "Espace client sécurisé Vaultis." },
+      { title: "Espace client — RFC" },
+      { name: "description", content: "Espace client sécurisé RFC." },
     ],
   }),
   component: CustomerAppLayoutRoute,

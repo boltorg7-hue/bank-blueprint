@@ -6,7 +6,7 @@ import { publicMeta } from "@/features/public/lib/seo";
 
 const meta = publicMeta({
   title: "Nouveau mot de passe",
-  description: "Définissez un nouveau mot de passe pour votre espace Vaultis.",
+  description: "Définissez un nouveau mot de passe pour votre espace RFC.",
   path: "/reset-password",
 });
 

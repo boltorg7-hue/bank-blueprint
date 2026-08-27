@@ -127,7 +127,7 @@ function DesignSystemPage() {
           <div className="mt-4 divide-y divide-border rounded-xl border border-border bg-surface p-2">
             <TransactionRow
               title="Virement reçu — Salaire"
-              subtitle="Vaultis SA"
+              subtitle="RFC Royal Finance Bank"
               amount={2450}
               direction="credit"
               date={DEMO_TODAY}

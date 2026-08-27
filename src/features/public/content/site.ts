@@ -23,7 +23,7 @@ export const PUBLIC_CTA = {
 export type PublicNavLink = { label: string; to: AppPath; description?: string };
 
 export const PUBLIC_PRIMARY_NAV: PublicNavLink[] = [
-  { label: "Comptes", to: "/accounts", description: "Le compte courant Vaultis" },
+  { label: "Comptes", to: "/accounts", description: "Le compte courant RFC" },
   { label: "Fonctionnalités", to: "/features", description: "Ce que vous pouvez faire" },
   { label: "Sécurité", to: "/security", description: "Protection de votre compte" },
   { label: "Tarifs", to: "/pricing", description: "Conditions tarifaires" },

@@ -21,9 +21,9 @@ export const Route = createFileRoute("/onboarding")({
   },
   head: () => ({
     meta: [
-      { title: "Ouverture de compte — Vaultis" },
+      { title: "Ouverture de compte — RFC" },
       { name: "robots", content: "noindex,nofollow" },
-      { name: "description", content: "Parcours sécurisé d'ouverture de compte Vaultis." },
+      { name: "description", content: "Parcours sécurisé d'ouverture de compte RFC." },
     ],
   }),
   errorComponent: OnboardingError,

@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
  * Light/dark theme (PROMPT 01 §8). Light is the default banking appearance;
  * dark is a first-class alternative, never an afterthought.
  */
-const STORAGE_KEY = "vaultis.theme";
+const STORAGE_KEY = "rfc.theme";
 
 export type ThemeMode = "light" | "dark";
 

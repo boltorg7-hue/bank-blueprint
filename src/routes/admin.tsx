@@ -13,7 +13,7 @@ export const Route = createFileRoute("/admin")({
   head: () => ({
     meta: [
       { name: "robots", content: "noindex, nofollow" },
-      { title: "Back-office — Vaultis" },
+      { title: "Back-office — RFC" },
       { name: "description", content: "Console opérationnelle réservée au personnel autorisé." },
     ],
   }),

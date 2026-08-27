@@ -42,7 +42,7 @@ export const PRICING_CATEGORIES: PricingCategory[] = [
     title: "Virements",
     description: "Opérations de virement depuis votre compte.",
     lines: [
-      { label: "Virement interne entre comptes Vaultis", amount: null },
+      { label: "Virement interne entre comptes RFC", amount: null },
       { label: "Virement externe", amount: null },
       { label: "Virement nécessitant une vérification complémentaire", amount: null, note: "Aucun frais spécifique lié aux contrôles." },
     ],

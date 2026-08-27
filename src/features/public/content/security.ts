@@ -18,7 +18,7 @@ import {
 export const SECURITY_INTRO = {
   title: "La sécurité de votre compte",
   description:
-    "Vaultis protège l'accès à votre compte, vos opérations et vos documents. Voici ce que nous mettons en place et ce que vous pouvez contrôler.",
+    "RFC protège l'accès à votre compte, vos opérations et vos documents. Voici ce que nous mettons en place et ce que vous pouvez contrôler.",
 } as const;
 
 export const SECURITY_PROTECTIONS: { title: string; description: string; icon: LucideIcon }[] = [
@@ -67,7 +67,7 @@ export const SECURITY_PROTECTIONS: { title: string; description: string; icon: L
 ];
 
 export const CUSTOMER_RESPONSIBILITIES: string[] = [
-  "Choisissez un mot de passe unique, utilisé uniquement pour Vaultis.",
+  "Choisissez un mot de passe unique, utilisé uniquement pour RFC.",
   "Ne communiquez jamais votre mot de passe, votre code PIN ni un code de vérification.",
   "Vérifiez l'adresse du site avant de saisir vos identifiants.",
   "Maintenez votre téléphone et votre navigateur à jour.",

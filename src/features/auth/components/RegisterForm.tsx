@@ -140,7 +140,7 @@ export function RegisterForm() {
             onCheckedChange={(value) => setMarketing(value === true)}
           />
           <Label htmlFor="marketing" className="text-body-sm leading-relaxed font-normal">
-            Je souhaite recevoir des informations sur les nouveautés Vaultis (optionnel).
+            Je souhaite recevoir des informations sur les nouveautés RFC (optionnel).
           </Label>
         </div>
       </div>

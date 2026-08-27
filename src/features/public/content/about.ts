@@ -8,7 +8,7 @@
 export const ABOUT_INTRO = {
   title: "Une banque digitale construite sur la clarté",
   description:
-    "Vaultis conçoit une banque en ligne dont chaque écran répond à une question simple : où en est mon argent, et que se passe-t-il ensuite ?",
+    "RFC conçoit une banque en ligne dont chaque écran répond à une question simple : où en est mon argent, et que se passe-t-il ensuite ?",
 } as const;
 
 export const ABOUT_SECTIONS: { id: string; title: string; paragraphs: string[] }[] = [
@@ -16,7 +16,7 @@ export const ABOUT_SECTIONS: { id: string; title: string; paragraphs: string[] }
     id: "story",
     title: "Notre histoire",
     paragraphs: [
-      "Vaultis est né d'un constat simple : la plupart des interfaces bancaires expliquent mal ce qui arrive à l'argent des clients. Les opérations apparaissent, disparaissent, changent de statut sans explication.",
+      "RFC est né d'un constat simple : la plupart des interfaces bancaires expliquent mal ce qui arrive à l'argent des clients. Les opérations apparaissent, disparaissent, changent de statut sans explication.",
       "Nous construisons une plateforme bancaire digitale où chaque opération est traçable, chaque contrôle est expliqué, et chaque document est retrouvable.",
     ],
   },

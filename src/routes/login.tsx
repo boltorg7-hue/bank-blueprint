@@ -9,7 +9,7 @@ import { GoogleSignInButton } from "@/features/auth/components/GoogleSignInButto
 const meta = publicMeta({
   title: "Connexion à votre espace",
   description:
-    "Accédez à votre espace bancaire Vaultis avec votre adresse e-mail et votre mot de passe.",
+    "Accédez à votre espace bancaire RFC avec votre adresse e-mail et votre mot de passe.",
   path: "/login",
 });
 

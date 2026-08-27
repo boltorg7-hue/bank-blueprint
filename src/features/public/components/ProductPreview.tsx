@@ -21,7 +21,7 @@ const DEMO = {
   transactions: [
     {
       title: "Virement reçu — Salaire",
-      subtitle: "Vaultis SA",
+      subtitle: "RFC Royal Finance Bank",
       amount: 2450,
       direction: "credit" as const,
       date: "2026-03-02T09:12:00.000Z",
