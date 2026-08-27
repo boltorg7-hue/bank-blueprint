@@ -87,7 +87,7 @@ export async function postLedgerTransaction(
     _created_by: request.createdBy ?? null,
     _metadata: request.metadata ?? {},
     _reversal_of: null,
-  });
+  } as never);
 
   if (error) throw mapDatabaseError(error.message);
 
@@ -113,7 +113,7 @@ export async function reverseLedgerTransaction(
     _transaction_id: transactionId,
     _reason: reason,
     _created_by: createdBy ?? null,
-  });
+  } as never);
   if (error) throw mapDatabaseError(error.message);
 
   const row = (Array.isArray(data) ? data[0] : data) as
@@ -138,7 +138,7 @@ export async function createAccountHold(request: HoldRequest): Promise<string> {
     _source_reference: request.sourceReference ?? null,
     _idempotency_key: request.idempotencyKey,
     _expires_at: request.expiresAt ?? null,
-  });
+  } as never);
   if (error) throw mapDatabaseError(error.message);
   return data as unknown as string;
 }
