@@ -57,6 +57,7 @@ export function PublicHeader() {
         </nav>
 
         <div className="flex items-center gap-2">
+          <ThemeToggle className="touch-target" />
           <Button asChild variant="ghost" size="sm" className="hidden touch-target sm:inline-flex">
             <Link to="/app/dashboard">Espace client</Link>
           </Button>
