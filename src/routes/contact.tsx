@@ -6,7 +6,8 @@ import { PageHero } from "@/features/public/components/PageHero";
 import { PublicSection, SectionHeader } from "@/features/public/components/SectionHeader";
 import { PublicContactForm } from "@/features/public/components/PublicContactForm";
 import { publicMeta } from "@/features/public/lib/seo";
-import { LEGAL_IDENTITY } from "@/features/public/content/site";
+import { LEGAL_IDENTITY_NOTICE } from "@/features/public/content/site";
+import { LegalIdentityList } from "@/features/public/components/LegalIdentityList";
 
 const meta = publicMeta({
   title: "Contact",
