@@ -11,9 +11,11 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { APP_CONFIG } from "@/config/app";
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { PrivacyModeProvider } from "@/components/providers/PrivacyModeProvider";
+import { organizationJsonLd } from "@/features/public/lib/seo";
 
 function NotFoundComponent() {
   return (
@@ -83,13 +85,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         name: "viewport",
         content: "width=device-width, initial-scale=1, viewport-fit=cover",
       },
-      { title: "RFC — Banque digitale" },
+      { title: `${APP_CONFIG.name} — Banque digitale` },
       {
         name: "description",
         content:
           "RFC : comptes, virements et suivi des opérations dans une plateforme bancaire digitale sécurisée.",
       },
-      { property: "og:site_name", content: "RFC" },
+      { property: "og:site_name", content: APP_CONFIG.fullName },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -106,6 +108,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       {
         rel: "stylesheet",
         href: "https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Manrope:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap",
+      },
+    ],
+    // Site-wide legal identity for search engines, built from the shared
+    // LEGAL_IDENTITY source used by the header, footer and legal pages.
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify(organizationJsonLd()),
       },
     ],
   }),

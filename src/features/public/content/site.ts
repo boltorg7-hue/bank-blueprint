@@ -75,6 +75,13 @@ export const LEGAL_IDENTITY = {
     "R 98(C) — Companies Registry, Registrar General's Department, Ministry of Legal Affairs, Trinidad and Tobago",
   registeredOffice:
     "St. Clair Place, 7-8 St. Clair Avenue, Port of Spain 107289, Trinidad and Tobago",
+  /** Machine-readable form of registeredOffice, used for JSON-LD (§56). */
+  registeredOfficeParts: {
+    streetAddress: "St. Clair Place, 7-8 St. Clair Avenue",
+    locality: "Port of Spain",
+    postalCode: "107289",
+    country: "TT",
+  },
   mailingAddress:
     "Ms Jane Doe Street, Woodbrook 170505, Trinidad and Tobago",
   regulator: "Central Bank of Trinidad and Tobago (CBTT)",
