@@ -16,14 +16,13 @@ Ce dossier est la **source de vérité** du projet. Chaque phase de construction
 | 07 | [07-beneficiaries-internal-transfers.md](./07-beneficiaries-internal-transfers.md) | Bénéficiaires, virements internes, mouvements de fonds | reçu |
 | 08 | [08-transfer-routing-compliance-external.md](./08-transfer-routing-compliance-external.md) | Routage des virements, parcours conformité 0→100, virements externes | reçu |
 | 09 | [09-statements-pdf-document-center.md](./09-statements-pdf-document-center.md) | Relevés, PDF, impression, centre de documents | reçu |
-| 10 | — | à définir | en attente |
-
-| 11 | — | à définir | en attente |
-| 12 | — | à définir | en attente |
-| 13 | — | à définir | en attente |
-| 14 | — | à définir | en attente |
-| 15 | — | à définir | en attente |
-| 16 | — | à définir | en attente |
+| 10 | [10-messaging-notifications.md](./10-messaging-notifications.md) | Messagerie sécurisée & notifications | reçu |
+| 11 | [11-customer-security-center.md](./11-customer-security-center.md) | Centre de sécurité client | reçu |
+| 12 | [12-admin-back-office-rbac.md](./12-admin-back-office-rbac.md) | Back-office admin, rôles & permissions | reçu |
+| 13 | [13-admin-financial-controls-maker-checker.md](./13-admin-financial-controls-maker-checker.md) | Contrôles financiers admin, quatre yeux | reçu |
+| 14 | [14-backend-security-hardening.md](./14-backend-security-hardening.md) | Durcissement backend, RLS, zero-trust | reçu |
+| 15 | [15-responsive-qa-performance-accessibility.md](./15-responsive-qa-performance-accessibility.md) | QA responsive, performance, accessibilité | reçu |
+| 16 | [16-final-audit-production-readiness.md](./16-final-audit-production-readiness.md) | Audit final & release gate | reçu |
 
 Total prévu : 17 documents (00 à 16). Statuts possibles : `en attente`, `reçu`, `implémenté`.
 
