@@ -11,6 +11,8 @@ import {
   getTransferLimitsForCurrency,
   initiateTransfer,
   listCustomerTransfers,
+  refreshTransferSettlement,
+  registerTransferDocument,
 } from "@/features/transfers/services/transfers.functions";
 import type {
   TransferConfirmationResultDto,
@@ -107,6 +109,63 @@ export function useCancelTransfer() {
   const cancel = useServerFn(cancelTransferIntent);
   return useMutation<{ reference: string; status: TransferStatus }, Error, string>({
     mutationFn: (reference) => cancel({ data: { reference } }),
+    onSettled: invalidate,
+  });
+}
+
+/**
+ * Uploads a supporting document, then registers it server-side (§35, §97).
+ * The file goes straight to the customer's private folder of the private
+ * bucket; the browser never receives a public URL and the registration is
+ * what actually advances the transfer.
+ */
+export function useUploadTransferDocument() {
+  const queryClient = useQueryClient();
+  const register = useServerFn(registerTransferDocument);
+
+  return useMutation<
+    TransferDetailDto,
+    Error,
+    { reference: string; requirementId: string; file: File }
+  >({
+    mutationFn: async ({ reference, requirementId, file }) => {
+      const { supabase } = await import("@/integrations/supabase/client");
+      const { data: auth } = await supabase.auth.getUser();
+      const userId = auth.user?.id;
+      if (!userId) throw new Error("SESSION_EXPIRED");
+
+      const extension = (file.name.split(".").pop() ?? "bin").toLowerCase().slice(0, 8);
+      const storagePath = `${userId}/${reference}/${requirementId}-${Date.now()}.${extension}`;
+
+      const { error } = await supabase.storage
+        .from("transfer-documents")
+        .upload(storagePath, file, { cacheControl: "0", upsert: false });
+      if (error) throw new Error("UPLOAD_FAILED");
+
+      return register({
+        data: {
+          reference,
+          requirementId,
+          storagePath,
+          originalFilename: file.name,
+          mimeType: file.type,
+          sizeBytes: file.size,
+        },
+      });
+    },
+    onSuccess: (detail) => {
+      queryClient.setQueryData([...TRANSFERS_KEY, "detail", detail.reference], detail);
+      void queryClient.invalidateQueries({ queryKey: TRANSFERS_KEY });
+    },
+  });
+}
+
+/** Asks the settlement rail for the authoritative status of one transfer (§55). */
+export function useRefreshSettlement() {
+  const invalidate = useInvalidateFinancialState();
+  const refresh = useServerFn(refreshTransferSettlement);
+  return useMutation<TransferDetailDto | null, Error, string>({
+    mutationFn: (reference) => refresh({ data: { reference } }),
     onSettled: invalidate,
   });
 }
