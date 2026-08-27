@@ -15,7 +15,7 @@ type TransferSearch = { beneficiary?: string };
 
 export const Route = createFileRoute("/app/transfers/new")({
   validateSearch: (search: Record<string, unknown>): TransferSearch => {
-    const beneficiary = typeof search.beneficiary === "string" ? search.beneficiary : "";
+    const beneficiary = typeof search["beneficiary"] === "string" ? search["beneficiary"] : "";
     return BENEFICIARY_REFERENCE_PATTERN.test(beneficiary) ? { beneficiary } : {};
   },
   head: () => ({
