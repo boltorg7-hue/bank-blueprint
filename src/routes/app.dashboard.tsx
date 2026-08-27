@@ -40,7 +40,7 @@ function DashboardPage() {
     !!account &&
     accountAllowsTransactions(account.status) &&
     !!customer &&
-    isAllowed(customer.lifecycleState, "banking-transact");
+    isAllowed(customer.lifecycleState, "transactional");
   const restriction = account ? accountRestrictionMessage(account.status) : null;
 
   return (
