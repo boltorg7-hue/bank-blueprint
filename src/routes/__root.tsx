@@ -12,6 +12,8 @@ import { useEffect, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Toaster } from "@/components/ui/sonner";
+import { ThemeProvider } from "@/components/providers/ThemeProvider";
+import { PrivacyModeProvider } from "@/components/providers/PrivacyModeProvider";
 
 function NotFoundComponent() {
   return (
@@ -97,6 +99,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         href: appCss,
       },
       { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
+      // Brand typography (PROMPT 01): Sora for headings, Manrope for body,
+      // IBM Plex Mono for financial figures (tabular alignment).
+      { rel: "preconnect", href: "https://fonts.googleapis.com" },
+      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
+      {
+        rel: "stylesheet",
+        href: "https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Manrope:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap",
+      },
     ],
   }),
   shellComponent: RootShell,
@@ -124,10 +134,14 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <Outlet />
-      {/* Global feedback layer shared by the three experiences. */}
-      <Toaster position="top-center" />
+      <ThemeProvider>
+        <PrivacyModeProvider>
+          {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+          <Outlet />
+          {/* Global feedback layer shared by the three experiences. */}
+          <Toaster position="top-center" />
+        </PrivacyModeProvider>
+      </ThemeProvider>
     </QueryClientProvider>
   );
 }

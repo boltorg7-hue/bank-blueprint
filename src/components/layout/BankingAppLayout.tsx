@@ -6,6 +6,8 @@ import { CustomerSidebar } from "@/components/navigation/CustomerSidebar";
 import { BrandMark } from "@/components/navigation/BrandMark";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/providers/ThemeProvider";
+import { PrivacyModeToggle } from "@/components/providers/PrivacyModeProvider";
 
 /**
  * Authenticated customer application shell.
@@ -27,6 +29,8 @@ export function BankingAppLayout({ children }: { children: ReactNode }) {
             </div>
 
             <div className="flex items-center gap-1.5">
+              <PrivacyModeToggle className="touch-target" />
+              <ThemeToggle className="touch-target" />
               {/* Notification centre arrives in PROMPT 10 — no fabricated counts. */}
               <Button
                 variant="ghost"

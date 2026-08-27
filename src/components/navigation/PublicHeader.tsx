@@ -12,6 +12,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { PUBLIC_NAV } from "@/config/navigation";
+import { ThemeToggle } from "@/components/providers/ThemeProvider";
 
 function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
   return (
@@ -57,6 +58,7 @@ export function PublicHeader() {
         </nav>
 
         <div className="flex items-center gap-2">
+          <ThemeToggle className="touch-target" />
           <Button asChild variant="ghost" size="sm" className="hidden touch-target sm:inline-flex">
             <Link to="/app/dashboard">Espace client</Link>
           </Button>
