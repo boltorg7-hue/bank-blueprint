@@ -18,6 +18,7 @@ import { Stepper } from "@/components/ui/stepper";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { EmptyState, ErrorState, SkeletonBlock } from "@/components/feedback";
 import { AddBeneficiaryDialog } from "@/features/beneficiaries/components/AddBeneficiaryDialog";
+import { AddExternalBeneficiaryDialog } from "@/features/beneficiaries/components/AddExternalBeneficiaryDialog";
 import { useBeneficiaries } from "@/features/beneficiaries/hooks/useBeneficiaries";
 import { useCustomerAccounts } from "@/features/accounts/hooks/useAccounts";
 import {
@@ -29,9 +30,11 @@ import { TransferSummary } from "@/features/transfers/components/TransferSummary
 import {
   transferErrorMessage,
   transferFailureMessage,
+  transferKindLabel,
   transferStatusLabel,
   transferStatusTone,
 } from "@/features/transfers/utils/transfer-display";
+import { progressExplanation } from "@/features/transfers/utils/transfer-progress";
 import type { TransferDetailDto } from "@/features/transfers/types/transfer";
 import { formatMoneyFromMinor } from "@/lib/format/currency";
 
@@ -73,6 +76,9 @@ export function TransferWizard({ initialBeneficiary }: { initialBeneficiary?: st
   const [transfer, setTransfer] = useState<TransferDetailDto | null>(null);
   const [result, setResult] = useState<{
     status: TransferDetailDto["status"];
+    kind: TransferDetailDto["kind"];
+    progressState: TransferDetailDto["progressState"];
+    progressPercent: number;
     failureCode: TransferDetailDto["failureCode"];
     transactionReference: string | null;
   } | null>(null);
@@ -158,7 +164,12 @@ export function TransferWizard({ initialBeneficiary }: { initialBeneficiary?: st
                 <p className="text-sm text-muted-foreground">
                   Vous n'avez pas encore de bénéficiaire enregistré.
                 </p>
-                <AddBeneficiaryDialog onAdded={(reference) => setBeneficiaryReference(reference)} />
+                <div className="flex flex-col gap-2 sm:flex-row">
+                  <AddBeneficiaryDialog onAdded={(reference) => setBeneficiaryReference(reference)} />
+                  <AddExternalBeneficiaryDialog
+                    onAdded={(reference) => setBeneficiaryReference(reference)}
+                  />
+                </div>
               </div>
             ) : (
               <>
@@ -172,19 +183,33 @@ export function TransferWizard({ initialBeneficiary }: { initialBeneficiary?: st
                   <SelectContent>
                     {beneficiaries.map((item) => (
                       <SelectItem key={item.reference} value={item.reference}>
-                        {(item.nickname ?? item.displayName) + ` · •••• ${item.maskedNumber}`}
+                        {(item.nickname ?? item.displayName) +
+                          ` · •••• ${item.maskedNumber} · ` +
+                          (item.kind === "EXTERNAL"
+                            ? (item.bankName ?? "Autre banque")
+                            : "Notre banque")}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
-                <AddBeneficiaryDialog
-                  trigger={
-                    <Button variant="ghost" size="sm" className="px-0">
-                      Ajouter un autre bénéficiaire
-                    </Button>
-                  }
-                  onAdded={(reference) => setBeneficiaryReference(reference)}
-                />
+                <div className="flex flex-wrap items-center gap-3">
+                  <AddBeneficiaryDialog
+                    trigger={
+                      <Button variant="ghost" size="sm" className="px-0">
+                        Ajouter un bénéficiaire de notre banque
+                      </Button>
+                    }
+                    onAdded={(reference) => setBeneficiaryReference(reference)}
+                  />
+                  <AddExternalBeneficiaryDialog
+                    trigger={
+                      <Button variant="ghost" size="sm" className="px-0">
+                        Ajouter un bénéficiaire d'une autre banque
+                      </Button>
+                    }
+                    onAdded={(reference) => setBeneficiaryReference(reference)}
+                  />
+                </div>
               </>
             )}
           </div>
@@ -291,10 +316,24 @@ export function TransferWizard({ initialBeneficiary }: { initialBeneficiary?: st
             sourceMasked={transfer.sourceMasked}
             note={transfer.customerReference}
           />
-          <p className="text-caption text-muted-foreground">
-            En confirmant, le montant est débité de votre compte. Un virement exécuté ne peut pas
-            être annulé ; une correction éventuelle prend la forme d'une opération distincte.
-          </p>
+          <div className="space-y-2">
+            <p className="text-caption text-muted-foreground">
+              Destination retenue par la banque : {transferKindLabel(transfer.kind)}.
+            </p>
+            {transfer.kind === "EXTERNAL_TRANSFER" ? (
+              <p className="text-caption text-muted-foreground">
+                En confirmant, le montant est réservé sur votre compte, puis transmis à la banque
+                destinataire après vérification. Un justificatif peut vous être demandé : le
+                virement n'est pas instantané et vous suivrez chaque étape.
+              </p>
+            ) : (
+              <p className="text-caption text-muted-foreground">
+                En confirmant, le montant est débité de votre compte. Un virement exécuté ne peut
+                pas être annulé ; une correction éventuelle prend la forme d'une opération
+                distincte.
+              </p>
+            )}
+          </div>
 
           <div className="flex flex-col-reverse gap-2 sm:flex-row">
             <Button
@@ -314,6 +353,10 @@ export function TransferWizard({ initialBeneficiary }: { initialBeneficiary?: st
                   onSuccess: (outcome) => {
                     setResult({
                       status: outcome.status,
+                      kind: outcome.kind,
+                      progressState:
+                        outcome.status === "COMPLETED" ? "COMPLETED" : transfer.progressState,
+                      progressPercent: outcome.progressPercent,
                       failureCode: outcome.failureCode,
                       transactionReference: outcome.transactionReference,
                     });
@@ -342,8 +385,10 @@ export function TransferWizard({ initialBeneficiary }: { initialBeneficiary?: st
           <div className="flex flex-col items-center gap-3">
             {result.status === "COMPLETED" ? (
               <CheckCircle2 className="size-10 text-success" aria-hidden="true" />
-            ) : (
+            ) : result.failureCode ? (
               <AlertTriangle className="size-10 text-danger" aria-hidden="true" />
+            ) : (
+              <Loader2 className="size-10 text-primary" aria-hidden="true" />
             )}
             <StatusBadge
               label={transferStatusLabel(result.status)}
@@ -353,8 +398,19 @@ export function TransferWizard({ initialBeneficiary }: { initialBeneficiary?: st
               {result.status === "COMPLETED"
                 ? "Le virement a été exécuté et enregistré dans votre historique."
                 : (transferFailureMessage(result.failureCode) ??
-                  "Le virement n'a pas pu être exécuté.")}
+                  progressExplanation({
+                    status: result.status,
+                    kind: result.kind,
+                    progressState: result.progressState,
+                    progressPercent: result.progressPercent,
+                  }))}
             </p>
+            {result.status !== "COMPLETED" && !result.failureCode ? (
+              <p className="text-caption text-muted-foreground">
+                Avancement : {result.progressPercent} %. Aucun montant n'est définitivement débité
+                tant que le virement n'est pas terminé.
+              </p>
+            ) : null}
             <p className="text-caption text-muted-foreground">
               Référence du virement : {transfer.reference}
               {result.transactionReference ? ` · Opération ${result.transactionReference}` : ""}
