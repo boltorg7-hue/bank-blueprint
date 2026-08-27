@@ -14,6 +14,7 @@ import { Route as AccountsRouteImport } from './routes/accounts'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AppRouteImport } from './routes/app'
 import { Route as FeaturesRouteImport } from './routes/features'
+import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as SecurityRouteImport } from './routes/security'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as AdminDashboardRouteImport } from './routes/admin.dashboard'
@@ -44,6 +45,11 @@ const AppRoute = AppRouteImport.update({
 const FeaturesRoute = FeaturesRouteImport.update({
   id: '/features',
   path: '/features',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PricingRoute = PricingRouteImport.update({
+  id: '/pricing',
+  path: '/pricing',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SecurityRoute = SecurityRouteImport.update({
@@ -83,6 +89,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminRouteWithChildren
   '/app': typeof AppRouteWithChildren
   '/features': typeof FeaturesRoute
+  '/pricing': typeof PricingRoute
   '/security': typeof SecurityRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/app/dashboard': typeof AppDashboardRoute
@@ -94,6 +101,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/accounts': typeof AccountsRoute
   '/features': typeof FeaturesRoute
+  '/pricing': typeof PricingRoute
   '/security': typeof SecurityRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/app/dashboard': typeof AppDashboardRoute
@@ -108,6 +116,7 @@ export interface FileRoutesById {
   '/admin': typeof AdminRouteWithChildren
   '/app': typeof AppRouteWithChildren
   '/features': typeof FeaturesRoute
+  '/pricing': typeof PricingRoute
   '/security': typeof SecurityRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/app/dashboard': typeof AppDashboardRoute
@@ -123,6 +132,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/app'
     | '/features'
+    | '/pricing'
     | '/security'
     | '/admin/dashboard'
     | '/app/dashboard'
@@ -134,6 +144,7 @@ export interface FileRouteTypes {
     | '/'
     | '/accounts'
     | '/features'
+    | '/pricing'
     | '/security'
     | '/admin/dashboard'
     | '/app/dashboard'
@@ -147,6 +158,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/app'
     | '/features'
+    | '/pricing'
     | '/security'
     | '/admin/dashboard'
     | '/app/dashboard'
@@ -161,6 +173,7 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRouteWithChildren
   AppRoute: typeof AppRouteWithChildren
   FeaturesRoute: typeof FeaturesRoute
+  PricingRoute: typeof PricingRoute
   SecurityRoute: typeof SecurityRoute
   DevDesignSystemRoute: typeof DevDesignSystemRoute
 }
@@ -200,6 +213,13 @@ declare module '@tanstack/react-router' {
       path: '/features'
       fullPath: '/features'
       preLoaderRoute: typeof FeaturesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pricing': {
+      id: '/pricing'
+      path: '/pricing'
+      fullPath: '/pricing'
+      preLoaderRoute: typeof PricingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/security': {
@@ -277,6 +297,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRouteWithChildren,
   AppRoute: AppRouteWithChildren,
   FeaturesRoute: FeaturesRoute,
+  PricingRoute: PricingRoute,
   SecurityRoute: SecurityRoute,
   DevDesignSystemRoute: DevDesignSystemRoute,
 }
