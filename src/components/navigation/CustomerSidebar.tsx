@@ -43,7 +43,7 @@ export function CustomerSidebar() {
         <BrandMark to="/app/dashboard" />
       </div>
 
-      <nav aria-label="Navigation client" className="flex-1 space-y-1 px-3 py-2">
+      <nav aria-label="Navigation client (latérale)" className="flex-1 space-y-1 px-3 py-2">
         {CUSTOMER_DESKTOP_NAV.map((item) => (
           <SidebarItem key={item.label} item={item} />
         ))}

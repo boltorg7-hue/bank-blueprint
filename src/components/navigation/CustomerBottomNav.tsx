@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils";
 export function CustomerBottomNav() {
   return (
     <nav
-      aria-label="Navigation client"
+      aria-label="Navigation client (mobile)"
       className="safe-pb fixed inset-x-0 bottom-0 z-40 border-t border-border bg-surface/95 backdrop-blur lg:hidden"
     >
       <ul className="mx-auto flex w-full max-w-3xl items-stretch">
