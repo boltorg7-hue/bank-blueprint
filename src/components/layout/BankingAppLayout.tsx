@@ -6,6 +6,8 @@ import { CustomerSidebar } from "@/components/navigation/CustomerSidebar";
 import { BrandMark } from "@/components/navigation/BrandMark";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/providers/ThemeProvider";
+import { PrivacyModeToggle } from "@/components/providers/PrivacyModeProvider";
 
 /**
  * Authenticated customer application shell.
