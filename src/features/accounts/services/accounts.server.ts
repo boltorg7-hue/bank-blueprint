@@ -102,17 +102,23 @@ function toSummary(row: AccountRow, balance: BalanceRow | null): CustomerAccount
 }
 
 /**
- * Idempotent initial provisioning (§32, §33). The database function itself
- * re-checks the caller identity and the ACTIVE lifecycle, and short-circuits
- * when an account already exists.
+ * Idempotent initial provisioning (§32, §33). The provisioning routine is
+ * privileged: it is not executable by signed-in sessions, so it runs through
+ * the trusted server client only, for a user id already verified by the
+ * authentication middleware. The database function still re-checks the ACTIVE
+ * lifecycle and short-circuits when an account already exists.
  */
-export async function ensurePrimaryAccount(client: Client, userId: string): Promise<void> {
-  const { error } = await client.rpc("provision_primary_account", { _user_id: userId });
+export async function ensurePrimaryAccount(_client: Client, userId: string): Promise<void> {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { error } = await supabaseAdmin.rpc("provision_primary_account", {
+    _user_id: userId,
+  } as never);
   if (error) {
     // Provisioning issues must never leak infrastructure details (§112).
     throw new AccountAccessError("ACCOUNT_PROVISIONING_FAILED");
   }
 }
+
 
 async function fetchAccountRows(client: Client, userId: string): Promise<AccountRow[]> {
   const { data, error } = await client
