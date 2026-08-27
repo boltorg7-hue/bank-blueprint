@@ -14,6 +14,160 @@ export type Database = {
   }
   public: {
     Tables: {
+      account_balances: {
+        Row: {
+          account_id: string
+          available_balance_minor: number
+          calculated_at: string
+          currency: string
+          held_balance_minor: number
+          ledger_balance_minor: number
+          updated_at: string
+          version: number
+        }
+        Insert: {
+          account_id: string
+          available_balance_minor?: number
+          calculated_at?: string
+          currency: string
+          held_balance_minor?: number
+          ledger_balance_minor?: number
+          updated_at?: string
+          version?: number
+        }
+        Update: {
+          account_id?: string
+          available_balance_minor?: number
+          calculated_at?: string
+          currency?: string
+          held_balance_minor?: number
+          ledger_balance_minor?: number
+          updated_at?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "account_balances_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: true
+            referencedRelation: "bank_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      account_status_history: {
+        Row: {
+          account_id: string
+          changed_by: string | null
+          created_at: string
+          id: string
+          internal_note: string | null
+          new_status: Database["public"]["Enums"]["bank_account_status"]
+          previous_status:
+            | Database["public"]["Enums"]["bank_account_status"]
+            | null
+          reason_category: string | null
+          user_id: string
+        }
+        Insert: {
+          account_id: string
+          changed_by?: string | null
+          created_at?: string
+          id?: string
+          internal_note?: string | null
+          new_status: Database["public"]["Enums"]["bank_account_status"]
+          previous_status?:
+            | Database["public"]["Enums"]["bank_account_status"]
+            | null
+          reason_category?: string | null
+          user_id: string
+        }
+        Update: {
+          account_id?: string
+          changed_by?: string | null
+          created_at?: string
+          id?: string
+          internal_note?: string | null
+          new_status?: Database["public"]["Enums"]["bank_account_status"]
+          previous_status?:
+            | Database["public"]["Enums"]["bank_account_status"]
+            | null
+          reason_category?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "account_status_history_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "bank_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bank_accounts: {
+        Row: {
+          account_number: string
+          account_type: Database["public"]["Enums"]["bank_account_type"]
+          bank_code: string | null
+          bic: string | null
+          branch_code: string | null
+          closed_at: string | null
+          created_at: string
+          currency: string
+          currency_minor_unit: number
+          display_name: string
+          iban: string | null
+          id: string
+          is_primary: boolean
+          opened_at: string | null
+          public_reference: string
+          status: Database["public"]["Enums"]["bank_account_status"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          account_number: string
+          account_type?: Database["public"]["Enums"]["bank_account_type"]
+          bank_code?: string | null
+          bic?: string | null
+          branch_code?: string | null
+          closed_at?: string | null
+          created_at?: string
+          currency?: string
+          currency_minor_unit?: number
+          display_name?: string
+          iban?: string | null
+          id?: string
+          is_primary?: boolean
+          opened_at?: string | null
+          public_reference: string
+          status?: Database["public"]["Enums"]["bank_account_status"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          account_number?: string
+          account_type?: Database["public"]["Enums"]["bank_account_type"]
+          bank_code?: string | null
+          bic?: string | null
+          branch_code?: string | null
+          closed_at?: string | null
+          created_at?: string
+          currency?: string
+          currency_minor_unit?: number
+          display_name?: string
+          iban?: string | null
+          id?: string
+          is_primary?: boolean
+          opened_at?: string | null
+          public_reference?: string
+          status?: Database["public"]["Enums"]["bank_account_status"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       customer_addresses: {
         Row: {
           address_line1: string
@@ -295,6 +449,8 @@ export type Database = {
         Returns: boolean
       }
       is_staff: { Args: { _user_id: string }; Returns: boolean }
+      next_account_public_reference: { Args: never; Returns: string }
+      provision_primary_account: { Args: { _user_id: string }; Returns: string }
     }
     Enums: {
       app_role:
@@ -307,6 +463,15 @@ export type Database = {
         | "administrator"
         | "super_admin"
         | "auditor"
+      bank_account_status:
+        | "PENDING"
+        | "ACTIVE"
+        | "RESTRICTED"
+        | "SUSPENDED"
+        | "FROZEN"
+        | "CLOSING"
+        | "CLOSED"
+      bank_account_type: "CURRENT" | "SAVINGS"
       customer_lifecycle_state:
         | "VISITOR"
         | "REGISTERED"
@@ -492,6 +657,16 @@ export const Constants = {
         "super_admin",
         "auditor",
       ],
+      bank_account_status: [
+        "PENDING",
+        "ACTIVE",
+        "RESTRICTED",
+        "SUSPENDED",
+        "FROZEN",
+        "CLOSING",
+        "CLOSED",
+      ],
+      bank_account_type: ["CURRENT", "SAVINGS"],
       customer_lifecycle_state: [
         "VISITOR",
         "REGISTERED",
