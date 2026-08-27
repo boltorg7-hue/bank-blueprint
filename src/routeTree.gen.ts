@@ -53,6 +53,7 @@ import { Route as OnboardingDocumentsRouteImport } from './routes/onboarding.doc
 import { Route as OnboardingProfileRouteImport } from './routes/onboarding.profile'
 import { Route as OnboardingReviewRouteImport } from './routes/onboarding.review'
 import { Route as OnboardingStatusRouteImport } from './routes/onboarding.status'
+import { Route as AppAccountsIndexRouteImport } from './routes/app.accounts.index'
 import { Route as AppTransfersIndexRouteImport } from './routes/app.transfers.index'
 import { Route as AppTransfersNewRouteImport } from './routes/app.transfers.new'
 
@@ -276,6 +277,11 @@ const OnboardingStatusRoute = OnboardingStatusRouteImport.update({
   path: '/status',
   getParentRoute: () => OnboardingRoute,
 } as any)
+const AppAccountsIndexRoute = AppAccountsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppAccountsRoute,
+} as any)
 const AppTransfersIndexRoute = AppTransfersIndexRouteImport.update({
   id: '/transfers/',
   path: '/transfers/',
@@ -309,7 +315,7 @@ export interface FileRoutesByFullPath {
   '/terms': typeof TermsRoute
   '/verify-email': typeof VerifyEmailRoute
   '/admin/dashboard': typeof AdminDashboardRoute
-  '/app/accounts': typeof AppAccountsRoute
+  '/app/accounts': typeof AppAccountsRouteWithChildren
   '/app/activity': typeof AppActivityRoute
   '/app/beneficiaries': typeof AppBeneficiariesRoute
   '/app/dashboard': typeof AppDashboardRoute
@@ -333,6 +339,7 @@ export interface FileRoutesByFullPath {
   '/app/': typeof AppIndexRoute
   '/onboarding/': typeof OnboardingIndexRoute
   '/app/transfers/new': typeof AppTransfersNewRoute
+  '/app/accounts/': typeof AppAccountsIndexRoute
   '/app/transfers/': typeof AppTransfersIndexRoute
 }
 export interface FileRoutesByTo {
@@ -354,7 +361,6 @@ export interface FileRoutesByTo {
   '/terms': typeof TermsRoute
   '/verify-email': typeof VerifyEmailRoute
   '/admin/dashboard': typeof AdminDashboardRoute
-  '/app/accounts': typeof AppAccountsRoute
   '/app/activity': typeof AppActivityRoute
   '/app/beneficiaries': typeof AppBeneficiariesRoute
   '/app/dashboard': typeof AppDashboardRoute
@@ -378,6 +384,7 @@ export interface FileRoutesByTo {
   '/app': typeof AppIndexRoute
   '/onboarding': typeof OnboardingIndexRoute
   '/app/transfers/new': typeof AppTransfersNewRoute
+  '/app/accounts': typeof AppAccountsIndexRoute
   '/app/transfers': typeof AppTransfersIndexRoute
 }
 export interface FileRoutesById {
@@ -403,7 +410,7 @@ export interface FileRoutesById {
   '/terms': typeof TermsRoute
   '/verify-email': typeof VerifyEmailRoute
   '/admin/dashboard': typeof AdminDashboardRoute
-  '/app/accounts': typeof AppAccountsRoute
+  '/app/accounts': typeof AppAccountsRouteWithChildren
   '/app/activity': typeof AppActivityRoute
   '/app/beneficiaries': typeof AppBeneficiariesRoute
   '/app/dashboard': typeof AppDashboardRoute
@@ -427,6 +434,7 @@ export interface FileRoutesById {
   '/app/': typeof AppIndexRoute
   '/onboarding/': typeof OnboardingIndexRoute
   '/app/transfers/new': typeof AppTransfersNewRoute
+  '/app/accounts/': typeof AppAccountsIndexRoute
   '/app/transfers/': typeof AppTransfersIndexRoute
 }
 export interface FileRouteTypes {
@@ -477,6 +485,7 @@ export interface FileRouteTypes {
     | '/app/'
     | '/onboarding/'
     | '/app/transfers/new'
+    | '/app/accounts/'
     | '/app/transfers/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -498,7 +507,6 @@ export interface FileRouteTypes {
     | '/terms'
     | '/verify-email'
     | '/admin/dashboard'
-    | '/app/accounts'
     | '/app/activity'
     | '/app/beneficiaries'
     | '/app/dashboard'
@@ -522,6 +530,7 @@ export interface FileRouteTypes {
     | '/app'
     | '/onboarding'
     | '/app/transfers/new'
+    | '/app/accounts'
     | '/app/transfers'
   id:
     | '__root__'
@@ -570,6 +579,7 @@ export interface FileRouteTypes {
     | '/app/'
     | '/onboarding/'
     | '/app/transfers/new'
+    | '/app/accounts/'
     | '/app/transfers/'
   fileRoutesById: FileRoutesById
 }
@@ -908,6 +918,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OnboardingStatusRouteImport
       parentRoute: typeof OnboardingRoute
     }
+    '/app/accounts/': {
+      id: '/app/accounts/'
+      path: '/'
+      fullPath: '/app/accounts/'
+      preLoaderRoute: typeof AppAccountsIndexRouteImport
+      parentRoute: typeof AppAccountsRoute
+    }
     '/app/transfers/': {
       id: '/app/transfers/'
       path: '/transfers'
@@ -937,8 +954,20 @@ const AdminRouteChildren: AdminRouteChildren = {
 
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
+interface AppAccountsRouteChildren {
+  AppAccountsIndexRoute: typeof AppAccountsIndexRoute
+}
+
+const AppAccountsRouteChildren: AppAccountsRouteChildren = {
+  AppAccountsIndexRoute: AppAccountsIndexRoute,
+}
+
+const AppAccountsRouteWithChildren = AppAccountsRoute._addFileChildren(
+  AppAccountsRouteChildren,
+)
+
 interface AppRouteChildren {
-  AppAccountsRoute: typeof AppAccountsRoute
+  AppAccountsRoute: typeof AppAccountsRouteWithChildren
   AppActivityRoute: typeof AppActivityRoute
   AppBeneficiariesRoute: typeof AppBeneficiariesRoute
   AppDashboardRoute: typeof AppDashboardRoute
@@ -957,7 +986,7 @@ interface AppRouteChildren {
 }
 
 const AppRouteChildren: AppRouteChildren = {
-  AppAccountsRoute: AppAccountsRoute,
+  AppAccountsRoute: AppAccountsRouteWithChildren,
   AppActivityRoute: AppActivityRoute,
   AppBeneficiariesRoute: AppBeneficiariesRoute,
   AppDashboardRoute: AppDashboardRoute,
