@@ -27,6 +27,7 @@ import { Route as RegisterRouteImport } from './routes/register'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as SecurityRouteImport } from './routes/security'
 import { Route as SessionExpiredRouteImport } from './routes/session-expired'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as VerifyEmailRouteImport } from './routes/verify-email'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
@@ -148,6 +149,11 @@ const SecurityRoute = SecurityRouteImport.update({
 const SessionExpiredRoute = SessionExpiredRouteImport.update({
   id: '/session-expired',
   path: '/session-expired',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TermsRoute = TermsRouteImport.update({
@@ -331,6 +337,7 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/security': typeof SecurityRoute
   '/session-expired': typeof SessionExpiredRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/verify-email': typeof VerifyEmailRoute
   '/admin/dashboard': typeof AdminDashboardRoute
@@ -380,6 +387,7 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/security': typeof SecurityRoute
   '/session-expired': typeof SessionExpiredRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/verify-email': typeof VerifyEmailRoute
   '/admin/dashboard': typeof AdminDashboardRoute
@@ -431,6 +439,7 @@ export interface FileRoutesById {
   '/reset-password': typeof ResetPasswordRoute
   '/security': typeof SecurityRoute
   '/session-expired': typeof SessionExpiredRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/verify-email': typeof VerifyEmailRoute
   '/admin/dashboard': typeof AdminDashboardRoute
@@ -485,6 +494,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/security'
     | '/session-expired'
+    | '/sitemap.xml'
     | '/terms'
     | '/verify-email'
     | '/admin/dashboard'
@@ -534,6 +544,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/security'
     | '/session-expired'
+    | '/sitemap.xml'
     | '/terms'
     | '/verify-email'
     | '/admin/dashboard'
@@ -584,6 +595,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/security'
     | '/session-expired'
+    | '/sitemap.xml'
     | '/terms'
     | '/verify-email'
     | '/admin/dashboard'
@@ -637,6 +649,7 @@ export interface RootRouteChildren {
   ResetPasswordRoute: typeof ResetPasswordRoute
   SecurityRoute: typeof SecurityRoute
   SessionExpiredRoute: typeof SessionExpiredRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TermsRoute: typeof TermsRoute
   VerifyEmailRoute: typeof VerifyEmailRoute
   AuthCallbackRoute: typeof AuthCallbackRoute
@@ -769,6 +782,13 @@ declare module '@tanstack/react-router' {
       path: '/session-expired'
       fullPath: '/session-expired'
       preLoaderRoute: typeof SessionExpiredRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/terms': {
@@ -1119,6 +1139,7 @@ const rootRouteChildren: RootRouteChildren = {
   ResetPasswordRoute: ResetPasswordRoute,
   SecurityRoute: SecurityRoute,
   SessionExpiredRoute: SessionExpiredRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
   TermsRoute: TermsRoute,
   VerifyEmailRoute: VerifyEmailRoute,
   AuthCallbackRoute: AuthCallbackRoute,
