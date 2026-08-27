@@ -14,7 +14,7 @@ import { NetworkStatusBanner } from "@/features/customer-shell/components/Networ
  */
 export function BankingAppLayout({ children }: { children: ReactNode }) {
   return (
-    <AccountContextProvider>
+    <AccountsShellProvider>
       <div className="min-h-dvh-safe flex bg-surface-sunken">
         <CustomerSidebar />
 
@@ -29,7 +29,7 @@ export function BankingAppLayout({ children }: { children: ReactNode }) {
 
         <CustomerBottomNav />
       </div>
-    </AccountContextProvider>
+    </AccountsShellProvider>
   );
 }
 
