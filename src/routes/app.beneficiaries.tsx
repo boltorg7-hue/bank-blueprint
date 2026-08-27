@@ -9,6 +9,7 @@ import {
   transactionalBlockedReason,
 } from "@/features/customer-shell/lib/route-access";
 import { AddBeneficiaryDialog } from "@/features/beneficiaries/components/AddBeneficiaryDialog";
+import { AddExternalBeneficiaryDialog } from "@/features/beneficiaries/components/AddExternalBeneficiaryDialog";
 import { BeneficiaryList } from "@/features/beneficiaries/components/BeneficiaryList";
 
 export const Route = createFileRoute("/app/beneficiaries")({
@@ -35,7 +36,14 @@ function AppBeneficiariesRoute() {
       <PageHeader
         title="Bénéficiaires"
         description="Les comptes vers lesquels vous pouvez envoyer de l'argent. Seules les dernières décimales du compte sont affichées."
-        action={allowed ? <AddBeneficiaryDialog /> : undefined}
+        action={
+          allowed ? (
+            <div className="flex flex-col gap-2 sm:flex-row">
+              <AddBeneficiaryDialog />
+              <AddExternalBeneficiaryDialog />
+            </div>
+          ) : undefined
+        }
       />
       {allowed ? (
         <BeneficiaryList action={<AddBeneficiaryDialog />} />

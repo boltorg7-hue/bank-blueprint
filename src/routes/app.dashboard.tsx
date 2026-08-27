@@ -8,6 +8,7 @@ import { AccountBalanceCard } from "@/features/accounts/components/AccountBalanc
 import { MonthlySummaryCard } from "@/features/accounts/components/MonthlySummaryCard";
 import { RecentActivityList } from "@/features/accounts/components/RecentActivityList";
 import { useDashboardSummary } from "@/features/accounts/hooks/useAccounts";
+import { ActionRequiredTransfers } from "@/features/transfers/components/ActionRequiredTransfers";
 import { useCustomerSummary } from "@/features/customer-shell/hooks/useCustomerSummary";
 import { isAllowed } from "@/features/customer-shell/lib/route-access";
 import {
@@ -87,6 +88,8 @@ function DashboardPage() {
               {restriction}
             </p>
           )}
+
+          <ActionRequiredTransfers />
 
           <section aria-labelledby="quick-actions-heading" className="space-y-3">
             <h2 id="quick-actions-heading" className="text-heading-sm text-foreground">
