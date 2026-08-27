@@ -48,13 +48,12 @@ export function organizationJsonLd() {
     identifier: LEGAL_IDENTITY.registrationNumber,
     address: {
       "@type": "PostalAddress",
-      streetAddress: "St. Clair Place, 7-8 St. Clair Avenue",
-      addressLocality: "Port of Spain",
-      postalCode: "107289",
-      addressCountry: "TT",
+      streetAddress: LEGAL_IDENTITY.registeredOfficeParts.streetAddress,
+      addressLocality: LEGAL_IDENTITY.registeredOfficeParts.locality,
+      postalCode: LEGAL_IDENTITY.registeredOfficeParts.postalCode,
+      addressCountry: LEGAL_IDENTITY.registeredOfficeParts.country,
     },
     email: APP_CONFIG.supportEmail,
-    ...(LEGAL_IDENTITY.swiftBic ? { globalLocationNumber: undefined } : {}),
   };
 }
 
