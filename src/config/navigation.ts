@@ -14,52 +14,95 @@ import {
   Send,
   Settings,
   ShieldCheck,
+  Sliders,
   UserRound,
   Users,
   Wallet,
   type LucideIcon,
 } from "lucide-react";
 
+import type { AppPath } from "@/lib/routing";
+
 export type NavItem = {
   label: string;
-  to: string;
+  to: AppPath;
   icon: LucideIcon;
-  /** Not yet implemented — the destination shell may be a placeholder. */
+  /** Destination exists as a shell; the domain engine arrives in a later phase. */
   upcoming?: boolean;
+  /** Requires transactional capability (banking status ACTIVE). */
+  transactional?: boolean;
 };
 
 /** Public marketing navigation (pages are built in PROMPT 02). */
 export const PUBLIC_NAV: NavItem[] = [
   { label: "Accueil", to: "/", icon: Home },
-  { label: "Comptes", to: "/", icon: Wallet, upcoming: true },
-  { label: "Sécurité", to: "/", icon: ShieldCheck, upcoming: true },
-  { label: "À propos", to: "/", icon: Building2, upcoming: true },
+  { label: "Comptes", to: "/accounts", icon: Wallet },
+  { label: "Sécurité", to: "/security", icon: ShieldCheck },
+  { label: "À propos", to: "/about", icon: Building2 },
 ];
 
-/** Primary mobile destinations — never more than five. */
+/** Primary mobile destinations — never more than five (§5, §6). */
 export const CUSTOMER_PRIMARY_NAV: NavItem[] = [
   { label: "Accueil", to: "/app/dashboard", icon: Home },
-  { label: "Comptes", to: "/app/dashboard", icon: Wallet, upcoming: true },
-  { label: "Virement", to: "/app/dashboard", icon: Send, upcoming: true },
-  { label: "Activité", to: "/app/dashboard", icon: ListOrdered, upcoming: true },
-  { label: "Plus", to: "/app/dashboard", icon: LayoutGrid, upcoming: true },
+  { label: "Comptes", to: "/app/accounts", icon: Wallet },
+  { label: "Virement", to: "/app/transfers/new", icon: Send, transactional: true },
+  { label: "Activité", to: "/app/activity", icon: ListOrdered },
+  { label: "Plus", to: "/app/more", icon: LayoutGrid },
 ];
 
-/** Desktop sidebar — customer destinations only, never admin functions. */
+/** Desktop sidebar — customer destinations only, never admin functions (§14). */
 export const CUSTOMER_DESKTOP_NAV: NavItem[] = [
   { label: "Accueil", to: "/app/dashboard", icon: Home },
-  { label: "Comptes", to: "/app/dashboard", icon: Wallet, upcoming: true },
-  { label: "Virement", to: "/app/dashboard", icon: Send, upcoming: true },
-  { label: "Activité", to: "/app/dashboard", icon: ListOrdered, upcoming: true },
-  { label: "Relevés", to: "/app/dashboard", icon: FileText, upcoming: true },
-  { label: "Messages", to: "/app/dashboard", icon: MessagesSquare, upcoming: true },
+  { label: "Comptes", to: "/app/accounts", icon: Wallet },
+  { label: "Virement", to: "/app/transfers", icon: Send, transactional: true },
+  { label: "Activité", to: "/app/activity", icon: ListOrdered },
+  { label: "Bénéficiaires", to: "/app/beneficiaries", icon: Users, transactional: true },
+  { label: "Relevés", to: "/app/statements", icon: FileText },
+  { label: "Documents", to: "/app/documents", icon: FileText },
+  { label: "Messages", to: "/app/messages", icon: MessagesSquare },
 ];
 
 export const CUSTOMER_SECONDARY_NAV: NavItem[] = [
-  { label: "Notifications", to: "/app/dashboard", icon: Bell, upcoming: true },
-  { label: "Profil", to: "/app/dashboard", icon: UserRound, upcoming: true },
-  { label: "Sécurité", to: "/app/dashboard", icon: Lock, upcoming: true },
-  { label: "Aide", to: "/app/dashboard", icon: LifeBuoy, upcoming: true },
+  { label: "Notifications", to: "/app/notifications", icon: Bell },
+  { label: "Profil", to: "/app/profile", icon: UserRound },
+  { label: "Sécurité", to: "/app/security", icon: Lock },
+  { label: "Préférences", to: "/app/settings", icon: Sliders },
+  { label: "Aide", to: "/help", icon: LifeBuoy },
+];
+
+/** Grouped secondary destinations for the mobile “Plus” screen (§11). */
+export const CUSTOMER_MORE_GROUPS: { title: string; items: NavItem[] }[] = [
+  {
+    title: "Banque",
+    items: [
+      { label: "Bénéficiaires", to: "/app/beneficiaries", icon: Users, transactional: true },
+      { label: "Virements", to: "/app/transfers", icon: Send, transactional: true },
+      { label: "Opérations", to: "/app/transactions", icon: ListOrdered },
+    ],
+  },
+  {
+    title: "Documents",
+    items: [
+      { label: "Relevés", to: "/app/statements", icon: FileText },
+      { label: "Documents", to: "/app/documents", icon: FileText },
+    ],
+  },
+  {
+    title: "Échanges",
+    items: [
+      { label: "Messages", to: "/app/messages", icon: MessagesSquare },
+      { label: "Notifications", to: "/app/notifications", icon: Bell },
+    ],
+  },
+  {
+    title: "Mon compte",
+    items: [
+      { label: "Profil", to: "/app/profile", icon: UserRound },
+      { label: "Sécurité", to: "/app/security", icon: Lock },
+      { label: "Préférences", to: "/app/settings", icon: Sliders },
+      { label: "Aide", to: "/help", icon: LifeBuoy },
+    ],
+  },
 ];
 
 /** Administration console navigation (built out in PROMPT 12+). */
