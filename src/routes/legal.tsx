@@ -10,7 +10,8 @@ import {
   COOKIE_POSTURE,
   LEGAL_HUB_LINKS,
 } from "@/features/public/content/legal";
-import { LEGAL_IDENTITY } from "@/features/public/content/site";
+import { LEGAL_IDENTITY_NOTICE } from "@/features/public/content/site";
+import { LegalIdentityList } from "@/features/public/components/LegalIdentityList";
 
 const meta = publicMeta({
   title: "Informations légales",
