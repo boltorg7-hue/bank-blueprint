@@ -47,7 +47,7 @@ function SecurityPage() {
           title="Ce que la banque met en place"
           description="Ces explications restent au niveau du client : aucun détail technique exploitable n'est publié."
         />
-        <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-8 grid grid-cols-[minmax(0,1fr)] gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {SECURITY_PROTECTIONS.map((item) => {
             const Icon = item.icon;
             return (
@@ -65,7 +65,7 @@ function SecurityPage() {
       </PublicSection>
 
       <PublicSection tone="sunken">
-        <div className="grid gap-8 lg:grid-cols-2">
+        <div className="grid grid-cols-[minmax(0,1fr)] gap-8 lg:grid-cols-2">
           <div className="min-w-0">
             <SectionHeader as="h2" eyebrow="Votre rôle" title="Ce que vous pouvez faire" />
             <ul className="mt-5 space-y-3">

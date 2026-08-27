@@ -101,7 +101,7 @@ function DesignSystemPage() {
         </Section>
 
         <Section title="Primitives financières">
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid grid-cols-[minmax(0,1fr)] gap-4 sm:grid-cols-2">
             <AccountCard
               name="Compte courant"
               identifier="FR7630006000011234567890189"
@@ -118,7 +118,7 @@ function DesignSystemPage() {
             </div>
           </div>
 
-          <div className="mt-4 grid gap-4 sm:grid-cols-3">
+          <div className="mt-4 grid grid-cols-[minmax(0,1fr)] gap-4 sm:grid-cols-3">
             <KpiCard label="Entrées du mois" value="+ 3 210,00 €" icon={Wallet} trend={{ direction: "up", label: "+8,2 %" }} />
             <KpiCard label="Sorties du mois" value="- 1 940,20 €" icon={Send} trend={{ direction: "down", label: "-3,1 %", tone: "negative" }} />
             <KpiCard label="Virements en attente" value="2" icon={Lock} hint="Traitement sous 24 h" />
@@ -144,7 +144,7 @@ function DesignSystemPage() {
             />
           </div>
 
-          <div className="mt-4 grid gap-4 lg:grid-cols-2">
+          <div className="mt-4 grid grid-cols-[minmax(0,1fr)] gap-4 lg:grid-cols-2">
             <TransferSummaryCard
               amount={1250}
               fromLabel="Compte courant"
@@ -187,7 +187,7 @@ function DesignSystemPage() {
         </Section>
 
         <Section title="Blocs publics">
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid grid-cols-[minmax(0,1fr)] gap-4 sm:grid-cols-2">
             <FeatureCard
               icon={Wallet}
               title="Comptes clairs"
@@ -199,7 +199,7 @@ function DesignSystemPage() {
               description="Chaque étape d'un virement est visible, du dépôt à l'exécution."
             />
           </div>
-          <div className="mt-6 grid gap-6 sm:grid-cols-2">
+          <div className="mt-6 grid grid-cols-[minmax(0,1fr)] gap-6 sm:grid-cols-2">
             <SecurityFeature
               icon={ShieldCheck}
               title="Chiffrement en transit et au repos"

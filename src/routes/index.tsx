@@ -53,7 +53,7 @@ function HomePage() {
     <PublicLayout>
       {/* Hero — §11 to §13 */}
       <section className="border-b border-border bg-surface-sunken px-4 py-14 sm:px-6 sm:py-20">
-        <div className="mx-auto grid w-full max-w-6xl gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
+        <div className="mx-auto grid w-full max-w-6xl grid-cols-[minmax(0,1fr)] gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
           <div className="min-w-0 space-y-5">
             <p className="text-overline text-brand">{HERO.eyebrow}</p>
             <h1 className="text-display text-balance text-foreground">{HERO.headline}</h1>
@@ -94,7 +94,7 @@ function HomePage() {
           title="Une banque qui montre clairement ce qui se passe"
           description="Quatre bénéfices concrets, sans jargon et sans promesse que le produit ne tient pas."
         />
-        <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-8 grid grid-cols-[minmax(0,1fr)] gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {CORE_BENEFITS.map((benefit) => {
             const Icon = benefit.icon;
             return (
@@ -125,7 +125,7 @@ function HomePage() {
             return (
               <div
                 key={story.id}
-                className="grid items-center gap-8 lg:grid-cols-2"
+                className="grid grid-cols-[minmax(0,1fr)] items-center gap-8 lg:grid-cols-2"
               >
                 <div className={index % 2 === 1 ? "min-w-0 lg:order-2" : "min-w-0"}>
                   <p className="text-overline text-brand">{story.eyebrow}</p>
@@ -154,7 +154,7 @@ function HomePage() {
 
       {/* Financial control — §19, §20 */}
       <PublicSection>
-        <div className="grid gap-8 lg:grid-cols-2 lg:items-center">
+        <div className="grid grid-cols-[minmax(0,1fr)] gap-8 lg:grid-cols-2 lg:items-center">
           <div className="min-w-0">
             <SectionHeader eyebrow="Maîtrise" title={FINANCIAL_CONTROL.title} description={FINANCIAL_CONTROL.description} />
             <ul className="mt-5 space-y-2">
@@ -182,7 +182,7 @@ function HomePage() {
             </Button>
           }
         />
-        <div className="mt-8 grid gap-4 sm:grid-cols-2">
+        <div className="mt-8 grid grid-cols-[minmax(0,1fr)] gap-4 sm:grid-cols-2">
           {SECURITY_HIGHLIGHTS.map((item) => {
             const Icon = item.icon;
             return (
@@ -203,7 +203,7 @@ function HomePage() {
 
       {/* Support — §25 */}
       <PublicSection>
-        <div className="grid gap-8 lg:grid-cols-2 lg:items-center">
+        <div className="grid grid-cols-[minmax(0,1fr)] gap-8 lg:grid-cols-2 lg:items-center">
           <div className="min-w-0">
             <SectionHeader eyebrow="Assistance" title={SUPPORT_SECTION.title} description={SUPPORT_SECTION.description} />
             <ul className="mt-5 space-y-2">
@@ -215,7 +215,7 @@ function HomePage() {
               ))}
             </ul>
           </div>
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid grid-cols-[minmax(0,1fr)] gap-4 sm:grid-cols-2">
             {INNOVATION_ITEMS.map((item) => {
               const Icon = item.icon;
               return (
@@ -237,7 +237,7 @@ function HomePage() {
           title="Cinq étapes, entièrement en ligne"
           description="Aucun délai de validation n'est promis : le compte est activé après validation du dossier."
         />
-        <ol className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+        <ol className="mt-8 grid grid-cols-[minmax(0,1fr)] gap-4 sm:grid-cols-2 lg:grid-cols-5">
           {ONBOARDING_STEPS.map((step, index) => (
             <li key={step.title} className="rounded-2xl border border-border bg-surface p-5">
               <span className="text-numeric text-caption inline-flex size-7 items-center justify-center rounded-full bg-brand text-brand-foreground">
@@ -252,7 +252,7 @@ function HomePage() {
 
       {/* FAQ — §44 */}
       <PublicSection>
-        <div className="grid gap-8 lg:grid-cols-[0.8fr_1.2fr]">
+        <div className="grid grid-cols-[minmax(0,1fr)] gap-8 lg:grid-cols-[0.8fr_1.2fr]">
           <SectionHeader
             eyebrow="Questions fréquentes"
             title="Les réponses les plus demandées"

@@ -67,7 +67,7 @@ export function AccountPreview({ compact = false, className }: { compact?: boole
         meta={<span className="text-caption text-muted-foreground">Aperçu — données de démonstration</span>}
       />
       {!compact && (
-        <div className="mt-4 grid grid-cols-2 gap-3">
+        <div className="mt-4 grid grid-cols-[minmax(0,1fr)] gap-3 sm:grid-cols-2">
           <KpiCard label="Entrées du mois" value={`+ ${DEMO.inflow.toLocaleString("fr-FR")} €`} />
           <KpiCard label="Sorties du mois" value={`- ${DEMO.outflow.toLocaleString("fr-FR")} €`} />
         </div>

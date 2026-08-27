@@ -10,12 +10,20 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AboutRouteImport } from './routes/about'
 import { Route as AccountsRouteImport } from './routes/accounts'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AppRouteImport } from './routes/app'
+import { Route as ContactRouteImport } from './routes/contact'
 import { Route as FeaturesRouteImport } from './routes/features'
+import { Route as HelpRouteImport } from './routes/help'
+import { Route as LegalRouteImport } from './routes/legal'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as PricingRouteImport } from './routes/pricing'
+import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as RegisterRouteImport } from './routes/register'
 import { Route as SecurityRouteImport } from './routes/security'
+import { Route as TermsRouteImport } from './routes/terms'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as AdminDashboardRouteImport } from './routes/admin.dashboard'
 import { Route as AppIndexRouteImport } from './routes/app.index'
@@ -25,6 +33,11 @@ import { Route as DevDesignSystemRouteImport } from './routes/dev.design-system'
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AboutRoute = AboutRouteImport.update({
+  id: '/about',
+  path: '/about',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AccountsRoute = AccountsRouteImport.update({
@@ -42,9 +55,29 @@ const AppRoute = AppRouteImport.update({
   path: '/app',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ContactRoute = ContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const FeaturesRoute = FeaturesRouteImport.update({
   id: '/features',
   path: '/features',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HelpRoute = HelpRouteImport.update({
+  id: '/help',
+  path: '/help',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LegalRoute = LegalRouteImport.update({
+  id: '/legal',
+  path: '/legal',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PricingRoute = PricingRouteImport.update({
@@ -52,9 +85,24 @@ const PricingRoute = PricingRouteImport.update({
   path: '/pricing',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RegisterRoute = RegisterRouteImport.update({
+  id: '/register',
+  path: '/register',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SecurityRoute = SecurityRouteImport.update({
   id: '/security',
   path: '/security',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminIndexRoute = AdminIndexRouteImport.update({
@@ -85,12 +133,20 @@ const DevDesignSystemRoute = DevDesignSystemRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
   '/accounts': typeof AccountsRoute
   '/admin': typeof AdminRouteWithChildren
   '/app': typeof AppRouteWithChildren
+  '/contact': typeof ContactRoute
   '/features': typeof FeaturesRoute
+  '/help': typeof HelpRoute
+  '/legal': typeof LegalRoute
+  '/login': typeof LoginRoute
   '/pricing': typeof PricingRoute
+  '/privacy': typeof PrivacyRoute
+  '/register': typeof RegisterRoute
   '/security': typeof SecurityRoute
+  '/terms': typeof TermsRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/app/dashboard': typeof AppDashboardRoute
   '/dev/design-system': typeof DevDesignSystemRoute
@@ -99,10 +155,18 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
   '/accounts': typeof AccountsRoute
+  '/contact': typeof ContactRoute
   '/features': typeof FeaturesRoute
+  '/help': typeof HelpRoute
+  '/legal': typeof LegalRoute
+  '/login': typeof LoginRoute
   '/pricing': typeof PricingRoute
+  '/privacy': typeof PrivacyRoute
+  '/register': typeof RegisterRoute
   '/security': typeof SecurityRoute
+  '/terms': typeof TermsRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/app/dashboard': typeof AppDashboardRoute
   '/dev/design-system': typeof DevDesignSystemRoute
@@ -112,12 +176,20 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
   '/accounts': typeof AccountsRoute
   '/admin': typeof AdminRouteWithChildren
   '/app': typeof AppRouteWithChildren
+  '/contact': typeof ContactRoute
   '/features': typeof FeaturesRoute
+  '/help': typeof HelpRoute
+  '/legal': typeof LegalRoute
+  '/login': typeof LoginRoute
   '/pricing': typeof PricingRoute
+  '/privacy': typeof PrivacyRoute
+  '/register': typeof RegisterRoute
   '/security': typeof SecurityRoute
+  '/terms': typeof TermsRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/app/dashboard': typeof AppDashboardRoute
   '/dev/design-system': typeof DevDesignSystemRoute
@@ -128,12 +200,20 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/about'
     | '/accounts'
     | '/admin'
     | '/app'
+    | '/contact'
     | '/features'
+    | '/help'
+    | '/legal'
+    | '/login'
     | '/pricing'
+    | '/privacy'
+    | '/register'
     | '/security'
+    | '/terms'
     | '/admin/dashboard'
     | '/app/dashboard'
     | '/dev/design-system'
@@ -142,10 +222,18 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/about'
     | '/accounts'
+    | '/contact'
     | '/features'
+    | '/help'
+    | '/legal'
+    | '/login'
     | '/pricing'
+    | '/privacy'
+    | '/register'
     | '/security'
+    | '/terms'
     | '/admin/dashboard'
     | '/app/dashboard'
     | '/dev/design-system'
@@ -154,12 +242,20 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/about'
     | '/accounts'
     | '/admin'
     | '/app'
+    | '/contact'
     | '/features'
+    | '/help'
+    | '/legal'
+    | '/login'
     | '/pricing'
+    | '/privacy'
+    | '/register'
     | '/security'
+    | '/terms'
     | '/admin/dashboard'
     | '/app/dashboard'
     | '/dev/design-system'
@@ -169,12 +265,20 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AboutRoute: typeof AboutRoute
   AccountsRoute: typeof AccountsRoute
   AdminRoute: typeof AdminRouteWithChildren
   AppRoute: typeof AppRouteWithChildren
+  ContactRoute: typeof ContactRoute
   FeaturesRoute: typeof FeaturesRoute
+  HelpRoute: typeof HelpRoute
+  LegalRoute: typeof LegalRoute
+  LoginRoute: typeof LoginRoute
   PricingRoute: typeof PricingRoute
+  PrivacyRoute: typeof PrivacyRoute
+  RegisterRoute: typeof RegisterRoute
   SecurityRoute: typeof SecurityRoute
+  TermsRoute: typeof TermsRoute
   DevDesignSystemRoute: typeof DevDesignSystemRoute
 }
 
@@ -185,6 +289,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/about': {
+      id: '/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof AboutRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/accounts': {
@@ -208,11 +319,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/contact': {
+      id: '/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/features': {
       id: '/features'
       path: '/features'
       fullPath: '/features'
       preLoaderRoute: typeof FeaturesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/help': {
+      id: '/help'
+      path: '/help'
+      fullPath: '/help'
+      preLoaderRoute: typeof HelpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/legal': {
+      id: '/legal'
+      path: '/legal'
+      fullPath: '/legal'
+      preLoaderRoute: typeof LegalRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/pricing': {
@@ -222,11 +361,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PricingRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/register': {
+      id: '/register'
+      path: '/register'
+      fullPath: '/register'
+      preLoaderRoute: typeof RegisterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/security': {
       id: '/security'
       path: '/security'
       fullPath: '/security'
       preLoaderRoute: typeof SecurityRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/': {
@@ -293,12 +453,20 @@ const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AboutRoute: AboutRoute,
   AccountsRoute: AccountsRoute,
   AdminRoute: AdminRouteWithChildren,
   AppRoute: AppRouteWithChildren,
+  ContactRoute: ContactRoute,
   FeaturesRoute: FeaturesRoute,
+  HelpRoute: HelpRoute,
+  LegalRoute: LegalRoute,
+  LoginRoute: LoginRoute,
   PricingRoute: PricingRoute,
+  PrivacyRoute: PrivacyRoute,
+  RegisterRoute: RegisterRoute,
   SecurityRoute: SecurityRoute,
+  TermsRoute: TermsRoute,
   DevDesignSystemRoute: DevDesignSystemRoute,
 }
 export const routeTree = rootRouteImport

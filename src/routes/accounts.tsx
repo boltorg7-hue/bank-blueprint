@@ -44,7 +44,7 @@ function AccountsPage() {
           title="Le compte courant particulier"
           description="Les conditions tarifaires détaillées sont publiées sur la page Tarifs."
         />
-        <div className="mt-8 grid gap-5 lg:grid-cols-2">
+        <div className="mt-8 grid grid-cols-[minmax(0,1fr)] gap-5 lg:grid-cols-2">
           {available.map((product) => (
             <AccountProductCard key={product.id} product={product} />
           ))}
@@ -57,7 +57,7 @@ function AccountsPage() {
 
       <PublicSection tone="sunken">
         <SectionHeader eyebrow="En pratique" title="Ce que le compte vous permet de faire" />
-        <div className="mt-8 grid gap-4 md:grid-cols-3">
+        <div className="mt-8 grid grid-cols-[minmax(0,1fr)] gap-4 md:grid-cols-3">
           {ACCOUNT_SECTIONS.map((section) => (
             <article key={section.title} className="rounded-2xl border border-border bg-surface p-5">
               <h3 className="text-heading-sm text-foreground">{section.title}</h3>
