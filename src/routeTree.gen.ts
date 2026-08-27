@@ -20,6 +20,7 @@ import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as HelpRouteImport } from './routes/help'
 import { Route as LegalRouteImport } from './routes/legal'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as RegisterRouteImport } from './routes/register'
@@ -34,6 +35,10 @@ import { Route as AppIndexRouteImport } from './routes/app.index'
 import { Route as AppDashboardRouteImport } from './routes/app.dashboard'
 import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
 import { Route as DevDesignSystemRouteImport } from './routes/dev.design-system'
+import { Route as OnboardingIndexRouteImport } from './routes/onboarding.index'
+import { Route as OnboardingAddressRouteImport } from './routes/onboarding.address'
+import { Route as OnboardingDocumentsRouteImport } from './routes/onboarding.documents'
+import { Route as OnboardingProfileRouteImport } from './routes/onboarding.profile'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -88,6 +93,11 @@ const LegalRoute = LegalRouteImport.update({
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OnboardingRoute = OnboardingRouteImport.update({
+  id: '/onboarding',
+  path: '/onboarding',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PricingRoute = PricingRouteImport.update({
@@ -160,6 +170,26 @@ const DevDesignSystemRoute = DevDesignSystemRouteImport.update({
   path: '/dev/design-system',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OnboardingIndexRoute = OnboardingIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => OnboardingRoute,
+} as any)
+const OnboardingAddressRoute = OnboardingAddressRouteImport.update({
+  id: '/address',
+  path: '/address',
+  getParentRoute: () => OnboardingRoute,
+} as any)
+const OnboardingDocumentsRoute = OnboardingDocumentsRouteImport.update({
+  id: '/documents',
+  path: '/documents',
+  getParentRoute: () => OnboardingRoute,
+} as any)
+const OnboardingProfileRoute = OnboardingProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => OnboardingRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -173,6 +203,7 @@ export interface FileRoutesByFullPath {
   '/help': typeof HelpRoute
   '/legal': typeof LegalRoute
   '/login': typeof LoginRoute
+  '/onboarding': typeof OnboardingRouteWithChildren
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/register': typeof RegisterRoute
@@ -185,8 +216,12 @@ export interface FileRoutesByFullPath {
   '/app/dashboard': typeof AppDashboardRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/dev/design-system': typeof DevDesignSystemRoute
+  '/onboarding/address': typeof OnboardingAddressRoute
+  '/onboarding/documents': typeof OnboardingDocumentsRoute
+  '/onboarding/profile': typeof OnboardingProfileRoute
   '/admin/': typeof AdminIndexRoute
   '/app/': typeof AppIndexRoute
+  '/onboarding/': typeof OnboardingIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -210,8 +245,12 @@ export interface FileRoutesByTo {
   '/app/dashboard': typeof AppDashboardRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/dev/design-system': typeof DevDesignSystemRoute
+  '/onboarding/address': typeof OnboardingAddressRoute
+  '/onboarding/documents': typeof OnboardingDocumentsRoute
+  '/onboarding/profile': typeof OnboardingProfileRoute
   '/admin': typeof AdminIndexRoute
   '/app': typeof AppIndexRoute
+  '/onboarding': typeof OnboardingIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -226,6 +265,7 @@ export interface FileRoutesById {
   '/help': typeof HelpRoute
   '/legal': typeof LegalRoute
   '/login': typeof LoginRoute
+  '/onboarding': typeof OnboardingRouteWithChildren
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/register': typeof RegisterRoute
@@ -238,8 +278,12 @@ export interface FileRoutesById {
   '/app/dashboard': typeof AppDashboardRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/dev/design-system': typeof DevDesignSystemRoute
+  '/onboarding/address': typeof OnboardingAddressRoute
+  '/onboarding/documents': typeof OnboardingDocumentsRoute
+  '/onboarding/profile': typeof OnboardingProfileRoute
   '/admin/': typeof AdminIndexRoute
   '/app/': typeof AppIndexRoute
+  '/onboarding/': typeof OnboardingIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -255,6 +299,7 @@ export interface FileRouteTypes {
     | '/help'
     | '/legal'
     | '/login'
+    | '/onboarding'
     | '/pricing'
     | '/privacy'
     | '/register'
@@ -267,8 +312,12 @@ export interface FileRouteTypes {
     | '/app/dashboard'
     | '/auth/callback'
     | '/dev/design-system'
+    | '/onboarding/address'
+    | '/onboarding/documents'
+    | '/onboarding/profile'
     | '/admin/'
     | '/app/'
+    | '/onboarding/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -292,8 +341,12 @@ export interface FileRouteTypes {
     | '/app/dashboard'
     | '/auth/callback'
     | '/dev/design-system'
+    | '/onboarding/address'
+    | '/onboarding/documents'
+    | '/onboarding/profile'
     | '/admin'
     | '/app'
+    | '/onboarding'
   id:
     | '__root__'
     | '/'
@@ -307,6 +360,7 @@ export interface FileRouteTypes {
     | '/help'
     | '/legal'
     | '/login'
+    | '/onboarding'
     | '/pricing'
     | '/privacy'
     | '/register'
@@ -319,8 +373,12 @@ export interface FileRouteTypes {
     | '/app/dashboard'
     | '/auth/callback'
     | '/dev/design-system'
+    | '/onboarding/address'
+    | '/onboarding/documents'
+    | '/onboarding/profile'
     | '/admin/'
     | '/app/'
+    | '/onboarding/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -335,6 +393,7 @@ export interface RootRouteChildren {
   HelpRoute: typeof HelpRoute
   LegalRoute: typeof LegalRoute
   LoginRoute: typeof LoginRoute
+  OnboardingRoute: typeof OnboardingRouteWithChildren
   PricingRoute: typeof PricingRoute
   PrivacyRoute: typeof PrivacyRoute
   RegisterRoute: typeof RegisterRoute
@@ -424,6 +483,13 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/onboarding': {
+      id: '/onboarding'
+      path: '/onboarding'
+      fullPath: '/onboarding'
+      preLoaderRoute: typeof OnboardingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/pricing': {
@@ -524,6 +590,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DevDesignSystemRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/onboarding/': {
+      id: '/onboarding/'
+      path: '/'
+      fullPath: '/onboarding/'
+      preLoaderRoute: typeof OnboardingIndexRouteImport
+      parentRoute: typeof OnboardingRoute
+    }
+    '/onboarding/address': {
+      id: '/onboarding/address'
+      path: '/address'
+      fullPath: '/onboarding/address'
+      preLoaderRoute: typeof OnboardingAddressRouteImport
+      parentRoute: typeof OnboardingRoute
+    }
+    '/onboarding/documents': {
+      id: '/onboarding/documents'
+      path: '/documents'
+      fullPath: '/onboarding/documents'
+      preLoaderRoute: typeof OnboardingDocumentsRouteImport
+      parentRoute: typeof OnboardingRoute
+    }
+    '/onboarding/profile': {
+      id: '/onboarding/profile'
+      path: '/profile'
+      fullPath: '/onboarding/profile'
+      preLoaderRoute: typeof OnboardingProfileRouteImport
+      parentRoute: typeof OnboardingRoute
+    }
   }
 }
 
@@ -551,6 +645,24 @@ const AppRouteChildren: AppRouteChildren = {
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
 
+interface OnboardingRouteChildren {
+  OnboardingAddressRoute: typeof OnboardingAddressRoute
+  OnboardingDocumentsRoute: typeof OnboardingDocumentsRoute
+  OnboardingProfileRoute: typeof OnboardingProfileRoute
+  OnboardingIndexRoute: typeof OnboardingIndexRoute
+}
+
+const OnboardingRouteChildren: OnboardingRouteChildren = {
+  OnboardingAddressRoute: OnboardingAddressRoute,
+  OnboardingDocumentsRoute: OnboardingDocumentsRoute,
+  OnboardingProfileRoute: OnboardingProfileRoute,
+  OnboardingIndexRoute: OnboardingIndexRoute,
+}
+
+const OnboardingRouteWithChildren = OnboardingRoute._addFileChildren(
+  OnboardingRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
@@ -563,6 +675,7 @@ const rootRouteChildren: RootRouteChildren = {
   HelpRoute: HelpRoute,
   LegalRoute: LegalRoute,
   LoginRoute: LoginRoute,
+  OnboardingRoute: OnboardingRouteWithChildren,
   PricingRoute: PricingRoute,
   PrivacyRoute: PrivacyRoute,
   RegisterRoute: RegisterRoute,
