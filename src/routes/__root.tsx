@@ -132,10 +132,14 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <Outlet />
-      {/* Global feedback layer shared by the three experiences. */}
-      <Toaster position="top-center" />
+      <ThemeProvider>
+        <PrivacyModeProvider>
+          {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+          <Outlet />
+          {/* Global feedback layer shared by the three experiences. */}
+          <Toaster position="top-center" />
+        </PrivacyModeProvider>
+      </ThemeProvider>
     </QueryClientProvider>
   );
 }
