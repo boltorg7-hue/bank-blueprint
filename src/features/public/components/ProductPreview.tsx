@@ -112,8 +112,8 @@ export function TransferPreview({ className }: { className?: string }) {
       <TransferProgress
         className="mt-4"
         stages={[
-          { id: "created", label: "Demande enregistrée", state: "done", hint: "14:32" },
-          { id: "checks", label: "Contrôles de sécurité", state: "done", hint: "14:33" },
+          { id: "created", label: "Demande enregistrée", state: "done", timestamp: "14:32" },
+          { id: "checks", label: "Contrôles de sécurité", state: "done", timestamp: "14:33" },
           { id: "executed", label: "Exécution", state: "current" },
           { id: "credited", label: "Fonds crédités", state: "upcoming" },
         ]}
