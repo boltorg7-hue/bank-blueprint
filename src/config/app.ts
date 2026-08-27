@@ -8,7 +8,7 @@ export const APP_CONFIG = {
   legalName: "RFC Royal FINANCE Bank",
   tagline: "La banque digitale, pensée pour votre quotidien",
   description:
-    "RFC Royal FINANCE Bank est une plateforme bancaire digitale : comptes, virements et suivi de vos opérations, avec une sécurité de niveau bancaire.",
+    "RFC : comptes, virements et suivi des opérations dans une plateforme bancaire digitale sécurisée.",
   supportEmail: "support@rfcroyalfinance.com",
   foundedOn: "1972-07-23",
   swiftBic: "RBTTTTPXXX",
