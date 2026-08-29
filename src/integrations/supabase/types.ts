@@ -111,6 +111,112 @@ export type Database = {
           },
         ]
       }
+      account_statements: {
+        Row: {
+          account_id: string
+          closing_balance_minor: number
+          created_at: string
+          currency: string
+          document_id: string | null
+          failure_code: string | null
+          generated_at: string | null
+          generated_by: string | null
+          id: string
+          minor_unit: number
+          opening_balance_minor: number
+          period_end: string
+          period_kind: Database["public"]["Enums"]["statement_period_kind"]
+          period_start: string
+          public_reference: string
+          snapshot: Json
+          status: Database["public"]["Enums"]["document_lifecycle_status"]
+          supersedes_id: string | null
+          template_version: number
+          total_credit_minor: number
+          total_debit_minor: number
+          transaction_count: number
+          updated_at: string
+          user_id: string
+          version: number
+        }
+        Insert: {
+          account_id: string
+          closing_balance_minor?: number
+          created_at?: string
+          currency: string
+          document_id?: string | null
+          failure_code?: string | null
+          generated_at?: string | null
+          generated_by?: string | null
+          id?: string
+          minor_unit?: number
+          opening_balance_minor?: number
+          period_end: string
+          period_kind?: Database["public"]["Enums"]["statement_period_kind"]
+          period_start: string
+          public_reference: string
+          snapshot?: Json
+          status?: Database["public"]["Enums"]["document_lifecycle_status"]
+          supersedes_id?: string | null
+          template_version?: number
+          total_credit_minor?: number
+          total_debit_minor?: number
+          transaction_count?: number
+          updated_at?: string
+          user_id: string
+          version?: number
+        }
+        Update: {
+          account_id?: string
+          closing_balance_minor?: number
+          created_at?: string
+          currency?: string
+          document_id?: string | null
+          failure_code?: string | null
+          generated_at?: string | null
+          generated_by?: string | null
+          id?: string
+          minor_unit?: number
+          opening_balance_minor?: number
+          period_end?: string
+          period_kind?: Database["public"]["Enums"]["statement_period_kind"]
+          period_start?: string
+          public_reference?: string
+          snapshot?: Json
+          status?: Database["public"]["Enums"]["document_lifecycle_status"]
+          supersedes_id?: string | null
+          template_version?: number
+          total_credit_minor?: number
+          total_debit_minor?: number
+          transaction_count?: number
+          updated_at?: string
+          user_id?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "account_statements_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "bank_accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "account_statements_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "customer_documents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "account_statements_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: false
+            referencedRelation: "account_statements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       account_status_history: {
         Row: {
           account_id: string
@@ -346,6 +452,141 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      customer_documents: {
+        Row: {
+          account_id: string | null
+          checksum: string | null
+          created_at: string
+          document_type: Database["public"]["Enums"]["customer_document_type"]
+          failure_code: string | null
+          file_name: string | null
+          generated_at: string | null
+          id: string
+          mime_type: string
+          public_reference: string
+          size_bytes: number | null
+          snapshot: Json
+          source_reference: string | null
+          source_type: string
+          status: Database["public"]["Enums"]["document_lifecycle_status"]
+          storage_path: string | null
+          supersedes_id: string | null
+          template_version: number
+          title: string
+          updated_at: string
+          user_id: string
+          version: number
+        }
+        Insert: {
+          account_id?: string | null
+          checksum?: string | null
+          created_at?: string
+          document_type: Database["public"]["Enums"]["customer_document_type"]
+          failure_code?: string | null
+          file_name?: string | null
+          generated_at?: string | null
+          id?: string
+          mime_type?: string
+          public_reference: string
+          size_bytes?: number | null
+          snapshot?: Json
+          source_reference?: string | null
+          source_type: string
+          status?: Database["public"]["Enums"]["document_lifecycle_status"]
+          storage_path?: string | null
+          supersedes_id?: string | null
+          template_version?: number
+          title: string
+          updated_at?: string
+          user_id: string
+          version?: number
+        }
+        Update: {
+          account_id?: string | null
+          checksum?: string | null
+          created_at?: string
+          document_type?: Database["public"]["Enums"]["customer_document_type"]
+          failure_code?: string | null
+          file_name?: string | null
+          generated_at?: string | null
+          id?: string
+          mime_type?: string
+          public_reference?: string
+          size_bytes?: number | null
+          snapshot?: Json
+          source_reference?: string | null
+          source_type?: string
+          status?: Database["public"]["Enums"]["document_lifecycle_status"]
+          storage_path?: string | null
+          supersedes_id?: string | null
+          template_version?: number
+          title?: string
+          updated_at?: string
+          user_id?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "customer_documents_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "bank_accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "customer_documents_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: false
+            referencedRelation: "customer_documents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      document_audit_events: {
+        Row: {
+          context: Json
+          created_at: string
+          document_id: string | null
+          event_type: string
+          id: string
+          statement_id: string | null
+          user_id: string
+        }
+        Insert: {
+          context?: Json
+          created_at?: string
+          document_id?: string | null
+          event_type: string
+          id?: string
+          statement_id?: string | null
+          user_id: string
+        }
+        Update: {
+          context?: Json
+          created_at?: string
+          document_id?: string | null
+          event_type?: string
+          id?: string
+          statement_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "document_audit_events_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "customer_documents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "document_audit_events_statement_id_fkey"
+            columns: ["statement_id"]
+            isOneToOne: false
+            referencedRelation: "account_statements"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       external_settlement_rails: {
         Row: {
@@ -1252,6 +1493,10 @@ export type Database = {
       }
     }
     Functions: {
+      account_posted_balance_at: {
+        Args: { _account_id: string; _at: string }
+        Returns: number
+      }
       apply_external_settlement_result: {
         Args: {
           _provider_reference?: string
@@ -1393,6 +1638,46 @@ export type Database = {
         Args: { _currency: string }
         Returns: string
       }
+      fail_account_statement: {
+        Args: {
+          _failure_code: string
+          _statement_reference: string
+          _user_id: string
+        }
+        Returns: undefined
+      }
+      fail_customer_document: {
+        Args: {
+          _document_reference: string
+          _failure_code: string
+          _user_id: string
+        }
+        Returns: undefined
+      }
+      finalize_account_statement: {
+        Args: {
+          _checksum: string
+          _file_name: string
+          _mime_type: string
+          _size_bytes: number
+          _statement_reference: string
+          _storage_path: string
+          _user_id: string
+        }
+        Returns: string
+      }
+      finalize_customer_document: {
+        Args: {
+          _checksum: string
+          _document_reference: string
+          _file_name: string
+          _mime_type: string
+          _size_bytes: number
+          _storage_path: string
+          _user_id: string
+        }
+        Returns: undefined
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -1401,9 +1686,24 @@ export type Database = {
         Returns: boolean
       }
       is_staff: { Args: { _user_id: string }; Returns: boolean }
+      issue_account_statement: {
+        Args: {
+          _account_reference: string
+          _period_end: string
+          _period_kind: Database["public"]["Enums"]["statement_period_kind"]
+          _period_start: string
+          _user_id: string
+        }
+        Returns: {
+          reference: string
+          reused: boolean
+        }[]
+      }
       next_account_public_reference: { Args: never; Returns: string }
       next_beneficiary_public_reference: { Args: never; Returns: string }
+      next_customer_document_reference: { Args: never; Returns: string }
       next_ledger_transaction_reference: { Args: never; Returns: string }
+      next_statement_public_reference: { Args: never; Returns: string }
       next_transfer_public_reference: { Args: never; Returns: string }
       post_ledger_transaction: {
         Args: {
@@ -1424,9 +1724,31 @@ export type Database = {
           public_reference: string
         }[]
       }
+      prepare_customer_receipt: {
+        Args: {
+          _document_type: Database["public"]["Enums"]["customer_document_type"]
+          _source_reference: string
+          _user_id: string
+        }
+        Returns: {
+          reference: string
+          reused: boolean
+          snapshot: Json
+          title: string
+        }[]
+      }
       provision_primary_account: { Args: { _user_id: string }; Returns: string }
       recalculate_account_balance: {
         Args: { _account_id: string }
+        Returns: undefined
+      }
+      record_document_event: {
+        Args: {
+          _context: Json
+          _document_reference: string
+          _event_type: string
+          _user_id: string
+        }
         Returns: undefined
       }
       record_transfer_status: {
@@ -1532,6 +1854,12 @@ export type Database = {
         | "REMOVED"
         | "PENDING_VERIFICATION"
       beneficiary_type: "INTERNAL_CUSTOMER" | "EXTERNAL_BANK"
+      customer_document_type:
+        | "ACCOUNT_STATEMENT"
+        | "TRANSFER_RECEIPT"
+        | "TRANSACTION_RECEIPT"
+        | "BANK_LETTER"
+        | "ACCOUNT_CERTIFICATE"
       customer_lifecycle_state:
         | "VISITOR"
         | "REGISTERED"
@@ -1548,6 +1876,11 @@ export type Database = {
         | "RESTRICTED"
         | "SUSPENDED"
         | "CLOSED"
+      document_lifecycle_status:
+        | "GENERATING"
+        | "READY"
+        | "FAILED"
+        | "SUPERSEDED"
       external_settlement_status:
         | "NOT_SUBMITTED"
         | "SUBMITTED"
@@ -1591,6 +1924,7 @@ export type Database = {
         | "DOCUMENTS"
         | "REVIEW"
         | "COMPLETED"
+      statement_period_kind: "MONTHLY" | "CUSTOM"
       transfer_actor_type: "CUSTOMER" | "SYSTEM" | "STAFF" | "COMPLIANCE"
       transfer_compliance_status:
         | "NOT_REQUIRED"
@@ -1824,6 +2158,13 @@ export const Constants = {
         "PENDING_VERIFICATION",
       ],
       beneficiary_type: ["INTERNAL_CUSTOMER", "EXTERNAL_BANK"],
+      customer_document_type: [
+        "ACCOUNT_STATEMENT",
+        "TRANSFER_RECEIPT",
+        "TRANSACTION_RECEIPT",
+        "BANK_LETTER",
+        "ACCOUNT_CERTIFICATE",
+      ],
       customer_lifecycle_state: [
         "VISITOR",
         "REGISTERED",
@@ -1840,6 +2181,12 @@ export const Constants = {
         "RESTRICTED",
         "SUSPENDED",
         "CLOSED",
+      ],
+      document_lifecycle_status: [
+        "GENERATING",
+        "READY",
+        "FAILED",
+        "SUPERSEDED",
       ],
       external_settlement_status: [
         "NOT_SUBMITTED",
@@ -1889,6 +2236,7 @@ export const Constants = {
         "REVIEW",
         "COMPLETED",
       ],
+      statement_period_kind: ["MONTHLY", "CUSTOM"],
       transfer_actor_type: ["CUSTOMER", "SYSTEM", "STAFF", "COMPLIANCE"],
       transfer_compliance_status: [
         "NOT_REQUIRED",
