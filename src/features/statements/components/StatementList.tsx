@@ -92,8 +92,9 @@ function StatementRow({ statement }: { statement: StatementDto }) {
           <DocumentActions reference={statement.documentReference} />
         ) : null}
       </div>
-
+    </Card>
   );
+
 }
 
 export function StatementList() {
