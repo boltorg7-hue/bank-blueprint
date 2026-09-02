@@ -23,10 +23,10 @@ const FILTERS: Array<{ value: DocumentFilter; label: string }> = [
   { value: "LETTERS", label: "Courriers" },
 ];
 
-const STATUS_TONE: Record<DocumentLifecycleStatus, "success" | "warning" | "danger" | "neutral"> = {
+const STATUS_TONE: Record<DocumentLifecycleStatus, "success" | "pending" | "failed" | "neutral"> = {
   READY: "success",
-  GENERATING: "warning",
-  FAILED: "danger",
+  GENERATING: "pending",
+  FAILED: "failed",
   SUPERSEDED: "neutral",
 };
 

@@ -1,5 +1,8 @@
 import { Link } from "@tanstack/react-router";
 
+import { OperationReceiptButton } from "@/features/documents/components/OperationReceiptButton";
+
+
 import { AmountText } from "@/components/data-display";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { formatDateTime } from "@/lib/format/date";
@@ -112,6 +115,21 @@ export function TransactionDetailCard({ transaction }: { transaction: Transactio
             />
           ) : null}
         </dl>
+      </section>
+
+      <section
+        aria-label="Reçu de l'opération"
+        className="rounded-xl border border-border bg-surface p-5"
+      >
+        <h2 className="text-sm font-semibold text-foreground">Reçu officiel</h2>
+        <p className="text-caption mt-1 mb-3 text-muted-foreground">
+          Le reçu est édité par la banque à partir de la comptabilité de l'opération.
+        </p>
+        <OperationReceiptButton
+          documentType="TRANSACTION_RECEIPT"
+          sourceReference={transaction.reference}
+          available={transaction.status === "COMPLETED"}
+        />
       </section>
     </div>
   );

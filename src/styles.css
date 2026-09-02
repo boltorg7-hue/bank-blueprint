@@ -430,3 +430,30 @@
     scroll-behavior: auto !important;
   }
 }
+
+/* Print styles (PROMPT 09 §39, §40): only the document is printed, never the
+   banking application shell. */
+@media print {
+  html,
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+
+  header[data-app-chrome],
+  nav,
+  aside,
+  [role="tablist"],
+  [data-print-hidden],
+  .print\:hidden {
+    display: none !important;
+  }
+
+  main {
+    padding: 0 !important;
+  }
+
+  a[href]::after {
+    content: "";
+  }
+}

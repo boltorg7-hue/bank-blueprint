@@ -11,6 +11,7 @@ import {
   useRefreshSettlement,
   useTransferDetail,
 } from "@/features/transfers/hooks/useTransfers";
+import { OperationReceiptButton } from "@/features/documents/components/OperationReceiptButton";
 import { TransferProgressCard } from "@/features/transfers/components/TransferProgressCard";
 import { TransferRequirements } from "@/features/transfers/components/TransferRequirements";
 import { TERMINAL_TRANSFER_STATUSES } from "@/features/transfers/types/transfer";
@@ -145,6 +146,21 @@ export function TransferDetail({ reference }: { reference: string }) {
             besoin, contactez la banque avec sa référence.
           </p>
         ) : null}
+      </Card>
+
+      <Card className="space-y-3 p-4 sm:p-5">
+        <div>
+          <h2 className="text-sm font-semibold text-foreground">Reçu de virement</h2>
+          <p className="text-caption text-muted-foreground">
+            Disponible dès que le virement est intégralement exécuté.
+          </p>
+        </div>
+        <OperationReceiptButton
+          documentType="TRANSFER_RECEIPT"
+          sourceReference={data.reference}
+          available={data.status === "COMPLETED" && data.progressPercent >= 100}
+          unavailableHint="Le reçu définitif sera disponible dès l'exécution complète du virement."
+        />
       </Card>
 
       <TransferProgressCard

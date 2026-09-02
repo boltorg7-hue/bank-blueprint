@@ -87,5 +87,5 @@ export const DOCUMENT_ERROR_MESSAGES: Record<string, string> = {
 };
 
 export function documentErrorMessage(code: string | null | undefined): string {
-  return DOCUMENT_ERROR_MESSAGES[code ?? ""] ?? DOCUMENT_ERROR_MESSAGES.UNEXPECTED_ERROR!;
+  return DOCUMENT_ERROR_MESSAGES[code ?? ""] ?? DOCUMENT_ERROR_MESSAGES["UNEXPECTED_ERROR"]!;
 }

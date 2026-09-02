@@ -1,4 +1,8 @@
+import { Link } from "@tanstack/react-router";
+
+import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+
 import { StatusBadge } from "@/components/ui/status-badge";
 import { EmptyState, ErrorState, SkeletonBlock } from "@/components/feedback";
 import { DocumentActions } from "@/features/documents/components/DocumentActions";
@@ -12,10 +16,10 @@ import { formatMoneyFromMinor } from "@/lib/format/currency";
 import { formatDate } from "@/lib/format/date";
 
 /** Issued statements, newest first (PROMPT 09 §18 – §27). */
-const STATUS_TONE: Record<DocumentLifecycleStatus, "success" | "warning" | "danger" | "neutral"> = {
+const STATUS_TONE: Record<DocumentLifecycleStatus, "success" | "pending" | "failed" | "neutral"> = {
   READY: "success",
-  GENERATING: "warning",
-  FAILED: "danger",
+  GENERATING: "pending",
+  FAILED: "failed",
   SUPERSEDED: "neutral",
 };
 
@@ -82,11 +86,19 @@ function StatementRow({ statement }: { statement: StatementDto }) {
         </p>
       ) : null}
 
-      {statement.status === "READY" && statement.documentReference ? (
-        <DocumentActions reference={statement.documentReference} />
-      ) : null}
+      <div className="flex flex-wrap items-center gap-2">
+        <Button size="sm" variant="secondary" asChild>
+          <Link to="/app/statements/$statementRef" params={{ statementRef: statement.reference }}>
+            Consulter
+          </Link>
+        </Button>
+        {statement.status === "READY" && statement.documentReference ? (
+          <DocumentActions reference={statement.documentReference} />
+        ) : null}
+      </div>
     </Card>
   );
+
 }
 
 export function StatementList() {
