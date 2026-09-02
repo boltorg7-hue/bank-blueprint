@@ -56,6 +56,7 @@ import { Route as OnboardingReviewRouteImport } from './routes/onboarding.review
 import { Route as OnboardingStatusRouteImport } from './routes/onboarding.status'
 import { Route as AppAccountsIndexRouteImport } from './routes/app.accounts.index'
 import { Route as AppAccountsAccountRefRouteImport } from './routes/app.accounts.$accountRef'
+import { Route as AppStatementsIndexRouteImport } from './routes/app.statements.index'
 import { Route as AppTransactionsIndexRouteImport } from './routes/app.transactions.index'
 import { Route as AppTransactionsTransactionRefRouteImport } from './routes/app.transactions.$transactionRef'
 import { Route as AppTransfersIndexRouteImport } from './routes/app.transfers.index'
@@ -297,6 +298,11 @@ const AppAccountsAccountRefRoute = AppAccountsAccountRefRouteImport.update({
   path: '/$accountRef',
   getParentRoute: () => AppAccountsRoute,
 } as any)
+const AppStatementsIndexRoute = AppStatementsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppStatementsRoute,
+} as any)
 const AppTransactionsIndexRoute = AppTransactionsIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -358,7 +364,7 @@ export interface FileRoutesByFullPath {
   '/app/profile': typeof AppProfileRoute
   '/app/security': typeof AppSecurityRoute
   '/app/settings': typeof AppSettingsRoute
-  '/app/statements': typeof AppStatementsRoute
+  '/app/statements': typeof AppStatementsRouteWithChildren
   '/app/transactions': typeof AppTransactionsRouteWithChildren
   '/auth/callback': typeof AuthCallbackRoute
   '/dev/design-system': typeof DevDesignSystemRoute
@@ -375,6 +381,7 @@ export interface FileRoutesByFullPath {
   '/app/transfers/$transferRef': typeof AppTransfersTransferRefRoute
   '/app/transfers/new': typeof AppTransfersNewRoute
   '/app/accounts/': typeof AppAccountsIndexRoute
+  '/app/statements/': typeof AppStatementsIndexRoute
   '/app/transactions/': typeof AppTransactionsIndexRoute
   '/app/transfers/': typeof AppTransfersIndexRoute
 }
@@ -408,7 +415,6 @@ export interface FileRoutesByTo {
   '/app/profile': typeof AppProfileRoute
   '/app/security': typeof AppSecurityRoute
   '/app/settings': typeof AppSettingsRoute
-  '/app/statements': typeof AppStatementsRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/dev/design-system': typeof DevDesignSystemRoute
   '/onboarding/address': typeof OnboardingAddressRoute
@@ -424,6 +430,7 @@ export interface FileRoutesByTo {
   '/app/transfers/$transferRef': typeof AppTransfersTransferRefRoute
   '/app/transfers/new': typeof AppTransfersNewRoute
   '/app/accounts': typeof AppAccountsIndexRoute
+  '/app/statements': typeof AppStatementsIndexRoute
   '/app/transactions': typeof AppTransactionsIndexRoute
   '/app/transfers': typeof AppTransfersIndexRoute
 }
@@ -462,7 +469,7 @@ export interface FileRoutesById {
   '/app/profile': typeof AppProfileRoute
   '/app/security': typeof AppSecurityRoute
   '/app/settings': typeof AppSettingsRoute
-  '/app/statements': typeof AppStatementsRoute
+  '/app/statements': typeof AppStatementsRouteWithChildren
   '/app/transactions': typeof AppTransactionsRouteWithChildren
   '/auth/callback': typeof AuthCallbackRoute
   '/dev/design-system': typeof DevDesignSystemRoute
@@ -479,6 +486,7 @@ export interface FileRoutesById {
   '/app/transfers/$transferRef': typeof AppTransfersTransferRefRoute
   '/app/transfers/new': typeof AppTransfersNewRoute
   '/app/accounts/': typeof AppAccountsIndexRoute
+  '/app/statements/': typeof AppStatementsIndexRoute
   '/app/transactions/': typeof AppTransactionsIndexRoute
   '/app/transfers/': typeof AppTransfersIndexRoute
 }
@@ -535,6 +543,7 @@ export interface FileRouteTypes {
     | '/app/transfers/$transferRef'
     | '/app/transfers/new'
     | '/app/accounts/'
+    | '/app/statements/'
     | '/app/transactions/'
     | '/app/transfers/'
   fileRoutesByTo: FileRoutesByTo
@@ -568,7 +577,6 @@ export interface FileRouteTypes {
     | '/app/profile'
     | '/app/security'
     | '/app/settings'
-    | '/app/statements'
     | '/auth/callback'
     | '/dev/design-system'
     | '/onboarding/address'
@@ -584,6 +592,7 @@ export interface FileRouteTypes {
     | '/app/transfers/$transferRef'
     | '/app/transfers/new'
     | '/app/accounts'
+    | '/app/statements'
     | '/app/transactions'
     | '/app/transfers'
   id:
@@ -638,6 +647,7 @@ export interface FileRouteTypes {
     | '/app/transfers/$transferRef'
     | '/app/transfers/new'
     | '/app/accounts/'
+    | '/app/statements/'
     | '/app/transactions/'
     | '/app/transfers/'
   fileRoutesById: FileRoutesById
@@ -999,6 +1009,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAccountsAccountRefRouteImport
       parentRoute: typeof AppAccountsRoute
     }
+    '/app/statements/': {
+      id: '/app/statements/'
+      path: '/'
+      fullPath: '/app/statements/'
+      preLoaderRoute: typeof AppStatementsIndexRouteImport
+      parentRoute: typeof AppStatementsRoute
+    }
     '/app/transactions/': {
       id: '/app/transactions/'
       path: '/'
@@ -1063,6 +1080,18 @@ const AppAccountsRouteWithChildren = AppAccountsRoute._addFileChildren(
   AppAccountsRouteChildren,
 )
 
+interface AppStatementsRouteChildren {
+  AppStatementsIndexRoute: typeof AppStatementsIndexRoute
+}
+
+const AppStatementsRouteChildren: AppStatementsRouteChildren = {
+  AppStatementsIndexRoute: AppStatementsIndexRoute,
+}
+
+const AppStatementsRouteWithChildren = AppStatementsRoute._addFileChildren(
+  AppStatementsRouteChildren,
+)
+
 interface AppTransactionsRouteChildren {
   AppTransactionsTransactionRefRoute: typeof AppTransactionsTransactionRefRoute
   AppTransactionsIndexRoute: typeof AppTransactionsIndexRoute
@@ -1089,7 +1118,7 @@ interface AppRouteChildren {
   AppProfileRoute: typeof AppProfileRoute
   AppSecurityRoute: typeof AppSecurityRoute
   AppSettingsRoute: typeof AppSettingsRoute
-  AppStatementsRoute: typeof AppStatementsRoute
+  AppStatementsRoute: typeof AppStatementsRouteWithChildren
   AppTransactionsRoute: typeof AppTransactionsRouteWithChildren
   AppIndexRoute: typeof AppIndexRoute
   AppTransfersTransferRefRoute: typeof AppTransfersTransferRefRoute
@@ -1109,7 +1138,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppProfileRoute: AppProfileRoute,
   AppSecurityRoute: AppSecurityRoute,
   AppSettingsRoute: AppSettingsRoute,
-  AppStatementsRoute: AppStatementsRoute,
+  AppStatementsRoute: AppStatementsRouteWithChildren,
   AppTransactionsRoute: AppTransactionsRouteWithChildren,
   AppIndexRoute: AppIndexRoute,
   AppTransfersTransferRefRoute: AppTransfersTransferRefRoute,
