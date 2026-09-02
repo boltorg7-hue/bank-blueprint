@@ -49,7 +49,7 @@ export function StatementPreview({ reference }: { reference: string }) {
           <div className="text-right">
             <StatusBadge
               label={data.status === "READY" ? "Disponible" : "En préparation"}
-              tone={data.status === "READY" ? "success" : "warning"}
+              tone={data.status === "READY" ? "success" : "pending"}
             />
             <p className="text-caption mt-2 text-muted-foreground">
               {formatDate(data.periodStart)} → {formatDate(inclusiveEnd)}
