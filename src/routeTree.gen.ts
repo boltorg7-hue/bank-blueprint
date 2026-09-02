@@ -57,6 +57,7 @@ import { Route as OnboardingStatusRouteImport } from './routes/onboarding.status
 import { Route as AppAccountsIndexRouteImport } from './routes/app.accounts.index'
 import { Route as AppAccountsAccountRefRouteImport } from './routes/app.accounts.$accountRef'
 import { Route as AppStatementsIndexRouteImport } from './routes/app.statements.index'
+import { Route as AppStatementsStatementRefRouteImport } from './routes/app.statements.$statementRef'
 import { Route as AppTransactionsIndexRouteImport } from './routes/app.transactions.index'
 import { Route as AppTransactionsTransactionRefRouteImport } from './routes/app.transactions.$transactionRef'
 import { Route as AppTransfersIndexRouteImport } from './routes/app.transfers.index'
@@ -303,6 +304,12 @@ const AppStatementsIndexRoute = AppStatementsIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AppStatementsRoute,
 } as any)
+const AppStatementsStatementRefRoute =
+  AppStatementsStatementRefRouteImport.update({
+    id: '/$statementRef',
+    path: '/$statementRef',
+    getParentRoute: () => AppStatementsRoute,
+  } as any)
 const AppTransactionsIndexRoute = AppTransactionsIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -377,6 +384,7 @@ export interface FileRoutesByFullPath {
   '/app/': typeof AppIndexRoute
   '/onboarding/': typeof OnboardingIndexRoute
   '/app/accounts/$accountRef': typeof AppAccountsAccountRefRoute
+  '/app/statements/$statementRef': typeof AppStatementsStatementRefRoute
   '/app/transactions/$transactionRef': typeof AppTransactionsTransactionRefRoute
   '/app/transfers/$transferRef': typeof AppTransfersTransferRefRoute
   '/app/transfers/new': typeof AppTransfersNewRoute
@@ -426,6 +434,7 @@ export interface FileRoutesByTo {
   '/app': typeof AppIndexRoute
   '/onboarding': typeof OnboardingIndexRoute
   '/app/accounts/$accountRef': typeof AppAccountsAccountRefRoute
+  '/app/statements/$statementRef': typeof AppStatementsStatementRefRoute
   '/app/transactions/$transactionRef': typeof AppTransactionsTransactionRefRoute
   '/app/transfers/$transferRef': typeof AppTransfersTransferRefRoute
   '/app/transfers/new': typeof AppTransfersNewRoute
@@ -482,6 +491,7 @@ export interface FileRoutesById {
   '/app/': typeof AppIndexRoute
   '/onboarding/': typeof OnboardingIndexRoute
   '/app/accounts/$accountRef': typeof AppAccountsAccountRefRoute
+  '/app/statements/$statementRef': typeof AppStatementsStatementRefRoute
   '/app/transactions/$transactionRef': typeof AppTransactionsTransactionRefRoute
   '/app/transfers/$transferRef': typeof AppTransfersTransferRefRoute
   '/app/transfers/new': typeof AppTransfersNewRoute
@@ -539,6 +549,7 @@ export interface FileRouteTypes {
     | '/app/'
     | '/onboarding/'
     | '/app/accounts/$accountRef'
+    | '/app/statements/$statementRef'
     | '/app/transactions/$transactionRef'
     | '/app/transfers/$transferRef'
     | '/app/transfers/new'
@@ -588,6 +599,7 @@ export interface FileRouteTypes {
     | '/app'
     | '/onboarding'
     | '/app/accounts/$accountRef'
+    | '/app/statements/$statementRef'
     | '/app/transactions/$transactionRef'
     | '/app/transfers/$transferRef'
     | '/app/transfers/new'
@@ -643,6 +655,7 @@ export interface FileRouteTypes {
     | '/app/'
     | '/onboarding/'
     | '/app/accounts/$accountRef'
+    | '/app/statements/$statementRef'
     | '/app/transactions/$transactionRef'
     | '/app/transfers/$transferRef'
     | '/app/transfers/new'
@@ -1016,6 +1029,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppStatementsIndexRouteImport
       parentRoute: typeof AppStatementsRoute
     }
+    '/app/statements/$statementRef': {
+      id: '/app/statements/$statementRef'
+      path: '/$statementRef'
+      fullPath: '/app/statements/$statementRef'
+      preLoaderRoute: typeof AppStatementsStatementRefRouteImport
+      parentRoute: typeof AppStatementsRoute
+    }
     '/app/transactions/': {
       id: '/app/transactions/'
       path: '/'
@@ -1081,10 +1101,12 @@ const AppAccountsRouteWithChildren = AppAccountsRoute._addFileChildren(
 )
 
 interface AppStatementsRouteChildren {
+  AppStatementsStatementRefRoute: typeof AppStatementsStatementRefRoute
   AppStatementsIndexRoute: typeof AppStatementsIndexRoute
 }
 
 const AppStatementsRouteChildren: AppStatementsRouteChildren = {
+  AppStatementsStatementRefRoute: AppStatementsStatementRefRoute,
   AppStatementsIndexRoute: AppStatementsIndexRoute,
 }
 

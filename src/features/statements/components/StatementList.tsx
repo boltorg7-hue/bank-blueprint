@@ -82,10 +82,17 @@ function StatementRow({ statement }: { statement: StatementDto }) {
         </p>
       ) : null}
 
-      {statement.status === "READY" && statement.documentReference ? (
-        <DocumentActions reference={statement.documentReference} />
-      ) : null}
-    </Card>
+      <div className="flex flex-wrap items-center gap-2">
+        <Button size="sm" variant="secondary" asChild>
+          <Link to="/app/statements/$statementRef" params={{ statementRef: statement.reference }}>
+            Consulter
+          </Link>
+        </Button>
+        {statement.status === "READY" && statement.documentReference ? (
+          <DocumentActions reference={statement.documentReference} />
+        ) : null}
+      </div>
+
   );
 }
 
