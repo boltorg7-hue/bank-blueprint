@@ -1,5 +1,8 @@
 import { Link } from "@tanstack/react-router";
 
+import { OperationReceiptButton } from "@/features/documents/components/OperationReceiptButton";
+
+
 import { AmountText } from "@/components/data-display";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { formatDateTime } from "@/lib/format/date";
