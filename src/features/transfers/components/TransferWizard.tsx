@@ -26,6 +26,7 @@ import {
   useInitiateTransfer,
   useTransferLimits,
 } from "@/features/transfers/hooks/useTransfers";
+import { TransferFeeNotice } from "@/features/transfers/components/TransferFeeNotice";
 import { TransferSummary } from "@/features/transfers/components/TransferSummary";
 import {
   transferErrorMessage,
@@ -315,6 +316,12 @@ export function TransferWizard({ initialBeneficiary }: { initialBeneficiary?: st
             sourceLabel={source.displayName}
             sourceMasked={transfer.sourceMasked}
             note={transfer.customerReference}
+          />
+          <TransferFeeNotice
+            kind={transfer.kind}
+            currency={transfer.currency}
+            minorUnit={transfer.minorUnit}
+            amountMinor={transfer.amountMinor}
           />
           <div className="space-y-2">
             <p className="text-caption text-muted-foreground">
