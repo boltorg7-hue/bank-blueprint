@@ -23,7 +23,7 @@ export function TransferFeeNotice({
   /** Transfer amount, used only to display the total debited. */
   amountMinor?: number | null;
 }) {
-  const code = transferFeeCode(kind === "EXTERNAL_TRANSFER" ? "EXTERNAL_TRANSFER" : "INTERNAL_TRANSFER");
+  const code = transferFeeCode(kind);
   const feeMinor = feeMinorFor(code, currency);
   const scale = 10 ** minorUnit;
   const money = (minor: number) =>
