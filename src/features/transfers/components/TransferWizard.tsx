@@ -72,6 +72,8 @@ export function TransferWizard({ initialBeneficiary }: { initialBeneficiary?: st
     initialBeneficiary ?? null,
   );
   const [amountRaw, setAmountRaw] = useState("");
+  const [unit, setUnit] = useState<QuoteUnit>("USD");
+
   const [note, setNote] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [transfer, setTransfer] = useState<TransferDetailDto | null>(null);
