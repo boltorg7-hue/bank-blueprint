@@ -17,7 +17,7 @@ export interface MoneyInputProps
   onValueChange: (raw: string, parsed: number | null) => void;
   currency?: string;
   /** Overrides the currency adornment (e.g. a non-ISO unit such as USDT). */
-  unitLabel?: string;
+  unitLabel?: string | undefined;
   invalid?: boolean;
 }
 
