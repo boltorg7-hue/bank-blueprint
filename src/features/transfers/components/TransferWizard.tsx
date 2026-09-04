@@ -259,13 +259,42 @@ export function TransferWizard({ initialBeneficiary }: { initialBeneficiary?: st
         <Card className="space-y-5 p-4 sm:p-5">
           <div className="space-y-2">
             <Label htmlFor="transfer-amount">Montant à envoyer</Label>
-            <MoneyInput
-              id="transfer-amount"
-              currency={currency}
-              value={amountRaw}
-              invalid={overBalance || overLimit}
-              onValueChange={(raw) => setAmountRaw(raw)}
-            />
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+              <MoneyInput
+                id="transfer-amount"
+                className="flex-1"
+                currency={currency}
+                unitLabel={unit === "USDT" ? "USDT" : undefined}
+                value={amountRaw}
+                invalid={overBalance || overLimit}
+                onValueChange={(raw) => setAmountRaw(raw)}
+              />
+              <Select value={unit} onValueChange={(value) => setUnit(value as QuoteUnit)}>
+                <SelectTrigger
+                  aria-label="Unité du montant"
+                  className="h-12 w-full sm:w-[190px]"
+                >
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {QUOTE_UNITS.map((item) => (
+                    <SelectItem key={item.code} value={item.code}>
+                      {item.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            {mirrorLabel ? (
+              <p aria-live="polite" className="text-caption text-muted-foreground">
+                {unit === "USDT"
+                  ? `Montant débité de votre compte : ${mirrorLabel}`
+                  : `Équivalent : ${mirrorLabel}`}
+              </p>
+            ) : null}
+            {unit === "USDT" ? (
+              <p className="text-caption text-muted-foreground">{usdtParityNotice()}</p>
+            ) : null}
             {overBalance ? (
               <p role="alert" className="text-caption text-danger">
                 Le montant dépasse votre solde disponible.
@@ -278,6 +307,7 @@ export function TransferWizard({ initialBeneficiary }: { initialBeneficiary?: st
               </p>
             ) : null}
           </div>
+
 
           <div className="space-y-2">
             <Label htmlFor="transfer-note">Référence pour le bénéficiaire (optionnel)</Label>
