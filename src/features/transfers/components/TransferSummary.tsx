@@ -1,4 +1,5 @@
 import { formatMoneyFromMinor } from "@/lib/format/currency";
+import { formatUsdtFromMinor, usdMinorToUsdtMinor } from "@/config/currency";
 
 /**
  * Explicit recap shown before confirmation (§88 – §92).
@@ -28,6 +29,7 @@ export function TransferSummary({
     { label: "Compte destinataire", value: `•••• ${destinationMasked}` },
     { label: "Compte à débiter", value: `${sourceLabel} · •••• ${sourceMasked}` },
     { label: "Frais", value: "Aucun frais pour un virement interne" },
+    { label: "Équivalent en USDT", value: formatUsdtFromMinor(usdMinorToUsdtMinor(amountMinor)) },
   ];
   if (note) rows.push({ label: "Référence", value: note });
 
