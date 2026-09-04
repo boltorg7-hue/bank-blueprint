@@ -38,6 +38,18 @@ import {
 import { progressExplanation } from "@/features/transfers/utils/transfer-progress";
 import type { TransferDetailDto } from "@/features/transfers/types/transfer";
 import { formatMoneyFromMinor } from "@/lib/format/currency";
+import {
+  QUOTE_UNITS,
+  SETTLEMENT_CURRENCY,
+  SETTLEMENT_MINOR_UNIT,
+  USDT_MINOR_UNIT,
+  formatUsdtFromMinor,
+  quoteToSettlementMinor,
+  usdMinorToUsdtMinor,
+  usdtParityNotice,
+  type QuoteUnit,
+} from "@/config/currency";
+
 
 const STEPS = [
   { id: "beneficiary", label: "Bénéficiaire" },
