@@ -99,15 +99,27 @@ export function TransferWizard({ initialBeneficiary }: { initialBeneficiary?: st
   const source = accounts.find((account) => account.reference === accountReference) ?? accounts[0];
   const beneficiary =
     beneficiaries.find((item) => item.reference === beneficiaryReference) ?? undefined;
-  const minorUnit = source?.minorUnit ?? 2;
-  const currency = source?.currency ?? "TTD";
+  const minorUnit = source?.minorUnit ?? SETTLEMENT_MINOR_UNIT;
+  const currency = source?.currency ?? SETTLEMENT_CURRENCY;
   const limitsQuery = useTransferLimits(currency);
 
-  const amountMinor = toMinorUnits(amountRaw, minorUnit);
+  /** Amount typed in the unit chosen by the customer (USD or USDT). */
+  const enteredMinor = toMinorUnits(amountRaw, unit === "USDT" ? USDT_MINOR_UNIT : minorUnit);
+  /** Amount actually debited: the account is always held in USD. */
+  const amountMinor = enteredMinor === null ? null : quoteToSettlementMinor(enteredMinor, unit);
+  /** Mirror figure shown live in the other unit, with no action from the user. */
+  const mirrorLabel =
+    amountMinor === null
+      ? null
+      : unit === "USDT"
+        ? formatMoneyFromMinor(amountMinor, { currency, minorUnitScale: 10 ** minorUnit })
+        : formatUsdtFromMinor(usdMinorToUsdtMinor(amountMinor));
+
   const available = source?.balance?.availableBalanceMinor ?? null;
   const overBalance = amountMinor !== null && available !== null && amountMinor > available;
   const limit = limitsQuery.data?.maxPerTransferMinor ?? null;
   const overLimit = amountMinor !== null && limit !== null && amountMinor > limit;
+
 
   if (accountsQuery.isPending || beneficiariesQuery.isPending) return <SkeletonBlock lines={5} />;
   if (accountsQuery.isError) {
