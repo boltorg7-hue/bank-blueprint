@@ -36,7 +36,7 @@ export const PRICE_UNDEFINED_LABEL = "À définir";
 export const PRICE_FREE_LABEL = "Sans frais";
 
 export const PRICING_DISCLAIMER =
-  "Les conditions tarifaires définitives seront publiées ici avant l'ouverture commerciale. Aucune valeur affichée comme « à définir » ne constitue un engagement. Les montants indiqués s'appliquent dans la devise du compte concerné.";
+  "Les conditions tarifaires définitives seront publiées ici avant l'ouverture commerciale. Aucune valeur affichée comme « à définir » ne constitue un engagement. Les comptes sont tenus en dollars américains (USD) ; un montant saisi en USDT est converti en USD avant exécution, la conversion vous étant affichée avant validation.";
 
 /** Renders one schedule entry as a published pricing line. */
 export function pricingLineFor(code: FeeCode): PricingLine {
