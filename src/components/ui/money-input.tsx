@@ -16,12 +16,26 @@ export interface MoneyInputProps
   value: string;
   onValueChange: (raw: string, parsed: number | null) => void;
   currency?: string;
+  /** Overrides the currency adornment (e.g. a non-ISO unit such as USDT). */
+  unitLabel?: string;
   invalid?: boolean;
 }
 
 export const MoneyInput = React.forwardRef<HTMLInputElement, MoneyInputProps>(
-  ({ value, onValueChange, currency = BRAND.locale.currency, invalid, className, ...props }, ref) => {
-    const symbol = currencySymbol(currency);
+  (
+    {
+      value,
+      onValueChange,
+      currency = BRAND.locale.currency,
+      unitLabel,
+      invalid,
+      className,
+      ...props
+    },
+    ref,
+  ) => {
+    const symbol = unitLabel ?? currencySymbol(currency);
+
 
     return (
       <div
