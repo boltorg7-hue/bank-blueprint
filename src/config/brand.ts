@@ -49,7 +49,7 @@ export const BRAND = {
   locale: {
     /** Default display locale for numbers, dates and currency. */
     tag: "fr-FR",
-    currency: "EUR",
+    currency: "USD",
   },
 } as const;
 

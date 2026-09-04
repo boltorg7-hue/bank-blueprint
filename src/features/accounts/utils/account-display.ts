@@ -86,7 +86,7 @@ export function formatAccountAmount(
   });
 }
 
-/** Screen-reader friendly amount, e.g. "1 250,00 TTD" (§107). */
+/** Screen-reader friendly amount, e.g. "1 250,00 $US" (§107). */
 export function accountAmountAriaLabel(
   label: string,
   amountMinor: number,

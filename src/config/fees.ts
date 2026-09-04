@@ -13,8 +13,11 @@
  * corresponding ledger posting server-side — never one without the other.
  */
 
-/** Currencies the fee grid can quote. */
-export const FEE_CURRENCIES = ["TTD", "USD", "EUR"] as const;
+/**
+ * Currencies the fee grid can quote. The bank circulates the US dollar only;
+ * USDT quotes are derived from the USD amount at display time.
+ */
+export const FEE_CURRENCIES = ["USD"] as const;
 export type FeeCurrency = (typeof FEE_CURRENCIES)[number];
 
 /** Minor amount per currency; null = not contracted yet. */
@@ -44,46 +47,46 @@ export const FEE_SCHEDULE: Record<FeeCode, FeeDefinition> = {
   ACCOUNT_OPENING: {
     code: "ACCOUNT_OPENING",
     label: "Ouverture de compte",
-    amounts: { TTD: 0, USD: 0, EUR: 0 },
+    amounts: { USD: 0 },
   },
   ACCOUNT_MAINTENANCE_MONTHLY: {
     code: "ACCOUNT_MAINTENANCE_MONTHLY",
     label: "Tenue de compte mensuelle",
     note: "Prélevée le premier jour ouvré du mois lorsqu'elle sera contractée.",
-    amounts: { TTD: null, USD: null, EUR: null },
+    amounts: { USD: null },
   },
   ACCOUNT_CLOSING: {
     code: "ACCOUNT_CLOSING",
     label: "Clôture de compte",
-    amounts: { TTD: 0, USD: 0, EUR: 0 },
+    amounts: { USD: 0 },
   },
   TRANSFER_INTERNAL: {
     code: "TRANSFER_INTERNAL",
     label: "Virement interne entre comptes RFC",
     note: "Exécution immédiate entre comptes tenus par la banque.",
-    amounts: { TTD: 0, USD: 0, EUR: 0 },
+    amounts: { USD: 0 },
   },
   TRANSFER_EXTERNAL: {
     code: "TRANSFER_EXTERNAL",
     label: "Virement vers une autre banque",
     note: "Frais de règlement interbancaire, débités avec le virement.",
-    amounts: { TTD: null, USD: null, EUR: null },
+    amounts: { USD: null },
   },
   TRANSFER_COMPLIANCE_REVIEW: {
     code: "TRANSFER_COMPLIANCE_REVIEW",
     label: "Virement nécessitant une vérification complémentaire",
     note: "Les contrôles de conformité ne sont jamais facturés.",
-    amounts: { TTD: 0, USD: 0, EUR: 0 },
+    amounts: { USD: 0 },
   },
   STATEMENT_DIGITAL: {
     code: "STATEMENT_DIGITAL",
     label: "Relevé numérique (PDF)",
-    amounts: { TTD: 0, USD: 0, EUR: 0 },
+    amounts: { USD: 0 },
   },
   STATEMENT_DUPLICATE: {
     code: "STATEMENT_DUPLICATE",
     label: "Duplicata de relevé",
-    amounts: { TTD: 0, USD: 0, EUR: 0 },
+    amounts: { USD: 0 },
   },
 };
 

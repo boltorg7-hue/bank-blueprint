@@ -38,6 +38,18 @@ import {
 import { progressExplanation } from "@/features/transfers/utils/transfer-progress";
 import type { TransferDetailDto } from "@/features/transfers/types/transfer";
 import { formatMoneyFromMinor } from "@/lib/format/currency";
+import {
+  QUOTE_UNITS,
+  SETTLEMENT_CURRENCY,
+  SETTLEMENT_MINOR_UNIT,
+  USDT_MINOR_UNIT,
+  formatUsdtFromMinor,
+  quoteToSettlementMinor,
+  usdMinorToUsdtMinor,
+  usdtParityNotice,
+  type QuoteUnit,
+} from "@/config/currency";
+
 
 const STEPS = [
   { id: "beneficiary", label: "Bénéficiaire" },
@@ -72,6 +84,8 @@ export function TransferWizard({ initialBeneficiary }: { initialBeneficiary?: st
     initialBeneficiary ?? null,
   );
   const [amountRaw, setAmountRaw] = useState("");
+  const [unit, setUnit] = useState<QuoteUnit>("USD");
+
   const [note, setNote] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [transfer, setTransfer] = useState<TransferDetailDto | null>(null);
@@ -99,15 +113,27 @@ export function TransferWizard({ initialBeneficiary }: { initialBeneficiary?: st
   const source = accounts.find((account) => account.reference === accountReference) ?? accounts[0];
   const beneficiary =
     beneficiaries.find((item) => item.reference === beneficiaryReference) ?? undefined;
-  const minorUnit = source?.minorUnit ?? 2;
-  const currency = source?.currency ?? "TTD";
+  const minorUnit = source?.minorUnit ?? SETTLEMENT_MINOR_UNIT;
+  const currency = source?.currency ?? SETTLEMENT_CURRENCY;
   const limitsQuery = useTransferLimits(currency);
 
-  const amountMinor = toMinorUnits(amountRaw, minorUnit);
+  /** Amount typed in the unit chosen by the customer (USD or USDT). */
+  const enteredMinor = toMinorUnits(amountRaw, unit === "USDT" ? USDT_MINOR_UNIT : minorUnit);
+  /** Amount actually debited: the account is always held in USD. */
+  const amountMinor = enteredMinor === null ? null : quoteToSettlementMinor(enteredMinor, unit);
+  /** Mirror figure shown live in the other unit, with no action from the user. */
+  const mirrorLabel =
+    amountMinor === null
+      ? null
+      : unit === "USDT"
+        ? formatMoneyFromMinor(amountMinor, { currency, minorUnitScale: 10 ** minorUnit })
+        : formatUsdtFromMinor(usdMinorToUsdtMinor(amountMinor));
+
   const available = source?.balance?.availableBalanceMinor ?? null;
   const overBalance = amountMinor !== null && available !== null && amountMinor > available;
   const limit = limitsQuery.data?.maxPerTransferMinor ?? null;
   const overLimit = amountMinor !== null && limit !== null && amountMinor > limit;
+
 
   if (accountsQuery.isPending || beneficiariesQuery.isPending) return <SkeletonBlock lines={5} />;
   if (accountsQuery.isError) {
@@ -233,13 +259,42 @@ export function TransferWizard({ initialBeneficiary }: { initialBeneficiary?: st
         <Card className="space-y-5 p-4 sm:p-5">
           <div className="space-y-2">
             <Label htmlFor="transfer-amount">Montant à envoyer</Label>
-            <MoneyInput
-              id="transfer-amount"
-              currency={currency}
-              value={amountRaw}
-              invalid={overBalance || overLimit}
-              onValueChange={(raw) => setAmountRaw(raw)}
-            />
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+              <MoneyInput
+                id="transfer-amount"
+                className="flex-1"
+                currency={currency}
+                unitLabel={unit === "USDT" ? "USDT" : undefined}
+                value={amountRaw}
+                invalid={overBalance || overLimit}
+                onValueChange={(raw) => setAmountRaw(raw)}
+              />
+              <Select value={unit} onValueChange={(value) => setUnit(value as QuoteUnit)}>
+                <SelectTrigger
+                  aria-label="Unité du montant"
+                  className="h-12 w-full sm:w-[190px]"
+                >
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {QUOTE_UNITS.map((item) => (
+                    <SelectItem key={item.code} value={item.code}>
+                      {item.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            {mirrorLabel ? (
+              <p aria-live="polite" className="text-caption text-muted-foreground">
+                {unit === "USDT"
+                  ? `Montant débité de votre compte : ${mirrorLabel}`
+                  : `Équivalent : ${mirrorLabel}`}
+              </p>
+            ) : null}
+            {unit === "USDT" ? (
+              <p className="text-caption text-muted-foreground">{usdtParityNotice()}</p>
+            ) : null}
             {overBalance ? (
               <p role="alert" className="text-caption text-danger">
                 Le montant dépasse votre solde disponible.
@@ -252,6 +307,7 @@ export function TransferWizard({ initialBeneficiary }: { initialBeneficiary?: st
               </p>
             ) : null}
           </div>
+
 
           <div className="space-y-2">
             <Label htmlFor="transfer-note">Référence pour le bénéficiaire (optionnel)</Label>
