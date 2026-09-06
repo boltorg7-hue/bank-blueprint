@@ -1,6 +1,6 @@
 import { Receipt } from "lucide-react";
 
-import { FEE_SCHEDULE, feeMinorFor, transferFeeCode } from "@/config/fees";
+import { FEE_DEBIT_ACTIVE, FEE_SCHEDULE, feeMinorFor, transferFeeCode } from "@/config/fees";
 import { formatMoneyFromMinor } from "@/lib/format/currency";
 import type { TransferKind } from "@/features/transfers/types/transfer";
 
@@ -52,7 +52,7 @@ export function TransferFeeNotice({
           <div className="flex items-baseline justify-between gap-3">
             <dt className="text-caption text-muted-foreground">Total débité de votre compte</dt>
             <dd className="text-numeric text-sm font-semibold text-foreground">
-              {money(amountMinor + (feeMinor ?? 0))}
+              {money(amountMinor + (FEE_DEBIT_ACTIVE ? (feeMinor ?? 0) : 0))}
             </dd>
           </div>
         ) : null}
@@ -61,7 +61,9 @@ export function TransferFeeNotice({
       <p className="text-caption text-muted-foreground">
         {feeMinor === null || feeMinor === 0
           ? "Seul le montant du virement est débité de votre compte."
-          : "Les frais sont débités avec le virement, en une seule opération comptable."}
+          : FEE_DEBIT_ACTIVE
+            ? "Les frais sont débités avec le virement, en une seule opération comptable."
+            : "Frais publiés au barème : seul le montant du virement est débité de votre compte pour le moment."}
       </p>
     </div>
   );
