@@ -52,8 +52,8 @@ export const FEE_SCHEDULE: Record<FeeCode, FeeDefinition> = {
   ACCOUNT_MAINTENANCE_MONTHLY: {
     code: "ACCOUNT_MAINTENANCE_MONTHLY",
     label: "Tenue de compte mensuelle",
-    note: "Prélevée le premier jour ouvré du mois lorsqu'elle sera contractée.",
-    amounts: { USD: null },
+    note: "Prélevée le premier jour ouvré du mois.",
+    amounts: { USD: 500 },
   },
   ACCOUNT_CLOSING: {
     code: "ACCOUNT_CLOSING",
@@ -69,8 +69,8 @@ export const FEE_SCHEDULE: Record<FeeCode, FeeDefinition> = {
   TRANSFER_EXTERNAL: {
     code: "TRANSFER_EXTERNAL",
     label: "Virement vers une autre banque",
-    note: "Frais de règlement interbancaire, débités avec le virement.",
-    amounts: { USD: null },
+    note: "Frais de règlement interbancaire, par virement sortant.",
+    amounts: { USD: 2500 },
   },
   TRANSFER_COMPLIANCE_REVIEW: {
     code: "TRANSFER_COMPLIANCE_REVIEW",
@@ -105,6 +105,15 @@ export function feeMinorFor(code: FeeCode, currency: string): number | null {
   if (!feeCurrency) return null;
   return FEE_SCHEDULE[code].amounts[feeCurrency] ?? null;
 }
+
+/**
+ * Whether contracted fees are already debited by the ledger.
+ *
+ * The published grid is live, but no fee posting exists server-side yet, so the
+ * UI MUST NOT pretend a fee is taken from the account. Flip this to `true` in
+ * the same change that adds the ledger fee posting.
+ */
+export const FEE_DEBIT_ACTIVE = false;
 
 /** Fee code applicable to a transfer, based on the bank-side routing decision. */
 export function transferFeeCode(kind: "INTERNAL_TRANSFER" | "EXTERNAL_TRANSFER"): FeeCode {
