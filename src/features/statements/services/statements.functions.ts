@@ -51,12 +51,15 @@ export const requestAccountStatement = createServerFn({ method: "POST" })
       if (!ACCOUNT_PATTERN.test(accountReference)) throw new Error("ACCOUNT_UNAVAILABLE");
 
       const start = new Date(String(input?.periodStart ?? ""));
-      const end = new Date(String(input?.periodEnd ?? ""));
+      let end = new Date(String(input?.periodEnd ?? ""));
       if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) {
         throw new Error("INVALID_PERIOD");
       }
       if (start.getTime() >= end.getTime()) throw new Error("INVALID_PERIOD");
-      if (end.getTime() > Date.now()) throw new Error("PERIOD_IN_FUTURE");
+      const now = Date.now();
+      if (start.getTime() >= now) throw new Error("PERIOD_IN_FUTURE");
+      // Running period: an interim statement is cut at the current instant.
+      if (end.getTime() > now) end = new Date(now);
       if (end.getTime() - start.getTime() > MAX_PERIOD_DAYS * 86_400_000) {
         throw new Error("PERIOD_TOO_LONG");
       }
