@@ -27,21 +27,26 @@ import {
  * reconciliation and the PDF are produced server-side.
  */
 
-/** Last 12 closed months, as UTC boundaries (period_end exclusive). */
+/**
+ * Last 12 months, as UTC boundaries (period_end exclusive).
+ * The running month is cut at the current instant (interim statement).
+ */
 function monthlyOptions(count = 12) {
   const now = new Date();
   return Array.from({ length: count }, (_, index) => {
     const start = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - index, 1));
-    const end = new Date(Date.UTC(start.getUTCFullYear(), start.getUTCMonth() + 1, 1));
+    const monthEnd = new Date(Date.UTC(start.getUTCFullYear(), start.getUTCMonth() + 1, 1));
+    const isRunning = monthEnd.getTime() > now.getTime();
+    const label = new Intl.DateTimeFormat("fr-FR", {
+      month: "long",
+      year: "numeric",
+      timeZone: "UTC",
+    }).format(start);
     return {
       value: start.toISOString().slice(0, 10),
-      label: new Intl.DateTimeFormat("fr-FR", {
-        month: "long",
-        year: "numeric",
-        timeZone: "UTC",
-      }).format(start),
+      label: isRunning ? `${label} (en cours)` : label,
       start: start.toISOString(),
-      end: end.toISOString(),
+      end: (isRunning ? now : monthEnd).toISOString(),
     };
   });
 }
