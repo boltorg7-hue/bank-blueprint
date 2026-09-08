@@ -14,3 +14,7 @@
 - Test bout en bout sur un compte réel : virement → reçu → relevé PDF (contrôle visuel A4, soldes et opérations réconciliés).
 - Soumission du sitemap à Google Search Console (nécessite l'accès GSC du propriétaire du domaine).
 - Phase 10 : messagerie et notifications.
+- Administration des paramètres financiers : parité USD/USDT, tenue mensuelle et frais de virement, avec mise à jour immédiate et audit.
+- Administration des comptes clients : consultation des soldes et de l'historique, plafonds, approvisionnement comptabilisé en partie double et rechargement direct.
+- Génération automatique et idempotente des relevés mensuels réconciliés à chaque clôture.
+- Lien direct du dashboard client vers le site public.
