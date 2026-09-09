@@ -6,15 +6,12 @@
 - Reçus officiels sur les détails d'opération et de virement + liens depuis le dashboard.
 - Barème de frais centralisé (`src/config/fees.ts`) → grille Tarifs publique + affichage des frais avant débit dans le virement.
 
-## En attente d'une décision du client
-- Montants réels des frais (tenue de compte mensuelle, virement externe) : non contractés, affichés « À définir ». Les autres lignes sont explicitement « Sans frais ».
-- Tout frais réellement facturé devra aussi être comptabilisé côté ledger (écriture dédiée), pas seulement affiché.
-
 ## À faire
-- Test bout en bout sur un compte réel : virement → reçu → relevé PDF (contrôle visuel A4, soldes et opérations réconciliés).
 - Soumission du sitemap à Google Search Console (nécessite l'accès GSC du propriétaire du domaine).
 - Phase 10 : messagerie et notifications.
-- Administration des paramètres financiers : parité USD/USDT, tenue mensuelle et frais de virement, avec mise à jour immédiate et audit.
-- Administration des comptes clients : consultation des soldes et de l'historique, plafonds, approvisionnement comptabilisé en partie double et rechargement direct.
-- Génération automatique et idempotente des relevés mensuels réconciliés à chaque clôture.
+- Administration des paramètres financiers : parité USD/USDT, tenue mensuelle et frais de virement, avec mise à jour immédiate, historique et audit.
+- Administration des comptes clients : recherche, consultation des soldes projetés, plafonds et historique.
+- Administration des approvisionnements : demande, validation maker-checker, posting en partie double et rechargement direct après comptabilisation.
+- Génération automatique et idempotente des relevés mensuels réconciliés à chaque clôture, après les pages admin.
 - Lien direct du dashboard client vers le site public.
+- Refonte de l'accueil après l'admin et les relevés : histoire vérifiée, photographies authentiques et actualités locales datées.
