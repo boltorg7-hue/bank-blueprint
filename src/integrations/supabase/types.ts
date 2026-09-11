@@ -267,6 +267,42 @@ export type Database = {
           },
         ]
       }
+      admin_audit_events: {
+        Row: {
+          action: string
+          actor_user_id: string
+          context: Json
+          created_at: string
+          id: string
+          permission_checked: string | null
+          resource_reference: string | null
+          resource_type: string | null
+          result: string
+        }
+        Insert: {
+          action: string
+          actor_user_id: string
+          context?: Json
+          created_at?: string
+          id?: string
+          permission_checked?: string | null
+          resource_reference?: string | null
+          resource_type?: string | null
+          result: string
+        }
+        Update: {
+          action?: string
+          actor_user_id?: string
+          context?: Json
+          created_at?: string
+          id?: string
+          permission_checked?: string | null
+          resource_reference?: string | null
+          resource_type?: string | null
+          result?: string
+        }
+        Relationships: []
+      }
       bank_accounts: {
         Row: {
           account_number: string
@@ -892,6 +928,60 @@ export type Database = {
           privacy_accepted_at?: string | null
           terms_accepted_at?: string | null
           updated_at?: string
+        }
+        Relationships: []
+      }
+      role_permissions: {
+        Row: {
+          created_at: string
+          permission: string
+          role: Database["public"]["Enums"]["app_role"]
+        }
+        Insert: {
+          created_at?: string
+          permission: string
+          role: Database["public"]["Enums"]["app_role"]
+        }
+        Update: {
+          created_at?: string
+          permission?: string
+          role?: Database["public"]["Enums"]["app_role"]
+        }
+        Relationships: []
+      }
+      staff_profiles: {
+        Row: {
+          created_at: string
+          department: string | null
+          display_name: string
+          id: string
+          last_login_at: string | null
+          public_reference: string
+          status: Database["public"]["Enums"]["staff_status"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          department?: string | null
+          display_name: string
+          id?: string
+          last_login_at?: string | null
+          public_reference?: string
+          status?: Database["public"]["Enums"]["staff_status"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          department?: string | null
+          display_name?: string
+          id?: string
+          last_login_at?: string | null
+          public_reference?: string
+          status?: Database["public"]["Enums"]["staff_status"]
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -1678,6 +1768,11 @@ export type Database = {
         }
         Returns: undefined
       }
+      get_my_staff_context: { Args: never; Returns: Json }
+      has_permission: {
+        Args: { _permission: string; _user_id: string }
+        Returns: boolean
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -1924,6 +2019,7 @@ export type Database = {
         | "DOCUMENTS"
         | "REVIEW"
         | "COMPLETED"
+      staff_status: "INVITED" | "ACTIVE" | "SUSPENDED" | "DISABLED"
       statement_period_kind: "MONTHLY" | "CUSTOM"
       transfer_actor_type: "CUSTOMER" | "SYSTEM" | "STAFF" | "COMPLIANCE"
       transfer_compliance_status:
@@ -2236,6 +2332,7 @@ export const Constants = {
         "REVIEW",
         "COMPLETED",
       ],
+      staff_status: ["INVITED", "ACTIVE", "SUSPENDED", "DISABLED"],
       statement_period_kind: ["MONTHLY", "CUSTOM"],
       transfer_actor_type: ["CUSTOMER", "SYSTEM", "STAFF", "COMPLIANCE"],
       transfer_compliance_status: [
