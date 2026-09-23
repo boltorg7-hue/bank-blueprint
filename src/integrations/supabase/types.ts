@@ -669,6 +669,102 @@ export type Database = {
         }
         Relationships: []
       }
+      financial_setting_versions: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          effective_at: string
+          id: string
+          numeric_value: number
+          setting_key: string
+          updated_at: string
+          version: number
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          effective_at?: string
+          id?: string
+          numeric_value: number
+          setting_key: string
+          updated_at?: string
+          version: number
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          effective_at?: string
+          id?: string
+          numeric_value?: number
+          setting_key?: string
+          updated_at?: string
+          version?: number
+        }
+        Relationships: []
+      }
+      funding_requests: {
+        Row: {
+          account_id: string
+          amount_minor: number
+          checker_user_id: string | null
+          created_at: string
+          currency: string
+          decision_at: string | null
+          id: string
+          idempotency_key: string
+          ledger_transaction_id: string | null
+          maker_user_id: string
+          reason: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          account_id: string
+          amount_minor: number
+          checker_user_id?: string | null
+          created_at?: string
+          currency?: string
+          decision_at?: string | null
+          id?: string
+          idempotency_key: string
+          ledger_transaction_id?: string | null
+          maker_user_id: string
+          reason: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          account_id?: string
+          amount_minor?: number
+          checker_user_id?: string | null
+          created_at?: string
+          currency?: string
+          decision_at?: string | null
+          id?: string
+          idempotency_key?: string
+          ledger_transaction_id?: string | null
+          maker_user_id?: string
+          reason?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "funding_requests_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "bank_accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "funding_requests_ledger_transaction_id_fkey"
+            columns: ["ledger_transaction_id"]
+            isOneToOne: true
+            referencedRelation: "ledger_transactions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       identity_verifications: {
         Row: {
           created_at: string
@@ -1681,6 +1777,15 @@ export type Database = {
         }
         Returns: string
       }
+      create_funding_request: {
+        Args: {
+          _account_reference: string
+          _amount_minor: number
+          _idempotency_key: string
+          _reason: string
+        }
+        Returns: Json
+      }
       create_internal_beneficiary: {
         Args: { _identifier: string; _nickname?: string; _user_id: string }
         Returns: string
@@ -1710,6 +1815,10 @@ export type Database = {
       customer_safe_display_name: {
         Args: { _user_id: string }
         Returns: string
+      }
+      decide_funding_request: {
+        Args: { _approve: boolean; _request_id: string }
+        Returns: Json
       }
       decide_transfer_compliance: {
         Args: {
@@ -1920,6 +2029,19 @@ export type Database = {
       transfer_progress_for_state: {
         Args: { _state: Database["public"]["Enums"]["transfer_progress_state"] }
         Returns: number
+      }
+      update_admin_transfer_limits: {
+        Args: {
+          _daily: number
+          _expected_updated_at: string
+          _max: number
+          _monthly: number
+        }
+        Returns: Json
+      }
+      update_financial_setting: {
+        Args: { _expected_version: number; _key: string; _value: number }
+        Returns: Json
       }
     }
     Enums: {
