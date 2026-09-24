@@ -23,11 +23,18 @@ export type StaffRole = (typeof STAFF_ROLES)[number];
 export type AppRole = typeof CUSTOMER_ROLE | StaffRole;
 
 export type Permission =
+  | "admin.access"
   | "customers.read"
   | "customers.write"
+  | "accounts.read"
+  | "accounts.manage"
+  | "finance.adjustment.create"
+  | "finance.adjustment.approve"
   | "kyc.review"
   | "compliance.review"
   | "transfers.approve"
+  | "support.read"
+  | "support.reply"
   | "ledger.post"
   | "audit.read"
   | "staff.manage"
@@ -38,24 +45,31 @@ export type Permission =
  * remains authoritative for every privileged operation.
  */
 export const ROLE_PERMISSIONS: Record<StaffRole, readonly Permission[]> = {
-  support_agent: ["customers.read"],
-  kyc_agent: ["customers.read", "kyc.review"],
-  compliance_officer: ["customers.read", "compliance.review", "audit.read"],
-  finance_operator: ["customers.read", "ledger.post"],
-  supervisor: ["customers.read", "transfers.approve", "compliance.review"],
-  administrator: ["customers.read", "customers.write", "staff.manage", "settings.manage"],
+  support_agent: ["admin.access", "customers.read", "support.read", "support.reply"],
+  kyc_agent: ["admin.access", "customers.read", "kyc.review"],
+  compliance_officer: ["admin.access", "customers.read", "compliance.review", "audit.read"],
+  finance_operator: ["admin.access", "accounts.read", "finance.adjustment.create", "ledger.post"],
+  supervisor: ["admin.access", "customers.read", "accounts.read", "finance.adjustment.approve", "transfers.approve", "compliance.review", "support.read", "support.reply"],
+  administrator: ["admin.access", "customers.read", "customers.write", "accounts.read", "accounts.manage", "support.read", "support.reply", "staff.manage", "settings.manage"],
   super_admin: [
+    "admin.access",
     "customers.read",
     "customers.write",
+    "accounts.read",
+    "accounts.manage",
+    "finance.adjustment.create",
+    "finance.adjustment.approve",
     "kyc.review",
     "compliance.review",
     "transfers.approve",
+    "support.read",
+    "support.reply",
     "ledger.post",
     "audit.read",
     "staff.manage",
     "settings.manage",
   ],
-  auditor: ["audit.read", "customers.read"],
+  auditor: ["admin.access", "audit.read", "customers.read", "accounts.read"],
 };
 
 export function isStaffRole(role: string | null | undefined): role is StaffRole {

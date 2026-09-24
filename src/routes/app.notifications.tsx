@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-import { FeatureShellPage } from "@/features/customer-shell/components/FeatureShellPage";
+import { BankingContentContainer } from "@/components/layout/BankingAppLayout";
+import { NotificationCenter } from "@/features/notifications/components/NotificationCenter";
 
 export const Route = createFileRoute("/app/notifications")({
   head: () => ({
@@ -14,12 +15,5 @@ export const Route = createFileRoute("/app/notifications")({
 });
 
 function AppNotificationsRoute() {
-  return (
-    <FeatureShellPage
-      title="Notifications"
-      description="Les alertes de sécurité et informations liées à vos comptes."
-      access="authenticated"
-      width="default"
-    />
-  );
+  return <BankingContentContainer width="default"><NotificationCenter /></BankingContentContainer>;
 }

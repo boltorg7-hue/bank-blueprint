@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 import { FeatureShellPage } from "@/features/customer-shell/components/FeatureShellPage";
+import { SupportCenter } from "@/features/support/components/SupportCenter";
 
 export const Route = createFileRoute("/app/messages")({
   head: () => ({
@@ -15,11 +16,8 @@ export const Route = createFileRoute("/app/messages")({
 
 function AppMessagesRoute() {
   return (
-    <FeatureShellPage
-      title="Messages"
-      description="Votre messagerie sécurisée avec la banque."
-      access="authenticated"
-      width="default"
-    />
+    <FeatureShellPage title="Service client" description="Échangez uniquement avec notre équipe d’assistance au sujet de votre compte et de vos opérations." access="authenticated" width="default">
+      <SupportCenter />
+    </FeatureShellPage>
   );
 }

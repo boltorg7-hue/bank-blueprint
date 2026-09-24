@@ -1,4 +1,4 @@
-import { createFileRoute, Outlet } from "@tanstack/react-router";
+import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 
 import { AdminLayout } from "@/components/layout/AdminLayout";
 
@@ -10,6 +10,12 @@ import { AdminLayout } from "@/components/layout/AdminLayout";
  * Customer account activation must never imply admin access.
  */
 export const Route = createFileRoute("/admin")({
+  ssr: false,
+  beforeLoad: async ({ location }) => {
+    const { supabase } = await import("@/integrations/supabase/client");
+    const { data, error } = await supabase.auth.getUser();
+    if (error || !data.user) throw redirect({ to: "/login", search: { redirect: location.href } });
+  },
   head: () => ({
     meta: [
       { name: "robots", content: "noindex, nofollow" },

@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-import { FeatureShellPage } from "@/features/customer-shell/components/FeatureShellPage";
+import { BankingContentContainer } from "@/components/layout/BankingAppLayout";
+import { PreferencesPage } from "@/features/profile/components/PreferencesPage";
 
 export const Route = createFileRoute("/app/settings")({
   head: () => ({
@@ -14,12 +15,5 @@ export const Route = createFileRoute("/app/settings")({
 });
 
 function AppSettingsRoute() {
-  return (
-    <FeatureShellPage
-      title="Préférences"
-      description="Langue, affichage et préférences de notification."
-      access="authenticated"
-      width="narrow"
-    />
-  );
+  return <BankingContentContainer width="default"><PreferencesPage /></BankingContentContainer>;
 }

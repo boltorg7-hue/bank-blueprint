@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-import { FeatureShellPage } from "@/features/customer-shell/components/FeatureShellPage";
+import { BankingContentContainer } from "@/components/layout/BankingAppLayout";
+import { ProfilePage } from "@/features/profile/components/ProfilePage";
 
 export const Route = createFileRoute("/app/profile")({
   head: () => ({
@@ -14,12 +15,5 @@ export const Route = createFileRoute("/app/profile")({
 });
 
 function AppProfileRoute() {
-  return (
-    <FeatureShellPage
-      title="Profil"
-      description="Vos informations personnelles et vos coordonnées."
-      access="authenticated"
-      width="narrow"
-    />
-  );
+  return <BankingContentContainer width="wide"><ProfilePage /></BankingContentContainer>;
 }
