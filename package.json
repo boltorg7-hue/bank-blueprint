@@ -9,6 +9,8 @@
     "build:dev": "vite build --mode development",
     "preview": "vite preview",
     "lint": "eslint .",
+    "test:certification": "node --test tests/certification.test.mjs",
+    "test:db": "supabase test db",
     "format": "prettier --write ."
   },
   "overrides": {
