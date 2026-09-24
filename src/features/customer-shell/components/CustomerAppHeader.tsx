@@ -9,6 +9,7 @@ import { AccountContextSummary } from "@/features/customer-shell/components/Acco
 import { CustomerMenu } from "@/features/customer-shell/components/CustomerMenu";
 import { useCustomerSummary } from "@/features/customer-shell/hooks/useCustomerSummary";
 import { contextTitleFor } from "@/features/customer-shell/lib/page-titles";
+import { useNotifications } from "@/features/notifications/hooks/useNotifications";
 
 /**
  * Authenticated header (§17 – §21). It shows page context, privacy control,
@@ -18,7 +19,8 @@ import { contextTitleFor } from "@/features/customer-shell/lib/page-titles";
 export function CustomerAppHeader() {
   const pathname = useRouterState({ select: (state) => state.location.pathname });
   const { summary } = useCustomerSummary();
-  const unread = summary?.unreadNotificationCount ?? null;
+  const notifications = useNotifications();
+  const unread = notifications.data?.unreadCount ?? null;
 
   return (
     <header className="safe-pt sticky top-0 z-30 border-b border-border bg-surface/95 backdrop-blur">

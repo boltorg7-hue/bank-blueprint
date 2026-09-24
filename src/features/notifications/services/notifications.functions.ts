@@ -1,0 +1,6 @@
+import { createServerFn } from "@tanstack/react-start";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import type { NotificationCenterDto } from "@/features/notifications/types/notification";
+export const getNotifications=createServerFn({method:"GET"}).middleware([requireSupabaseAuth]).handler(async({context}):Promise<NotificationCenterDto>=>{const s=await import("@/features/notifications/services/notifications.server");return s.loadNotifications(context.supabase,context.userId);});
+export const updateNotification=createServerFn({method:"POST"}).middleware([requireSupabaseAuth]).inputValidator((input:{id:string;action:"READ"|"ARCHIVE"})=>{if(!/^[0-9a-f-]{36}$/i.test(input?.id)||!["READ","ARCHIVE"].includes(input?.action))throw new Error("INVALID_NOTIFICATION_ACTION");return input;}).handler(async({data,context})=>{const s=await import("@/features/notifications/services/notifications.server");return s.markNotification(context.supabase,context.userId,data.id,data.action);});
+export const markEveryNotificationRead=createServerFn({method:"POST"}).middleware([requireSupabaseAuth]).handler(async({context})=>{const s=await import("@/features/notifications/services/notifications.server");return s.markAllRead(context.supabase,context.userId);});
