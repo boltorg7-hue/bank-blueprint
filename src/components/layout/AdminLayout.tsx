@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { Menu } from "lucide-react";
+import { useState } from "react";
 
 import { AdminSidebar } from "@/components/navigation/AdminSidebar";
 import { Button } from "@/components/ui/button";
@@ -9,9 +10,10 @@ import { Button } from "@/components/ui/button";
  * Never reused as a customer layout; contains no customer marketing chrome.
  */
 export function AdminLayout({ children }: { children: ReactNode }) {
+  const [mobileOpen, setMobileOpen] = useState(false);
   return (
     <div className="min-h-dvh-safe flex bg-surface-sunken">
-      <AdminSidebar />
+      <AdminSidebar mobileOpen={mobileOpen} onNavigate={() => setMobileOpen(false)} />
 
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="safe-pt sticky top-0 z-30 border-b border-border bg-surface">
@@ -21,8 +23,8 @@ export function AdminLayout({ children }: { children: ReactNode }) {
                 variant="ghost"
                 size="icon"
                 className="touch-target md:hidden"
-                aria-label="Navigation administration (bientôt disponible)"
-                disabled
+                aria-label="Ouvrir la navigation administration"
+                onClick={() => setMobileOpen((open) => !open)}
               >
                 <Menu className="size-5" aria-hidden="true" />
               </Button>

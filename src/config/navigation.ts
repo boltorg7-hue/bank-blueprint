@@ -13,6 +13,7 @@ import {
   MessagesSquare,
   Send,
   Settings,
+  CircleDollarSign,
   ShieldCheck,
   Sliders,
   UserRound,
@@ -108,9 +109,11 @@ export const CUSTOMER_MORE_GROUPS: { title: string; items: NavItem[] }[] = [
 /** Administration console navigation (built out in PROMPT 12+). */
 export const ADMIN_NAV: NavItem[] = [
   { label: "Tableau de bord", to: "/admin/dashboard", icon: Gauge },
-  { label: "Clients", to: "/admin/dashboard", icon: Users, upcoming: true },
-  { label: "Comptes", to: "/admin/dashboard", icon: Wallet, upcoming: true },
-  { label: "Opérations", to: "/admin/dashboard", icon: Banknote, upcoming: true },
+  { label: "Clients", to: "/admin/customers" as AppPath, icon: Users },
+  { label: "Comptes", to: "/admin/accounts" as AppPath, icon: Wallet },
+  { label: "Approvisionnements", to: "/admin/funding" as AppPath, icon: CircleDollarSign },
+  { label: "Transferts externes", to: "/admin/transfers" as AppPath, icon: Banknote },
+  { label: "Service client", to: "/admin/support" as AppPath, icon: MessagesSquare },
   { label: "KYC & conformité", to: "/admin/dashboard", icon: BadgeCheck, upcoming: true },
   { label: "Audit", to: "/admin/dashboard", icon: FileText, upcoming: true },
   { label: "Paramètres", to: "/admin/dashboard", icon: Settings, upcoming: true },

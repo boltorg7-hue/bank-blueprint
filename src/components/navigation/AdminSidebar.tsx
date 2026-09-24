@@ -1,11 +1,12 @@
 import { Link } from "@tanstack/react-router";
 
 import { ADMIN_NAV } from "@/config/navigation";
+import { cn } from "@/lib/utils";
 
 /** Administration navigation. Only reachable for authorized staff roles. */
-export function AdminSidebar() {
+export function AdminSidebar({ mobileOpen = false, onNavigate }: { mobileOpen?: boolean; onNavigate?: () => void }) {
   return (
-    <aside className="hidden w-64 shrink-0 border-r border-border bg-surface md:flex md:flex-col">
+    <aside className={cn("fixed inset-y-0 left-0 z-40 hidden w-64 shrink-0 border-r border-border bg-surface md:static md:flex md:flex-col", mobileOpen && "flex flex-col")}>
       <div className="flex h-14 items-center gap-2 border-b border-border px-4">
         <span
           className="flex size-7 items-center justify-center rounded-md bg-foreground text-[0.625rem] font-bold text-background"
@@ -43,6 +44,7 @@ export function AdminSidebar() {
                 "aria-current": "page",
               }}
               className="flex items-center gap-3 rounded-md px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+              onClick={onNavigate}
             >
               <Icon className="size-4" aria-hidden="true" />
               {item.label}
