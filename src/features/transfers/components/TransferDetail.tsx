@@ -1,8 +1,11 @@
 import { Link } from "@tanstack/react-router";
+import { useState } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { EmptyState, ErrorState, SkeletonBlock } from "@/components/feedback";
 import {
@@ -31,6 +34,7 @@ export function TransferDetail({ reference }: { reference: string }) {
   const confirm = useConfirmTransfer();
   const cancel = useCancelTransfer();
   const refreshSettlement = useRefreshSettlement();
+  const [confirmationPassword, setConfirmationPassword] = useState("");
 
   if (isPending) return <SkeletonBlock lines={5} />;
   if (isError) return <ErrorState onRetry={() => void refetch()} />;
@@ -106,6 +110,11 @@ export function TransferDetail({ reference }: { reference: string }) {
         ) : null}
 
         {awaitingCustomer ? (
+          <div className="space-y-3">
+            <div className="space-y-2">
+              <Label htmlFor="detail-confirmation-password">Confirmez votre mot de passe</Label>
+              <Input id="detail-confirmation-password" type="password" autoComplete="current-password" value={confirmationPassword} onChange={(event)=>setConfirmationPassword(event.target.value)} maxLength={128}/>
+            </div>
           <div className="flex flex-col-reverse gap-2 sm:flex-row">
             <Button
               variant="outline"
@@ -123,20 +132,23 @@ export function TransferDetail({ reference }: { reference: string }) {
             <Button
               className="w-full sm:w-auto"
               disabled={confirm.isPending || cancel.isPending}
-              onClick={() =>
-                confirm.mutate(data.reference, {
+              onClick={() => {
+                if (!confirmationPassword) { toast.error("Confirmez votre mot de passe."); return; }
+                confirm.mutate({ reference:data.reference, password:confirmationPassword }, {
                   onSuccess: (outcome) => {
+                    setConfirmationPassword("");
                     if (outcome.status === "COMPLETED") toast.success("Virement exécuté");
                     else if (outcome.failureCode)
                       toast.error(transferFailureMessage(outcome.failureCode) as string);
                     else toast.success("Virement transmis. Suivez son avancement ci-dessous.");
                   },
                   onError: (error) => toast.error(transferErrorMessage(error)),
-                })
-              }
+                });
+              }}
             >
               Reprendre et confirmer
             </Button>
+          </div>
           </div>
         ) : null}
 

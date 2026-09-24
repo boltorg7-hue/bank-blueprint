@@ -7,6 +7,7 @@ import { BENEFICIARIES_KEY } from "@/features/beneficiaries/hooks/useBeneficiari
 import {
   cancelTransferIntent,
   confirmTransferExecution,
+  authorizeTransferConfirmation,
   getTransfer,
   getTransferLimitsForCurrency,
   initiateTransfer,
@@ -98,8 +99,17 @@ export function useInitiateTransfer() {
 export function useConfirmTransfer() {
   const invalidate = useInvalidateFinancialState();
   const confirm = useServerFn(confirmTransferExecution);
-  return useMutation<TransferConfirmationResultDto, Error, string>({
-    mutationFn: (reference) => confirm({ data: { reference } }),
+  const authorize = useServerFn(authorizeTransferConfirmation);
+  return useMutation<TransferConfirmationResultDto, Error, { reference: string; password: string }>({
+    mutationFn: async ({ reference, password }) => {
+      const { supabase } = await import("@/integrations/supabase/client");
+      const { data: userData } = await supabase.auth.getUser();
+      if (!userData.user?.email || !password) throw new Error("RECENT_AUTHENTICATION_REQUIRED");
+      const { error } = await supabase.auth.signInWithPassword({ email: userData.user.email, password });
+      if (error) throw new Error("RECENT_AUTHENTICATION_REQUIRED");
+      await authorize({ data: { reference } });
+      return confirm({ data: { reference } });
+    },
     onSettled: invalidate,
   });
 }

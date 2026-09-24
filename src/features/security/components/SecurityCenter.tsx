@@ -1,0 +1,28 @@
+import { useEffect,useRef,useState } from "react";
+import { toast } from "sonner";
+import { EmptyState,ErrorState,LoadingState } from "@/components/feedback";
+import { Button } from "@/components/ui/button";
+import { Card,CardContent,CardDescription,CardHeader,CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { StatusBadge } from "@/components/ui/status-badge";
+import { useSessionUser } from "@/features/auth/hooks/useSessionUser";
+import { passwordSchema } from "@/features/auth/schemas/auth.schemas";
+import { useCloseOtherSessions,useRecordPasswordChanged,useRegisterSecuritySession,useSecurityOverview } from "@/features/security/hooks/useSecurity";
+import { supabase } from "@/integrations/supabase/client";
+import { formatDateTime } from "@/lib/format";
+
+export function SecurityCenter(){
+  const overview=useSecurityOverview();const register=useRegisterSecuritySession();const closeOthers=useCloseOtherSessions();const recordPassword=useRecordPasswordChanged();const {user}=useSessionUser();const registered=useRef(false);
+  const [currentPassword,setCurrentPassword]=useState("");const[newPassword,setNewPassword]=useState("");const[confirmation,setConfirmation]=useState("");const[changing,setChanging]=useState(false);
+  useEffect(()=>{if(registered.current)return;registered.current=true;const label=[navigator.platform,navigator.userAgent].filter(Boolean).join(" — ").slice(0,240);register.mutate(label);},[register]);
+  async function closeAllOthers(){try{const{error}=await supabase.auth.signOut({scope:"others"});if(error)throw error;const result=await closeOthers.mutateAsync();toast.success(`${result.count} autre(s) session(s) fermée(s).`);}catch{toast.error("Les autres sessions n’ont pas pu être fermées.");}}
+  async function changePassword(){const parsed=passwordSchema.safeParse(newPassword);if(!parsed.success)return toast.error(parsed.error.issues[0]?.message??"Nouveau mot de passe invalide.");if(newPassword!==confirmation)return toast.error("Les nouveaux mots de passe ne correspondent pas.");if(!user?.email||!currentPassword)return toast.error("Saisissez votre mot de passe actuel.");setChanging(true);try{const auth=await supabase.auth.signInWithPassword({email:user.email,password:currentPassword});if(auth.error)throw auth.error;const update=await supabase.auth.updateUser({password:newPassword});if(update.error)throw update.error;await recordPassword.mutateAsync();const label=[navigator.platform,navigator.userAgent].filter(Boolean).join(" — ").slice(0,240);await register.mutateAsync(label);setCurrentPassword("");setNewPassword("");setConfirmation("");toast.success("Mot de passe modifié. Une alerte de sécurité a été créée.");}catch{toast.error("Le mot de passe n’a pas pu être modifié. Vérifiez votre mot de passe actuel.");}finally{setChanging(false);}}
+  if(overview.isPending)return <LoadingState label="Chargement de votre sécurité…"/>;if(overview.isError)return <ErrorState onRetry={()=>overview.refetch()}/>;
+  return <div className="space-y-6">
+    <Card><CardHeader><CardTitle>Mot de passe</CardTitle><CardDescription>Votre mot de passe actuel est vérifié avant toute modification.</CardDescription></CardHeader><CardContent className="grid gap-4"><PasswordInput id="current-password" label="Mot de passe actuel" value={currentPassword} setValue={setCurrentPassword}/><PasswordInput id="new-password" label="Nouveau mot de passe" value={newPassword} setValue={setNewPassword}/><PasswordInput id="confirm-password" label="Confirmer le nouveau mot de passe" value={confirmation} setValue={setConfirmation}/><Button className="w-fit" disabled={changing} onClick={()=>void changePassword()}>{changing?"Modification…":"Modifier le mot de passe"}</Button></CardContent></Card>
+    <Card><CardHeader><CardTitle>Sessions et appareils</CardTitle><CardDescription>Les sessions observées par l’application. La révocation réelle est effectuée par Supabase Auth.</CardDescription></CardHeader><CardContent className="space-y-4">{!overview.data?.sessions.length?<EmptyState title="Aucune session enregistrée"/>:overview.data.sessions.map((session)=><div key={session.id} className="flex flex-wrap items-center justify-between gap-3 border-b pb-3"><div><p className="max-w-xl truncate text-sm font-medium">{session.deviceLabel}</p><p className="text-xs text-muted-foreground">Dernière activité : {formatDateTime(session.lastSeenAt)}</p></div><StatusBadge label={session.current?"Session actuelle":session.revokedAt?"Fermée":"Active"} tone={session.current?"success":session.revokedAt?"neutral":"info"}/></div>)}<Button variant="outline" disabled={closeOthers.isPending} onClick={()=>void closeAllOthers()}>Fermer toutes les autres sessions</Button></CardContent></Card>
+    <Card><CardHeader><CardTitle>Historique de sécurité</CardTitle></CardHeader><CardContent className="space-y-3">{!overview.data?.events.length?<EmptyState title="Aucun événement de sécurité"/>:overview.data.events.map((event)=><div key={event.id} className="border-b pb-3"><div className="flex justify-between gap-3"><strong className="text-sm">{event.title}</strong><span className="text-xs text-muted-foreground">{formatDateTime(event.createdAt)}</span></div><p className="text-sm text-muted-foreground">{event.detail}</p></div>)}</CardContent></Card>
+  </div>;
+}
+function PasswordInput({id,label,value,setValue}:{id:string;label:string;value:string;setValue:(value:string)=>void}){return <div className="grid gap-2"><Label htmlFor={id}>{label}</Label><Input id={id} type="password" autoComplete={id==="current-password"?"current-password":"new-password"} value={value} onChange={(event)=>setValue(event.target.value)} maxLength={128}/></div>;}

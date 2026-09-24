@@ -94,8 +94,25 @@ export const confirmTransferExecution = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator(requireTransferReference)
   .handler(async ({ data, context }): Promise<TransferConfirmationResultDto> => {
+    const { data: authorized, error: stepUpError } = await context.supabase.rpc(
+      "consume_security_step_up" as any,
+      { _action: "TRANSFER_CONFIRM", _resource_reference: data.reference } as never,
+    );
+    if (stepUpError || authorized !== true) throw new Error("RECENT_AUTHENTICATION_REQUIRED");
     const service = await import("@/features/transfers/services/transfers.server");
     return service.confirmTransfer(context.userId, data.reference);
+  });
+
+export const authorizeTransferConfirmation = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator(requireTransferReference)
+  .handler(async ({ data, context }) => {
+    const { error } = await context.supabase.rpc("issue_security_step_up" as any, {
+      _action: "TRANSFER_CONFIRM",
+      _resource_reference: data.reference,
+    } as never);
+    if (error) throw new Error("RECENT_AUTHENTICATION_REQUIRED");
+    return { ok: true };
   });
 
 export const cancelTransferIntent = createServerFn({ method: "POST" })

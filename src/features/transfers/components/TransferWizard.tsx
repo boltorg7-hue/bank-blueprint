@@ -87,6 +87,7 @@ export function TransferWizard({ initialBeneficiary }: { initialBeneficiary?: st
   const [unit, setUnit] = useState<QuoteUnit>("USD");
 
   const [note, setNote] = useState("");
+  const [confirmationPassword, setConfirmationPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [transfer, setTransfer] = useState<TransferDetailDto | null>(null);
   const [result, setResult] = useState<{
@@ -182,6 +183,22 @@ export function TransferWizard({ initialBeneficiary }: { initialBeneficiary?: st
             ) : (
               <p className="text-caption text-muted-foreground">Solde disponible indisponible.</p>
             )}
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="transfer-confirmation-password">Confirmez votre mot de passe</Label>
+            <Input
+              id="transfer-confirmation-password"
+              type="password"
+              autoComplete="current-password"
+              value={confirmationPassword}
+              onChange={(event) => setConfirmationPassword(event.target.value)}
+              placeholder="Mot de passe actuel"
+              maxLength={128}
+            />
+            <p className="text-caption text-muted-foreground">
+              Cette vérification protège l’exécution de l’opération sensible.
+            </p>
           </div>
 
           <div className="space-y-2">
@@ -412,8 +429,13 @@ export function TransferWizard({ initialBeneficiary }: { initialBeneficiary?: st
               disabled={confirm.isPending}
               onClick={() => {
                 setError(null);
-                confirm.mutate(transfer.reference, {
+                if (!confirmationPassword) {
+                  setError("Confirmez votre mot de passe avant d’exécuter le virement.");
+                  return;
+                }
+                confirm.mutate({ reference: transfer.reference, password: confirmationPassword }, {
                   onSuccess: (outcome) => {
+                    setConfirmationPassword("");
                     setResult({
                       status: outcome.status,
                       kind: outcome.kind,

@@ -110,6 +110,8 @@ export function transferErrorMessage(error: unknown): string {
     return "Ce justificatif a déjà été transmis et est en cours d'examen.";
   if (message.includes("REQUIREMENT_UNAVAILABLE"))
     return "Ce justificatif n'est plus demandé pour ce virement.";
+  if (message.includes("RECENT_AUTHENTICATION_REQUIRED"))
+    return "Votre mot de passe n’a pas pu être confirmé. Vérifiez-le puis réessayez.";
   return FAILURE_MESSAGES.UNEXPECTED_ERROR;
 }
 

@@ -1,0 +1,8 @@
+import { createServerFn } from "@tanstack/react-start";
+import type { SecurityOverviewDto } from "@/features/security/types/security";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+
+export const getSecurityOverview=createServerFn({method:"GET"}).middleware([requireSupabaseAuth]).handler(async({context}):Promise<SecurityOverviewDto>=>{const service=await import("@/features/security/services/security.server");const sessionId=typeof context.claims["session_id"]==="string"?context.claims["session_id"]:null;return service.loadSecurityOverview(context.supabase,context.userId,sessionId);});
+export const registerSecuritySession=createServerFn({method:"POST"}).middleware([requireSupabaseAuth]).inputValidator((input:{deviceLabel:string})=>{const deviceLabel=String(input?.deviceLabel??"").trim().slice(0,240);if(deviceLabel.length<2)throw new Error("INVALID_DEVICE");return{deviceLabel};}).handler(async({data,context})=>{const{error}=await context.supabase.rpc("register_current_security_session" as any,{_device_label:data.deviceLabel} as never);if(error)throw new Error("SESSION_REGISTER_FAILED");return{ok:true};});
+export const closeOtherSecuritySessions=createServerFn({method:"POST"}).middleware([requireSupabaseAuth]).handler(async({context})=>{const{data,error}=await context.supabase.rpc("mark_other_security_sessions_revoked" as any);if(error)throw new Error("SESSION_CLOSE_FAILED");return{count:Number(data??0)};});
+export const recordPasswordChanged=createServerFn({method:"POST"}).middleware([requireSupabaseAuth]).handler(async({context})=>{const{error}=await context.supabase.rpc("record_customer_password_changed" as any);if(error)throw new Error("SECURITY_EVENT_FAILED");return{ok:true};});

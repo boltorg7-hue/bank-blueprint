@@ -71,7 +71,7 @@ export function progressExplanation(
   if (transfer.status === "COMPLETED" && transfer.progressPercent === 100) {
     return transfer.kind === "INTERNAL_TRANSFER"
       ? "Le compte du bénéficiaire a été crédité. Le virement est terminé."
-      : "La banque destinataire a confirmé la réception des fonds. Le virement est terminé.";
+      : "Le parcours de simulation du transfert externe est terminé.";
   }
 
   switch (transfer.status) {
@@ -84,9 +84,9 @@ export function progressExplanation(
     case "COMPLIANCE_REVIEW":
       return "Tout ce qui vous concerne est fait. Nos équipes finalisent les vérifications réglementaires.";
     case "APPROVED":
-      return "Le virement est approuvé et va être transmis à la banque destinataire.";
+      return "Le transfert est approuvé à 95 % et attend sa mise en file finale par nos équipes.";
     case "SETTLEMENT_PENDING":
-      return "Tout ce qui vous concerne est terminé. Nous attendons la confirmation finale du virement par la banque destinataire.";
+      return "Le transfert simulé est à 99 %. Il attend la décision administrative finale.";
     case "BLOCKED":
       return "Ce virement est suspendu. Nos équipes vous contactent avant toute suite ; les fonds restent réservés.";
     case "REJECTED":
@@ -146,4 +146,4 @@ export function openRequirement(
 }
 
 /** Milestone ticks shown under the bar; purely presentational. */
-export const PROGRESS_MILESTONES: readonly number[] = [0, 30, 60, 90, 100];
+export const PROGRESS_MILESTONES: readonly number[] = [0, 30, 60, 90, 95, 99, 100];
