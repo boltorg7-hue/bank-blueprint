@@ -1,3 +1,5 @@
+import { useLanguage } from "@/components/providers/LanguageProvider";
+import { LanguageSwitch } from "@/components/navigation/LanguageSwitch";
 import { createFileRoute, Outlet, redirect, useRouter } from "@tanstack/react-router";
 
 import { BrandMark } from "@/components/navigation/BrandMark";
@@ -32,15 +34,17 @@ export const Route = createFileRoute("/onboarding")({
 
 function OnboardingChrome({ children }: { children: React.ReactNode }) {
   const signOut = useSignOut();
+  const { language } = useLanguage();
+  const en = language === "en";
 
   return (
     <div className="min-h-dvh-safe bg-surface-sunken">
       <header className="safe-pt sticky top-0 z-30 border-b border-border bg-background/90 backdrop-blur">
         <div className="mx-auto flex h-16 w-full max-w-2xl items-center justify-between gap-3 px-4 sm:px-6">
           <BrandMark />
-          <Button variant="ghost" size="sm" className="touch-target" onClick={() => void signOut()}>
-            Se déconnecter
-          </Button>
+          <div className="flex items-center gap-1"><LanguageSwitch /><Button variant="ghost" size="sm" className="touch-target" onClick={() => void signOut()}>
+            {en ? "Sign out" : "Se déconnecter"}
+          </Button></div>
         </div>
       </header>
       <main id="main" className="safe-pb">
@@ -60,15 +64,17 @@ function OnboardingLayoutRoute() {
 
 function OnboardingError() {
   const router = useRouter();
+  const { language } = useLanguage();
+  const en = language === "en";
   return (
     <OnboardingChrome>
       <div className="mx-auto w-full max-w-2xl px-4 py-16 sm:px-6">
-        <h1 className="text-heading-lg text-foreground">Cette étape n'a pas pu s'afficher</h1>
+        <h1 className="text-heading-lg text-foreground">{en ? "This step could not be displayed" : "Cette étape n’a pas pu s’afficher"}</h1>
         <p className="text-body mt-3 text-muted-foreground">
-          Nous n'avons pas pu charger vos informations pour le moment. Réessayez dans un instant.
+          {en ? "We could not load your information. Please try again shortly." : "Nous n’avons pas pu charger vos informations pour le moment. Réessayez dans un instant."}
         </p>
         <Button className="mt-6 touch-target" onClick={() => void router.invalidate()}>
-          Réessayer
+          {en ? "Try again" : "Réessayer"}
         </Button>
       </div>
     </OnboardingChrome>
