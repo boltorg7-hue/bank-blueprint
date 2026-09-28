@@ -1,4 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useLanguage } from "@/components/providers/LanguageProvider";
+
 
 import { BankingContentContainer } from "@/components/layout/BankingAppLayout";
 import { PageHeader } from "@/components/layout/PageHeader";
@@ -32,6 +34,8 @@ export const Route = createFileRoute("/app/transfers/new")({
 });
 
 function AppTransfersNewRoute() {
+  const { language } = useLanguage();
+  const en = language === "en";
   const { beneficiary } = Route.useSearch();
   const { summary } = useCustomerSummary();
   const allowed = summary ? isAllowed(summary.lifecycleState, "transactional") : true;
@@ -40,8 +44,8 @@ function AppTransfersNewRoute() {
   return (
     <BankingContentContainer width="narrow">
       <PageHeader
-        title="Nouveau virement"
-        description="Vérifiez chaque étape : le montant est débité uniquement après votre confirmation."
+        title={en ? "New transfer" : "Nouveau virement"}
+        description={en ? "Review each step: funds are debited only after you confirm." : "Vérifiez chaque étape : le montant est débité uniquement après votre confirmation."}
         backTo="/app/transfers"
       />
       {allowed ? (

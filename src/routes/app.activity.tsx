@@ -1,4 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useLanguage } from "@/components/providers/LanguageProvider";
+
 
 import { BankingContentContainer } from "@/components/layout/BankingAppLayout";
 import { PageHeader } from "@/components/layout/PageHeader";
@@ -22,19 +24,21 @@ export const Route = createFileRoute("/app/activity")({
 });
 
 function AppActivityRoute() {
+  const { language } = useLanguage();
+  const en = language === "en";
   const { summary } = useCustomerSummary();
   const allowed = summary ? isAllowed(summary.lifecycleState, "banking-read") : true;
 
   return (
     <BankingContentContainer width="default">
       <PageHeader
-        title="Activité"
-        description="Le fil de vos opérations récentes, toutes catégories confondues."
+        title={en ? "Activity" : "Activité"}
+        description={en ? "Your recent transactions across all categories." : "Le fil de vos opérations récentes, toutes catégories confondues."}
       />
       {allowed ? (
         <TransactionHistory pageSize={10} showFilters={false} />
       ) : (
-        <PermissionDeniedState description="Votre activité bancaire sera visible dès l'activation de votre compte." />
+        <PermissionDeniedState description={en ? "Your banking activity will be visible once your account is activated." : "Votre activité bancaire sera visible dès l'activation de votre compte."} />
       )}
     </BankingContentContainer>
   );

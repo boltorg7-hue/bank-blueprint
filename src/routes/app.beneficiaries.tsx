@@ -1,4 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useLanguage } from "@/components/providers/LanguageProvider";
+
 
 import { BankingContentContainer } from "@/components/layout/BankingAppLayout";
 import { PageHeader } from "@/components/layout/PageHeader";
@@ -27,6 +29,8 @@ export const Route = createFileRoute("/app/beneficiaries")({
 });
 
 function AppBeneficiariesRoute() {
+  const { language } = useLanguage();
+  const en = language === "en";
   const { summary } = useCustomerSummary();
   const allowed = summary ? isAllowed(summary.lifecycleState, "transactional") : true;
   const blockedReason = summary ? transactionalBlockedReason(summary.lifecycleState) : null;
@@ -34,8 +38,8 @@ function AppBeneficiariesRoute() {
   return (
     <BankingContentContainer width="default">
       <PageHeader
-        title="Bénéficiaires"
-        description="Les comptes vers lesquels vous pouvez envoyer de l'argent. Seules les dernières décimales du compte sont affichées."
+        title={en ? "Beneficiaries" : "Bénéficiaires"}
+        description={en ? "Accounts you can send money to. Only the final digits of account numbers are shown." : "Les comptes vers lesquels vous pouvez envoyer de l'argent. Seules les dernières décimales du compte sont affichées."}
         action={
           allowed ? (
             <div className="flex flex-col gap-2 sm:flex-row">

@@ -1,4 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useLanguage } from "@/components/providers/LanguageProvider";
+
 
 import { BankingContentContainer } from "@/components/layout/BankingAppLayout";
 import { PageHeader } from "@/components/layout/PageHeader";
@@ -26,27 +28,29 @@ export const Route = createFileRoute("/app/accounts/")({
 
 /** Account list (§40 – §47): multi-account by default, one row per account. */
 function AccountsListPage() {
+  const { language } = useLanguage();
+  const en = language === "en";
   const { summary: customer } = useCustomerSummary();
   const query = useCustomerAccounts();
   const allowed = !customer || isAllowed(customer.lifecycleState, "banking-read");
 
   return (
     <BankingContentContainer width="wide">
-      <PageHeader title="Mes comptes" description="Vos comptes bancaires et leurs soldes." />
+      <PageHeader title={en ? "My accounts" : "Mes comptes"} description={en ? "Your bank accounts and balances." : "Vos comptes bancaires et leurs soldes."} />
 
       {!allowed ? (
-        <PermissionDeniedState description="Cette section n'est pas disponible avec le statut actuel de votre compte." />
+        <PermissionDeniedState description={en ? "This section is not available with your current account status." : "Cette section n'est pas disponible avec le statut actuel de votre compte."} />
       ) : query.isError ? (
         <ErrorState
-          title="Vos comptes n'ont pas pu être chargés"
+          title={en ? "Your accounts could not be loaded" : "Vos comptes n'ont pas pu être chargés"}
           onRetry={() => query.refetch()}
         />
       ) : query.isPending ? (
-        <LoadingState label="Chargement de vos comptes…" />
+        <LoadingState label={en ? "Loading your accounts…" : "Chargement de vos comptes…"} />
       ) : (query.data ?? []).length === 0 ? (
         <EmptyState
-          title="Aucun compte bancaire"
-          description="Votre compte bancaire sera ouvert dès la validation complète de votre dossier."
+          title={en ? "No bank accounts" : "Aucun compte bancaire"}
+          description={en ? "Your bank account will open once your application has been fully approved." : "Votre compte bancaire sera ouvert dès la validation complète de votre dossier."}
         />
       ) : (
         <ul className="space-y-3">
