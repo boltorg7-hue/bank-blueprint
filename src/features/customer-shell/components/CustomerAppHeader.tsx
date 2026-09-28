@@ -27,7 +27,7 @@ export function CustomerAppHeader() {
 
   return (
     <header className="safe-pt sticky top-0 z-30 border-b border-border bg-surface/95 backdrop-blur">
-      <div className="flex h-16 items-center justify-between gap-3 px-4 sm:px-6">
+      <div className="grid h-16 grid-cols-[minmax(0,1fr)_auto] items-center gap-2 px-4 sm:px-6">
         <div className="flex min-w-0 items-center gap-3">
           <BrandMark to="/app/dashboard" compact className="lg:hidden" />
           <div className="min-w-0">
@@ -40,7 +40,7 @@ export function CustomerAppHeader() {
           </div>
         </div>
 
-        <div className="flex items-center gap-1">
+        <div className="flex shrink-0 items-center gap-0.5 sm:gap-1">
           <LanguageSwitch />
           <PrivacyModeToggle className="touch-target" />
           <ThemeToggle className="touch-target" />

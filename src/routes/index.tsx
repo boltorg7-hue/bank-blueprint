@@ -105,7 +105,7 @@ function HomePage() {
              <p className="text-body mt-3 max-w-prose text-muted-foreground">{copy("Notre identité et nos coordonnées officielles, sans promesses inventées.", HOME_EN.historyDescription)}</p>
              <Button asChild variant="link" className="mt-3 px-0 text-brand"><Link to="/about">{copy("Découvrir la banque", HOME_EN.historyLink)} <ArrowRight className="size-4" aria-hidden="true" /></Link></Button>
           </div>
-          <dl className="grid grid-cols-2 gap-x-5 gap-y-5 border-t border-border pt-4 sm:gap-x-8 lg:border-t-0 lg:pt-0">
+          <dl className="grid grid-cols-1 gap-x-5 gap-y-5 border-t border-border pt-4 min-[420px]:grid-cols-2 sm:gap-x-8 lg:border-t-0 lg:pt-0">
            {HERITAGE_FACTS.map((fact, index) => (
             <div key={fact.label} className="min-w-0 border-b border-border pb-4">
                <dt className="text-overline text-brand">{en ? HOME_EN.facts[index] : fact.label}</dt>

@@ -13,15 +13,21 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   const [language, setState] = useState<Language>("fr");
 
   useEffect(() => {
+    let preferred: Language = "fr";
     try {
       const stored = window.localStorage.getItem(STORAGE_KEY);
       if (stored === "fr" || stored === "en") {
-        setState(stored);
-        document.documentElement.lang = stored;
+        preferred = stored;
+      } else {
+        const systemLanguages = navigator.languages?.length ? navigator.languages : [navigator.language];
+        const supported = systemLanguages.find((locale) => /^(fr|en)(-|$)/i.test(locale));
+        preferred = supported?.toLowerCase().startsWith("en") ? "en" : "fr";
       }
     } catch {
-      // Private browsing may block storage; the switch remains usable in this session.
+      preferred = navigator.language?.toLowerCase().startsWith("fr") ? "fr" : "en";
     }
+    setState(preferred);
+    document.documentElement.lang = preferred;
   }, []);
 
   const setLanguage = useCallback((next: Language) => {

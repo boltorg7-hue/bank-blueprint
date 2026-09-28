@@ -12,3 +12,4 @@
 The public homepage follows a photo-first editorial presentation while the authenticated app retains its separate task-oriented shell; this keeps discovery distinct from banking actions.
 
 The FR/EN interface choice lives in the shared LanguageProvider and each shell exposes the same LanguageSwitch; this preserves language across navigation without altering banking data or operations.
+The first language choice follows the browser's preferred supported locale (FR/EN), while a manual choice takes precedence via local storage; the header control is shared across public, customer, and admin shells.

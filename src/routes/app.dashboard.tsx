@@ -17,6 +17,7 @@ import {
 } from "@/features/accounts/utils/account-display";
 import { Clock } from "lucide-react";
 import { useLanguage } from "@/components/providers/LanguageProvider";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/app/dashboard")({
   head: () => ({
@@ -53,12 +54,7 @@ function DashboardPage() {
         title={customer ? `${en ? "Hello" : "Bonjour"} ${customer.displayName.split(" ")[0]}` : en ? "Hello" : "Bonjour"}
          description={en ? "Your account, transactions and next steps in one place." : "Votre compte, vos opérations et vos prochaines actions au même endroit."}
       />
-      <p className="-mt-4 mb-2 text-caption">
-        <Link to="/" className="text-primary hover:underline">
-          {en ? "Visit the bank's public site" : "Voir le site public de la banque"}
-        </Link>
-      </p>
-
+      
       {query.isError ? (
         <ErrorState
           title={en ? "Your account information could not be loaded" : "Vos informations bancaires n'ont pas pu être chargées"}
@@ -80,7 +76,7 @@ function DashboardPage() {
           description={en ? "Your bank account will open when your application is fully approved." : "Votre compte bancaire sera ouvert dès la validation complète de votre dossier."}
         />
       ) : (
-        <div className="space-y-8">
+        <div className="space-y-6 md:space-y-10">
           <AccountBalanceCard
             account={account}
             isRefreshing={query.isFetching}
@@ -100,10 +96,10 @@ function DashboardPage() {
           <ActionRequiredTransfers />
 
            <section aria-labelledby="quick-actions-heading" className="space-y-4">
-            <h2 id="quick-actions-heading" className="text-heading-sm text-foreground">
+            <h2 id="quick-actions-heading" className="text-heading-sm font-semibold text-foreground md:text-heading-md">
               {en ? "Quick actions" : "Actions rapides"}
             </h2>
-            <ul className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+            <ul className="grid grid-cols-2 gap-3 md:gap-4 lg:grid-cols-4">
               <QuickAction
                 to="/app/transfers"
                 label={en ? "Send money" : "Envoyer de l'argent"}
@@ -123,17 +119,23 @@ function DashboardPage() {
 
           {data?.monthlySummary && <MonthlySummaryCard summary={data.monthlySummary} />}
 
-          <section aria-labelledby="activity-heading" className="space-y-3">
+          <section aria-labelledby="activity-heading" className="space-y-4">
             <div className="flex items-baseline justify-between gap-3">
-              <h2 id="activity-heading" className="text-heading-sm text-foreground">
+              <h2 id="activity-heading" className="text-heading-sm font-semibold text-foreground md:text-heading-md">
                 {en ? "Recent activity" : "Activité récente"}
               </h2>
-              <Link to="/app/transactions" className="text-caption text-primary hover:underline">
+              <Link to="/app/transactions" className="text-caption font-medium text-brand hover:underline">
                 {en ? "Full history" : "Tout l'historique"}
               </Link>
             </div>
             <RecentActivityList items={data?.recentActivity ?? []} />
           </section>
+          
+          <p className="mt-8 text-center text-caption text-muted-foreground md:text-left">
+            <Link to="/" className="hover:text-foreground hover:underline transition-colors">
+              {en ? "Visit the bank's public site" : "Voir le site public de la banque"}
+            </Link>
+          </p>
         </div>
       )}
     </BankingContentContainer>
@@ -155,26 +157,30 @@ function QuickAction({
 }) {
   const content = (
     <>
-      <Icon className="size-5" aria-hidden="true" />
-      <span className="mt-3 block leading-snug">{label}</span>
-      {disabled && <span className="text-caption mt-1 block">Indisponible</span>}
+      <div className={cn("size-9 flex items-center justify-center rounded-lg transition-colors", !disabled ? "bg-brand/5 text-brand" : "bg-muted/50 text-muted-foreground")}>
+        <Icon className="size-5" aria-hidden="true" />
+      </div>
+      <div className="mt-3">
+        <span className="block font-semibold leading-tight tracking-tight">{label}</span>
+        {disabled && <span className="text-[0.625rem] mt-1 block font-medium opacity-70">Indisponible</span>}
+      </div>
     </>
   );
 
-  const className =
-     "flex h-full min-h-28 flex-col justify-between rounded-md border border-border bg-surface p-4 text-sm";
+  const baseClassName =
+     "flex h-full min-h-[100px] flex-col justify-between rounded-xl border border-border bg-surface p-4 text-sm transition-all duration-200";
 
   return (
     <li>
       {disabled ? (
-        <span aria-disabled="true" className={`${className} text-muted-foreground`}>
+        <span aria-disabled="true" className={cn(baseClassName, "text-muted-foreground opacity-60")}>
           {content}
         </span>
       ) : (
         <Link
           to={to}
           {...(params ? { params } : {})}
-           className={`${className} press-feedback text-foreground transition-colors hover:border-brand hover:shadow-[var(--shadow-card)] active:press-feedback-active`}
+           className={cn(baseClassName, "press-feedback text-foreground hover:border-brand/30 hover:shadow-sm active:press-feedback-active active:scale-[0.98]")}
         >
           {content}
         </Link>

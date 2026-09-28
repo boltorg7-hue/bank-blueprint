@@ -47,14 +47,14 @@ export function PublicHeader() {
 
   return (
     <header className="safe-pt sticky top-0 z-40 border-b border-border bg-surface/95 shadow-[var(--shadow-subtle)] backdrop-blur-xl">
-      <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between gap-3 px-4 sm:px-6">
+      <div className="mx-auto grid h-16 w-full max-w-6xl grid-cols-[minmax(0,1fr)_auto] items-center gap-2 px-4 sm:px-6 lg:flex lg:justify-between">
         <BrandMark />
 
         <nav aria-label={en ? "Main navigation" : "Navigation principale"} className="hidden items-center gap-5 lg:flex">
           <NavLinks />
         </nav>
 
-        <div className="flex shrink-0 items-center gap-1 sm:gap-2">
+        <div className="flex shrink-0 items-center gap-2">
           <LanguageSwitch />
           <ThemeToggle className="touch-target" />
           {loading ? null : user ? (
@@ -103,9 +103,21 @@ export function PublicHeader() {
               <SheetHeader>
                 <SheetTitle className="text-heading-md text-foreground">RFC Royal FINANCE Bank</SheetTitle>
               </SheetHeader>
-               <nav aria-label={en ? "Mobile navigation" : "Navigation mobile"} className="mt-6 flex flex-col gap-1 px-4 pb-6 [&_a]:min-h-12 [&_a]:rounded-md [&_a]:px-3 [&_a]:py-3 [&_a]:text-base [&_a]:hover:bg-surface-sunken">
-                <NavLinks onNavigate={() => setOpen(false)} />
-                <Link to="/contact" onClick={() => setOpen(false)} className="text-muted-foreground transition-colors">Contact</Link>
+               <nav aria-label={en ? "Mobile navigation" : "Navigation mobile"} className="mt-6 space-y-6 px-4 pb-6 [&_a]:min-h-12 [&_a]:rounded-md [&_a]:px-3 [&_a]:py-3 [&_a]:text-base [&_a]:hover:bg-surface-sunken">
+                <div>
+                  <p className="mb-2 px-3 text-xs font-semibold uppercase text-muted-foreground">{en ? "Explore" : "Découvrir"}</p>
+                  <div className="flex flex-col gap-1">
+                    {PUBLIC_PRIMARY_NAV.slice(0, 2).map((item) => <Link key={item.to} to={item.to} onClick={() => setOpen(false)} className="text-foreground">{en ? ({ Comptes: "Accounts", Fonctionnalités: "Features" } as Record<string, string>)[item.label] : item.label}</Link>)}
+                  </div>
+                </div>
+                <div className="border-t border-border pt-5">
+                  <p className="mb-2 px-3 text-xs font-semibold uppercase text-muted-foreground">{en ? "The bank" : "La banque"}</p>
+                  <div className="flex flex-col gap-1">
+                    {PUBLIC_PRIMARY_NAV.slice(2).map((item) => <Link key={item.to} to={item.to} onClick={() => setOpen(false)} className="text-foreground">{en ? ({ Sécurité: "Security", Tarifs: "Pricing", "À propos": "About", Aide: "Help" } as Record<string, string>)[item.label] : item.label}</Link>)}
+                    <Link to="/contact" onClick={() => setOpen(false)} className="text-foreground">Contact</Link>
+                  </div>
+                </div>
+                <div className="flex flex-col gap-2 border-t border-border pt-5">
                 {user ? (
                   <>
                     <Button asChild className="mt-4 touch-target">
@@ -143,7 +155,8 @@ export function PublicHeader() {
                   </>
                 )}
 
-              </nav>
+                </div>
+                </nav>
             </SheetContent>
           </Sheet>
         </div>

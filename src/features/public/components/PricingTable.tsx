@@ -39,7 +39,7 @@ export function PricingTable({
         <section
           key={category.id}
           aria-labelledby={`pricing-${category.id}`}
-          className="overflow-hidden rounded-2xl border border-border bg-surface"
+          className="overflow-hidden rounded-md border border-border bg-surface"
         >
           <header className="border-b border-border bg-surface-sunken px-5 py-4">
             <h3 id={`pricing-${category.id}`} className="text-heading-sm text-foreground">
