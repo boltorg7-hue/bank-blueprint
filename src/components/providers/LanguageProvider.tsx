@@ -21,7 +21,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
       } else {
         const systemLanguages = navigator.languages?.length ? navigator.languages : [navigator.language];
         const supported = systemLanguages.find((locale) => /^(fr|en)(-|$)/i.test(locale));
-        preferred = supported?.toLowerCase().startsWith("fr") ? "fr" : "en";
+        preferred = supported?.toLowerCase().startsWith("en") ? "en" : "fr";
       }
     } catch {
       preferred = navigator.language?.toLowerCase().startsWith("fr") ? "fr" : "en";

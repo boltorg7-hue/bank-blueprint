@@ -17,6 +17,7 @@ export function AdminLayout({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-dvh-safe flex bg-surface-sunken">
       <AdminSidebar mobileOpen={mobileOpen} onNavigate={() => setMobileOpen(false)} />
+      {mobileOpen && <Button variant="ghost" size="icon" className="fixed inset-0 z-[35] h-full w-full rounded-none bg-foreground/40 md:hidden" aria-label={language === "en" ? "Close navigation" : "Fermer la navigation"} onClick={() => setMobileOpen(false)} />}
 
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="safe-pt sticky top-0 z-30 border-b border-border bg-surface">
