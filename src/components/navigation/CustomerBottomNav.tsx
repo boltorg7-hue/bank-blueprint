@@ -1,6 +1,8 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 
 import { CUSTOMER_PRIMARY_NAV } from "@/config/navigation";
+import { englishNavLabel } from "@/components/navigation/CustomerSidebar";
+import { useLanguage } from "@/components/providers/LanguageProvider";
 import { cn } from "@/lib/utils";
 
 /**
@@ -8,6 +10,7 @@ import { cn } from "@/lib/utils";
  * safe-area aware, no hover dependency.
  */
 export function CustomerBottomNav() {
+  const { language } = useLanguage();
   const pathname = useRouterState({ select: (state) => state.location.pathname });
   return (
     <nav
@@ -27,7 +30,7 @@ export function CustomerBottomNav() {
                    className="touch-target flex h-16 flex-col items-center justify-center gap-1 px-1 py-2 text-muted-foreground/60"
                 >
                   <Icon className="size-5" aria-hidden="true" />
-                   <span className="text-caption leading-none">{item.label}</span>
+                   <span className="text-caption leading-none">{language === "en" ? englishNavLabel(item.label) : item.label}</span>
                 </span>
               </li>
             );
@@ -45,7 +48,7 @@ export function CustomerBottomNav() {
                 )}
               >
                 <span className={cn("grid size-8 place-items-center rounded-md transition-colors", selected && "bg-brand-muted")}><Icon className="size-5" aria-hidden="true" /></span>
-                <span className="text-caption leading-none">{item.label}</span>
+                <span className="text-caption leading-none">{language === "en" ? englishNavLabel(item.label) : item.label}</span>
               </Link>
             </li>
           );

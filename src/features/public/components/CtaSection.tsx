@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 
 import { Button } from "@/components/ui/button";
 import { PUBLIC_CTA } from "@/features/public/content/site";
+import { useLanguage } from "@/components/providers/LanguageProvider";
 import { cn } from "@/lib/utils";
 
 /** Conversion block used near the bottom of public pages (§52). */
@@ -14,17 +15,18 @@ export function CtaSection({
   description?: string;
   className?: string;
 }) {
+  const { language } = useLanguage();
   return (
     <section className={cn("px-4 py-14 sm:px-6 sm:py-20", className)}>
       <div className="mx-auto w-full max-w-6xl overflow-hidden rounded-2xl border border-border bg-primary px-6 py-10 text-primary-foreground sm:px-10 sm:py-14">
         <div className="max-w-2xl space-y-3">
-          <h2 className="text-heading-lg">{title}</h2>
-          <p className="text-body opacity-90">{description}</p>
+          <h2 className="text-heading-lg">{language === "en" && title === "Prêt à ouvrir votre compte ?" ? "Ready to open your account?" : title}</h2>
+          <p className="text-body opacity-90">{language === "en" && description.startsWith("L'ouverture se fait") ? "Apply online and follow each step through to account activation." : description}</p>
         </div>
         <div className="mt-7 flex flex-col gap-3 sm:flex-row">
           <Button asChild variant="brand" size="lg" className="touch-target">
             <Link to={PUBLIC_CTA.primaryTo} data-analytics-event="open_account_clicked">
-              {PUBLIC_CTA.primary}
+              {language === "en" ? "Open an account" : PUBLIC_CTA.primary}
             </Link>
           </Button>
           <Button
@@ -34,7 +36,7 @@ export function CtaSection({
             className="touch-target border-primary-foreground/30 bg-transparent text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground"
           >
             <Link to={PUBLIC_CTA.secondaryTo} data-analytics-event="sign_in_clicked">
-              {PUBLIC_CTA.secondary}
+              {language === "en" ? "Sign in" : PUBLIC_CTA.secondary}
             </Link>
           </Button>
         </div>
