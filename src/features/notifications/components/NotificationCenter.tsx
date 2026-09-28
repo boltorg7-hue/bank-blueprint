@@ -55,7 +55,7 @@ export function NotificationCenter() {
                 <div>
                   <div className="flex flex-wrap items-center gap-2">
                     <h2 className="font-semibold">{n.title}</h2>
-                    <StatusBadge label={CATEGORY_LABEL[n.category] ?? n.category} tone={n.severity === "WARNING" || n.severity === "CRITICAL" ? "warning" : "neutral"} />
+                    <StatusBadge label={CATEGORY_LABEL[n.category] ?? n.category} tone={n.severity === "WARNING" || n.severity === "CRITICAL" ? "pending" : "neutral"} />
                     {!n.readAt ? <StatusBadge label="Nouveau" tone="info" /> : null}
                   </div>
                   <p className="mt-1 text-sm text-muted-foreground">{n.body}</p>
