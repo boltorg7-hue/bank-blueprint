@@ -1,3 +1,4 @@
+import { useLanguage } from "@/components/providers/LanguageProvider";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
@@ -17,6 +18,8 @@ export const Route = createFileRoute("/onboarding/address")({
 });
 
 function AddressStepPage() {
+  const { language } = useLanguage();
+  const en = language === "en";
   const navigate = useNavigate();
   const { data: context, isPending } = useCustomerContext();
   const invalidate = useInvalidateCustomerContext();
@@ -50,7 +53,7 @@ function AddressStepPage() {
       await invalidate();
       await navigate({ to: "/onboarding/documents" });
     } catch {
-      setFormError("Nous n'avons pas pu enregistrer votre adresse. Réessayez.");
+      setFormError((en ? "We could not save your address. Please try again." : "Nous n'avons pas pu enregistrer votre adresse. Réessayez."));
     } finally {
       setPending(false);
     }
@@ -58,10 +61,10 @@ function AddressStepPage() {
 
   if (isPending || !context) {
     return (
-      <OnboardingShell stepId="address" title="Votre adresse">
+      <OnboardingShell stepId="address" title={en ? "Your address" : "Votre adresse"}>
         <div className="flex items-center gap-3 text-muted-foreground">
           <Spinner className="size-5" />
-          <span className="text-body-sm">Chargement…</span>
+          <span className="text-body-sm">{en ? "Loading…" : "Chargement…"}</span>
         </div>
       </OnboardingShell>
     );
@@ -72,17 +75,17 @@ function AddressStepPage() {
   return (
     <OnboardingShell
       stepId="address"
-      title="Votre adresse de résidence"
-      description="Renseignez l'adresse où vous résidez habituellement. Les champs facultatifs peuvent rester vides si votre pays ne les utilise pas."
-      why="Votre adresse détermine les services disponibles et doit correspondre à votre justificatif de domicile."
+      title={en ? "Your residential address" : "Votre adresse de résidence"}
+      description={en ? "Enter the address where you usually live. Optional fields may be left blank if not used in your country." : "Renseignez l'adresse où vous résidez habituellement. Les champs facultatifs peuvent rester vides si votre pays ne les utilise pas."}
+      why={en ? "Your address determines available services and must match your proof of address." : "Votre adresse détermine les services disponibles et doit correspondre à votre justificatif de domicile."}
     >
       <form onSubmit={handleSubmit} noValidate className="space-y-5">
-        <Field name="country" label="Pays" autoComplete="country-name" defaultValue={address?.country} error={errors["country"]} />
-        <Field name="addressLine1" label="Adresse" autoComplete="address-line1" defaultValue={address?.address_line1} error={errors["addressLine1"]} />
-        <Field name="addressLine2" label="Complément d'adresse (optionnel)" autoComplete="address-line2" defaultValue={address?.address_line2} error={errors["addressLine2"]} />
-        <Field name="city" label="Ville" autoComplete="address-level2" defaultValue={address?.city} error={errors["city"]} />
-        <Field name="region" label="Région, état ou province (si applicable)" autoComplete="address-level1" defaultValue={address?.region} error={errors["region"]} />
-        <Field name="postalCode" label="Code postal (si applicable)" autoComplete="postal-code" defaultValue={address?.postal_code} error={errors["postalCode"]} />
+        <Field name="country" label={en ? "Country" : "Pays"} autoComplete="country-name" defaultValue={address?.country} error={errors["country"]} />
+        <Field name="addressLine1" label={en ? "Address" : "Adresse"} autoComplete="address-line1" defaultValue={address?.address_line1} error={errors["addressLine1"]} />
+        <Field name="addressLine2" label={en ? "Address line 2 (optional)" : "Complément d'adresse (optionnel)"} autoComplete="address-line2" defaultValue={address?.address_line2} error={errors["addressLine2"]} />
+        <Field name="city" label={en ? "City" : "Ville"} autoComplete="address-level2" defaultValue={address?.city} error={errors["city"]} />
+        <Field name="region" label={en ? "Region, state or province (if applicable)" : "Région, état ou province (si applicable)"} autoComplete="address-level1" defaultValue={address?.region} error={errors["region"]} />
+        <Field name="postalCode" label={en ? "Postal code (if applicable)" : "Code postal (si applicable)"} autoComplete="postal-code" defaultValue={address?.postal_code} error={errors["postalCode"]} />
 
         {formError ? (
           <p role="alert" className="text-body-sm rounded-lg bg-destructive/10 px-3 py-2 text-destructive">
