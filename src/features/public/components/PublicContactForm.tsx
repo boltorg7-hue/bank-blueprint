@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { useLanguage } from "@/components/providers/LanguageProvider";
+import { CONTACT_TOPICS_EN } from "@/features/public/content/help-en";
 import { ShieldAlert } from "lucide-react";
 import { z } from "zod";
 
@@ -39,6 +41,9 @@ const contactSchema = z.object({
 type FieldErrors = Partial<Record<"name" | "email" | "topic" | "message", string>>;
 
 export function PublicContactForm() {
+  const { language } = useLanguage();
+  const en = language === "en";
+  const copy = (fr: string, english: string) => en ? english : fr;
   const [topic, setTopic] = useState("");
   const [errors, setErrors] = useState<FieldErrors>({});
   const [notice, setNotice] = useState<string | null>(null);
@@ -57,7 +62,7 @@ export function PublicContactForm() {
       const next: FieldErrors = {};
       for (const issue of result.error.issues) {
         const key = issue.path[0] as keyof FieldErrors;
-        if (key && !next[key]) next[key] = issue.message;
+        if (key && !next[key]) next[key] = en ? ({ name: "Enter your name (2–80 characters).", email: "Enter a valid email address.", topic: "Choose a topic.", message: "Write a message of 20–1500 characters." }[key]) : issue.message;
       }
       setErrors(next);
       setNotice(null);
@@ -66,7 +71,7 @@ export function PublicContactForm() {
 
     setErrors({});
     setNotice(
-      "Votre demande est complète, mais l'envoi n'est pas encore activé sur ce site. La messagerie sécurisée sera disponible avec l'ouverture des comptes.",
+      copy("Votre demande est complète, mais l’envoi n’est pas encore activé sur ce site. La messagerie sécurisée sera disponible avec l’ouverture des comptes.", "Your request is complete, but this form is not connected yet. Secure messaging is available to customers in their account."),
     );
   }
 
@@ -77,11 +82,11 @@ export function PublicContactForm() {
         role="note"
       >
         <ShieldAlert className="mt-0.5 size-5 shrink-0 text-warning" aria-hidden="true" />
-        <p className="text-body-sm text-foreground">{SECURITY_WARNING}</p>
+        <p className="text-body-sm text-foreground">{copy(SECURITY_WARNING, "Never share your password or a verification code.")}</p>
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="contact-name">Nom</Label>
+        <Label htmlFor="contact-name">{copy("Nom", "Name")}</Label>
         <Input
           id="contact-name"
           name="name"
@@ -98,7 +103,7 @@ export function PublicContactForm() {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="contact-email">Adresse e-mail</Label>
+        <Label htmlFor="contact-email">{copy("Adresse e-mail", "Email address")}</Label>
         <Input
           id="contact-email"
           name="email"
@@ -117,15 +122,15 @@ export function PublicContactForm() {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="contact-topic">Sujet</Label>
+        <Label htmlFor="contact-topic">{copy("Sujet", "Topic")}</Label>
         <Select value={topic} onValueChange={setTopic}>
           <SelectTrigger id="contact-topic" className="h-12" aria-invalid={Boolean(errors.topic)}>
-            <SelectValue placeholder="Choisissez un sujet" />
+            <SelectValue placeholder={copy("Choisissez un sujet", "Choose a topic")} />
           </SelectTrigger>
           <SelectContent>
-            {CONTACT_TOPICS.map((item) => (
+            {CONTACT_TOPICS.map((item, index) => (
               <SelectItem key={item} value={item}>
-                {item}
+                {en ? CONTACT_TOPICS_EN[index] : item}
               </SelectItem>
             ))}
           </SelectContent>
@@ -139,7 +144,7 @@ export function PublicContactForm() {
           id="contact-message"
           name="message"
           rows={6}
-          placeholder="Décrivez votre demande. N'indiquez jamais de mot de passe ni de code de vérification."
+          placeholder={copy("Décrivez votre demande. N’indiquez jamais de mot de passe ni de code de vérification.", "Describe your request. Never include a password or verification code.")}
           aria-invalid={Boolean(errors.message)}
           {...(errors.message ? { "aria-describedby": "contact-message-error" } : {})}
         />
@@ -151,7 +156,7 @@ export function PublicContactForm() {
       </div>
 
       <Button type="submit" size="lg" className="w-full sm:w-auto">
-        Envoyer la demande
+        {copy("Envoyer la demande", "Send request")}
       </Button>
 
       <p className="text-caption text-muted-foreground" aria-live="polite" role="status">
