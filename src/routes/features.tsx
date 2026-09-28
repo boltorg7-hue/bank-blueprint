@@ -8,6 +8,8 @@ import { publicMeta } from "@/features/public/lib/seo";
 import { FEATURE_CATEGORIES } from "@/features/public/content/features";
 import { PLACE_PHOTOS } from "@/features/public/content/home-heritage";
 
+const featurePhoto = PLACE_PHOTOS[0];
+
 const meta = publicMeta({
   title: "Fonctionnalités de l'espace client",
   description:
@@ -27,7 +29,7 @@ function FeaturesPage() {
         eyebrow="Fonctionnalités"
         title="Votre banque, à portée de main"
         description="Vos comptes, vos virements et vos documents se retrouvent dans un seul espace. Chaque opération reste lisible, du début à la fin."
-        aside={<figure><img src={PLACE_PHOTOS[0].src} alt={PLACE_PHOTOS[0].alt} className="aspect-[4/3] w-full object-cover" /><figcaption className="text-caption mt-2 text-muted-foreground">{PLACE_PHOTOS[0].caption} · Photo : {PLACE_PHOTOS[0].credit}, {PLACE_PHOTOS[0].license}</figcaption></figure>}
+        aside={featurePhoto ? <figure><img src={featurePhoto.src} alt={featurePhoto.alt} className="aspect-[4/3] w-full object-cover" /><figcaption className="text-caption mt-2 text-muted-foreground">{featurePhoto.caption} · Photo : {featurePhoto.credit}, {featurePhoto.license}</figcaption></figure> : undefined}
       />
 
       <PublicSection>
