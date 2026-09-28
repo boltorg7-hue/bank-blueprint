@@ -54,95 +54,92 @@ function PhotoCredit({ photo }: { photo: HomePhoto }) {
 function HomePage() {
   return (
     <PublicLayout>
-      {/* Hero */}
-      <section className="border-b border-border bg-surface-sunken px-4 py-12 sm:px-6 sm:py-16">
-        <div className="mx-auto grid w-full max-w-6xl grid-cols-[minmax(0,1fr)] gap-10 lg:grid-cols-2 lg:items-center">
-          <div className="min-w-0 space-y-5">
-            <p className="text-overline text-brand">Trinidad-et-Tobago · depuis 1972</p>
-            <h1 className="text-display text-balance text-foreground">
-              Une banque de Woodbrook, au service de ses clients depuis plus de cinquante ans
-            </h1>
-            <p className="text-body-lg max-w-prose text-muted-foreground">
-              Fondée le 23 juillet 1972, RFC Royal FINANCE Bank tient vos comptes en dollars
-              américains et vous permet de suivre chaque virement depuis votre espace client.
-            </p>
-            <div className="flex flex-col gap-3 pt-1 sm:flex-row sm:items-center">
-              <Button asChild variant="brand" size="lg" className="touch-target">
-                <Link to={PUBLIC_CTA.primaryTo} data-analytics-event="open_account_clicked">
-                  Ouvrir un compte
-                </Link>
-              </Button>
-              <Button asChild variant="outline" size="lg" className="touch-target">
-                <Link to="/about">
-                  Notre histoire
-                  <ArrowRight className="size-4" aria-hidden="true" />
-                </Link>
-              </Button>
-            </div>
-          </div>
-          <figure className="min-w-0">
+      {/* Photograph first, then the bank's own story — no staged people or invented history. */}
+      <section className="bg-surface">
+        <div className="mx-auto max-w-7xl px-4 pt-5 sm:px-6 sm:pt-8">
+          <figure className="relative">
             <img
               src={HERO_PHOTO.src}
               alt={HERO_PHOTO.alt}
               width={1920}
               height={1440}
-              className="aspect-[4/3] w-full rounded-2xl object-cover shadow-[var(--shadow-card)]"
+              className="h-[29vh] min-h-44 max-h-72 w-full object-cover object-center sm:h-[42vh] sm:max-h-[440px]"
               fetchPriority="high"
             />
-            <figcaption className="mt-2 flex flex-wrap justify-between gap-2">
+            <figcaption className="mt-2 flex flex-wrap justify-between gap-x-5 gap-y-1">
               <span className="text-caption text-foreground">{HERO_PHOTO.caption}</span>
               <PhotoCredit photo={HERO_PHOTO} />
             </figcaption>
           </figure>
+          <div className="grid gap-5 py-7 sm:py-9 lg:grid-cols-[1.1fr_0.9fr] lg:items-end lg:gap-16">
+            <div className="min-w-0 animate-enter">
+              <p className="text-overline mb-3 text-brand">Trinidad-et-Tobago · depuis 1972</p>
+              <h1 className="text-display max-w-3xl text-balance text-foreground sm:text-5xl lg:text-6xl">RFC Royal FINANCE Bank</h1>
+              <p className="text-heading-md mt-3 max-w-2xl text-foreground">Une banque ancrée à Woodbrook, pensée pour vos projets d’aujourd’hui.</p>
+            </div>
+            <div className="min-w-0">
+              <p className="text-body max-w-prose text-muted-foreground">Fondée le 23 juillet 1972 à Trinidad-et-Tobago. Consultez votre compte en dollars américains et suivez vos virements depuis votre espace client.</p>
+              <div className="mt-5 flex flex-wrap items-center gap-3">
+                <Button asChild variant="brand" size="lg" className="touch-target press-feedback active:press-feedback-active">
+                  <Link to={PUBLIC_CTA.primaryTo} data-analytics-event="open_account_clicked">Ouvrir un compte <ArrowRight className="size-4" aria-hidden="true" /></Link>
+                </Button>
+                <Button asChild variant="outline" size="lg" className="touch-target">
+                  <Link to="/about">Notre histoire</Link>
+                </Button>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
       {/* Heritage facts */}
-      <PublicSection>
-        <SectionHeader
-          eyebrow="Notre identité"
-          title="Une institution enregistrée et supervisée"
-          description="Les informations officielles de la banque, telles qu'elles figurent dans nos documents légaux."
-        />
-        <dl className="mt-8 grid grid-cols-[minmax(0,1fr)] gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <PublicSection tone="sunken" className="border-y border-border py-10 sm:py-14">
+        <div className="grid gap-7 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16">
+          <div>
+            <p className="text-overline text-brand">Notre histoire en bref</p>
+            <h2 className="text-heading-xl mt-3 max-w-md text-foreground">Depuis 1972, ici à Trinidad-et-Tobago.</h2>
+            <p className="text-body mt-3 max-w-prose text-muted-foreground">Notre identité et nos coordonnées officielles, sans promesses inventées.</p>
+            <Button asChild variant="link" className="mt-3 px-0 text-brand"><Link to="/about">Découvrir la banque <ArrowRight className="size-4" aria-hidden="true" /></Link></Button>
+          </div>
+          <dl className="grid grid-cols-2 gap-x-5 gap-y-5 border-t border-border pt-4 sm:gap-x-8 lg:border-t-0 lg:pt-0">
           {HERITAGE_FACTS.map((fact) => (
-            <div key={fact.label} className="rounded-2xl border border-border bg-surface p-5">
-              <dt className="text-caption text-muted-foreground">{fact.label}</dt>
-              <dd className="text-heading-sm mt-2 text-foreground">{fact.value}</dd>
+            <div key={fact.label} className="min-w-0 border-b border-border pb-4">
+              <dt className="text-overline text-brand">{fact.label}</dt>
+              <dd className="text-heading-sm mt-2 break-words text-foreground">{fact.value}</dd>
             </div>
           ))}
-        </dl>
+          </dl>
+        </div>
       </PublicSection>
 
       {/* Local news */}
-      <PublicSection tone="sunken">
-        <SectionHeader
-          eyebrow="Actualité du secteur"
-          title="Ce qui se passe dans la finance à Trinidad-et-Tobago"
-          description="Communiqués publics récents de la Central Bank of Trinidad and Tobago, notre autorité de supervision."
-        />
-        <ul className="mt-8 grid grid-cols-[minmax(0,1fr)] gap-4 sm:grid-cols-2">
-          {LOCAL_NEWS.map((item) => (
-            <li key={item.url}>
+      <PublicSection className="bg-primary py-12 sm:py-20">
+        <div className="grid gap-8 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16">
+          <div>
+            <p className="text-overline text-warning-muted">Regards sur la région</p>
+            <h2 className="text-heading-xl mt-3 text-primary-foreground">L’actualité financière à Trinidad-et-Tobago</h2>
+            <p className="text-body mt-4 max-w-prose text-primary-foreground/75">Communiqués datés de la Central Bank of Trinidad and Tobago, à consulter directement à la source.</p>
+          </div>
+          <ul className="divide-y divide-primary-foreground/20 border-t border-primary-foreground/20">
+          {LOCAL_NEWS.map((item, index) => (
+            <li key={item.url} className="min-w-0">
               <a
                 href={item.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group flex h-full flex-col rounded-2xl border border-border bg-surface p-5 transition-colors hover:border-brand"
+                className="group grid min-h-32 grid-cols-[minmax(0,1fr)_auto] gap-4 py-5 transition-colors hover:bg-primary-foreground/5"
               >
-                <time dateTime={item.date} className="text-caption text-muted-foreground">
-                  {dateFormatter.format(new Date(item.date))} · Central Bank of Trinidad and Tobago
-                </time>
-                <h3 className="text-heading-sm mt-2 text-foreground">{item.title}</h3>
-                <p className="text-body-sm mt-2 flex-1 text-muted-foreground">{item.summary}</p>
-                <span className="text-label mt-4 inline-flex items-center gap-1 text-brand">
-                  Lire le communiqué
-                  <ArrowUpRight className="size-4" aria-hidden="true" />
-                </span>
+                <div className="min-w-0">
+                  <time dateTime={item.date} className="text-caption text-primary-foreground/65">{dateFormatter.format(new Date(item.date))} · Banque centrale</time>
+                  <h3 className="text-heading-sm mt-2 text-primary-foreground">{item.title}</h3>
+                  {index === 0 && <p className="text-body-sm mt-2 text-primary-foreground/75">{item.summary}</p>}
+                </div>
+                <ArrowUpRight className="size-5 shrink-0 text-warning-muted transition-transform group-hover:-translate-y-1 group-hover:translate-x-1" aria-hidden="true" />
               </a>
             </li>
           ))}
-        </ul>
+          </ul>
+        </div>
       </PublicSection>
 
       {/* Places */}
@@ -159,7 +156,7 @@ function HomePage() {
                 src={photo.src}
                 alt={photo.alt}
                 loading="lazy"
-                className="aspect-[3/2] w-full rounded-2xl object-cover"
+               className="aspect-[3/2] w-full object-cover transition-transform duration-500 motion-safe:hover:scale-[1.01]"
               />
               <figcaption className="mt-2 flex flex-wrap justify-between gap-2">
                 <span className="text-caption text-foreground">{photo.caption}</span>
@@ -177,7 +174,7 @@ function HomePage() {
           {CORE_BENEFITS.map((benefit) => {
             const Icon = benefit.icon;
             return (
-              <article key={benefit.title} className="rounded-2xl border border-border bg-surface p-5">
+              <article key={benefit.title} className="border-t-2 border-brand bg-surface p-5 transition-transform motion-safe:hover:-translate-y-1">
                 <Icon className="size-6 text-brand" aria-hidden="true" />
                 <h3 className="text-heading-sm mt-4 text-foreground">{benefit.title}</h3>
                 <p className="text-body-sm mt-2 text-muted-foreground">{benefit.description}</p>
@@ -202,7 +199,7 @@ function HomePage() {
           {SECURITY_HIGHLIGHTS.map((item) => {
             const Icon = item.icon;
             return (
-              <article key={item.title} className="flex gap-4 rounded-2xl border border-border bg-surface p-5">
+              <article key={item.title} className="flex gap-4 border-b border-border py-5">
                 <Icon className="mt-0.5 size-5 shrink-0 text-brand" aria-hidden="true" />
                 <div className="min-w-0">
                   <h3 className="text-heading-sm text-foreground">{item.title}</h3>
@@ -219,7 +216,7 @@ function HomePage() {
         <SectionHeader eyebrow="Ouverture de compte" title="Cinq étapes, entièrement en ligne" />
         <ol className="mt-8 grid grid-cols-[minmax(0,1fr)] gap-4 sm:grid-cols-2 lg:grid-cols-5">
           {ONBOARDING_STEPS.map((step, index) => (
-            <li key={step.title} className="rounded-2xl border border-border bg-surface p-5">
+            <li key={step.title} className="border-t border-border p-5">
               <span className="text-numeric text-caption inline-flex size-7 items-center justify-center rounded-full bg-brand text-brand-foreground">
                 {index + 1}
               </span>
