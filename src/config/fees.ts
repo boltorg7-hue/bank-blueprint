@@ -113,7 +113,7 @@ export function feeMinorFor(code: FeeCode, currency: string): number | null {
  * UI MUST NOT pretend a fee is taken from the account. Flip this to `true` in
  * the same change that adds the ledger fee posting.
  */
-export const FEE_DEBIT_ACTIVE = false;
+export const FEE_DEBIT_ACTIVE = true;
 
 /** Fee code applicable to a transfer, based on the bank-side routing decision. */
 export function transferFeeCode(kind: "INTERNAL_TRANSFER" | "EXTERNAL_TRANSFER"): FeeCode {
