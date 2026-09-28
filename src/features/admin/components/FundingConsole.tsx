@@ -53,16 +53,16 @@ export function FundingConsole() {
     }
   }
 
-  if (accounts.isPending || requests.isPending) return <LoadingState label=(en ? "Loading funding requests…" : "Chargement des approvisionnements…") />;
+  if (accounts.isPending || requests.isPending) return <LoadingState label={en ? "Loading funding requests…" : "Chargement des approvisionnements…"} />;
   if (accounts.isError || requests.isError) return <ErrorState onRetry={() => { void accounts.refetch(); void requests.refetch(); }} />;
 
   return <div className="space-y-6">
     {canCreate ? <Card>
       <CardHeader><CardTitle>{(en ? "New request" : "Nouvelle demande")}</CardTitle><CardDescription>{(en ? "Funds will be posted only after approval by another authorized staff member." : "Le crédit ne sera comptabilisé qu’après validation par un autre membre autorisé.")}</CardDescription></CardHeader>
       <CardContent><form onSubmit={submit} className="grid gap-4 lg:grid-cols-3">
-        <div className="space-y-2"><Label>{(en ? "Active account" : "Compte actif")}</Label><Select value={accountReference} onValueChange={setAccountReference}><SelectTrigger><SelectValue placeholder=(en ? "Select an account" : "Sélectionner un compte") /></SelectTrigger><SelectContent>{activeAccounts.map((account) => <SelectItem key={account.id} value={account.reference}>{account.holderName} · {account.reference}</SelectItem>)}</SelectContent></Select></div>
+        <div className="space-y-2"><Label>{(en ? "Active account" : "Compte actif")}</Label><Select value={accountReference} onValueChange={setAccountReference}><SelectTrigger><SelectValue placeholder={en ? "Select an account" : "Sélectionner un compte"} /></SelectTrigger><SelectContent>{activeAccounts.map((account) => <SelectItem key={account.id} value={account.reference}>{account.holderName} · {account.reference}</SelectItem>)}</SelectContent></Select></div>
         <div className="space-y-2"><Label htmlFor="funding-amount">{(en ? "Amount" : "Montant")}</Label><Input id="funding-amount" inputMode="decimal" value={amount} onChange={(event) => setAmount(event.target.value)} placeholder="1000,00" /></div>
-        <div className="space-y-2 lg:col-span-3"><Label htmlFor="funding-reason">{(en ? "Operational reason" : "Motif opérationnel")}</Label><Textarea id="funding-reason" value={reason} onChange={(event) => setReason(event.target.value)} maxLength={500} placeholder=(en ? "Auditable reason for funding" : "Motif traçable de l’approvisionnement") /></div>
+        <div className="space-y-2 lg:col-span-3"><Label htmlFor="funding-reason">{(en ? "Operational reason" : "Motif opérationnel")}</Label><Textarea id="funding-reason" value={reason} onChange={(event) => setReason(event.target.value)} maxLength={500} placeholder={en ? "Auditable reason for funding" : "Motif traçable de l’approvisionnement"} /></div>
         <div><Button type="submit" disabled={!accountReference || create.isPending}>{create.isPending ? (en ? "Creating…" : "Création…") : (en ? "Create request" : "Créer la demande")}</Button></div>
       </form></CardContent>
     </Card> : null}
