@@ -108,6 +108,8 @@ function applyFilters(query: any, request: TransactionPageRequest) {
   }
   if (request.status && request.status !== "ALL") query = query.eq("status", request.status);
   if (request.type && request.type !== "ALL") query = query.eq("transaction_type", request.type);
+  if (request.minAmountMinor != null) query = query.gte("amount_minor", request.minAmountMinor);
+  if (request.maxAmountMinor != null) query = query.lte("amount_minor", request.maxAmountMinor);
 
   const { from, to } = resolveDateRange(request);
   if (from) query = query.gte("occurred_at", from);

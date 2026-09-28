@@ -53,6 +53,8 @@ export type TransactionFilters = {
   direction?: TransactionDirection | "ALL";
   status?: CustomerTransactionStatus | "ALL";
   type?: string | "ALL";
+  minAmountMinor?: number | null;
+  maxAmountMinor?: number | null;
   datePreset?: TransactionDateRangePreset;
   /** ISO dates used only when datePreset === "CUSTOM". */
   from?: string | null;
@@ -86,6 +88,9 @@ export type ActivitySummaryDto = {
 
 /** Fully-specified filter state used by the UI (no undefined members). */
 export type TransactionFilterState = {
+  type: string | "ALL";
+  minAmount: string;
+  maxAmount: string;
   direction: TransactionDirection | "ALL";
   status: CustomerTransactionStatus | "ALL";
   datePreset: TransactionDateRangePreset;

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useLanguage } from "@/components/providers/LanguageProvider";
 
 import { Button } from "@/components/ui/button";
 import { ErrorState, LoadingState, SkeletonBlock } from "@/components/feedback";
@@ -7,6 +8,7 @@ import type { TransactionFilterState as Filters } from "@/features/transactions/
 import {
   EMPTY_FILTERS,
   TransactionFilters,
+  amountToMinor,
 } from "@/features/transactions/components/TransactionFilters";
 import { TransactionList } from "@/features/transactions/components/TransactionList";
 import { TransactionTable } from "@/features/transactions/components/TransactionTable";
@@ -25,9 +27,16 @@ export function TransactionHistory({
   showFilters?: boolean;
 }) {
   const [filters, setFilters] = useState<Filters>({ ...EMPTY_FILTERS });
+  const { language } = useLanguage();
+  const en = language === "en";
   const [page, setPage] = useState(1);
 
-  const request = { ...filters, accountReference, page, pageSize };
+  const request = {
+    direction: filters.direction, status: filters.status, datePreset: filters.datePreset,
+    type: filters.type, search: filters.search, from: filters.from, to: filters.to,
+    minAmountMinor: amountToMinor(filters.minAmount), maxAmountMinor: amountToMinor(filters.maxAmount),
+    accountReference, page, pageSize,
+  };
   const { data, isPending, isFetching, isError, refetch } = useTransactionsPage(request);
 
   const updateFilters = (next: Filters) => {
@@ -38,8 +47,8 @@ export function TransactionHistory({
   if (isError) {
     return (
       <ErrorState
-        title="Historique momentanément indisponible"
-        description="Nous n'avons pas pu charger vos opérations. Vos données ne sont pas affectées."
+        title={en ? "History temporarily unavailable" : "Historique momentanément indisponible"}
+        description={en ? "We couldn't load your transactions. Your data is unaffected." : "Nous n'avons pas pu charger vos opérations. Vos données ne sont pas affectées."}
         onRetry={() => void refetch()}
       />
     );
@@ -59,16 +68,16 @@ export function TransactionHistory({
           <div className="lg:hidden">
             <TransactionList
               items={items}
-              emptyTitle="Aucune opération à afficher"
-              emptyDescription="Aucune opération ne correspond à votre recherche pour le moment."
+              emptyTitle={en ? "No transactions to show" : "Aucune opération à afficher"}
+              emptyDescription={en ? "No transactions match your filters." : "Aucune opération ne correspond à votre recherche pour le moment."}
             />
           </div>
           <div className="hidden lg:block">
             {items.length === 0 ? (
               <TransactionList
                 items={items}
-                emptyTitle="Aucune opération à afficher"
-                emptyDescription="Aucune opération ne correspond à votre recherche pour le moment."
+                emptyTitle={en ? "No transactions to show" : "Aucune opération à afficher"}
+                emptyDescription={en ? "No transactions match your filters." : "Aucune opération ne correspond à votre recherche pour le moment."}
               />
             ) : (
               <TransactionTable items={items} />
@@ -77,7 +86,7 @@ export function TransactionHistory({
 
           {data && data.totalCount > data.pageSize ? (
             <nav
-              aria-label="Pagination de l'historique"
+              aria-label={en ? "History pages" : "Pagination de l'historique"}
               className="flex items-center justify-between gap-3"
             >
               <Button
@@ -86,10 +95,10 @@ export function TransactionHistory({
                 disabled={page <= 1 || isFetching}
                 onClick={() => setPage((current) => Math.max(current - 1, 1))}
               >
-                Précédent
+                {en ? "Previous" : "Précédent"}
               </Button>
               <p aria-live="polite" className="text-caption text-muted-foreground">
-                Page {data.page} sur {totalPages}
+                {en ? `Page ${data.page} of ${totalPages}` : `Page ${data.page} sur ${totalPages}`}
               </p>
               <Button
                 variant="outline"
@@ -97,12 +106,12 @@ export function TransactionHistory({
                 disabled={!data.hasMore || isFetching}
                 onClick={() => setPage((current) => current + 1)}
               >
-                Suivant
+                {en ? "Next" : "Suivant"}
               </Button>
             </nav>
           ) : null}
 
-          {isFetching && !isPending ? <LoadingState label="Actualisation…" /> : null}
+          {isFetching && !isPending ? <LoadingState label={en ? "Updating…" : "Actualisation…"} /> : null}
         </>
       )}
     </div>
