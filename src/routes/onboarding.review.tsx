@@ -1,3 +1,4 @@
+import { useLanguage } from "@/components/providers/LanguageProvider";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
@@ -15,6 +16,8 @@ export const Route = createFileRoute("/onboarding/review")({
 });
 
 function ReviewStepPage() {
+  const { language } = useLanguage();
+  const en = language === "en";
   const navigate = useNavigate();
   const { data: context, isPending } = useCustomerContext();
   const invalidate = useInvalidateCustomerContext();
@@ -24,10 +27,10 @@ function ReviewStepPage() {
 
   if (isPending || !context) {
     return (
-      <OnboardingShell stepId="review" title="Relecture de votre dossier">
+      <OnboardingShell stepId="review" title={en ? "Review your application" : "Relecture de votre dossier"}>
         <div className="flex items-center gap-3 text-muted-foreground">
           <Spinner className="size-5" />
-          <span className="text-body-sm">Chargement…</span>
+          <span className="text-body-sm">{en ? "Loading…" : "Chargement…"}</span>
         </div>
       </OnboardingShell>
     );
@@ -50,7 +53,7 @@ function ReviewStepPage() {
       await invalidate();
       await navigate({ to: "/onboarding/status" });
     } catch {
-      setError("Nous n'avons pas pu transmettre votre dossier. Réessayez dans un instant.");
+      setError((en ? "We could not submit your application. Please try again shortly." : "Nous n'avons pas pu transmettre votre dossier. Réessayez dans un instant."));
     } finally {
       setPending(false);
     }
@@ -59,37 +62,37 @@ function ReviewStepPage() {
   return (
     <OnboardingShell
       stepId="review"
-      title="Relecture de votre dossier"
-      description="Vérifiez vos informations avant transmission. Après l'envoi, certaines données ne pourront être modifiées que par une demande encadrée."
-      why="Une information exacte évite un délai supplémentaire lors de la vérification."
+      title={en ? "Review your application" : "Relecture de votre dossier"}
+      description={en ? "Check your information before submitting. Afterwards, some details can only be changed through a formal request." : "Vérifiez vos informations avant transmission. Après l'envoi, certaines données ne pourront être modifiées que par une demande encadrée."}
+      why={en ? "Accurate information helps avoid delays during verification." : "Une information exacte évite un délai supplémentaire lors de la vérification."}
     >
       <div className="space-y-4">
-        <Section title="Informations personnelles" editRoute="/onboarding/profile" editable={true}>
-          <Row label="Prénom" value={profile.first_name} />
-          <Row label="Deuxième prénom" value={profile.middle_name} />
-          <Row label="Nom" value={profile.last_name} />
+        <Section title={en ? "Personal information" : "Informations personnelles"} editRoute="/onboarding/profile" editable={true}>
+          <Row label={en ? "First name" : "Prénom"} value={profile.first_name} />
+          <Row label={en ? "Middle name" : "Deuxième prénom"} value={profile.middle_name} />
+          <Row label={en ? "Last name" : "Nom"} value={profile.last_name} />
           <Row
-            label="Date de naissance"
+            label={en ? "Date of birth" : "Date de naissance"}
             value={profile.date_of_birth ? formatDate(profile.date_of_birth) : null}
           />
-          <Row label="Nationalité" value={profile.nationality} />
-          <Row label="Pays de résidence" value={profile.country_of_residence} />
-          <Row label="Profession" value={profile.occupation} />
-          <Row label="Téléphone" value={profile.phone} />
+          <Row label={en ? "Nationality" : "Nationalité"} value={profile.nationality} />
+          <Row label={en ? "Country of residence" : "Pays de résidence"} value={profile.country_of_residence} />
+          <Row label={en ? "Occupation" : "Profession"} value={profile.occupation} />
+          <Row label={en ? "Phone" : "Téléphone"} value={profile.phone} />
         </Section>
 
-        <Section title="Adresse" editRoute="/onboarding/address" editable={true}>
-          <Row label="Pays" value={address?.country ?? null} />
-          <Row label="Adresse" value={address?.address_line1 ?? null} />
-          <Row label="Complément" value={address?.address_line2 ?? null} />
-          <Row label="Ville" value={address?.city ?? null} />
-          <Row label="Région" value={address?.region ?? null} />
-          <Row label="Code postal" value={address?.postal_code ?? null} />
+        <Section title={en ? "Address" : "Adresse"} editRoute="/onboarding/address" editable={true}>
+          <Row label={en ? "Country" : "Pays"} value={address?.country ?? null} />
+          <Row label={en ? "Address" : "Adresse"} value={address?.address_line1 ?? null} />
+          <Row label={en ? "Address line 2" : "Complément"} value={address?.address_line2 ?? null} />
+          <Row label={en ? "City" : "Ville"} value={address?.city ?? null} />
+          <Row label={en ? "Region" : "Région"} value={address?.region ?? null} />
+          <Row label={en ? "Postal code" : "Code postal"} value={address?.postal_code ?? null} />
         </Section>
 
-        <Section title="Documents" editRoute="/onboarding/documents" editable={true}>
+        <Section title={en ? "Documents" : "Documents"} editRoute="/onboarding/documents" editable={true}>
           {context.documents.length === 0 ? (
-            <p className="text-body-sm text-muted-foreground">Aucun document ajouté.</p>
+            <p className="text-body-sm text-muted-foreground">{en ? "No documents added." : "Aucun document ajouté."}</p>
           ) : (
             context.documents.map((document) => (
               <Row
@@ -134,6 +137,8 @@ function Section({
   editable,
   children,
 }: {
+  const { language } = useLanguage();
+  const en = language === "en";
   title: string;
   editRoute: "/onboarding/profile" | "/onboarding/address" | "/onboarding/documents";
   editable: boolean;
@@ -145,7 +150,7 @@ function Section({
         <h2 className="text-label text-foreground">{title}</h2>
         {editable ? (
           <Button asChild variant="ghost" size="sm" className="touch-target">
-            <Link to={editRoute}>Modifier</Link>
+            <Link to={editRoute}>{en ? "Edit" : "Modifier"}</Link>
           </Button>
         ) : null}
       </div>
