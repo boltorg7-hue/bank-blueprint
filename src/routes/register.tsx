@@ -5,6 +5,7 @@ import { publicMeta } from "@/features/public/lib/seo";
 import { AuthShell } from "@/features/auth/components/AuthShell";
 import { RegisterForm } from "@/features/auth/components/RegisterForm";
 import { GoogleSignInButton } from "@/features/auth/components/GoogleSignInButton";
+import { useLanguage } from "@/components/providers/LanguageProvider";
 
 const meta = publicMeta({
   title: "Ouvrir un compte",
@@ -19,17 +20,19 @@ export const Route = createFileRoute("/register")({
 });
 
 function RegisterPage() {
+  const { language } = useLanguage();
+  const en = language === "en";
   const [oauthError, setOauthError] = useState<string | null>(null);
 
   return (
     <AuthShell
-      title="Ouvrir un compte"
-      description="Commencez par l'essentiel. Les informations réglementaires sont demandées ensuite, étape par étape."
+      title={en ? "Open an account" : "Ouvrir un compte"}
+      description={en ? "Start with the essentials. We'll ask for the required information step by step." : "Commencez par l'essentiel. Les informations réglementaires sont demandées ensuite, étape par étape."}
       aside={
         <div className="mt-6 space-y-4">
           <div className="flex items-center gap-3">
             <span className="h-px flex-1 bg-border" />
-            <span className="text-caption text-muted-foreground">ou</span>
+            <span className="text-caption text-muted-foreground">{en ? "or" : "ou"}</span>
             <span className="h-px flex-1 bg-border" />
           </div>
           <GoogleSignInButton onError={setOauthError} />
@@ -42,9 +45,9 @@ function RegisterPage() {
       }
       footer={
         <p className="text-body-sm text-muted-foreground">
-          Vous avez déjà un compte ?{" "}
+          {en ? "Already have an account?" : "Vous avez déjà un compte ?"}{" "}
           <Link to="/login" className="text-brand underline-offset-4 hover:underline">
-            Se connecter
+            {en ? "Sign in" : "Se connecter"}
           </Link>
         </p>
       }

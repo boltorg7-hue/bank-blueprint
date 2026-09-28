@@ -9,12 +9,15 @@ import { PasswordField } from "@/features/auth/components/PasswordField";
 import { fieldErrorsFrom, registerSchema } from "@/features/auth/schemas/auth.schemas";
 import { signUpErrorMessage } from "@/features/auth/lib/auth-errors";
 import { supabase } from "@/integrations/supabase/client";
+import { useLanguage } from "@/components/providers/LanguageProvider";
 
 /**
  * First registration step only (§8): identity basics, credentials, consent.
  * The banking profile is collected progressively during onboarding.
  */
 export function RegisterForm() {
+  const { language } = useLanguage();
+  const en = language === "en";
   const navigate = useNavigate();
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [formError, setFormError] = useState<string | null>(null);
@@ -76,18 +79,18 @@ export function RegisterForm() {
 
   return (
     <form onSubmit={handleSubmit} noValidate className="space-y-5">
-      <Field name="firstName" label="Prénom" autoComplete="given-name" error={errors["firstName"]} />
-      <Field name="lastName" label="Nom" autoComplete="family-name" error={errors["lastName"]} />
+      <Field name="firstName" label={en ? "First name" : "Prénom"} autoComplete="given-name" error={errors["firstName"]} />
+      <Field name="lastName" label={en ? "Last name" : "Nom"} autoComplete="family-name" error={errors["lastName"]} />
       <Field
         name="email"
-        label="Adresse e-mail"
+        label={en ? "Email address" : "Adresse e-mail"}
         type="email"
         autoComplete="email"
         error={errors["email"]}
       />
       <Field
         name="phone"
-        label="Numéro de téléphone (optionnel)"
+        label={en ? "Phone number (optional)" : "Numéro de téléphone (optionnel)"}
         type="tel"
         autoComplete="tel"
         error={errors["phone"]}
@@ -95,14 +98,14 @@ export function RegisterForm() {
 
       <PasswordField
         name="password"
-        label="Mot de passe"
+        label={en ? "Password" : "Mot de passe"}
         autoComplete="new-password"
         error={errors["password"]}
         showRules
       />
       <PasswordField
         name="confirmPassword"
-        label="Confirmer le mot de passe"
+        label={en ? "Confirm password" : "Confirmer le mot de passe"}
         autoComplete="new-password"
         error={errors["confirmPassword"]}
       />
@@ -116,13 +119,13 @@ export function RegisterForm() {
             aria-describedby={errors["terms"] ? "terms-error" : undefined}
           />
           <Label htmlFor="terms" className="text-body-sm leading-relaxed font-normal">
-            J'accepte les{" "}
+            {en ? "I accept the" : "J'accepte les"}{" "}
             <Link to="/terms" className="text-brand underline-offset-4 hover:underline">
-              conditions générales
+              {en ? "terms" : "conditions générales"}
             </Link>{" "}
-            et la{" "}
+            {en ? "and the" : "et la"}{" "}
             <Link to="/privacy" className="text-brand underline-offset-4 hover:underline">
-              politique de confidentialité
+              {en ? "privacy policy" : "politique de confidentialité"}
             </Link>
             .
           </Label>
@@ -140,7 +143,7 @@ export function RegisterForm() {
             onCheckedChange={(value) => setMarketing(value === true)}
           />
           <Label htmlFor="marketing" className="text-body-sm leading-relaxed font-normal">
-            Je souhaite recevoir des informations sur les nouveautés RFC (optionnel).
+            {en ? "I would like to receive RFC updates (optional)." : "Je souhaite recevoir des informations sur les nouveautés RFC (optionnel)."}
           </Label>
         </div>
       </div>
@@ -152,7 +155,7 @@ export function RegisterForm() {
       ) : null}
 
       <Button type="submit" className="w-full touch-target" loading={pending}>
-        Créer mon compte
+        {en ? "Create my account" : "Créer mon compte"}
       </Button>
     </form>
   );

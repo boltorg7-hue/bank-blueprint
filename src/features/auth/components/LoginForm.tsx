@@ -9,8 +9,10 @@ import { fieldErrorsFrom, loginSchema } from "@/features/auth/schemas/auth.schem
 import { signInErrorMessage } from "@/features/auth/lib/auth-errors";
 import { supabase } from "@/integrations/supabase/client";
 import { resolvePostLoginRoute } from "@/features/auth/lib/post-login";
+import { useLanguage } from "@/components/providers/LanguageProvider";
 
 export function LoginForm({ redirectTo }: { redirectTo?: string | undefined }) {
+  const { language } = useLanguage();
   const navigate = useNavigate();
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [formError, setFormError] = useState<string | null>(null);
@@ -50,7 +52,7 @@ export function LoginForm({ redirectTo }: { redirectTo?: string | undefined }) {
   return (
     <form onSubmit={handleSubmit} noValidate className="space-y-5">
       <div className="space-y-2">
-        <Label htmlFor="login-email">Adresse e-mail</Label>
+        <Label htmlFor="login-email">{language === "en" ? "Email address" : "Adresse e-mail"}</Label>
         <Input
           id="login-email"
           name="email"
@@ -70,7 +72,7 @@ export function LoginForm({ redirectTo }: { redirectTo?: string | undefined }) {
 
       <PasswordField
         name="password"
-        label="Mot de passe"
+        label={language === "en" ? "Password" : "Mot de passe"}
         autoComplete="current-password"
         error={errors["password"]}
       />
@@ -82,7 +84,7 @@ export function LoginForm({ redirectTo }: { redirectTo?: string | undefined }) {
       ) : null}
 
       <Button type="submit" className="w-full touch-target" loading={pending}>
-        Se connecter
+        {language === "en" ? "Sign in" : "Se connecter"}
       </Button>
     </form>
   );

@@ -2,6 +2,8 @@ import { Link, useRouterState } from "@tanstack/react-router";
 import { Bell } from "lucide-react";
 
 import { BrandMark } from "@/components/navigation/BrandMark";
+import { LanguageSwitch } from "@/components/navigation/LanguageSwitch";
+import { useLanguage } from "@/components/providers/LanguageProvider";
 import { Button } from "@/components/ui/button";
 import { PrivacyModeToggle } from "@/components/providers/PrivacyModeProvider";
 import { ThemeToggle } from "@/components/providers/ThemeProvider";
@@ -17,6 +19,7 @@ import { useNotifications } from "@/features/notifications/hooks/useNotification
  * the sidebar navigation, and never a fabricated unread badge.
  */
 export function CustomerAppHeader() {
+  const { language } = useLanguage();
   const pathname = useRouterState({ select: (state) => state.location.pathname });
   const { summary } = useCustomerSummary();
   const notifications = useNotifications();
@@ -29,7 +32,7 @@ export function CustomerAppHeader() {
           <BrandMark to="/app/dashboard" compact className="lg:hidden" />
           <div className="min-w-0">
             <p className="truncate text-sm font-semibold text-foreground">
-              {contextTitleFor(pathname)}
+              {contextTitleFor(pathname, language)}
             </p>
             <div className="hidden lg:block">
               <AccountContextSummary />
@@ -38,13 +41,14 @@ export function CustomerAppHeader() {
         </div>
 
         <div className="flex items-center gap-1">
+          <LanguageSwitch />
           <PrivacyModeToggle className="touch-target" />
           <ThemeToggle className="touch-target" />
           <Button variant="ghost" size="icon" className="touch-target relative" asChild>
             <Link
               to="/app/notifications"
               aria-label={
-                unread && unread > 0 ? `Notifications, ${unread} non lues` : "Notifications"
+                 unread && unread > 0 ? (language === "en" ? `Notifications, ${unread} unread` : `Notifications, ${unread} non lues`) : "Notifications"
               }
             >
               <Bell className="size-5" aria-hidden="true" />

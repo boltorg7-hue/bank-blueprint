@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PASSWORD_RULES } from "@/features/auth/schemas/auth.schemas";
+import { useLanguage } from "@/components/providers/LanguageProvider";
 
 /** Accessible password input with a show/hide action (§10). Values are never logged. */
 export function PasswordField({
@@ -20,6 +21,7 @@ export function PasswordField({
   error?: string | undefined;
   showRules?: boolean;
 }) {
+  const { language } = useLanguage();
   const id = useId();
   const [visible, setVisible] = useState(false);
   const describedBy = [showRules ? `${id}-rules` : null, error ? `${id}-error` : null]
@@ -54,14 +56,14 @@ export function PasswordField({
             <Eye className="size-4" aria-hidden="true" />
           )}
           <span className="sr-only">
-            {visible ? "Masquer le mot de passe" : "Afficher le mot de passe"}
+            {language === "en" ? (visible ? "Hide password" : "Show password") : (visible ? "Masquer le mot de passe" : "Afficher le mot de passe")}
           </span>
         </Button>
       </div>
       {showRules ? (
         <ul id={`${id}-rules`} className="text-caption space-y-0.5 text-muted-foreground">
           {PASSWORD_RULES.map((rule) => (
-            <li key={rule}>• {rule}</li>
+            <li key={rule}>• {language === "en" ? ({ "12 caractères minimum": "At least 12 characters", "Une lettre majuscule": "One uppercase letter", "Une lettre minuscule": "One lowercase letter", "Un chiffre": "One number", "Un caractère spécial": "One special character" } as Record<string, string>)[rule] ?? rule : rule}</li>
           ))}
         </ul>
       ) : null}

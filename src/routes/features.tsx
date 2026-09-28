@@ -7,6 +7,8 @@ import { CtaSection } from "@/features/public/components/CtaSection";
 import { publicMeta } from "@/features/public/lib/seo";
 import { FEATURE_CATEGORIES } from "@/features/public/content/features";
 import { PLACE_PHOTOS } from "@/features/public/content/home-heritage";
+import { englishFeature } from "@/features/public/content/features-en";
+import { useLanguage } from "@/components/providers/LanguageProvider";
 
 const featurePhoto = PLACE_PHOTOS[0];
 
@@ -23,19 +25,22 @@ export const Route = createFileRoute("/features")({
 });
 
 function FeaturesPage() {
+  const { language } = useLanguage();
+  const en = language === "en";
+  const categories = en ? FEATURE_CATEGORIES.map(englishFeature) : FEATURE_CATEGORIES;
   return (
     <PublicLayout>
       <PageHero
-        eyebrow="Fonctionnalités"
-        title="Votre banque, à portée de main"
-        description="Vos comptes, vos virements et vos documents se retrouvent dans un seul espace. Chaque opération reste lisible, du début à la fin."
-        aside={featurePhoto ? <figure><img src={featurePhoto.src} alt={featurePhoto.alt} className="aspect-[4/3] w-full object-cover" /><figcaption className="text-caption mt-2 text-muted-foreground">{featurePhoto.caption} · Photo : {featurePhoto.credit}, {featurePhoto.license}</figcaption></figure> : undefined}
+        eyebrow={en ? "Features" : "Fonctionnalités"}
+        title={en ? "Your banking, within reach" : "Votre banque, à portée de main"}
+        description={en ? "Your accounts, transfers and documents in one place. Follow every transaction from start to finish." : "Vos comptes, vos virements et vos documents se retrouvent dans un seul espace. Chaque opération reste lisible, du début à la fin."}
+        aside={featurePhoto ? <figure><img src={featurePhoto.src} alt={en ? "Queen's Park Savannah, Port of Spain" : featurePhoto.alt} className="aspect-[4/3] w-full object-cover" /><figcaption className="text-caption mt-2 text-muted-foreground">{featurePhoto.caption} · {en ? "Photo" : "Photo"} : {featurePhoto.credit}, {featurePhoto.license}</figcaption></figure> : undefined}
       />
 
       <PublicSection>
-        <nav aria-label="Catégories de fonctionnalités" className="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
+        <nav aria-label={en ? "Feature categories" : "Catégories de fonctionnalités"} className="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
           <ul className="flex w-max gap-2 sm:w-full sm:flex-wrap">
-            {FEATURE_CATEGORIES.map((category) => (
+            {categories.map((category) => (
               <li key={category.id}>
                 <a
                   href={`#${category.id}`}
@@ -49,7 +54,7 @@ function FeaturesPage() {
         </nav>
 
          <div className="mt-12 space-y-16">
-          {FEATURE_CATEGORIES.map((category) => {
+          {categories.map((category) => {
             const Icon = category.icon;
             return (
               <section key={category.id} id={category.id} className="scroll-mt-24">

@@ -3,6 +3,7 @@ import { Link } from "@tanstack/react-router";
 import { ShieldCheck } from "lucide-react";
 
 import { PublicLayout } from "@/components/layout/PublicLayout";
+import { useLanguage } from "@/components/providers/LanguageProvider";
 import type { AppPath } from "@/lib/routing";
 
 /**
@@ -22,6 +23,7 @@ export function AuthShell({
   footer?: ReactNode;
   aside?: ReactNode;
 }) {
+  const { language } = useLanguage();
   return (
     <PublicLayout>
       <section className="mx-auto w-full max-w-md px-4 py-10 sm:px-6 sm:py-16">
@@ -37,8 +39,7 @@ export function AuthShell({
         <p className="text-caption mt-8 flex items-start gap-2 text-muted-foreground">
           <ShieldCheck className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
           <span>
-            Nous ne vous demanderons jamais votre mot de passe ou un code de sécurité par téléphone,
-            e-mail ou message.
+            {language === "en" ? "We will never ask for your password or security code by phone, email or message." : "Nous ne vous demanderons jamais votre mot de passe ou un code de sécurité par téléphone, e-mail ou message."}
           </span>
         </p>
 

@@ -3,12 +3,14 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { lovable } from "@/integrations/lovable/index";
 import { genericErrorMessage } from "@/features/auth/lib/auth-errors";
+import { useLanguage } from "@/components/providers/LanguageProvider";
 
 /**
  * Managed Google sign-in. The redirect target is a public same-origin callback
  * that resolves the trusted lifecycle state before routing (§26).
  */
 export function GoogleSignInButton({ onError }: { onError: (message: string) => void }) {
+  const { language } = useLanguage();
   const [pending, setPending] = useState(false);
 
   async function handleClick() {
@@ -38,7 +40,7 @@ export function GoogleSignInButton({ onError }: { onError: (message: string) => 
       loading={pending}
       onClick={handleClick}
     >
-      Continuer avec Google
+      {language === "en" ? "Continue with Google" : "Continuer avec Google"}
     </Button>
   );
 }

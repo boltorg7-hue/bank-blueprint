@@ -16,9 +16,12 @@ const TITLES: { prefix: string; title: string }[] = [
   { prefix: "/app/more", title: "Plus" },
 ];
 
-export function contextTitleFor(pathname: string): string {
+export function contextTitleFor(pathname: string, language: "fr" | "en" = "fr"): string {
   const match = TITLES.filter((entry) => pathname.startsWith(entry.prefix)).sort(
     (a, b) => b.prefix.length - a.prefix.length,
   )[0];
-  return match?.title ?? "Espace client";
+  const title = match?.title ?? "Espace client";
+  if (language === "fr") return title;
+  const english: Record<string, string> = { Accueil: "Home", Comptes: "Accounts", Activité: "Activity", Opérations: "Transactions", Virements: "Transfers", Bénéficiaires: "Beneficiaries", Relevés: "Statements", Documents: "Documents", Messages: "Messages", Notifications: "Notifications", Profil: "Profile", Sécurité: "Security", Préférences: "Settings", Plus: "More", "Espace client": "Customer account" };
+  return english[title] ?? title;
 }

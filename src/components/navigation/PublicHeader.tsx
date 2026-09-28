@@ -3,6 +3,8 @@ import { Link } from "@tanstack/react-router";
 import { Menu } from "lucide-react";
 
 import { BrandMark } from "@/components/navigation/BrandMark";
+import { LanguageSwitch } from "@/components/navigation/LanguageSwitch";
+import { useLanguage } from "@/components/providers/LanguageProvider";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -17,6 +19,8 @@ import { useSessionUser, useSignOut } from "@/features/auth/hooks/useSessionUser
 
 
 function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
+  const { language } = useLanguage();
+  const englishLabels: Record<string, string> = { Comptes: "Accounts", Fonctionnalités: "Features", Sécurité: "Security", Tarifs: "Pricing", "À propos": "About", Aide: "Help" };
   return (
     <>
       {PUBLIC_PRIMARY_NAV.map((item) => (
@@ -27,7 +31,7 @@ function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
           activeProps={{ className: "text-foreground font-medium" }}
           className="text-body-sm px-1 py-2 text-muted-foreground transition-colors hover:text-foreground"
         >
-          {item.label}
+          {language === "en" ? englishLabels[item.label] ?? item.label : item.label}
         </Link>
       ))}
     </>
@@ -35,6 +39,8 @@ function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
 }
 
 export function PublicHeader() {
+  const { language } = useLanguage();
+  const en = language === "en";
   const [open, setOpen] = useState(false);
   const { user, loading } = useSessionUser();
   const signOut = useSignOut();
@@ -44,16 +50,17 @@ export function PublicHeader() {
       <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between gap-3 px-4 sm:px-6">
         <BrandMark />
 
-        <nav aria-label="Navigation principale" className="hidden items-center gap-5 lg:flex">
+        <nav aria-label={en ? "Main navigation" : "Navigation principale"} className="hidden items-center gap-5 lg:flex">
           <NavLinks />
         </nav>
 
         <div className="flex shrink-0 items-center gap-1 sm:gap-2">
+          <LanguageSwitch />
           <ThemeToggle className="touch-target" />
           {loading ? null : user ? (
             <>
               <Button asChild size="sm" className="hidden touch-target sm:inline-flex">
-                <Link to="/app/dashboard">Mon espace</Link>
+                 <Link to="/app/dashboard">{en ? "My account" : "Mon espace"}</Link>
               </Button>
               <Button
                 variant="ghost"
@@ -61,7 +68,7 @@ export function PublicHeader() {
                 className="hidden touch-target sm:inline-flex"
                 onClick={() => void signOut()}
               >
-                Se déconnecter
+                 {en ? "Sign out" : "Se déconnecter"}
               </Button>
             </>
           ) : (
@@ -73,12 +80,12 @@ export function PublicHeader() {
                 className="hidden touch-target sm:inline-flex"
               >
                 <Link to={PUBLIC_CTA.secondaryTo} data-analytics-event="sign_in_clicked">
-                  {PUBLIC_CTA.secondary}
+                   {en ? "Sign in" : PUBLIC_CTA.secondary}
                 </Link>
               </Button>
               <Button asChild size="sm" className="hidden touch-target lg:inline-flex">
                 <Link to={PUBLIC_CTA.primaryTo} data-analytics-event="open_account_clicked">
-                  {PUBLIC_CTA.primary}
+                   {en ? "Open an account" : PUBLIC_CTA.primary}
                 </Link>
               </Button>
             </>
@@ -87,23 +94,23 @@ export function PublicHeader() {
 
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="touch-target lg:hidden" aria-label="Ouvrir le menu">
+              <Button variant="ghost" size="icon" className="touch-target lg:hidden" aria-label={en ? "Open menu" : "Ouvrir le menu"}>
                 <Menu className="size-5" aria-hidden="true" />
-                <span className="sr-only">Ouvrir le menu</span>
+                 <span className="sr-only">{en ? "Open menu" : "Ouvrir le menu"}</span>
               </Button>
             </SheetTrigger>
             <SheetContent side="right" className="safe-pt safe-pb w-[90vw] max-w-sm overflow-y-auto bg-surface">
               <SheetHeader>
                 <SheetTitle className="text-heading-md text-foreground">RFC Royal FINANCE Bank</SheetTitle>
               </SheetHeader>
-              <nav aria-label="Navigation mobile" className="mt-6 flex flex-col gap-1 px-4 pb-6 [&_a]:min-h-12 [&_a]:rounded-md [&_a]:px-3 [&_a]:py-3 [&_a]:text-base [&_a]:hover:bg-surface-sunken">
+               <nav aria-label={en ? "Mobile navigation" : "Navigation mobile"} className="mt-6 flex flex-col gap-1 px-4 pb-6 [&_a]:min-h-12 [&_a]:rounded-md [&_a]:px-3 [&_a]:py-3 [&_a]:text-base [&_a]:hover:bg-surface-sunken">
                 <NavLinks onNavigate={() => setOpen(false)} />
                 <Link to="/contact" onClick={() => setOpen(false)} className="text-muted-foreground transition-colors">Contact</Link>
                 {user ? (
                   <>
                     <Button asChild className="mt-4 touch-target">
                       <Link to="/app/dashboard" onClick={() => setOpen(false)}>
-                        Mon espace
+                         {en ? "My account" : "Mon espace"}
                       </Link>
                     </Button>
                     <Button
@@ -114,7 +121,7 @@ export function PublicHeader() {
                         void signOut();
                       }}
                     >
-                      Se déconnecter
+                       {en ? "Sign out" : "Se déconnecter"}
                     </Button>
                   </>
                 ) : (
@@ -125,12 +132,12 @@ export function PublicHeader() {
                         onClick={() => setOpen(false)}
                         data-analytics-event="open_account_clicked"
                       >
-                        {PUBLIC_CTA.primary}
+                         {en ? "Open an account" : PUBLIC_CTA.primary}
                       </Link>
                     </Button>
                     <Button asChild variant="outline" className="touch-target">
                       <Link to={PUBLIC_CTA.secondaryTo} onClick={() => setOpen(false)}>
-                        {PUBLIC_CTA.secondary}
+                         {en ? "Sign in" : PUBLIC_CTA.secondary}
                       </Link>
                     </Button>
                   </>

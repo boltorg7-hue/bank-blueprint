@@ -1,12 +1,15 @@
 import { Link } from "@tanstack/react-router";
 
 import { APP_CONFIG } from "@/config/app";
+import { useLanguage } from "@/components/providers/LanguageProvider";
 import { LegalIdentityList } from "@/features/public/components/LegalIdentityList";
 import { PUBLIC_FOOTER_GROUPS } from "@/features/public/content/site";
 
 /** Public footer with full site map and legal identity block (§55, §80). */
 export function PublicFooter() {
-
+  const { language } = useLanguage();
+  const english: Record<string, string> = { Banque: "Banking", Comptes: "Accounts", Fonctionnalités: "Features", Tarifs: "Pricing", Sécurité: "Security", Entreprise: "Company", "À propos": "About", Assistance: "Support", "Centre d'aide": "Help centre", "Questions fréquentes": "FAQs", "Informations légales": "Legal information", "Conditions générales": "Terms", Confidentialité: "Privacy" };
+  const label = (text: string) => language === "en" ? english[text] ?? text : text;
 
   return (
     <footer className="safe-pb border-t border-border bg-surface-sunken">
@@ -14,16 +17,16 @@ export function PublicFooter() {
         <div className="grid gap-10 md:grid-cols-[1.2fr_2fr]">
           <div className="space-y-3">
             <p className="text-label text-foreground">{APP_CONFIG.legalName}</p>
-            <p className="text-body-sm max-w-prose text-muted-foreground">{APP_CONFIG.description}</p>
+            <p className="text-body-sm max-w-prose text-muted-foreground">{language === "en" ? "Banking services and account management online." : APP_CONFIG.description}</p>
           </div>
 
           <nav
-            aria-label="Plan du site"
+            aria-label={language === "en" ? "Site map" : "Plan du site"}
             className="grid grid-cols-2 gap-x-4 gap-y-8 min-[420px]:grid-cols-2 sm:grid-cols-4"
           >
             {PUBLIC_FOOTER_GROUPS.map((group) => (
               <div key={group.title} className="min-w-0">
-                <p className="text-overline text-muted-foreground">{group.title}</p>
+                <p className="text-overline text-muted-foreground">{label(group.title)}</p>
                 <ul className="mt-1 space-y-0.5">
                   {group.links.map((link) => (
                     <li key={`${group.title}-${link.label}`}>
@@ -31,7 +34,7 @@ export function PublicFooter() {
                         to={link.to}
                         className="inline-flex min-h-11 items-center text-body-sm text-muted-foreground transition-colors hover:text-foreground active:text-foreground sm:min-h-0 sm:py-0.5"
                       >
-                        {link.label}
+                        {label(link.label)}
                       </Link>
                     </li>
                   ))}

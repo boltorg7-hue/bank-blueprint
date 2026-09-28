@@ -3,6 +3,8 @@ import { Menu } from "lucide-react";
 import { useState } from "react";
 
 import { AdminSidebar } from "@/components/navigation/AdminSidebar";
+import { LanguageSwitch } from "@/components/navigation/LanguageSwitch";
+import { useLanguage } from "@/components/providers/LanguageProvider";
 import { Button } from "@/components/ui/button";
 
 /**
@@ -10,6 +12,7 @@ import { Button } from "@/components/ui/button";
  * Never reused as a customer layout; contains no customer marketing chrome.
  */
 export function AdminLayout({ children }: { children: ReactNode }) {
+  const { language } = useLanguage();
   const [mobileOpen, setMobileOpen] = useState(false);
   return (
     <div className="min-h-dvh-safe flex bg-surface-sunken">
@@ -23,16 +26,16 @@ export function AdminLayout({ children }: { children: ReactNode }) {
                 variant="ghost"
                 size="icon"
                 className="touch-target md:hidden"
-                aria-label="Ouvrir la navigation administration"
+                 aria-label={language === "en" ? "Open admin navigation" : "Ouvrir la navigation administration"}
                 onClick={() => setMobileOpen((open) => !open)}
               >
                 <Menu className="size-5" aria-hidden="true" />
               </Button>
-              <p className="text-sm font-medium text-muted-foreground">Console opérationnelle</p>
+               <p className="text-sm font-medium text-muted-foreground">{language === "en" ? "Operations console" : "Console opérationnelle"}</p>
             </div>
-            <span className="rounded-full border border-border px-2 py-0.5 text-xs text-muted-foreground">
-              Accès restreint
-            </span>
+             <div className="flex items-center gap-2"><LanguageSwitch /><span className="hidden rounded-full border border-border px-2 py-0.5 text-xs text-muted-foreground sm:inline-flex">
+               {language === "en" ? "Restricted access" : "Accès restreint"}
+             </span></div>
           </div>
         </header>
 
