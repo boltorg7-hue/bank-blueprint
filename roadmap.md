@@ -11,6 +11,7 @@
 - Accueil et pages publiques principales modernisés dans une direction éditoriale « photo puis récit » ; navigation mobile publique et client affinée sans modification des opérations.
 
 ## À faire
+- Bilinguisme FR/EN : poursuivre la traduction du contenu détaillé des pages publiques, des parcours client et du back-office ; le sélecteur et les écrans principaux sont en place.
 - Phase 10 : notifications et messagerie de service client (base + écrans câblés ; validation d'exécution de bout en bout restante).
 - Sécurité client : centre de sécurité, sessions, révocation, historique, step-up (base + écrans câblés ; certification restante).
 - Détails administratifs enrichis : historique complet d'un client, d'un compte et exports d'audit.
