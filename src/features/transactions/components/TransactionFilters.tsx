@@ -225,7 +225,7 @@ function FilterFields({
               onChange={(event) =>
                 onChange({
                   ...filters,
-                  to: event.target.value ? `${event.target.value}T23:59:59.999Z` : null,
+                  to: event.target.value ? new Date(`${event.target.value}T00:00:00.000Z`).toISOString().replace(/^\d{4}-\d{2}-\d{2}/, (day) => new Date(Date.parse(`${day}T00:00:00.000Z`) + 86_400_000).toISOString().slice(0, 10)) : null,
                 })
               }
             />
@@ -249,6 +249,7 @@ export function TransactionFilters({
   const { language } = useLanguage();
   const en = language === "en";
   const count = activeFilterCount(filters);
+  const draftCount = activeFilterCount(draft);
 
   return (
     <>
@@ -315,10 +316,10 @@ export function TransactionFilters({
       {/* Desktop: inline toolbar (§162) */}
       <div className="hidden lg:block">
         <div className="rounded-xl border border-border bg-surface p-4">
-          <FilterFields filters={filters} onChange={onChange} />
+          <FilterFields filters={draft} onChange={setDraft} />
           {count > 0 ? (
             <div className="mt-3 flex justify-end">
-              <Button variant="ghost" size="sm" onClick={() => onChange({ ...EMPTY_FILTERS })}>
+            <Button variant="ghost" size="sm" onClick={() => { setDraft({ ...EMPTY_FILTERS }); onChange({ ...EMPTY_FILTERS }); }}>
                 <X className="size-4" aria-hidden="true" />
                 {en ? "Reset all filters" : "Tout réinitialiser"}
               </Button>
