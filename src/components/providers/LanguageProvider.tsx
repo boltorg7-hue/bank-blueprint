@@ -20,8 +20,8 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
         preferred = stored;
       } else {
         const systemLanguages = navigator.languages?.length ? navigator.languages : [navigator.language];
-        preferred = systemLanguages.some((locale) => locale.toLowerCase().startsWith("fr")) &&
-          !systemLanguages[0]?.toLowerCase().startsWith("en") ? "fr" : "en";
+        const supported = systemLanguages.find((locale) => /^(fr|en)(-|$)/i.test(locale));
+        preferred = supported?.toLowerCase().startsWith("fr") ? "fr" : "en";
       }
     } catch {
       preferred = navigator.language?.toLowerCase().startsWith("fr") ? "fr" : "en";

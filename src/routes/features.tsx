@@ -53,22 +53,22 @@ function FeaturesPage() {
           </ul>
         </nav>
 
-         <div className="mt-12 space-y-16">
+         <div className="mt-8 space-y-12 sm:mt-12 sm:space-y-16">
           {categories.map((category) => {
             const Icon = category.icon;
             return (
-              <section key={category.id} id={category.id} className="scroll-mt-24">
+              <section key={category.id} id={category.id} className="scroll-mt-24 border-t border-border pt-7 first:border-0 first:pt-0 sm:pt-9">
                 <div className="flex items-start gap-3">
                   <Icon className="mt-1 size-6 shrink-0 text-brand" aria-hidden="true" />
                   <div className="min-w-0">
                     <SectionHeader as="h2" title={category.label} description={category.intro} />
                   </div>
                 </div>
-                 <div className="mt-6 grid grid-cols-[minmax(0,1fr)] gap-x-8 sm:grid-cols-2 lg:grid-cols-3">
+                 <div className="mt-6 grid grid-cols-[minmax(0,1fr)] gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3">
                    {category.items.map((item, index) => (
                     <article
                       key={item.title}
-                       className="border-t border-border py-5 transition-colors hover:border-brand"
+                       className="min-w-0 rounded-md border border-border bg-surface p-4 transition-colors hover:border-brand sm:p-5"
                     >
                        <span className="text-overline text-brand">{String(index + 1).padStart(2, "0")}</span>
                       <h3 className="text-heading-sm text-foreground">{item.title}</h3>

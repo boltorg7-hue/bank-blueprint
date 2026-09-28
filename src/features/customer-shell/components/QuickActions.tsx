@@ -31,7 +31,7 @@ export function QuickActions({
   return (
     <ul
       className={cn(
-        "grid grid-cols-[minmax(0,1fr)] gap-3 sm:grid-cols-2 lg:grid-cols-4",
+        "grid grid-cols-2 gap-3 lg:grid-cols-4",
         className,
       )}
     >
@@ -44,7 +44,7 @@ export function QuickActions({
             <li key={action.label}>
               <span
                 aria-disabled="true"
-                className="flex h-full min-h-24 flex-col justify-between rounded-xl border border-border bg-surface-sunken p-4 text-sm text-muted-foreground"
+                className="flex h-full min-h-28 flex-col justify-between rounded-md border border-border bg-surface-sunken p-3 text-sm text-muted-foreground sm:p-4"
               >
                 <Icon className="size-5" aria-hidden="true" />
                 <span className="mt-3 block font-medium leading-snug">{action.label}</span>
@@ -60,7 +60,7 @@ export function QuickActions({
           <li key={action.label}>
             <Link
               to={action.to}
-               className="press-feedback flex h-full min-h-24 flex-col justify-between rounded-md border border-border bg-surface p-4 text-sm text-foreground hover:border-brand/40 hover:bg-surface-sunken active:press-feedback-active"
+               className="press-feedback flex h-full min-h-28 flex-col justify-between rounded-md border border-border bg-surface p-3 text-sm text-foreground hover:border-brand/40 hover:bg-surface-sunken active:press-feedback-active sm:p-4"
             >
                <Icon className="size-6 text-brand" aria-hidden="true" />
               <span className="mt-3 flex items-center justify-between gap-2 font-medium leading-snug">

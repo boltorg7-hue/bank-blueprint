@@ -8,6 +8,8 @@ import { useSignOut } from "@/features/auth/hooks/useSessionUser";
 import { useCustomerSummary } from "@/features/customer-shell/hooks/useCustomerSummary";
 import { canTransact, transactionalBlockedReason } from "@/features/customer-shell/lib/route-access";
 import { CUSTOMER_MORE_GROUPS } from "@/config/navigation";
+import { englishNavLabel } from "@/components/navigation/CustomerSidebar";
+import { useLanguage } from "@/components/providers/LanguageProvider";
 
 export const Route = createFileRoute("/app/more")({
   head: () => ({
@@ -21,6 +23,8 @@ export const Route = createFileRoute("/app/more")({
 });
 
 function MoreRoute() {
+  const { language } = useLanguage();
+  const en = language === "en";
   const signOut = useSignOut();
   const { summary } = useCustomerSummary();
   const transactional = summary ? canTransact(summary.lifecycleState) : false;
@@ -28,18 +32,18 @@ function MoreRoute() {
 
   return (
     <BankingContentContainer width="narrow">
-      <PageHeader title="Plus" description="Tous les services de votre espace client." />
+      <PageHeader title={en ? "More" : "Plus"} description={en ? "Your banking services, organised by topic." : "Tous les services de votre espace client, classés par rubrique."} />
 
-      <div className="space-y-6">
+      <div className="grid gap-5 sm:grid-cols-2 sm:items-start">
         {CUSTOMER_MORE_GROUPS.map((group) => (
-          <section key={group.title} aria-labelledby={`group-${group.title}`} className="space-y-2">
+          <section key={group.title} aria-labelledby={`group-${group.title}`} className="min-w-0 space-y-2">
             <h2
               id={`group-${group.title}`}
               className="text-xs font-medium uppercase tracking-wide text-muted-foreground"
             >
-              {group.title}
+              {en ? ({ Banque: "Banking", Documents: "Documents", Échanges: "Communication", "Mon compte": "My account" } as Record<string, string>)[group.title] ?? group.title : group.title}
             </h2>
-            <ul className="divide-y divide-border overflow-hidden rounded-xl border border-border bg-surface">
+            <ul className="divide-y divide-border overflow-hidden rounded-md border border-border bg-surface">
               {group.items.map((item) => {
                 const Icon = item.icon;
                 const blocked = Boolean(item.transactional) && !transactional;
@@ -52,8 +56,8 @@ function MoreRoute() {
                         className="touch-target flex items-center gap-3 px-4 py-3 text-sm text-muted-foreground"
                       >
                         <Icon className="size-4 shrink-0" aria-hidden="true" />
-                        <span className="min-w-0 flex-1 truncate">{item.label}</span>
-                        <span className="text-xs">{blockedReason ?? "Indisponible"}</span>
+                        <span className="min-w-0 flex-1 truncate">{en ? englishNavLabel(item.label) : item.label}</span>
+                        <span className="max-w-28 text-right text-xs leading-tight">{blockedReason ?? (en ? "Unavailable" : "Indisponible")}</span>
                       </span>
                     </li>
                   );
@@ -66,7 +70,7 @@ function MoreRoute() {
                       className="touch-target flex items-center gap-3 px-4 py-3 text-sm text-foreground hover:bg-surface-sunken"
                     >
                       <Icon className="size-4 shrink-0 text-brand" aria-hidden="true" />
-                      <span className="min-w-0 flex-1 truncate">{item.label}</span>
+                      <span className="min-w-0 flex-1 truncate">{en ? englishNavLabel(item.label) : item.label}</span>
                       <ChevronRight
                         className="size-4 shrink-0 text-muted-foreground"
                         aria-hidden="true"
@@ -79,9 +83,9 @@ function MoreRoute() {
           </section>
         ))}
 
-        <Button variant="outline" className="w-full" onClick={() => void signOut()}>
+        <Button variant="outline" className="w-full sm:col-span-2" onClick={() => void signOut()}>
           <LogOut className="size-4" aria-hidden="true" />
-          Se déconnecter
+          {en ? "Sign out" : "Se déconnecter"}
         </Button>
       </div>
     </BankingContentContainer>
