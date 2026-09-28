@@ -1,3 +1,4 @@
+import { useLanguage } from "@/components/providers/LanguageProvider";
 import { createFileRoute } from "@tanstack/react-router";
 import { toast } from "sonner";
 
@@ -32,20 +33,22 @@ function statusTone(status: string): "success" | "failed" | "pending" | "info" {
 }
 
 function AdminTransfersPage() {
+  const { language } = useLanguage();
+  const en = language === "en";
   const query = useAdminExternalTransfers();
 
   return (
     <AdminGate>
       <PageHeader
-        title="Transferts externes simulés"
-        description="Contrôlez les justificatifs et les passages administratifs à 95 %, 99 % et 100 %."
+        title={en ? "Simulated external transfers" : "Transferts externes simulés"}
+        description={en ? "Review supporting documents and the administrative stages at 95%, 99% and 100%." : "Contrôlez les justificatifs et les passages administratifs à 95 %, 99 % et 100 %."}
       />
       {query.isPending ? (
         <LoadingState />
       ) : query.isError ? (
         <ErrorState onRetry={() => query.refetch()} />
       ) : !query.data?.length ? (
-        <EmptyState title="Aucun transfert externe" />
+        <EmptyState title={en ? "No external transfers" : "Aucun transfert externe"} />
       ) : (
         <ExternalTransfersTable transfers={query.data} />
       )}
@@ -54,6 +57,8 @@ function AdminTransfersPage() {
 }
 
 function ExternalTransfersTable({ transfers }: { transfers: AdminExternalTransferDto[] }) {
+  const { language } = useLanguage();
+  const en = language === "en";
   const context = useAdminContext();
   const mutation = useAdvanceExternalTransfer();
   const permissions = new Set(context.data?.permissions ?? []);
@@ -63,16 +68,16 @@ function ExternalTransfersTable({ transfers }: { transfers: AdminExternalTransfe
       await mutation.mutateAsync({ reference, action });
       toast.success(
         action === "APPROVE"
-          ? "Transfert approuvé à 95 %."
+          ? (en ? "Transfer approved at 95%." : "Transfert approuvé à 95 %.")
           : action === "QUEUE"
-            ? "Transfert placé à 99 %."
-            : "Simulation finalisée à 100 %.",
+            ? (en ? "Transfer queued at 99%." : "Transfert placé à 99 %.")
+            : (en ? "Simulation completed at 100%." : "Simulation finalisée à 100 %."),
       );
     } catch (error) {
       toast.error(
         error instanceof Error && error.message.includes("FOUR_EYES_REQUIRED")
-          ? "Un autre agent autorisé doit effectuer cette étape."
-          : "La transition n’a pas pu être enregistrée.",
+          ? (en ? "Another authorized staff member must complete this step." : "Un autre agent autorisé doit effectuer cette étape.")
+          : (en ? "The transition could not be saved." : "La transition n’a pas pu être enregistrée."),
       );
     }
   }
@@ -82,12 +87,12 @@ function ExternalTransfersTable({ transfers }: { transfers: AdminExternalTransfe
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Référence</TableHead>
-            <TableHead>Client / bénéficiaire</TableHead>
-            <TableHead>Montant</TableHead>
-            <TableHead>État</TableHead>
-            <TableHead>Justificatifs</TableHead>
-            <TableHead>Créé le</TableHead>
+            <TableHead>{en ? "Reference" : "Référence"}</TableHead>
+            <TableHead>{en ? "Customer / beneficiary" : "Client / bénéficiaire"}</TableHead>
+            <TableHead>{en ? "Amount" : "Montant"}</TableHead>
+            <TableHead>{en ? "Status" : "État"}</TableHead>
+            <TableHead>{en ? "Documents" : "Justificatifs"}</TableHead>
+            <TableHead>{en ? "Created" : "Créé le"}</TableHead>
             <TableHead className="text-right">Action</TableHead>
           </TableRow>
         </TableHeader>
@@ -116,7 +121,7 @@ function ExternalTransfersTable({ transfers }: { transfers: AdminExternalTransfe
                     <div className="text-xs text-muted-foreground">{transfer.progressPercent} %</div>
                   </div>
                 </TableCell>
-                <TableCell>{transfer.documentsOpen === 0 ? "Complets" : `${transfer.documentsOpen} ouvert(s)`}</TableCell>
+                <TableCell>{transfer.documentsOpen === 0 ? (en ? "Complete" : "Complets") : `${transfer.documentsOpen} ${en ? "open" : "ouvert(s)"}`}</TableCell>
                 <TableCell>{formatDateTime(transfer.createdAt)}</TableCell>
                 <TableCell className="text-right">
                   {action ? (
@@ -126,13 +131,13 @@ function ExternalTransfersTable({ transfers }: { transfers: AdminExternalTransfe
                       onClick={() => advance(transfer.reference, action)}
                     >
                       {action === "APPROVE"
-                        ? "Approuver à 95 %"
+                        ? (en ? "Approve at 95%" : "Approuver à 95 %")
                         : action === "QUEUE"
-                          ? "Passer à 99 %"
-                          : "Finaliser à 100 %"}
+                          ? (en ? "Move to 99%" : "Passer à 99 %")
+                          : (en ? "Finalize at 100%" : "Finaliser à 100 %")}
                     </Button>
                   ) : (
-                    <span className="text-sm text-muted-foreground">Aucune action</span>
+                    <span className="text-sm text-muted-foreground">{en ? "No action" : "Aucune action"}</span>
                   )}
                 </TableCell>
               </TableRow>

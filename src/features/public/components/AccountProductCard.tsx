@@ -1,4 +1,6 @@
 import { Link } from "@tanstack/react-router";
+import { useLanguage } from "@/components/providers/LanguageProvider";
+
 import { Check } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -14,6 +16,8 @@ export function AccountProductCard({
   product: AccountProduct;
   className?: string;
 }) {
+  const { language } = useLanguage();
+  const en = language === "en";
   return (
     <article
       className={cn(
@@ -35,11 +39,11 @@ export function AccountProductCard({
 
       <dl className="mt-6 space-y-3 border-t border-border pt-4">
         <div>
-          <dt className="text-overline text-muted-foreground">Tarifs</dt>
+          <dt className="text-overline text-muted-foreground">{en ? "Pricing" : "Tarifs"}</dt>
           <dd className="text-body-sm mt-1 text-foreground">{product.pricingSummary}</dd>
         </div>
         <div>
-          <dt className="text-overline text-muted-foreground">Éligibilité</dt>
+          <dt className="text-overline text-muted-foreground">{en ? "Eligibility" : "Éligibilité"}</dt>
           <dd className="text-body-sm mt-1 text-foreground">{product.eligibility}</dd>
         </div>
       </dl>
@@ -51,7 +55,7 @@ export function AccountProductCard({
           </Link>
         </Button>
         <Button asChild variant="outline" className="touch-target sm:flex-1">
-          <Link to="/pricing">Voir les tarifs</Link>
+          <Link to="/pricing">{en ? "View pricing" : "Voir les tarifs"}</Link>
         </Button>
       </div>
     </article>

@@ -1,4 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useLanguage } from "@/components/providers/LanguageProvider";
+
 
 import { FeatureShellPage } from "@/features/customer-shell/components/FeatureShellPage";
 import { SecurityCenter } from "@/features/security/components/SecurityCenter";
@@ -15,10 +17,12 @@ export const Route = createFileRoute("/app/security")({
 });
 
 function AppSecurityRoute() {
+  const { language } = useLanguage();
+  const en = language === "en";
   return (
     <FeatureShellPage
-      title="Sécurité"
-      description="Vos appareils, sessions actives et paramètres de sécurité."
+      title={en ? "Security" : "Sécurité"}
+      description={en ? "Your devices, active sessions and security settings." : "Vos appareils, sessions actives et paramètres de sécurité."}
       access="authenticated"
       width="default"
     ><SecurityCenter /></FeatureShellPage>

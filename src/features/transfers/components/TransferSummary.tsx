@@ -1,6 +1,7 @@
 import { useLiveFinancialSettings } from "@/features/settings/useLiveFinancialSettings";
 import { formatMoneyFromMinor } from "@/lib/format/currency";
 import { formatUsdtFromMinor, usdMinorToUsdtMinor } from "@/config/currency";
+import { useLanguage } from "@/components/providers/LanguageProvider";
 
 /**
  * Explicit recap shown before confirmation (§88 – §92).
@@ -25,20 +26,22 @@ export function TransferSummary({
   sourceMasked: string;
   note?: string | null;
 }) {
+  const { language } = useLanguage();
+  const en = language === "en";
   useLiveFinancialSettings();
   const rows: Array<{ label: string; value: string }> = [
-    { label: "Bénéficiaire", value: recipientDisplay },
-    { label: "Compte destinataire", value: `•••• ${destinationMasked}` },
-    { label: "Compte à débiter", value: `${sourceLabel} · •••• ${sourceMasked}` },
-    { label: "Frais", value: "Aucun frais pour un virement interne" },
-    { label: "Équivalent en USDT", value: formatUsdtFromMinor(usdMinorToUsdtMinor(amountMinor)) },
+    { label: en ? "Recipient" : "Bénéficiaire", value: recipientDisplay },
+    { label: en ? "Destination account" : "Compte destinataire", value: `•••• ${destinationMasked}` },
+    { label: en ? "Source account" : "Compte à débiter", value: `${sourceLabel} · •••• ${sourceMasked}` },
+    { label: en ? "Fees" : "Frais", value: en ? "No fee for an internal transfer" : "Aucun frais pour un virement interne" },
+    { label: en ? "USDT equivalent" : "Équivalent en USDT", value: formatUsdtFromMinor(usdMinorToUsdtMinor(amountMinor)) },
   ];
-  if (note) rows.push({ label: "Référence", value: note });
+  if (note) rows.push({ label: en ? "Reference" : "Référence", value: note });
 
   return (
     <div className="space-y-4">
       <div className="rounded-lg border border-border bg-surface-sunken p-4 text-center">
-        <p className="text-caption text-muted-foreground">Montant du virement</p>
+        <p className="text-caption text-muted-foreground">{en ? "Transfer amount" : "Montant du virement"}</p>
         <p className="text-amount text-2xl font-semibold text-foreground">
           {formatMoneyFromMinor(amountMinor, {
             currency,

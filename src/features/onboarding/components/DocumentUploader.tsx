@@ -1,3 +1,4 @@
+import { useLanguage } from "@/components/providers/LanguageProvider";
 import { useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { FileText, Trash2, UploadCloud } from "lucide-react";
@@ -40,6 +41,8 @@ export function DocumentUploader({
   context: CustomerContext;
   editable: boolean;
 }) {
+  const { language } = useLanguage();
+  const en = language === "en";
   const inputRef = useRef<HTMLInputElement>(null);
   const invalidate = useInvalidateCustomerContext();
   const register = useServerFn(registerDocument);
@@ -53,11 +56,11 @@ export function DocumentUploader({
     setError(null);
 
     if (!(ALLOWED_DOCUMENT_MIME_TYPES as readonly string[]).includes(file.type)) {
-      setError("Formats acceptés : JPEG, PNG, HEIC, WEBP ou PDF.");
+      setError((en ? "Accepted formats: JPEG, PNG, HEIC, WEBP or PDF." : "Formats acceptés : JPEG, PNG, HEIC, WEBP ou PDF."));
       return;
     }
     if (file.size > MAX_DOCUMENT_BYTES) {
-      setError("Fichier trop volumineux (10 Mo maximum).");
+      setError((en ? "File too large (10 MB maximum)." : "Fichier trop volumineux (10 Mo maximum)."));
       return;
     }
 
@@ -66,7 +69,7 @@ export function DocumentUploader({
     const userId = session.user?.id;
     if (!userId) {
       setUploading(false);
-      setError("Votre session a expiré. Reconnectez-vous pour continuer.");
+      setError((en ? "Your session has expired. Sign in to continue." : "Votre session a expiré. Reconnectez-vous pour continuer."));
       return;
     }
 
@@ -79,7 +82,7 @@ export function DocumentUploader({
 
     if (upload.error) {
       setUploading(false);
-      setError("L'envoi du document a échoué. Réessayez.");
+      setError((en ? "The document could not be uploaded. Please try again." : "L'envoi du document a échoué. Réessayez."));
       return;
     }
 
@@ -96,7 +99,7 @@ export function DocumentUploader({
       await invalidate();
     } catch {
       await supabase.storage.from("identity-documents").remove([storagePath]);
-      setError("Nous n'avons pas pu enregistrer ce document. Réessayez.");
+      setError((en ? "We could not save this document. Please try again." : "Nous n'avons pas pu enregistrer ce document. Réessayez."));
     } finally {
       setUploading(false);
       if (inputRef.current) inputRef.current.value = "";
@@ -109,7 +112,7 @@ export function DocumentUploader({
       await remove({ data: { documentId } });
       await invalidate();
     } catch {
-      setError("Ce document n'a pas pu être retiré.");
+      setError((en ? "This document could not be removed." : "Ce document n'a pas pu être retiré."));
     } finally {
       setPendingRemoval(null);
     }
@@ -120,15 +123,15 @@ export function DocumentUploader({
       {editable ? (
         <div className="space-y-4 rounded-xl border border-border bg-surface p-4">
           <div className="space-y-2">
-            <Label htmlFor="document-type">Type de document</Label>
+            <Label htmlFor="document-type">{en ? "Document type" : "Type de document"}</Label>
             <Select value={documentType} onValueChange={setDocumentType}>
               <SelectTrigger id="document-type" className="touch-target">
-                <SelectValue placeholder="Choisir un type" />
+                <SelectValue placeholder={en ? "Choose a type" : "Choisir un type"} />
               </SelectTrigger>
               <SelectContent>
                 {DOCUMENT_TYPES.map((type) => (
                   <SelectItem key={type} value={type}>
-                    {DOCUMENT_TYPE_LABELS[type]}
+                    {en ? type.replaceAll("_", " ").toLowerCase() : DOCUMENT_TYPE_LABELS[type]}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -157,8 +160,7 @@ export function DocumentUploader({
             Choisir un fichier
           </Button>
           <p className="text-caption text-muted-foreground">
-            JPEG, PNG, HEIC, WEBP ou PDF — 10 Mo maximum. Vos documents sont stockés dans un espace
-            privé et ne sont jamais publiés.
+            {en ? "JPEG, PNG, HEIC, WEBP or PDF — 10 MB maximum. Your documents are stored privately and never published." : "JPEG, PNG, HEIC, WEBP ou PDF — 10 Mo maximum. Vos documents sont stockés dans un espace privé et ne sont jamais publiés."}
           </p>
           {error ? (
             <p role="alert" className="text-caption text-destructive">
@@ -169,9 +171,9 @@ export function DocumentUploader({
       ) : null}
 
       <div className="space-y-3">
-        <h2 className="text-label text-foreground">Documents envoyés</h2>
+        <h2 className="text-label text-foreground">{en ? "Uploaded documents" : "Documents envoyés"}</h2>
         {context.documents.length === 0 ? (
-          <p className="text-body-sm text-muted-foreground">Aucun document pour le moment.</p>
+          <p className="text-body-sm text-muted-foreground">{en ? "No documents yet." : "Aucun document pour le moment."}</p>
         ) : (
           <ul className="space-y-2">
             {context.documents.map((document) => (
@@ -182,11 +184,11 @@ export function DocumentUploader({
                 <FileText className="mt-0.5 size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
                 <div className="min-w-0 flex-1">
                   <p className="text-body-sm text-foreground">
-                    {DOCUMENT_TYPE_LABELS[document.document_type]}
+                    {en ? document.document_type.replaceAll("_", " ").toLowerCase() : DOCUMENT_TYPE_LABELS[document.document_type]}
                   </p>
                   <p className="text-caption truncate text-muted-foreground">
                     {document.original_filename ?? "Document"} ·{" "}
-                    {DOCUMENT_STATUS_LABELS[document.status]}
+                    {en ? document.status.replaceAll("_", " ").toLowerCase() : DOCUMENT_STATUS_LABELS[document.status]}
                   </p>
                   {document.rejection_reason ? (
                     <p className="text-caption mt-1 text-destructive">{document.rejection_reason}</p>
@@ -201,7 +203,7 @@ export function DocumentUploader({
                     onClick={() => void handleRemove(document.id)}
                   >
                     <Trash2 className="size-4" aria-hidden="true" />
-                    <span className="sr-only">Retirer ce document</span>
+                    <span className="sr-only">{en ? "Remove this document" : "Retirer ce document"}</span>
                   </Button>
                 ) : null}
               </li>

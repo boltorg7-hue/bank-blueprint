@@ -1,3 +1,4 @@
+import { useLanguage } from "@/components/providers/LanguageProvider";
 import type { ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 
@@ -21,6 +22,8 @@ export function OnboardingShell({
   why?: string;
   children: ReactNode;
 }) {
+  const { language } = useLanguage();
+  const en = language === "en";
   const index = ONBOARDING_FLOW.findIndex((step) => step.id === stepId);
 
   return (
@@ -28,9 +31,9 @@ export function OnboardingShell({
       {index >= 0 ? (
         <div className="mb-6">
           <p className="text-caption text-muted-foreground">
-            Étape {index + 1} sur {ONBOARDING_FLOW.length}
+            {en ? "Step" : "Étape"} {index + 1} {en ? "of" : "sur"} {ONBOARDING_FLOW.length}
           </p>
-          <ol className="mt-3 flex flex-wrap gap-2" aria-label="Progression de l'ouverture de compte">
+          <ol className="mt-3 flex flex-wrap gap-2" aria-label={en ? "Account opening progress" : "Progression de l’ouverture de compte"}>
             {ONBOARDING_FLOW.map((step, position) => {
               const state =
                 position < index ? "done" : position === index ? "current" : "upcoming";
@@ -46,7 +49,7 @@ export function OnboardingShell({
                           : "text-caption rounded-full border border-border px-3 py-1 text-muted-foreground"
                     }
                   >
-                    {step.label}
+                    {en ? ({ profile: "Details", address: "Address", documents: "Identity", review: "Review" } as Record<string,string>)[step.id] ?? step.label : step.label}
                   </span>
                 </li>
               );
@@ -68,9 +71,9 @@ export function OnboardingShell({
       <div className="mt-8">{children}</div>
 
       <p className="text-caption mt-10 text-muted-foreground">
-        Vous pouvez interrompre à tout moment : votre progression est conservée.{" "}
+        {en ? "You can stop at any time: your progress is saved." : "Vous pouvez interrompre à tout moment : votre progression est conservée."}{" "}
         <Link to="/onboarding" className="text-brand underline-offset-4 hover:underline">
-          Revenir à mon suivi
+          {en ? "Back to my application" : "Revenir à mon suivi"}
         </Link>
       </p>
     </div>

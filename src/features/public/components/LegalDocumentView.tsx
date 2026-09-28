@@ -1,3 +1,4 @@
+import { useLanguage } from "@/components/providers/LanguageProvider";
 import { PENDING_SECTION_NOTICE, type LegalDocument } from "@/features/public/content/legal";
 import { formatDate } from "@/lib/format/date";
 
@@ -7,10 +8,12 @@ import { formatDate } from "@/lib/format/date";
  * never fabricates legal wording.
  */
 export function LegalDocumentView({ document }: { document: LegalDocument }) {
+  const { language } = useLanguage();
+  const en = language === "en";
   return (
     <div className="grid grid-cols-[minmax(0,1fr)] gap-10 lg:grid-cols-[220px_1fr]">
-      <nav aria-label="Sommaire du document" className="lg:sticky lg:top-24 lg:self-start">
-        <p className="text-overline text-muted-foreground">Sommaire</p>
+      <nav aria-label={en ? "Document contents" : "Sommaire du document"} className="lg:sticky lg:top-24 lg:self-start">
+        <p className="text-overline text-muted-foreground">{en ? "Contents" : "Sommaire"}</p>
         <ul className="mt-3 space-y-1">
           {document.sections.map((section) => (
             <li key={section.id}>
@@ -29,8 +32,8 @@ export function LegalDocumentView({ document }: { document: LegalDocument }) {
         <p className="text-body max-w-prose text-muted-foreground">{document.intro}</p>
         <p className="text-caption text-muted-foreground">
           {document.lastUpdated
-            ? `Dernière mise à jour : ${formatDate(document.lastUpdated)}`
-            : "Ce document n'est pas encore publié dans sa version définitive."}
+            ? `${en ? "Last updated" : "Dernière mise à jour"}: ${formatDate(document.lastUpdated)}`
+            : en ? "The final version of this document has not yet been published." : "Ce document n’est pas encore publié dans sa version définitive."}
         </p>
 
         {document.sections.map((section) => (
@@ -44,7 +47,7 @@ export function LegalDocumentView({ document }: { document: LegalDocument }) {
               ))
             ) : (
               <p className="text-body-sm max-w-prose rounded-lg border border-dashed border-border bg-surface-sunken px-4 py-3 text-muted-foreground">
-                {PENDING_SECTION_NOTICE}
+                {en ? "This section is being drafted with legal counsel. It will be published before commercial launch." : PENDING_SECTION_NOTICE}
               </p>
             )}
           </section>

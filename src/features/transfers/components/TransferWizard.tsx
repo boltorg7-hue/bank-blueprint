@@ -1,3 +1,4 @@
+import { useLanguage } from "@/components/providers/LanguageProvider";
 import { useLiveFinancialSettings } from "@/features/settings/useLiveFinancialSettings";
 import { useMemo, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
@@ -75,6 +76,8 @@ function toMinorUnits(raw: string, minorUnit: number): number | null {
  * server-side and atomic.
  */
 export function TransferWizard({ initialBeneficiary }: { initialBeneficiary?: string | undefined }) {
+  const { language } = useLanguage();
+  const en = language === "en";
   useLiveFinancialSettings();
   const navigate = useNavigate();
   const accountsQuery = useCustomerAccounts();
@@ -145,26 +148,26 @@ export function TransferWizard({ initialBeneficiary }: { initialBeneficiary?: st
   if (accounts.length === 0) {
     return (
       <EmptyState
-        title="Aucun compte disponible"
-        description="Un compte actif est nécessaire pour émettre un virement."
+        title={en ? "No account available" : "Aucun compte disponible"}
+        description={en ? "An active account is required to make a transfer." : "Un compte actif est nécessaire pour émettre un virement."}
       />
     );
   }
 
   return (
     <div className="space-y-6">
-      <Stepper steps={STEPS} currentIndex={stepIndex} />
+      <Stepper steps={en ? STEPS.map((step) => ({ ...step, label: ({ beneficiary: "Recipient", amount: "Amount", review: "Review", result: "Confirmation" } as Record<string, string>)[step.id] ?? step.label })) : STEPS} currentIndex={stepIndex} />
 
       {stepIndex === 0 ? (
         <Card className="space-y-5 p-4 sm:p-5">
           <div className="space-y-2">
-            <Label htmlFor="transfer-source">Compte à débiter</Label>
+            <Label htmlFor="transfer-source">{en ? "Source account" : "Compte à débiter"}</Label>
             <Select
               value={source?.reference ?? ""}
               onValueChange={(value) => setAccountReference(value)}
             >
               <SelectTrigger id="transfer-source" className="h-12">
-                <SelectValue placeholder="Choisir un compte" />
+                <SelectValue placeholder={en ? "Choose an account" : "Choisir un compte"} />
               </SelectTrigger>
               <SelectContent>
                 {accounts.map((account) => (
@@ -176,39 +179,39 @@ export function TransferWizard({ initialBeneficiary }: { initialBeneficiary?: st
             </Select>
             {available !== null ? (
               <p className="text-caption text-muted-foreground">
-                Solde disponible :{" "}
+                {en ? "Available balance" : "Solde disponible"} :{" "}
                 {formatMoneyFromMinor(available, {
                   currency,
                   minorUnitScale: 10 ** minorUnit,
                 })}
               </p>
             ) : (
-              <p className="text-caption text-muted-foreground">Solde disponible indisponible.</p>
+              <p className="text-caption text-muted-foreground">{en ? "Available balance unavailable." : "Solde disponible indisponible."}</p>
             )}
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="transfer-confirmation-password">Confirmez votre mot de passe</Label>
+            <Label htmlFor="transfer-confirmation-password">{en ? "Confirm your password" : "Confirmez votre mot de passe"}</Label>
             <Input
               id="transfer-confirmation-password"
               type="password"
               autoComplete="current-password"
               value={confirmationPassword}
               onChange={(event) => setConfirmationPassword(event.target.value)}
-              placeholder="Mot de passe actuel"
+              placeholder={en ? "Current password" : "Mot de passe actuel"}
               maxLength={128}
             />
             <p className="text-caption text-muted-foreground">
-              Cette vérification protège l’exécution de l’opération sensible.
+              {en ? "This check protects this sensitive transaction." : "Cette vérification protège l’exécution de l’opération sensible."}
             </p>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="transfer-beneficiary">Bénéficiaire</Label>
+            <Label htmlFor="transfer-beneficiary">{en ? "Recipient" : "Bénéficiaire"}</Label>
             {beneficiaries.length === 0 ? (
               <div className="space-y-3 rounded-lg border border-dashed border-border p-4">
                 <p className="text-sm text-muted-foreground">
-                  Vous n'avez pas encore de bénéficiaire enregistré.
+                  {en ? "You have no saved recipients yet." : "Vous n'avez pas encore de bénéficiaire enregistré."}
                 </p>
                 <div className="flex flex-col gap-2 sm:flex-row">
                   <AddBeneficiaryDialog onAdded={(reference) => setBeneficiaryReference(reference)} />
@@ -224,7 +227,7 @@ export function TransferWizard({ initialBeneficiary }: { initialBeneficiary?: st
                   onValueChange={(value) => setBeneficiaryReference(value)}
                 >
                   <SelectTrigger id="transfer-beneficiary" className="h-12">
-                    <SelectValue placeholder="Choisir un bénéficiaire" />
+                    <SelectValue placeholder={en ? "Choose a recipient" : "Choisir un bénéficiaire"} />
                   </SelectTrigger>
                   <SelectContent>
                     {beneficiaries.map((item) => (
@@ -232,8 +235,8 @@ export function TransferWizard({ initialBeneficiary }: { initialBeneficiary?: st
                         {(item.nickname ?? item.displayName) +
                           ` · •••• ${item.maskedNumber} · ` +
                           (item.kind === "EXTERNAL"
-                            ? (item.bankName ?? "Autre banque")
-                            : "Notre banque")}
+                            ? (item.bankName ?? (en ? "Other bank" : "Autre banque"))
+                            : (en ? "Our bank" : "Notre banque"))}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -242,7 +245,7 @@ export function TransferWizard({ initialBeneficiary }: { initialBeneficiary?: st
                   <AddBeneficiaryDialog
                     trigger={
                       <Button variant="ghost" size="sm" className="px-0">
-                        Ajouter un bénéficiaire de notre banque
+                        {en ? "Add a recipient at our bank" : "Ajouter un bénéficiaire de notre banque"}
                       </Button>
                     }
                     onAdded={(reference) => setBeneficiaryReference(reference)}
@@ -250,7 +253,7 @@ export function TransferWizard({ initialBeneficiary }: { initialBeneficiary?: st
                   <AddExternalBeneficiaryDialog
                     trigger={
                       <Button variant="ghost" size="sm" className="px-0">
-                        Ajouter un bénéficiaire d'une autre banque
+                        {en ? "Add a recipient at another bank" : "Ajouter un bénéficiaire d'une autre banque"}
                       </Button>
                     }
                     onAdded={(reference) => setBeneficiaryReference(reference)}
@@ -268,7 +271,7 @@ export function TransferWizard({ initialBeneficiary }: { initialBeneficiary?: st
               setStepIndex(1);
             }}
           >
-            Continuer
+            {en ? "Continue" : "Continuer"}
             <ArrowRight className="size-4" aria-hidden="true" />
           </Button>
         </Card>
@@ -277,7 +280,7 @@ export function TransferWizard({ initialBeneficiary }: { initialBeneficiary?: st
       {stepIndex === 1 && source && beneficiary ? (
         <Card className="space-y-5 p-4 sm:p-5">
           <div className="space-y-2">
-            <Label htmlFor="transfer-amount">Montant à envoyer</Label>
+            <Label htmlFor="transfer-amount">{en ? "Amount to send" : "Montant à envoyer"}</Label>
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
               <MoneyInput
                 id="transfer-amount"
@@ -290,7 +293,7 @@ export function TransferWizard({ initialBeneficiary }: { initialBeneficiary?: st
               />
               <Select value={unit} onValueChange={(value) => setUnit(value as QuoteUnit)}>
                 <SelectTrigger
-                  aria-label="Unité du montant"
+                  aria-label={en ? "Amount unit" : "Unité du montant"}
                   className="h-12 w-full sm:w-[190px]"
                 >
                   <SelectValue />
@@ -307,8 +310,8 @@ export function TransferWizard({ initialBeneficiary }: { initialBeneficiary?: st
             {mirrorLabel ? (
               <p aria-live="polite" className="text-caption text-muted-foreground">
                 {unit === "USDT"
-                  ? `Montant débité de votre compte : ${mirrorLabel}`
-                  : `Équivalent : ${mirrorLabel}`}
+                  ? `${en ? "Amount debited from your account" : "Montant débité de votre compte"} : ${mirrorLabel}`
+                  : `${en ? "Equivalent" : "Équivalent"} : ${mirrorLabel}`}
               </p>
             ) : null}
             {unit === "USDT" ? (
@@ -316,12 +319,12 @@ export function TransferWizard({ initialBeneficiary }: { initialBeneficiary?: st
             ) : null}
             {overBalance ? (
               <p role="alert" className="text-caption text-danger">
-                Le montant dépasse votre solde disponible.
+                {en ? "The amount exceeds your available balance." : "Le montant dépasse votre solde disponible."}
               </p>
             ) : null}
             {overLimit && limit !== null ? (
               <p role="alert" className="text-caption text-danger">
-                Le plafond par virement est de{" "}
+                {en ? "The per-transfer limit is" : "Le plafond par virement est de"}{" "}
                 {formatMoneyFromMinor(limit, { currency, minorUnitScale: 10 ** minorUnit })}.
               </p>
             ) : null}
@@ -329,19 +332,19 @@ export function TransferWizard({ initialBeneficiary }: { initialBeneficiary?: st
 
 
           <div className="space-y-2">
-            <Label htmlFor="transfer-note">Référence pour le bénéficiaire (optionnel)</Label>
+            <Label htmlFor="transfer-note">{en ? "Reference for recipient (optional)" : "Référence pour le bénéficiaire (optionnel)"}</Label>
             <Input
               id="transfer-note"
               maxLength={140}
               value={note}
               onChange={(event) => setNote(event.target.value)}
-              placeholder="Ex. Loyer septembre"
+              placeholder={en ? "E.g. September rent" : "Ex. Loyer septembre"}
             />
           </div>
 
           <div className="flex flex-col-reverse gap-2 sm:flex-row">
             <Button variant="outline" onClick={() => setStepIndex(0)} className="w-full sm:w-auto">
-              Retour
+              {en ? "Back" : "Retour"}
             </Button>
             <Button
               className="w-full sm:w-auto"
@@ -367,7 +370,7 @@ export function TransferWizard({ initialBeneficiary }: { initialBeneficiary?: st
               }}
             >
               {initiate.isPending ? <Loader2 className="size-4 animate-spin" /> : null}
-              Vérifier le virement
+              {en ? "Review transfer" : "Vérifier le virement"}
             </Button>
           </div>
 
@@ -400,19 +403,15 @@ export function TransferWizard({ initialBeneficiary }: { initialBeneficiary?: st
           />
           <div className="space-y-2">
             <p className="text-caption text-muted-foreground">
-              Destination retenue par la banque : {transferKindLabel(transfer.kind)}.
+              {en ? "Destination selected by the bank" : "Destination retenue par la banque"} : {en ? transfer.kind === "EXTERNAL_TRANSFER" ? "external transfer" : "internal transfer" : transferKindLabel(transfer.kind)}.
             </p>
             {transfer.kind === "EXTERNAL_TRANSFER" ? (
               <p className="text-caption text-muted-foreground">
-                En confirmant, le montant est réservé sur votre compte, puis transmis à la banque
-                destinataire après vérification. Un justificatif peut vous être demandé : le
-                virement n'est pas instantané et vous suivrez chaque étape.
+                {en ? "On confirmation, the amount is reserved in your account, then sent to the receiving bank after verification. Supporting documents may be requested. This transfer is not instant; you can follow every step." : "En confirmant, le montant est réservé sur votre compte, puis transmis à la banque destinataire après vérification. Un justificatif peut vous être demandé : le virement n’est pas instantané et vous suivrez chaque étape."}
               </p>
             ) : (
               <p className="text-caption text-muted-foreground">
-                En confirmant, le montant est débité de votre compte. Un virement exécuté ne peut
-                pas être annulé ; une correction éventuelle prend la forme d'une opération
-                distincte.
+                {en ? "On confirmation, the amount is debited from your account. A completed transfer cannot be cancelled; any correction is a separate transaction." : "En confirmant, le montant est débité de votre compte. Un virement exécuté ne peut pas être annulé ; une correction éventuelle prend la forme d’une opération distincte."}
               </p>
             )}
           </div>
@@ -432,7 +431,7 @@ export function TransferWizard({ initialBeneficiary }: { initialBeneficiary?: st
               onClick={() => {
                 setError(null);
                 if (!confirmationPassword) {
-                  setError("Confirmez votre mot de passe avant d’exécuter le virement.");
+                  setError((en ? "Confirm your password before executing the transfer." : "Confirmez votre mot de passe avant d’exécuter le virement."));
                   return;
                 }
                 confirm.mutate({ reference: transfer.reference, password: confirmationPassword }, {
@@ -454,7 +453,7 @@ export function TransferWizard({ initialBeneficiary }: { initialBeneficiary?: st
               }}
             >
               {confirm.isPending ? <Loader2 className="size-4 animate-spin" /> : null}
-              {confirm.isPending ? "Exécution du virement…" : "Confirmer et envoyer"}
+              {confirm.isPending ? (en ? "Processing transfer…" : "Exécution du virement…") : (en ? "Confirm and send" : "Confirmer et envoyer")}
             </Button>
           </div>
 
@@ -483,7 +482,7 @@ export function TransferWizard({ initialBeneficiary }: { initialBeneficiary?: st
             />
             <p className="text-sm text-muted-foreground">
               {result.status === "COMPLETED"
-                ? "Le virement a été exécuté et enregistré dans votre historique."
+                ? (en ? "The transfer was completed and added to your history." : "Le virement a été exécuté et enregistré dans votre historique.")
                 : (transferFailureMessage(result.failureCode) ??
                   progressExplanation({
                     status: result.status,
@@ -494,13 +493,12 @@ export function TransferWizard({ initialBeneficiary }: { initialBeneficiary?: st
             </p>
             {result.status !== "COMPLETED" && !result.failureCode ? (
               <p className="text-caption text-muted-foreground">
-                Avancement : {result.progressPercent} %. Aucun montant n'est définitivement débité
-                tant que le virement n'est pas terminé.
+                {en ? "Progress" : "Avancement"} : {result.progressPercent} %. {en ? "No amount is permanently debited until the transfer is complete." : "Aucun montant n’est définitivement débité tant que le virement n’est pas terminé."}
               </p>
             ) : null}
             <p className="text-caption text-muted-foreground">
-              Référence du virement : {transfer.reference}
-              {result.transactionReference ? ` · Opération ${result.transactionReference}` : ""}
+              {en ? "Transfer reference" : "Référence du virement"} : {transfer.reference}
+              {result.transactionReference ? ` · ${en ? "Transaction" : "Opération"} ${result.transactionReference}` : ""}
             </p>
           </div>
 
@@ -510,7 +508,7 @@ export function TransferWizard({ initialBeneficiary }: { initialBeneficiary?: st
               className="w-full sm:w-auto"
               onClick={() => void navigate({ to: "/app/transfers" })}
             >
-              Voir mes virements
+              {en ? "View my transfers" : "Voir mes virements"}
             </Button>
             <Button
               className="w-full sm:w-auto"
@@ -521,7 +519,7 @@ export function TransferWizard({ initialBeneficiary }: { initialBeneficiary?: st
                 })
               }
             >
-              Voir le détail
+              {en ? "View details" : "Voir le détail"}
             </Button>
           </div>
         </Card>

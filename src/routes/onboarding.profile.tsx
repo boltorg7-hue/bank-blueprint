@@ -1,3 +1,4 @@
+import { useLanguage } from "@/components/providers/LanguageProvider";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
@@ -17,6 +18,8 @@ export const Route = createFileRoute("/onboarding/profile")({
 });
 
 function ProfileStepPage() {
+  const { language } = useLanguage();
+  const en = language === "en";
   const navigate = useNavigate();
   const { data: context, isPending } = useCustomerContext();
   const invalidate = useInvalidateCustomerContext();
@@ -52,7 +55,7 @@ function ProfileStepPage() {
       await invalidate();
       await navigate({ to: "/onboarding/address" });
     } catch {
-      setFormError("Nous n'avons pas pu enregistrer vos informations. Réessayez.");
+      setFormError((en ? "We could not save your details. Please try again." : "Nous n'avons pas pu enregistrer vos informations. Réessayez."));
     } finally {
       setPending(false);
     }
@@ -60,10 +63,10 @@ function ProfileStepPage() {
 
   if (isPending || !context) {
     return (
-      <OnboardingShell stepId="profile" title="Vos informations personnelles">
+      <OnboardingShell stepId="profile" title={en ? "Your personal information" : "Vos informations personnelles"}>
         <div className="flex items-center gap-3 text-muted-foreground">
           <Spinner className="size-5" />
-          <span className="text-body-sm">Chargement…</span>
+          <span className="text-body-sm">{en ? "Loading…" : "Chargement…"}</span>
         </div>
       </OnboardingShell>
     );
@@ -74,19 +77,19 @@ function ProfileStepPage() {
   return (
     <OnboardingShell
       stepId="profile"
-      title="Vos informations personnelles"
-      description="Ces informations figurent sur votre dossier bancaire et doivent correspondre à votre pièce d'identité."
-      why="La réglementation bancaire nous impose de connaître l'identité de chaque titulaire de compte."
+      title={en ? "Your personal information" : "Vos informations personnelles"}
+      description={en ? "This information appears on your application and must match your identity document." : "Ces informations figurent sur votre dossier bancaire et doivent correspondre à votre pièce d'identité."}
+      why={en ? "Banking regulations require us to verify the identity of every account holder." : "La réglementation bancaire nous impose de connaître l'identité de chaque titulaire de compte."}
     >
       <form onSubmit={handleSubmit} noValidate className="space-y-5">
-        <Field name="firstName" label="Prénom" autoComplete="given-name" defaultValue={profile.first_name} error={errors["firstName"]} />
-        <Field name="middleName" label="Deuxième prénom (optionnel)" autoComplete="additional-name" defaultValue={profile.middle_name} error={errors["middleName"]} />
-        <Field name="lastName" label="Nom" autoComplete="family-name" defaultValue={profile.last_name} error={errors["lastName"]} />
-        <Field name="dateOfBirth" label="Date de naissance" type="date" autoComplete="bday" defaultValue={profile.date_of_birth} error={errors["dateOfBirth"]} />
-        <Field name="nationality" label="Nationalité" autoComplete="country-name" defaultValue={profile.nationality} error={errors["nationality"]} />
-        <Field name="countryOfResidence" label="Pays de résidence" autoComplete="country-name" defaultValue={profile.country_of_residence} error={errors["countryOfResidence"]} />
-        <Field name="occupation" label="Profession" autoComplete="organization-title" defaultValue={profile.occupation} error={errors["occupation"]} />
-        <Field name="phone" label="Numéro de téléphone (optionnel)" type="tel" autoComplete="tel" defaultValue={profile.phone} error={errors["phone"]} />
+        <Field name="firstName" label={en ? "First name" : "Prénom"} autoComplete="given-name" defaultValue={profile.first_name} error={errors["firstName"]} />
+        <Field name="middleName" label={en ? "Middle name (optional)" : "Deuxième prénom (optionnel)"} autoComplete="additional-name" defaultValue={profile.middle_name} error={errors["middleName"]} />
+        <Field name="lastName" label={en ? "Last name" : "Nom"} autoComplete="family-name" defaultValue={profile.last_name} error={errors["lastName"]} />
+        <Field name="dateOfBirth" label={en ? "Date of birth" : "Date de naissance"} type="date" autoComplete="bday" defaultValue={profile.date_of_birth} error={errors["dateOfBirth"]} />
+        <Field name="nationality" label={en ? "Nationality" : "Nationalité"} autoComplete="country-name" defaultValue={profile.nationality} error={errors["nationality"]} />
+        <Field name="countryOfResidence" label={en ? "Country of residence" : "Pays de résidence"} autoComplete="country-name" defaultValue={profile.country_of_residence} error={errors["countryOfResidence"]} />
+        <Field name="occupation" label={en ? "Occupation" : "Profession"} autoComplete="organization-title" defaultValue={profile.occupation} error={errors["occupation"]} />
+        <Field name="phone" label={en ? "Phone number (optional)" : "Numéro de téléphone (optionnel)"} type="tel" autoComplete="tel" defaultValue={profile.phone} error={errors["phone"]} />
 
         {formError ? (
           <p role="alert" className="text-body-sm rounded-lg bg-destructive/10 px-3 py-2 text-destructive">

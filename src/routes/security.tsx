@@ -1,5 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { AlertTriangle, Check } from "lucide-react";
+import { useLanguage } from "@/components/providers/LanguageProvider";
+import { securityEn } from "@/features/public/content/details-en";
 
 import { PublicLayout } from "@/components/layout/PublicLayout";
 import { PageHero } from "@/features/public/components/PageHero";
@@ -27,28 +29,33 @@ export const Route = createFileRoute("/security")({
 });
 
 function SecurityPage() {
+  const { language } = useLanguage();
+  const en = language === "en";
+  const intro = en ? securityEn.intro : SECURITY_INTRO;
+  const responsibilities = en ? securityEn.responsibilities : CUSTOMER_RESPONSIBILITIES;
+  const steps = en ? securityEn.steps : SUSPICIOUS_ACTIVITY_STEPS;
   return (
     <PublicLayout>
       <PageHero
-        eyebrow="Sécurité"
-        title={SECURITY_INTRO.title}
-        description={SECURITY_INTRO.description}
+        eyebrow={en ? "Security" : "Sécurité"}
+        title={intro.title}
+        description={intro.description}
         aside={
           <div className="flex gap-3 rounded-2xl border border-warning/30 bg-warning-muted p-5">
             <AlertTriangle className="mt-0.5 size-5 shrink-0 text-warning" aria-hidden="true" />
-            <p className="text-body-sm text-foreground">{SECURITY_WARNING}</p>
+            <p className="text-body-sm text-foreground">{en ? "Never share your password or a verification code." : SECURITY_WARNING}</p>
           </div>
         }
       />
 
       <PublicSection>
         <SectionHeader
-          eyebrow="Nos protections"
-          title="Ce que la banque met en place"
-          description="Ces explications restent au niveau du client : aucun détail technique exploitable n'est publié."
+          eyebrow={en ? "Our protections" : "Nos protections"}
+          title={en ? "How the bank protects you" : "Ce que la banque met en place"}
+          description={en ? "An overview of the safeguards you can see and control." : "Ces explications restent au niveau du client : aucun détail technique exploitable n’est publié."}
         />
         <div className="mt-8 grid grid-cols-[minmax(0,1fr)] gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {SECURITY_PROTECTIONS.map((item) => {
+          {SECURITY_PROTECTIONS.map((item, index) => {
             const Icon = item.icon;
             return (
               <article
@@ -56,8 +63,8 @@ function SecurityPage() {
                 className="rounded-2xl border border-border bg-surface p-5 shadow-[var(--shadow-card)]"
               >
                 <Icon className="size-6 text-brand" aria-hidden="true" />
-                <h3 className="text-heading-sm mt-4 text-foreground">{item.title}</h3>
-                <p className="text-body-sm mt-2 text-muted-foreground">{item.description}</p>
+                <h3 className="text-heading-sm mt-4 text-foreground">{en ? securityEn.protections[index]?.[0] : item.title}</h3>
+                <p className="text-body-sm mt-2 text-muted-foreground">{en ? securityEn.protections[index]?.[1] : item.description}</p>
               </article>
             );
           })}
@@ -67,9 +74,9 @@ function SecurityPage() {
       <PublicSection tone="sunken">
         <div className="grid grid-cols-[minmax(0,1fr)] gap-8 lg:grid-cols-2">
           <div className="min-w-0">
-            <SectionHeader as="h2" eyebrow="Votre rôle" title="Ce que vous pouvez faire" />
+            <SectionHeader as="h2" eyebrow={en ? "Your role" : "Votre rôle"} title={en ? "What you can do" : "Ce que vous pouvez faire"} />
             <ul className="mt-5 space-y-3">
-              {CUSTOMER_RESPONSIBILITIES.map((item) => (
+              {responsibilities.map((item) => (
                 <li key={item} className="text-body-sm flex gap-2 text-foreground">
                   <Check className="mt-0.5 size-4 shrink-0 text-success" aria-hidden="true" />
                   <span className="min-w-0">{item}</span>
@@ -78,9 +85,9 @@ function SecurityPage() {
             </ul>
           </div>
           <div className="min-w-0">
-            <SectionHeader as="h2" eyebrow="En cas de doute" title="Activité suspecte : les étapes" />
+            <SectionHeader as="h2" eyebrow={en ? "If in doubt" : "En cas de doute"} title={en ? "Suspicious activity: what to do" : "Activité suspecte : les étapes"} />
             <ol className="mt-5 space-y-3">
-              {SUSPICIOUS_ACTIVITY_STEPS.map((step, index) => (
+              {steps.map((step, index) => (
                 <li
                   key={step}
                   className="text-body-sm flex gap-3 rounded-xl border border-border bg-surface px-4 py-3 text-foreground"
@@ -97,8 +104,8 @@ function SecurityPage() {
       </PublicSection>
 
       <CtaSection
-        title="Ouvrir un compte protégé dès la première connexion"
-        description="La vérification en deux étapes et la gestion des sessions sont disponibles dès l'activation du compte."
+        title={en ? "Protect your account from the first sign-in" : "Ouvrir un compte protégé dès la première connexion"}
+        description={en ? "Two-step verification and session management are available as soon as your account is activated." : "La vérification en deux étapes et la gestion des sessions sont disponibles dès l’activation du compte."}
       />
     </PublicLayout>
   );

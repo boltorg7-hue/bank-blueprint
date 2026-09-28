@@ -1,5 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Check } from "lucide-react";
+import { useLanguage } from "@/components/providers/LanguageProvider";
+import { accountsEn } from "@/features/public/content/details-en";
 
 import { PublicLayout } from "@/components/layout/PublicLayout";
 import { PageHero } from "@/features/public/components/PageHero";
@@ -27,38 +29,42 @@ export const Route = createFileRoute("/accounts")({
 });
 
 function AccountsPage() {
-  const available = ACCOUNT_PRODUCTS.filter((product) => product.available);
+  const { language } = useLanguage();
+  const en = language === "en";
+  const available = (en ? accountsEn.products : ACCOUNT_PRODUCTS).filter((product) => product.available);
+  const sections = en ? accountsEn.sections : ACCOUNT_SECTIONS;
+  const business = en ? accountsEn.business : BUSINESS_RESERVED;
 
   return (
     <PublicLayout>
       <PageHero
-        eyebrow="Comptes"
-        title="Un compte courant conçu pour le quotidien"
-        description="Une offre unique et lisible aujourd'hui. Les produits complémentaires seront présentés ici lorsqu'ils seront définis."
+        eyebrow={en ? "Accounts" : "Comptes"}
+        title={en ? "A current account for everyday banking" : "Un compte courant conçu pour le quotidien"}
+        description={en ? "One clear account offering today. Additional products will appear here when they are defined." : "Une offre unique et lisible aujourd’hui. Les produits complémentaires seront présentés ici lorsqu’ils seront définis."}
         aside={<AccountPreview compact />}
       />
 
       <PublicSection>
         <SectionHeader
-          eyebrow="Offre disponible"
-          title="Le compte courant particulier"
-          description="Les conditions tarifaires détaillées sont publiées sur la page Tarifs."
+          eyebrow={en ? "Available account" : "Offre disponible"}
+          title={en ? "Personal current account" : "Le compte courant particulier"}
+          description={en ? "Detailed charges are published on the Pricing page." : "Les conditions tarifaires détaillées sont publiées sur la page Tarifs."}
         />
         <div className="mt-8 grid grid-cols-[minmax(0,1fr)] gap-5 lg:grid-cols-2">
           {available.map((product) => (
             <AccountProductCard key={product.id} product={product} />
           ))}
           <article className="flex flex-col justify-center rounded-2xl border border-dashed border-border bg-surface-sunken p-6">
-            <h3 className="text-heading-sm text-foreground">{BUSINESS_RESERVED.title}</h3>
-            <p className="text-body-sm mt-2 text-muted-foreground">{BUSINESS_RESERVED.description}</p>
+            <h3 className="text-heading-sm text-foreground">{business.title}</h3>
+            <p className="text-body-sm mt-2 text-muted-foreground">{business.description}</p>
           </article>
         </div>
       </PublicSection>
 
       <PublicSection tone="sunken">
-        <SectionHeader eyebrow="En pratique" title="Ce que le compte vous permet de faire" />
+        <SectionHeader eyebrow={en ? "In practice" : "En pratique"} title={en ? "What you can do with your account" : "Ce que le compte vous permet de faire"} />
         <div className="mt-8 grid grid-cols-[minmax(0,1fr)] gap-4 md:grid-cols-3">
-          {ACCOUNT_SECTIONS.map((section) => (
+          {sections.map((section) => (
             <article key={section.title} className="rounded-2xl border border-border bg-surface p-5">
               <h3 className="text-heading-sm text-foreground">{section.title}</h3>
               <p className="text-body-sm mt-2 text-muted-foreground">{section.description}</p>

@@ -1,3 +1,4 @@
+import { useLanguage } from "@/components/providers/LanguageProvider";
 import { createFileRoute, Outlet, redirect, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
 
@@ -33,6 +34,7 @@ export const Route = createFileRoute("/app")({
 });
 
 function CustomerAppLayoutRoute() {
+  const { language } = useLanguage();
   const navigate = useNavigate();
   const { data: context, isPending } = useCustomerContext();
   const lifecycle = context?.profile.lifecycle_state;
@@ -51,7 +53,7 @@ function CustomerAppLayoutRoute() {
           role="status"
         >
           <Spinner className="size-5" />
-          <span className="text-body-sm">Préparation de votre espace…</span>
+          <span className="text-body-sm">{language === "en" ? "Preparing your account…" : "Préparation de votre espace…"}</span>
         </div>
       </BankingAppLayout>
     );

@@ -1,4 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useLanguage } from "@/components/providers/LanguageProvider";
+
 
 import { PublicLayout } from "@/components/layout/PublicLayout";
 import { Button } from "@/components/ui/button";
@@ -26,15 +28,17 @@ export const Route = createFileRoute("/help")({
 });
 
 function HelpPage() {
+  const { language } = useLanguage();
+  const en = language === "en";
   return (
     <PublicLayout>
       <PageHero
-        eyebrow="Aide"
-        title="Centre d'aide"
-        description="Cherchez par mot-clé ou parcourez les sujets. Si vous êtes client, la messagerie sécurisée de votre espace reste le canal le plus direct."
+        eyebrow={en ? "Help" : "Aide"}
+        title={en ? "Help center" : "Centre d’aide"}
+        description={en ? "Search by keyword or browse the topics. If you have an account, secure messaging is the most direct way to reach us." : "Cherchez par mot-clé ou parcourez les sujets. Si vous êtes client, la messagerie sécurisée de votre espace reste le canal le plus direct."}
         actions={
           <Button asChild variant="outline" className="touch-target">
-            <Link to="/contact">Nous contacter</Link>
+            <Link to="/contact">{en ? "Contact us" : "Nous contacter"}</Link>
           </Button>
         }
       />

@@ -1,4 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useLanguage } from "@/components/providers/LanguageProvider";
+import { englishLegalDocument } from "@/features/public/content/details-en";
 
 import { PublicLayout } from "@/components/layout/PublicLayout";
 import { PageHero } from "@/features/public/components/PageHero";
@@ -20,15 +22,18 @@ export const Route = createFileRoute("/terms")({
 });
 
 function TermsPage() {
+  const { language } = useLanguage();
+  const en = language === "en";
+  const document = en ? englishLegalDocument(TERMS_DOCUMENT) : TERMS_DOCUMENT;
   return (
     <PublicLayout>
       <PageHero
-        eyebrow="Informations légales"
-        title={TERMS_DOCUMENT.title}
-        description={TERMS_DOCUMENT.intro}
+        eyebrow={en ? "Legal information" : "Informations légales"}
+        title={document.title}
+        description={document.intro}
       />
       <PublicSection>
-        <LegalDocumentView document={TERMS_DOCUMENT} />
+        <LegalDocumentView document={document} />
       </PublicSection>
     </PublicLayout>
   );

@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/feedback";
 import { HELP_ARTICLES, HELP_CATEGORIES } from "@/features/public/content/help";
 import { cn } from "@/lib/utils";
+import { useLanguage } from "@/components/providers/LanguageProvider";
+import { HELP_ARTICLES_EN, HELP_CATEGORIES_EN } from "@/features/public/content/help-en";
 
 function normalize(value: string) {
   return value
@@ -21,12 +23,16 @@ function normalize(value: string) {
  * (§42-§43). No search backend — the content set is small and static.
  */
 export function HelpCenter() {
+  const { language } = useLanguage();
+  const en = language === "en";
+  const articles = en ? HELP_ARTICLES_EN : HELP_ARTICLES;
+  const categories = en ? HELP_CATEGORIES_EN : HELP_CATEGORIES;
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState<string | null>(null);
 
   const results = useMemo(() => {
     const q = normalize(query.trim());
-    return HELP_ARTICLES.filter((article) => {
+    return articles.filter((article) => {
       const matchesCategory = !category || article.category === category;
       const matchesQuery =
         q.length === 0 ||
@@ -34,15 +40,15 @@ export function HelpCenter() {
         normalize(article.answer).includes(q);
       return matchesCategory && matchesQuery;
     });
-  }, [query, category]);
+  }, [query, category, articles]);
 
-  const activeCategoryLabel = HELP_CATEGORIES.find((c) => c.id === category)?.label;
+  const activeCategoryLabel = categories.find((c) => c.id === category)?.label;
 
   return (
     <div className="space-y-8">
       <div className="space-y-3">
         <label htmlFor="help-search" className="text-label block text-foreground">
-          Rechercher dans le centre d'aide
+          {en ? "Search the help center" : "Rechercher dans le centre d’aide"}
         </label>
         <div className="relative">
           <Search
@@ -54,13 +60,13 @@ export function HelpCenter() {
             type="search"
             value={query}
             onChange={(event) => setQuery(event.target.value)}
-            placeholder="Virement, relevé, connexion…"
+            placeholder={en ? "Transfers, statements, sign-in…" : "Virement, relevé, connexion…"}
             className="h-12 pl-9"
             autoComplete="off"
           />
         </div>
         <p className="text-caption text-muted-foreground" role="status">
-          {results.length} article{results.length === 1 ? "" : "s"}
+          {results.length} {en ? "article" : "article"}{results.length === 1 ? "" : "s"}
           {activeCategoryLabel ? ` · ${activeCategoryLabel}` : ""}
         </p>
       </div>
@@ -73,9 +79,9 @@ export function HelpCenter() {
             className="touch-target"
             onClick={() => setCategory(null)}
           >
-            Tous les sujets
+            {en ? "All topics" : "Tous les sujets"}
           </Button>
-          {HELP_CATEGORIES.map((item) => {
+          {categories.map((item) => {
             const Icon = item.icon;
             const active = category === item.id;
             return (
@@ -97,8 +103,8 @@ export function HelpCenter() {
 
       {results.length === 0 ? (
         <EmptyState
-          title="Aucun article ne correspond"
-          description="Reformulez votre recherche ou contactez-nous depuis la page Contact."
+          title={en ? "No matching articles" : "Aucun article ne correspond"}
+          description={en ? "Try another search or reach us through the Contact page." : "Reformulez votre recherche ou contactez-nous depuis la page Contact."}
         />
       ) : (
         <Accordion type="single" collapsible className={cn("w-full")}>
