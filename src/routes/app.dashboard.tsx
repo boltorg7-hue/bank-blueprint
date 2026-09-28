@@ -16,6 +16,7 @@ import {
   accountRestrictionMessage,
 } from "@/features/accounts/utils/account-display";
 import { Clock } from "lucide-react";
+import { useLanguage } from "@/components/providers/LanguageProvider";
 
 export const Route = createFileRoute("/app/dashboard")({
   head: () => ({
@@ -32,6 +33,8 @@ export const Route = createFileRoute("/app/dashboard")({
  * a short activity preview and the primary actions. Nothing else.
  */
 function DashboardPage() {
+  const { language } = useLanguage();
+  const en = language === "en";
   const { summary: customer } = useCustomerSummary();
   const query = useDashboardSummary();
   const data = query.data;
@@ -47,34 +50,34 @@ function DashboardPage() {
   return (
     <BankingContentContainer width="wide">
       <PageHeader
-        title={customer ? `Bonjour ${customer.displayName.split(" ")[0]}` : "Bonjour"}
-         description="Votre compte, vos opérations et vos prochaines actions au même endroit."
+        title={customer ? `${en ? "Hello" : "Bonjour"} ${customer.displayName.split(" ")[0]}` : en ? "Hello" : "Bonjour"}
+         description={en ? "Your account, transactions and next steps in one place." : "Votre compte, vos opérations et vos prochaines actions au même endroit."}
       />
       <p className="-mt-4 mb-2 text-caption">
         <Link to="/" className="text-primary hover:underline">
-          Voir le site public de la banque
+          {en ? "Visit the bank's public site" : "Voir le site public de la banque"}
         </Link>
       </p>
 
       {query.isError ? (
         <ErrorState
-          title="Vos informations bancaires n'ont pas pu être chargées"
-          description="Aucun solde approximatif n'est affiché. Réessayez dans un instant."
+          title={en ? "Your account information could not be loaded" : "Vos informations bancaires n'ont pas pu être chargées"}
+          description={en ? "No estimated balance is shown. Please try again shortly." : "Aucun solde approximatif n'est affiché. Réessayez dans un instant."}
           onRetry={() => query.refetch()}
         />
       ) : query.isPending ? (
-        <LoadingState label="Chargement de votre compte…" />
+        <LoadingState label={en ? "Loading your account…" : "Chargement de votre compte…"} />
       ) : data?.provisioningPending ? (
         <StateBlock
           icon={Clock}
           tone="info"
-          title="Votre compte est en cours d'ouverture"
-          description="L'ouverture de votre compte bancaire est en cours de finalisation. Vos soldes apparaîtront ici dès qu'elle sera terminée."
+          title={en ? "Your account is being opened" : "Votre compte est en cours d'ouverture"}
+          description={en ? "Your bank account is being finalised. Your balances will appear here once it is ready." : "L'ouverture de votre compte bancaire est en cours de finalisation. Vos soldes apparaîtront ici dès qu'elle sera terminée."}
         />
       ) : !account ? (
         <EmptyState
-          title="Aucun compte bancaire pour le moment"
-          description="Votre compte bancaire sera ouvert dès la validation complète de votre dossier."
+          title={en ? "No bank account yet" : "Aucun compte bancaire pour le moment"}
+          description={en ? "Your bank account will open when your application is fully approved." : "Votre compte bancaire sera ouvert dès la validation complète de votre dossier."}
         />
       ) : (
         <div className="space-y-8">
@@ -98,21 +101,21 @@ function DashboardPage() {
 
            <section aria-labelledby="quick-actions-heading" className="space-y-4">
             <h2 id="quick-actions-heading" className="text-heading-sm text-foreground">
-              Actions rapides
+              {en ? "Quick actions" : "Actions rapides"}
             </h2>
             <ul className="grid grid-cols-2 gap-3 lg:grid-cols-4">
               <QuickAction
                 to="/app/transfers"
-                label="Envoyer de l'argent"
+                label={en ? "Send money" : "Envoyer de l'argent"}
                 icon={Send}
                 disabled={!canTransact}
               />
-              <QuickAction to="/app/accounts" label="Mes comptes" icon={Wallet} />
-              <QuickAction to="/app/statements" label="Relevés" icon={FileText} />
+              <QuickAction to="/app/accounts" label={en ? "My accounts" : "Mes comptes"} icon={Wallet} />
+              <QuickAction to="/app/statements" label={en ? "Statements" : "Relevés"} icon={FileText} />
               <QuickAction
                 to="/app/accounts/$accountRef"
                 params={{ accountRef: account.reference }}
-                label="Recevoir un paiement"
+                label={en ? "Receive a payment" : "Recevoir un paiement"}
                 icon={ArrowDownToLine}
               />
             </ul>
@@ -123,10 +126,10 @@ function DashboardPage() {
           <section aria-labelledby="activity-heading" className="space-y-3">
             <div className="flex items-baseline justify-between gap-3">
               <h2 id="activity-heading" className="text-heading-sm text-foreground">
-                Activité récente
+                {en ? "Recent activity" : "Activité récente"}
               </h2>
               <Link to="/app/transactions" className="text-caption text-primary hover:underline">
-                Tout l'historique
+                {en ? "Full history" : "Tout l'historique"}
               </Link>
             </div>
             <RecentActivityList items={data?.recentActivity ?? []} />
