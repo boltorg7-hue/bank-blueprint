@@ -116,5 +116,5 @@ export const ADMIN_NAV: NavItem[] = [
   { label: "Service client", to: "/admin/support" as AppPath, icon: MessagesSquare },
   { label: "KYC & conformité", to: "/admin/dashboard", icon: BadgeCheck, upcoming: true },
   { label: "Audit", to: "/admin/dashboard", icon: FileText, upcoming: true },
-  { label: "Paramètres", to: "/admin/dashboard", icon: Settings, upcoming: true },
+  { label: "Parité & tarifs", to: "/admin/settings" as AppPath, icon: Settings },
 ];
