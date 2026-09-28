@@ -579,6 +579,102 @@ export type Database = {
           },
         ]
       }
+      customer_preferences: {
+        Row: {
+          created_at: string
+          email_service: boolean
+          language: string
+          privacy_mode_default: boolean
+          sms_security: boolean
+          sms_transactions: boolean
+          theme: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email_service?: boolean
+          language?: string
+          privacy_mode_default?: boolean
+          sms_security?: boolean
+          sms_transactions?: boolean
+          theme?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email_service?: boolean
+          language?: string
+          privacy_mode_default?: boolean
+          sms_security?: boolean
+          sms_transactions?: boolean
+          theme?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      customer_security_events: {
+        Row: {
+          auth_session_id: string | null
+          created_at: string
+          detail: string
+          event_type: string
+          id: string
+          title: string
+          user_id: string
+        }
+        Insert: {
+          auth_session_id?: string | null
+          created_at?: string
+          detail: string
+          event_type: string
+          id?: string
+          title: string
+          user_id: string
+        }
+        Update: {
+          auth_session_id?: string | null
+          created_at?: string
+          detail?: string
+          event_type?: string
+          id?: string
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      customer_security_sessions: {
+        Row: {
+          auth_session_id: string
+          device_label: string
+          first_seen_at: string
+          id: string
+          last_seen_at: string
+          revoked_at: string | null
+          user_id: string
+        }
+        Insert: {
+          auth_session_id: string
+          device_label?: string
+          first_seen_at?: string
+          id?: string
+          last_seen_at?: string
+          revoked_at?: string | null
+          user_id: string
+        }
+        Update: {
+          auth_session_id?: string
+          device_label?: string
+          first_seen_at?: string
+          id?: string
+          last_seen_at?: string
+          revoked_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       document_audit_events: {
         Row: {
           context: Json
@@ -1087,6 +1183,39 @@ export type Database = {
         }
         Relationships: []
       }
+      security_step_up_grants: {
+        Row: {
+          action: string
+          auth_session_id: string
+          consumed_at: string | null
+          created_at: string
+          expires_at: string
+          id: string
+          resource_reference: string
+          user_id: string
+        }
+        Insert: {
+          action: string
+          auth_session_id: string
+          consumed_at?: string | null
+          created_at?: string
+          expires_at: string
+          id?: string
+          resource_reference: string
+          user_id: string
+        }
+        Update: {
+          action?: string
+          auth_session_id?: string
+          consumed_at?: string | null
+          created_at?: string
+          expires_at?: string
+          id?: string
+          resource_reference?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       staff_profiles: {
         Row: {
           created_at: string
@@ -1120,6 +1249,83 @@ export type Database = {
           status?: Database["public"]["Enums"]["staff_status"]
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      support_messages: {
+        Row: {
+          author_kind: string
+          author_user_id: string
+          body: string
+          created_at: string
+          id: string
+          thread_id: string
+        }
+        Insert: {
+          author_kind: string
+          author_user_id: string
+          body: string
+          created_at?: string
+          id?: string
+          thread_id: string
+        }
+        Update: {
+          author_kind?: string
+          author_user_id?: string
+          body?: string
+          created_at?: string
+          id?: string
+          thread_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "support_messages_thread_id_fkey"
+            columns: ["thread_id"]
+            isOneToOne: false
+            referencedRelation: "support_threads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      support_threads: {
+        Row: {
+          assigned_staff_id: string | null
+          category: string
+          closed_at: string | null
+          created_at: string
+          customer_user_id: string
+          id: string
+          last_message_at: string
+          public_reference: string
+          status: string
+          subject: string
+          updated_at: string
+        }
+        Insert: {
+          assigned_staff_id?: string | null
+          category: string
+          closed_at?: string | null
+          created_at?: string
+          customer_user_id: string
+          id?: string
+          last_message_at?: string
+          public_reference?: string
+          status?: string
+          subject: string
+          updated_at?: string
+        }
+        Update: {
+          assigned_staff_id?: string | null
+          category?: string
+          closed_at?: string | null
+          created_at?: string
+          customer_user_id?: string
+          id?: string
+          last_message_at?: string
+          public_reference?: string
+          status?: string
+          subject?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -1420,6 +1626,9 @@ export type Database = {
           sender_user_id: string
           settlement_rail_id: string | null
           settlement_submitted_at: string | null
+          simulation_approved_by: string | null
+          simulation_finalized_by: string | null
+          simulation_submitted_by: string | null
           source_account_id: string
           source_masked_snapshot: string
           status: Database["public"]["Enums"]["transfer_status"]
@@ -1465,6 +1674,9 @@ export type Database = {
           sender_user_id: string
           settlement_rail_id?: string | null
           settlement_submitted_at?: string | null
+          simulation_approved_by?: string | null
+          simulation_finalized_by?: string | null
+          simulation_submitted_by?: string | null
           source_account_id: string
           source_masked_snapshot: string
           status?: Database["public"]["Enums"]["transfer_status"]
@@ -1510,6 +1722,9 @@ export type Database = {
           sender_user_id?: string
           settlement_rail_id?: string | null
           settlement_submitted_at?: string | null
+          simulation_approved_by?: string | null
+          simulation_finalized_by?: string | null
+          simulation_submitted_by?: string | null
           source_account_id?: string
           source_masked_snapshot?: string
           status?: Database["public"]["Enums"]["transfer_status"]
@@ -1728,6 +1943,34 @@ export type Database = {
         Args: { _account_id: string; _at: string }
         Returns: number
       }
+      admin_approve_simulated_external: {
+        Args: { _reference: string }
+        Returns: undefined
+      }
+      admin_finalize_simulated_external: {
+        Args: { _reference: string }
+        Returns: undefined
+      }
+      admin_queue_simulated_external: {
+        Args: { _reference: string }
+        Returns: undefined
+      }
+      admin_set_account_status: {
+        Args: {
+          _account_reference: string
+          _reason: string
+          _status: Database["public"]["Enums"]["bank_account_status"]
+        }
+        Returns: undefined
+      }
+      admin_set_customer_state: {
+        Args: {
+          _customer_id: string
+          _reason: string
+          _state: Database["public"]["Enums"]["customer_lifecycle_state"]
+        }
+        Returns: undefined
+      }
       apply_external_settlement_result: {
         Args: {
           _provider_reference?: string
@@ -1788,6 +2031,10 @@ export type Database = {
           transaction_reference: string
         }[]
       }
+      consume_security_step_up: {
+        Args: { _action: string; _resource_reference: string }
+        Returns: boolean
+      }
       create_account_hold: {
         Args: {
           _account_id: string
@@ -1843,6 +2090,10 @@ export type Database = {
           _source_account_reference: string
           _user_id: string
         }
+        Returns: string
+      }
+      create_support_thread: {
+        Args: { _body: string; _category: string; _subject: string }
         Returns: string
       }
       current_fee_minor: { Args: { _key: string }; Returns: number }
@@ -1961,6 +2212,11 @@ export type Database = {
           reused: boolean
         }[]
       }
+      issue_security_step_up: {
+        Args: { _action: string; _resource_reference: string }
+        Returns: string
+      }
+      mark_other_security_sessions_revoked: { Args: never; Returns: number }
       next_account_public_reference: { Args: never; Returns: string }
       next_beneficiary_public_reference: { Args: never; Returns: string }
       next_customer_document_reference: { Args: never; Returns: string }
@@ -2004,6 +2260,7 @@ export type Database = {
         Args: { _account_id: string }
         Returns: undefined
       }
+      record_customer_password_changed: { Args: never; Returns: undefined }
       record_document_event: {
         Args: {
           _context: Json
@@ -2024,6 +2281,10 @@ export type Database = {
         }
         Returns: undefined
       }
+      register_current_security_session: {
+        Args: { _device_label: string }
+        Returns: string
+      }
       release_account_hold: { Args: { _hold_id: string }; Returns: undefined }
       remove_beneficiary: {
         Args: { _reference: string; _user_id: string }
@@ -2032,6 +2293,10 @@ export type Database = {
       rename_beneficiary: {
         Args: { _nickname: string; _reference: string; _user_id: string }
         Returns: undefined
+      }
+      reply_support_thread: {
+        Args: { _body: string; _thread_id: string }
+        Returns: string
       }
       resolve_internal_destination: {
         Args: { _identifier: string; _user_id: string }
@@ -2066,6 +2331,14 @@ export type Database = {
           _state: Database["public"]["Enums"]["transfer_progress_state"]
           _transfer_id: string
         }
+        Returns: undefined
+      }
+      staff_reply_support_thread: {
+        Args: { _body: string; _thread_id: string }
+        Returns: string
+      }
+      staff_set_support_status: {
+        Args: { _status: string; _thread_id: string }
         Returns: undefined
       }
       submit_external_settlement: {
