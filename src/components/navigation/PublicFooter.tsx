@@ -44,12 +44,6 @@ export function PublicFooter() {
           className="mt-10 border-t border-border pt-8"
         />
 
-
-        <p className="text-caption mt-8 leading-relaxed text-muted-foreground">
-          Environnement de développement. Cette plateforme illustre un produit bancaire digital et ne
-          constitue pas une infrastructure bancaire agréée. Les informations réglementaires seront
-          publiées lorsqu'elles seront officiellement disponibles.
-        </p>
       </div>
     </footer>
   );
