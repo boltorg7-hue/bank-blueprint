@@ -34,9 +34,9 @@ function validatePageRequest(input: TransactionPageRequest | undefined): Transac
   if (accountReference && !/^ACC-\d{4}-\d{6}$/.test(accountReference)) {
     throw new Error("INVALID_ACCOUNT_REFERENCE");
   }
-  const direction = DIRECTIONS.includes(raw.direction as never) ? raw.direction! : "ALL";
-  const status = STATUSES.includes(raw.status as never) ? raw.status! : "ALL";
-  const datePreset = PRESETS.includes(raw.datePreset as never) ? raw.datePreset! : "ALL";
+  const direction = raw.direction && DIRECTIONS.includes(raw.direction as never) ? raw.direction : "ALL";
+  const status = raw.status && STATUSES.includes(raw.status as never) ? raw.status : "ALL";
+  const datePreset = raw.datePreset && PRESETS.includes(raw.datePreset as never) ? raw.datePreset : "ALL";
   const type = typeof raw.type === "string" && /^[A-Z_]{3,32}$/.test(raw.type) ? raw.type : "ALL";
   const search = typeof raw.search === "string" ? raw.search.slice(0, 64) : null;
   const validAmount = (value: unknown) => typeof value === "number" && Number.isSafeInteger(value) && value >= 0 && value <= 1_000_000_000_000;
