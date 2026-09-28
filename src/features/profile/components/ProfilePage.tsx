@@ -30,7 +30,7 @@ export function ProfilePage() {
         <div className="sm:col-span-2"><Button disabled={saveProfile.isPending}>{saveProfile.isPending ? "Enregistrement…" : "Enregistrer le profil"}</Button></div>
       </form></CardContent></Card>
       <Card><CardHeader><CardTitle>Adresse principale</CardTitle><CardDescription>Adresse utilisée pour votre dossier client.</CardDescription></CardHeader><CardContent><form onSubmit={submitAddress} className="grid gap-4 sm:grid-cols-2">
-        {[["country","Pays"],["addressLine1","Adresse"],["addressLine2","Complément"],["city","Ville"],["region","Région"],["postalCode","Code postal"]].map(([key,label]) => <div className="space-y-2" key={key}><Label htmlFor={`a-${key}`}>{label}</Label><Input id={`a-${key}`} value={address[key] ?? ""} onChange={(e) => setAddress((v) => ({...v,[key]:e.target.value}))} /></div>)}
+        {([["country","Pays"],["addressLine1","Adresse"],["addressLine2","Complément"],["city","Ville"],["region","Région"],["postalCode","Code postal"]] as const).map(([key,label]) => <div className="space-y-2" key={key}><Label htmlFor={`a-${key}`}>{label}</Label><Input id={`a-${key}`} value={address[key] ?? ""} onChange={(e) => setAddress((v) => ({...v,[key]:e.target.value}))} /></div>)}
         <div className="sm:col-span-2"><Button disabled={saveAddress.isPending}>{saveAddress.isPending ? "Enregistrement…" : "Enregistrer l’adresse"}</Button></div>
       </form></CardContent></Card>
       <Card><CardHeader><CardTitle>Vérification</CardTitle><CardDescription>État distinct du statut de votre compte bancaire.</CardDescription></CardHeader><CardContent><StatusBadge label={data.identityStatus} tone={data.identityStatus === "VERIFIED" ? "success" : "pending"} /></CardContent></Card>
