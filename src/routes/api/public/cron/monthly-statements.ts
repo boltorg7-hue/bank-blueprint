@@ -11,16 +11,18 @@ export const Route = createFileRoute("/api/public/cron/monthly-statements")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        const secret = process.env["CRON_SECRET"];
-        if (!secret) return new Response("not configured", { status: 503 });
+        const secrets = [process.env["CRON_SECRET"], process.env["LOVABLE_CRON_SECRET"]].filter(
+          (value): value is string => typeof value === "string" && value.length > 0,
+        );
+        if (secrets.length === 0) return new Response("not configured", { status: 503 });
 
         const provided = request.headers.get("x-cron-secret") ?? "";
-        const expected = createHmac("sha256", secret).update("monthly-statements").digest("hex");
         const received = createHmac("sha256", provided).update("monthly-statements").digest("hex");
-        if (
-          provided.length === 0 ||
-          !timingSafeEqual(Buffer.from(received), Buffer.from(expected))
-        ) {
+        const authorized = secrets.some((secret) => {
+          const expected = createHmac("sha256", secret).update("monthly-statements").digest("hex");
+          return provided.length > 0 && timingSafeEqual(Buffer.from(received), Buffer.from(expected));
+        });
+        if (!authorized) {
           return new Response("unauthorized", { status: 401 });
         }
 
