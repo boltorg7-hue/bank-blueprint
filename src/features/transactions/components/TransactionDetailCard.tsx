@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import { useLanguage } from "@/components/providers/LanguageProvider";
 
 import { OperationReceiptButton } from "@/features/documents/components/OperationReceiptButton";
 
@@ -31,10 +32,12 @@ function DetailRow({ label, value }: { label: string; value: React.ReactNode }) 
 }
 
 export function TransactionDetailCard({ transaction }: { transaction: TransactionDetailDto }) {
+  const { language } = useLanguage();
+  const en = language === "en";
   return (
     <div className="space-y-4">
       <section
-        aria-label="Montant de l'opération"
+        aria-label={en ? "Transaction amount" : "Montant de l'opération"}
         className="rounded-xl border border-border bg-surface p-5 text-center"
       >
         <p className="text-caption text-muted-foreground">{transaction.displayTitle}</p>
@@ -73,17 +76,17 @@ export function TransactionDetailCard({ transaction }: { transaction: Transactio
         </div>
       </section>
 
-      <section aria-label="Détail de l'opération" className="rounded-xl border border-border bg-surface p-5">
+      <section aria-label={en ? "Transaction details" : "Détail de l'opération"} className="rounded-xl border border-border bg-surface p-5">
         <dl className="divide-y divide-border">
-          <DetailRow label="Référence" value={<span className="text-numeric">{transaction.reference}</span>} />
+          <DetailRow label={en ? "Reference" : "Référence"} value={<span className="text-numeric">{transaction.reference}</span>} />
           <DetailRow label="Type" value={transactionTypeLabel(transaction.type, transaction.direction)} />
-          <DetailRow label="Sens" value={directionLabel(transaction.direction)} />
-          <DetailRow label="Date de l'opération" value={formatDateTime(transaction.occurredAt)} />
+          <DetailRow label={en ? "Direction" : "Sens"} value={en ? (transaction.direction === "INCOMING" ? "Incoming" : transaction.direction === "OUTGOING" ? "Outgoing" : "Neutral") : directionLabel(transaction.direction)} />
+          <DetailRow label={en ? "Transaction date" : "Date de l'opération"} value={formatDateTime(transaction.occurredAt)} />
           {transaction.completedAt ? (
-            <DetailRow label="Date de valeur" value={formatDateTime(transaction.completedAt)} />
+            <DetailRow label={en ? "Value date" : "Date de valeur"} value={formatDateTime(transaction.completedAt)} />
           ) : null}
           <DetailRow
-            label="Compte concerné"
+            label={en ? "Account" : "Compte concerné"}
             value={
               <Link
                 to="/app/accounts/$accountRef"
@@ -95,14 +98,14 @@ export function TransactionDetailCard({ transaction }: { transaction: Transactio
             }
           />
           {transaction.counterpartyDisplay ? (
-            <DetailRow label="Contrepartie" value={transaction.counterpartyDisplay} />
+            <DetailRow label={en ? "Counterparty" : "Contrepartie"} value={transaction.counterpartyDisplay} />
           ) : null}
           {transaction.displayDescription ? (
-            <DetailRow label="Libellé" value={transaction.displayDescription} />
+            <DetailRow label={en ? "Description" : "Libellé"} value={transaction.displayDescription} />
           ) : null}
           {transaction.reversedByReference ? (
             <DetailRow
-              label="Contre-passée par"
+              label={en ? "Reversed by" : "Contre-passée par"}
               value={
                 <Link
                   to="/app/transactions/$transactionRef"
@@ -118,12 +121,12 @@ export function TransactionDetailCard({ transaction }: { transaction: Transactio
       </section>
 
       <section
-        aria-label="Reçu de l'opération"
+        aria-label={en ? "Transaction receipt" : "Reçu de l'opération"}
         className="rounded-xl border border-border bg-surface p-5"
       >
-        <h2 className="text-sm font-semibold text-foreground">Reçu officiel</h2>
+        <h2 className="text-sm font-semibold text-foreground">{en ? "Official receipt" : "Reçu officiel"}</h2>
         <p className="text-caption mt-1 mb-3 text-muted-foreground">
-          Le reçu est édité par la banque à partir de la comptabilité de l'opération.
+          {en ? "The bank issues this receipt from the transaction record." : "Le reçu est édité par la banque à partir de la comptabilité de l'opération."}
         </p>
         <OperationReceiptButton
           documentType="TRANSACTION_RECEIPT"

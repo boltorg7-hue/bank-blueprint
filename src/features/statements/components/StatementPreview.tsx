@@ -6,6 +6,7 @@ import { useStatementDetail } from "@/features/statements/hooks/useStatements";
 import { statementErrorMessage } from "@/features/statements/types/statement";
 import { formatMoneyFromMinor } from "@/lib/format/currency";
 import { formatDate } from "@/lib/format/date";
+import { useLanguage } from "@/components/providers/LanguageProvider";
 
 /**
  * HTML preview of an issued statement (PROMPT 09 §42, §43).
@@ -14,6 +15,8 @@ import { formatDate } from "@/lib/format/date";
  * computation of opening, running or closing balances.
  */
 export function StatementPreview({ reference }: { reference: string }) {
+  const { language } = useLanguage();
+  const en = language === "en";
   const { data, isPending, isError, refetch } = useStatementDetail(reference);
 
   if (isPending) return <SkeletonBlock lines={8} />;
@@ -21,8 +24,8 @@ export function StatementPreview({ reference }: { reference: string }) {
   if (!data) {
     return (
       <EmptyState
-        title="Relevé introuvable"
-        description="Ce relevé n'existe pas ou n'est pas rattaché à votre espace."
+        title={en ? "Statement not found" : "Relevé introuvable"}
+        description={en ? "This statement does not exist or is not linked to your account." : "Ce relevé n'existe pas ou n'est pas rattaché à votre espace."}
       />
     );
   }
@@ -39,7 +42,7 @@ export function StatementPreview({ reference }: { reference: string }) {
       <Card className="space-y-4 p-4 sm:p-5 print:border-0 print:shadow-none">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="min-w-0">
-            <h2 className="text-base font-semibold text-foreground">Relevé de compte</h2>
+            <h2 className="text-base font-semibold text-foreground">{en ? "Account statement" : "Relevé de compte"}</h2>
             <p className="text-numeric text-caption text-muted-foreground">{data.reference}</p>
             <p className="text-caption text-muted-foreground">
               {data.accountDisplayName} · {data.accountReference} · •••• {data.accountMaskedNumber}
@@ -48,7 +51,7 @@ export function StatementPreview({ reference }: { reference: string }) {
           </div>
           <div className="text-right">
             <StatusBadge
-              label={data.status === "READY" ? "Disponible" : "En préparation"}
+              label={data.status === "READY" ? (en ? "Available" : "Disponible") : (en ? "Preparing" : "En préparation")}
               tone={data.status === "READY" ? "success" : "pending"}
             />
             <p className="text-caption mt-2 text-muted-foreground">
@@ -59,10 +62,10 @@ export function StatementPreview({ reference }: { reference: string }) {
 
         <dl className="grid grid-cols-2 gap-3 rounded-lg border border-border p-3 sm:grid-cols-4">
           {[
-            { label: "Solde d'ouverture", value: money(data.openingBalanceMinor) },
-            { label: "Total des crédits", value: money(data.totalCreditMinor) },
-            { label: "Total des débits", value: money(data.totalDebitMinor) },
-            { label: "Solde de clôture", value: money(data.closingBalanceMinor) },
+            { label: en ? "Opening balance" : "Solde d'ouverture", value: money(data.openingBalanceMinor) },
+            { label: en ? "Total credits" : "Total des crédits", value: money(data.totalCreditMinor) },
+            { label: en ? "Total debits" : "Total des débits", value: money(data.totalDebitMinor) },
+            { label: en ? "Closing balance" : "Solde de clôture", value: money(data.closingBalanceMinor) },
           ].map((cell) => (
             <div key={cell.label} className="min-w-0">
               <dt className="text-caption text-muted-foreground">{cell.label}</dt>
@@ -88,11 +91,11 @@ export function StatementPreview({ reference }: { reference: string }) {
 
       <Card className="p-4 sm:p-5 print:border-0 print:shadow-none">
         <h3 className="text-sm font-semibold text-foreground">
-          Opérations de la période ({data.transactionCount})
+          {en ? "Transactions for this period" : "Opérations de la période"} ({data.transactionCount})
         </h3>
         {data.lines.length === 0 ? (
           <p className="text-caption mt-3 text-muted-foreground">
-            Aucune opération enregistrée sur cette période.
+            {en ? "No transactions recorded during this period." : "Aucune opération enregistrée sur cette période."}
           </p>
         ) : (
           <ul className="mt-3 divide-y divide-border" role="list">

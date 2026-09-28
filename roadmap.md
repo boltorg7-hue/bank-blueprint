@@ -11,7 +11,7 @@
 - Accueil et pages publiques principales modernisés dans une direction éditoriale « photo puis récit » ; navigation mobile publique et client affinée sans modification des opérations.
 
 ## À faire
-- Bilinguisme FR/EN : poursuivre la traduction du contenu détaillé des pages publiques, des parcours client et du back-office ; le sélecteur et les écrans principaux sont en place.
+- Bilinguisme FR/EN : terminer les dialogues bénéficiaires, certains panneaux détaillés de comptes/virements et les libellés provenant des données ou documents générés ; vérifier les vues administrateur avec un compte personnel autorisé (compte de test actuel non autorisé).
 - Parcours mobile-first : séparer les rubriques sur les pages restantes et revoir les cartes de données denses sans modifier les règles bancaires.
 - Phase 10 : notifications et messagerie de service client (base + écrans câblés ; validation d'exécution de bout en bout restante).
 - Sécurité client : centre de sécurité, sessions, révocation, historique, step-up (base + écrans câblés ; certification restante).
@@ -19,6 +19,7 @@
 - Créer la tâche planifiée mensuelle (Cloud → Jobs) appelant POST /api/public/cron/monthly-statements avec l'en-tête x-cron-secret — action utilisateur requise.
 
 ## Fait (ce cycle)
+- Pages publiques, étapes d'ouverture de compte, profil, centre de sécurité, écrans client/admin principaux et détails de relevés, opérations et virements traduits FR/EN ; contrôle navigateur public et onboarding en deux langues sans erreur ni débordement. Accès admin refusé correctement au compte client de test ; vues internes admin non vérifiées avec un compte personnel.
 - Sélecteur de langue compact dans les trois en-têtes avec détection initiale de la langue du système et mémorisation du choix ; menu public regroupé, navigation admin regroupée, grille des services client et cartes de fonctionnalités affinées sur mobile.
 - 5 migrations 20260924 appliquées (durcissement admin, préférences client, workflow virements externes simulés, messagerie support, centre de sécurité).
 - Écrans /app/messages et /app/security vérifiés câblés sur les nouvelles fonctions.

@@ -27,9 +27,12 @@ import {
 } from "@/features/transfers/utils/transfer-display";
 import { formatMoneyFromMinor } from "@/lib/format/currency";
 import { formatDateTime } from "@/lib/format/date";
+import { useLanguage } from "@/components/providers/LanguageProvider";
 
 /** Transfer receipt, progress and timeline (§150 – §157 ; PROMPT 08 §65 – §80). */
 export function TransferDetail({ reference }: { reference: string }) {
+  const { language } = useLanguage();
+  const en = language === "en";
   const { data, isPending, isError, refetch } = useTransferDetail(reference);
   const confirm = useConfirmTransfer();
   const cancel = useCancelTransfer();
@@ -41,8 +44,8 @@ export function TransferDetail({ reference }: { reference: string }) {
   if (!data) {
     return (
       <EmptyState
-        title="Virement introuvable"
-        description="Ce virement n'existe pas ou n'est pas rattaché à votre espace."
+        title={en ? "Transfer not found" : "Virement introuvable"}
+        description={en ? "This transfer does not exist or is not linked to your account." : "Ce virement n'existe pas ou n'est pas rattaché à votre espace."}
       />
     );
   }
@@ -53,20 +56,20 @@ export function TransferDetail({ reference }: { reference: string }) {
   const failureMessage = transferFailureMessage(data.failureCode);
 
   const rows: Array<{ label: string; value: string }> = [
-    { label: "Type de virement", value: transferKindLabel(data.kind) },
-    { label: "Bénéficiaire", value: data.recipientDisplay },
+    { label: en ? "Transfer type" : "Type de virement", value: en ? (data.kind === "EXTERNAL_TRANSFER" ? "External transfer" : "Internal transfer") : transferKindLabel(data.kind) },
+    { label: en ? "Recipient" : "Bénéficiaire", value: data.recipientDisplay },
   ];
   if (data.destinationBankName) {
-    rows.push({ label: "Banque destinataire", value: data.destinationBankName });
+    rows.push({ label: en ? "Receiving bank" : "Banque destinataire", value: data.destinationBankName });
   }
   rows.push(
-    { label: "Compte destinataire", value: `•••• ${data.destinationMasked}` },
-    { label: "Compte débité", value: `•••• ${data.sourceMasked}` },
-    { label: "Créé le", value: formatDateTime(data.createdAt) },
+    { label: en ? "Destination account" : "Compte destinataire", value: `•••• ${data.destinationMasked}` },
+    { label: en ? "Debited account" : "Compte débité", value: `•••• ${data.sourceMasked}` },
+    { label: en ? "Created" : "Créé le", value: formatDateTime(data.createdAt) },
   );
-  if (data.completedAt) rows.push({ label: "Exécuté le", value: formatDateTime(data.completedAt) });
-  if (data.customerReference) rows.push({ label: "Référence", value: data.customerReference });
-  rows.push({ label: "Référence du virement", value: data.reference });
+  if (data.completedAt) rows.push({ label: en ? "Completed" : "Exécuté le", value: formatDateTime(data.completedAt) });
+  if (data.customerReference) rows.push({ label: en ? "Reference" : "Référence", value: data.customerReference });
+  rows.push({ label: en ? "Transfer reference" : "Référence du virement", value: data.reference });
 
   return (
     <div className="space-y-5">
@@ -104,7 +107,7 @@ export function TransferDetail({ reference }: { reference: string }) {
               to="/app/transactions/$transactionRef"
               params={{ transactionRef: data.transactionReference }}
             >
-              Voir l'opération comptable
+              {en ? "View transaction" : "Voir l'opération comptable"}
             </Link>
           </Button>
         ) : null}
@@ -112,7 +115,7 @@ export function TransferDetail({ reference }: { reference: string }) {
         {awaitingCustomer ? (
           <div className="space-y-3">
             <div className="space-y-2">
-              <Label htmlFor="detail-confirmation-password">Confirmez votre mot de passe</Label>
+              <Label htmlFor="detail-confirmation-password">{en ? "Confirm your password" : "Confirmez votre mot de passe"}</Label>
               <Input id="detail-confirmation-password" type="password" autoComplete="current-password" value={confirmationPassword} onChange={(event)=>setConfirmationPassword(event.target.value)} maxLength={128}/>
             </div>
           <div className="flex flex-col-reverse gap-2 sm:flex-row">
@@ -122,31 +125,31 @@ export function TransferDetail({ reference }: { reference: string }) {
               disabled={cancel.isPending || confirm.isPending}
               onClick={() =>
                 cancel.mutate(data.reference, {
-                  onSuccess: () => toast.success("Virement annulé"),
+                  onSuccess: () => toast.success(en ? "Transfer cancelled" : "Virement annulé"),
                   onError: (error) => toast.error(transferErrorMessage(error)),
                 })
               }
             >
-              Annuler le virement
+              {en ? "Cancel transfer" : "Annuler le virement"}
             </Button>
             <Button
               className="w-full sm:w-auto"
               disabled={confirm.isPending || cancel.isPending}
               onClick={() => {
-                if (!confirmationPassword) { toast.error("Confirmez votre mot de passe."); return; }
+                 if (!confirmationPassword) { toast.error(en ? "Confirm your password." : "Confirmez votre mot de passe."); return; }
                 confirm.mutate({ reference:data.reference, password:confirmationPassword }, {
                   onSuccess: (outcome) => {
                     setConfirmationPassword("");
-                    if (outcome.status === "COMPLETED") toast.success("Virement exécuté");
+                     if (outcome.status === "COMPLETED") toast.success(en ? "Transfer completed" : "Virement exécuté");
                     else if (outcome.failureCode)
                       toast.error(transferFailureMessage(outcome.failureCode) as string);
-                    else toast.success("Virement transmis. Suivez son avancement ci-dessous.");
+                     else toast.success(en ? "Transfer submitted. Track its progress below." : "Virement transmis. Suivez son avancement ci-dessous.");
                   },
                   onError: (error) => toast.error(transferErrorMessage(error)),
                 });
               }}
             >
-              Reprendre et confirmer
+              {en ? "Resume and confirm" : "Reprendre et confirmer"}
             </Button>
           </div>
           </div>
@@ -154,24 +157,23 @@ export function TransferDetail({ reference }: { reference: string }) {
 
         {!isTerminal && !awaitingCustomer ? (
           <p className="text-caption text-muted-foreground">
-            Ce virement est engagé : il ne peut plus être annulé depuis votre espace. En cas de
-            besoin, contactez la banque avec sa référence.
+             {en ? "This transfer is in progress and can no longer be cancelled here. Contact the bank with its reference if you need help." : "Ce virement est engagé : il ne peut plus être annulé depuis votre espace. En cas de besoin, contactez la banque avec sa référence."}
           </p>
         ) : null}
       </Card>
 
       <Card className="space-y-3 p-4 sm:p-5">
         <div>
-          <h2 className="text-sm font-semibold text-foreground">Reçu de virement</h2>
+           <h2 className="text-sm font-semibold text-foreground">{en ? "Transfer receipt" : "Reçu de virement"}</h2>
           <p className="text-caption text-muted-foreground">
-            Disponible dès que le virement est intégralement exécuté.
+             {en ? "Available once the transfer is fully completed." : "Disponible dès que le virement est intégralement exécuté."}
           </p>
         </div>
         <OperationReceiptButton
           documentType="TRANSFER_RECEIPT"
           sourceReference={data.reference}
           available={data.status === "COMPLETED" && data.progressPercent >= 100}
-          unavailableHint="Le reçu définitif sera disponible dès l'exécution complète du virement."
+           unavailableHint={en ? "The final receipt will be available once the transfer is fully completed." : "Le reçu définitif sera disponible dès l'exécution complète du virement."}
         />
       </Card>
 
@@ -192,7 +194,7 @@ export function TransferDetail({ reference }: { reference: string }) {
       />
 
       <Card className="p-4 sm:p-5">
-        <h2 className="text-sm font-semibold text-foreground">Suivi du virement</h2>
+         <h2 className="text-sm font-semibold text-foreground">{en ? "Transfer timeline" : "Suivi du virement"}</h2>
         <ol className="mt-3 space-y-3" role="list">
           {data.timeline.map((event, index) => (
             <li key={`${event.status}-${index}`} className="flex items-start gap-3">
