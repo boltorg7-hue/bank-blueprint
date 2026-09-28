@@ -967,6 +967,48 @@ export type Database = {
           },
         ]
       }
+      notifications: {
+        Row: {
+          archived_at: string | null
+          body: string
+          category: string
+          created_at: string
+          event_key: string
+          id: string
+          read_at: string | null
+          resource_path: string | null
+          severity: string
+          title: string
+          user_id: string
+        }
+        Insert: {
+          archived_at?: string | null
+          body: string
+          category: string
+          created_at?: string
+          event_key: string
+          id?: string
+          read_at?: string | null
+          resource_path?: string | null
+          severity?: string
+          title: string
+          user_id: string
+        }
+        Update: {
+          archived_at?: string | null
+          body?: string
+          category?: string
+          created_at?: string
+          event_key?: string
+          id?: string
+          read_at?: string | null
+          resource_path?: string | null
+          severity?: string
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           country_of_residence: string | null
@@ -1826,6 +1868,18 @@ export type Database = {
           _reason_code?: string
           _reference: string
           _staff_id: string
+        }
+        Returns: undefined
+      }
+      emit_customer_notification: {
+        Args: {
+          _body: string
+          _category: string
+          _event_key: string
+          _resource_path: string
+          _severity: string
+          _title: string
+          _user_id: string
         }
         Returns: undefined
       }
