@@ -1,3 +1,4 @@
+import { useLiveFinancialSettings } from "@/features/settings/useLiveFinancialSettings";
 import { Receipt } from "lucide-react";
 
 import { FEE_DEBIT_ACTIVE, FEE_SCHEDULE, feeMinorFor, transferFeeCode } from "@/config/fees";
@@ -23,6 +24,7 @@ export function TransferFeeNotice({
   /** Transfer amount, used only to display the total debited. */
   amountMinor?: number | null;
 }) {
+  useLiveFinancialSettings();
   const code = transferFeeCode(kind);
   const feeMinor = feeMinorFor(code, currency);
   const scale = 10 ** minorUnit;

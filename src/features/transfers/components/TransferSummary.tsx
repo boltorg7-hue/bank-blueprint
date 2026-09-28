@@ -1,3 +1,4 @@
+import { useLiveFinancialSettings } from "@/features/settings/useLiveFinancialSettings";
 import { formatMoneyFromMinor } from "@/lib/format/currency";
 import { formatUsdtFromMinor, usdMinorToUsdtMinor } from "@/config/currency";
 
@@ -24,6 +25,7 @@ export function TransferSummary({
   sourceMasked: string;
   note?: string | null;
 }) {
+  useLiveFinancialSettings();
   const rows: Array<{ label: string; value: string }> = [
     { label: "Bénéficiaire", value: recipientDisplay },
     { label: "Compte destinataire", value: `•••• ${destinationMasked}` },
