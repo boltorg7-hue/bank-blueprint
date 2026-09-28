@@ -49,15 +49,18 @@ function AboutPage() {
             </ul>
           </nav>
 
-          <div className="min-w-0 space-y-10">
-            {ABOUT_SECTIONS.map((section) => (
-              <section key={section.id} id={section.id} className="scroll-mt-24 space-y-3">
+          <div className="min-w-0 space-y-12">
+            {ABOUT_SECTIONS.map((section, index) => (
+              <section key={section.id} id={section.id} className="scroll-mt-24 border-t border-border pt-6 sm:grid sm:grid-cols-[5rem_minmax(0,1fr)] sm:gap-5">
+                <span className="text-overline mb-3 block text-brand">{String(index + 1).padStart(2, "0")}</span>
+                <div className="space-y-3">
                 <h2 className="text-heading-md text-foreground">{section.title}</h2>
                 {section.paragraphs.map((paragraph, index) => (
                   <p key={index} className="text-body max-w-prose text-muted-foreground">
                     {paragraph}
                   </p>
                 ))}
+                </div>
               </section>
             ))}
           </div>
@@ -66,9 +69,9 @@ function AboutPage() {
 
       <PublicSection tone="sunken">
         <SectionHeader eyebrow="Nos valeurs" title="Ce qui guide nos décisions produit" />
-        <div className="mt-8 grid grid-cols-[minmax(0,1fr)] gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-8 grid grid-cols-[minmax(0,1fr)] gap-x-8 sm:grid-cols-2 lg:grid-cols-3">
           {ABOUT_VALUES.map((value) => (
-            <article key={value.title} className="rounded-2xl border border-border bg-surface p-5">
+            <article key={value.title} className="border-t-2 border-brand py-5">
               <h3 className="text-heading-sm text-foreground">{value.title}</h3>
               <p className="text-body-sm mt-2 text-muted-foreground">{value.description}</p>
             </article>
@@ -89,7 +92,7 @@ function AboutPage() {
               ))}
             </ul>
           </div>
-          <div className="min-w-0 rounded-2xl border border-dashed border-border bg-surface-sunken p-6">
+          <div className="min-w-0 border-l-2 border-brand bg-surface-sunken p-6">
             <h2 className="text-heading-sm text-foreground">{ABOUT_GOVERNANCE.title}</h2>
             <p className="text-body-sm mt-2 text-muted-foreground">{ABOUT_GOVERNANCE.description}</p>
           </div>
