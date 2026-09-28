@@ -39,7 +39,7 @@ export function AccountBalanceCard({
 
   if (!account) {
     return (
-      <section className={cn("rounded-2xl border border-border bg-surface p-5", className)}>
+      <section className={cn("rounded-2xl border border-border bg-surface p-5 sm:p-6", className)}>
         <Skeleton className="h-4 w-28" />
         <Skeleton className="mt-3 h-10 w-48" />
         <Skeleton className="mt-4 h-4 w-40" />
@@ -57,16 +57,16 @@ export function AccountBalanceCard({
     <section
       aria-labelledby="balance-card-heading"
       className={cn(
-        "rounded-2xl border border-border bg-surface p-5 shadow-[var(--shadow-card)]",
+        "rounded-2xl border border-border bg-surface p-5 sm:p-6 shadow-[var(--shadow-card)]",
         className,
       )}
     >
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
-          <h2 id="balance-card-heading" className="text-heading-sm truncate text-foreground">
+          <h2 id="balance-card-heading" className="text-heading-md truncate text-foreground sm:text-heading-lg">
             {account.displayName}
           </h2>
-          <p className="text-caption text-numeric mt-0.5 text-muted-foreground">
+          <p className="text-caption text-numeric mt-0.5 text-muted-foreground sm:text-body-sm">
             {accountTypeLabel(account.accountType)} · ••••{account.maskedNumber.slice(-4)} ·{" "}
             {account.currency}
           </p>
@@ -77,11 +77,11 @@ export function AccountBalanceCard({
         />
       </div>
 
-      <div className="mt-5">
+      <div className="mt-6 sm:mt-8">
         <p className="text-overline text-muted-foreground">Solde disponible</p>
         {balance ? (
           <p
-            className="text-balance-value mt-1 text-foreground"
+            className="text-balance-value mt-1.5 text-foreground"
             aria-label={
               hidden
                 ? "Solde masqué"
@@ -111,24 +111,24 @@ export function AccountBalanceCard({
 
       {balance && (
         <>
-          <dl className="mt-5 grid gap-3 sm:grid-cols-2">
-            <div className="rounded-xl bg-surface-sunken p-3">
-              <dt className="text-caption text-muted-foreground">Solde comptable</dt>
-              <dd className="text-amount mt-1 text-foreground">
+          <dl className="mt-6 grid gap-3 sm:mt-8 sm:grid-cols-2 sm:gap-4">
+            <div className="rounded-xl bg-surface-sunken p-3.5 sm:p-4 transition-colors hover:bg-muted/50">
+              <dt className="text-caption text-muted-foreground sm:text-body-sm">Solde comptable</dt>
+              <dd className="text-amount mt-1 text-foreground sm:text-heading-md">
                 {renderAmount(balance.ledgerBalanceMinor)}
               </dd>
             </div>
-            <div className="rounded-xl bg-surface-sunken p-3">
-              <dt className="text-caption text-muted-foreground">Montants réservés</dt>
-              <dd className="text-amount mt-1 text-foreground">
+            <div className="rounded-xl bg-surface-sunken p-3.5 sm:p-4 transition-colors hover:bg-muted/50">
+              <dt className="text-caption text-muted-foreground sm:text-body-sm">Montants réservés</dt>
+              <dd className="text-amount mt-1 text-foreground sm:text-heading-md">
                 {renderAmount(balance.heldBalanceMinor)}
               </dd>
             </div>
           </dl>
 
-          <p className="text-caption mt-4 flex items-start gap-1.5 text-muted-foreground">
+          <p className="text-caption mt-5 flex items-start gap-1.5 text-muted-foreground sm:mt-6">
             <Info className="mt-0.5 size-3.5 shrink-0" aria-hidden="true" />
-            <span>
+            <span className="leading-normal">
               Le solde disponible tient compte des montants réservés. Dernière mise à jour :{" "}
               {formatDateTime(balance.calculatedAt)}.
               {isRefreshing && " Actualisation en cours…"}

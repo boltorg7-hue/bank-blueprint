@@ -43,37 +43,38 @@ export function TransactionRow({
     <Wrapper
       {...(interactive ? { type: "button" as const, onClick } : {})}
       className={cn(
-        "flex w-full items-center gap-3 rounded-lg px-2 py-3 text-left",
+        "flex w-full items-center gap-4 rounded-xl px-3 py-4 text-left transition-colors",
         interactive &&
-          "press-feedback cursor-pointer hover:bg-surface-sunken focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+          "press-feedback cursor-pointer hover:bg-surface-sunken focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:press-feedback-active active:scale-[0.99]",
         className,
       )}
     >
       <span
         aria-hidden="true"
         className={cn(
-          "flex size-10 shrink-0 items-center justify-center rounded-full",
-          direction === "credit" ? "bg-success-muted text-success" : "bg-surface-sunken text-muted-foreground",
+          "flex size-11 shrink-0 items-center justify-center rounded-full transition-transform",
+          direction === "credit" ? "bg-success-muted/50 text-success" : "bg-surface-sunken text-muted-foreground",
         )}
       >
-        <Icon className="size-4" />
+        <Icon className="size-5" />
       </span>
 
       <span className="min-w-0 flex-1">
-        <span className="text-label block truncate text-foreground">{title}</span>
-        <span className="text-caption mt-0.5 flex flex-wrap items-center gap-x-2 text-muted-foreground">
+        <span className="text-label block truncate font-bold text-foreground sm:text-body">{title}</span>
+        <span className="text-caption mt-1 flex flex-wrap items-center gap-x-2 text-muted-foreground">
           <time dateTime={toISODate(date)}>{formatRelativeDay(date)}</time>
-          {subtitle && <span className="truncate">· {subtitle}</span>}
+          {subtitle && <span className="truncate max-w-[120px] sm:max-w-none">· {subtitle}</span>}
         </span>
       </span>
 
-      <span className="flex shrink-0 flex-col items-end gap-1">
+      <span className="flex shrink-0 flex-col items-end gap-1.5">
         <AmountText
+          className="text-label sm:text-amount"
           amount={direction === "credit" ? Math.abs(amount) : -Math.abs(amount)}
           direction={direction}
           {...(currency ? { currency } : {})}
         />
-        {statusLabel && <StatusBadge label={statusLabel} tone={statusTone} />}
+        {statusLabel && <StatusBadge label={statusLabel} tone={statusTone} className="h-5 px-2 text-[0.625rem]" />}
       </span>
     </Wrapper>
   );

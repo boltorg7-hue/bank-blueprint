@@ -34,25 +34,27 @@ export function KpiCard({
         : "text-success";
 
   return (
-    <div className={cn("rounded-xl border border-border bg-surface p-4", className)}>
+    <div className={cn("rounded-xl border border-border bg-surface p-4 sm:p-5 shadow-sm transition-all hover:shadow-md", className)}>
       <div className="flex items-center justify-between gap-2">
-        <p className="text-overline text-muted-foreground">{label}</p>
-        {Icon && <Icon className="size-4 text-muted-foreground" aria-hidden="true" />}
+        <p className="text-overline text-muted-foreground tracking-wider">{label}</p>
+        {Icon && <Icon className="size-4 text-muted-foreground/60" aria-hidden="true" />}
       </div>
       {loading ? (
-        <Skeleton className="mt-3 h-7 w-24" />
+        <Skeleton className="mt-3 h-8 w-24" />
       ) : (
-        <p className="text-amount mt-2 text-foreground">{value}</p>
+        <p className="text-heading-md mt-2 text-foreground sm:text-heading-lg">{value}</p>
       )}
-      <div className="mt-2 flex flex-wrap items-center gap-x-2">
-        {trend && (
-          <span className={cn("text-caption inline-flex items-center gap-1 font-semibold", trendTone)}>
-            <TrendIcon className="size-3.5" aria-hidden="true" />
-            {trend.label}
-          </span>
-        )}
-        {hint && <span className="text-caption text-muted-foreground">{hint}</span>}
-      </div>
+      {(trend || hint) && (
+        <div className="mt-3 flex flex-wrap items-center gap-x-2.5 gap-y-1">
+          {trend && (
+            <span className={cn("text-caption inline-flex items-center gap-1 font-bold", trendTone)}>
+              <TrendIcon className="size-3" aria-hidden="true" />
+              {trend.label}
+            </span>
+          )}
+          {hint && <span className="text-caption font-medium text-muted-foreground">{hint}</span>}
+        </div>
+      )}
     </div>
   );
 }
