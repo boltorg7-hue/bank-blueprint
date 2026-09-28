@@ -1,5 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Check } from "lucide-react";
+import { useLanguage } from "@/components/providers/LanguageProvider";
+import { aboutEn } from "@/features/public/content/details-en";
 
 import { PublicLayout } from "@/components/layout/PublicLayout";
 import { PageHero } from "@/features/public/components/PageHero";
@@ -27,16 +29,23 @@ export const Route = createFileRoute("/about")({
 });
 
 function AboutPage() {
+  const { language } = useLanguage();
+  const en = language === "en";
+  const intro = en ? aboutEn.intro : ABOUT_INTRO;
+  const sections = en ? sections.map((section, index) => ({ ...section, ...aboutEn.sections[index] })) : ABOUT_SECTIONS;
+  const values = en ? values.map((value, index) => ({ ...value, title: aboutEn.values[index]?.[0] ?? value.title, description: aboutEn.values[index]?.[1] ?? value.description })) : ABOUT_VALUES;
+  const commitment = en ? aboutEn.commitment : ABOUT_COMMITMENT;
+  const governance = en ? aboutEn.governance : ABOUT_GOVERNANCE;
   return (
     <PublicLayout>
-      <PageHero eyebrow="À propos" title={ABOUT_INTRO.title} description={ABOUT_INTRO.description} />
+      <PageHero eyebrow={en ? "About us" : "À propos"} title={intro.title} description={intro.description} />
 
       <PublicSection>
         <div className="grid grid-cols-[minmax(0,1fr)] gap-10 lg:grid-cols-[220px_1fr]">
-          <nav aria-label="Sections de la page" className="lg:sticky lg:top-24 lg:self-start">
-            <p className="text-overline text-muted-foreground">Sur cette page</p>
+          <nav aria-label={en ? "Page sections" : "Sections de la page"} className="lg:sticky lg:top-24 lg:self-start">
+            <p className="text-overline text-muted-foreground">{en ? "On this page" : "Sur cette page"}</p>
             <ul className="mt-3 space-y-1">
-              {ABOUT_SECTIONS.map((section) => (
+              {sections.map((section) => (
                 <li key={section.id}>
                   <a
                     href={`#${section.id}`}
@@ -50,7 +59,7 @@ function AboutPage() {
           </nav>
 
           <div className="min-w-0 space-y-12">
-            {ABOUT_SECTIONS.map((section, index) => (
+            {sections.map((section, index) => (
               <section key={section.id} id={section.id} className="scroll-mt-24 border-t border-border pt-6 sm:grid sm:grid-cols-[5rem_minmax(0,1fr)] sm:gap-5">
                 <span className="text-overline mb-3 block text-brand">{String(index + 1).padStart(2, "0")}</span>
                 <div className="space-y-3">
@@ -68,9 +77,9 @@ function AboutPage() {
       </PublicSection>
 
       <PublicSection tone="sunken">
-        <SectionHeader eyebrow="Nos valeurs" title="Ce qui guide nos décisions produit" />
+        <SectionHeader eyebrow={en ? "Our values" : "Nos valeurs"} title={en ? "What guides our decisions" : "Ce qui guide nos décisions produit"} />
         <div className="mt-8 grid grid-cols-[minmax(0,1fr)] gap-x-8 sm:grid-cols-2 lg:grid-cols-3">
-          {ABOUT_VALUES.map((value) => (
+          {values.map((value) => (
             <article key={value.title} className="border-t-2 border-brand py-5">
               <h3 className="text-heading-sm text-foreground">{value.title}</h3>
               <p className="text-body-sm mt-2 text-muted-foreground">{value.description}</p>
@@ -82,9 +91,9 @@ function AboutPage() {
       <PublicSection>
         <div className="grid grid-cols-[minmax(0,1fr)] gap-8 lg:grid-cols-2">
           <div className="min-w-0">
-            <SectionHeader as="h2" eyebrow="Engagement" title={ABOUT_COMMITMENT.title} />
+            <SectionHeader as="h2" eyebrow={en ? "Commitment" : "Engagement"} title={commitment.title} />
             <ul className="mt-5 space-y-3">
-              {ABOUT_COMMITMENT.points.map((point) => (
+              {commitment.points.map((point) => (
                 <li key={point} className="text-body-sm flex gap-2 text-foreground">
                   <Check className="mt-0.5 size-4 shrink-0 text-success" aria-hidden="true" />
                   <span className="min-w-0">{point}</span>
@@ -93,8 +102,8 @@ function AboutPage() {
             </ul>
           </div>
           <div className="min-w-0 border-l-2 border-brand bg-surface-sunken p-6">
-            <h2 className="text-heading-sm text-foreground">{ABOUT_GOVERNANCE.title}</h2>
-            <p className="text-body-sm mt-2 text-muted-foreground">{ABOUT_GOVERNANCE.description}</p>
+            <h2 className="text-heading-sm text-foreground">{governance.title}</h2>
+            <p className="text-body-sm mt-2 text-muted-foreground">{governance.description}</p>
           </div>
         </div>
       </PublicSection>
