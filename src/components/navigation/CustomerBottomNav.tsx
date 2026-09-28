@@ -14,7 +14,7 @@ export function CustomerBottomNav() {
   const pathname = useRouterState({ select: (state) => state.location.pathname });
   return (
     <nav
-      aria-label="Navigation client (mobile)"
+      aria-label={language === "en" ? "Customer navigation (mobile)" : "Navigation client (mobile)"}
       className="safe-pb fixed inset-x-0 bottom-0 z-40 border-t border-border bg-surface/95 shadow-[var(--shadow-elevated)] backdrop-blur-xl lg:hidden"
     >
       <ul className="mx-auto flex w-full max-w-3xl items-stretch">
@@ -26,7 +26,7 @@ export function CustomerBottomNav() {
               <li key={item.label} className="flex-1">
                 <span
                   aria-disabled="true"
-                  title="Bientôt disponible"
+                  title={language === "en" ? "Coming soon" : "Bientôt disponible"}
                    className="touch-target flex h-16 flex-col items-center justify-center gap-1 px-1 py-2 text-muted-foreground/60"
                 >
                   <Icon className="size-5" aria-hidden="true" />

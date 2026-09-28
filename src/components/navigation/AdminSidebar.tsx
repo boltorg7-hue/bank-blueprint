@@ -20,7 +20,7 @@ export function AdminSidebar({ mobileOpen = false, onNavigate }: { mobileOpen?: 
         <span className="text-sm font-semibold tracking-tight">Back-office</span>
       </div>
 
-      <nav aria-label="Navigation administration" className="flex-1 space-y-0.5 px-2 py-3">
+      <nav aria-label={language === "en" ? "Administration navigation" : "Navigation administration"} className="flex-1 space-y-0.5 px-2 py-3">
         {ADMIN_NAV.map((item) => {
           const Icon = item.icon;
 
@@ -29,7 +29,7 @@ export function AdminSidebar({ mobileOpen = false, onNavigate }: { mobileOpen?: 
               <span
                 key={item.label}
                 aria-disabled="true"
-                title="Bientôt disponible"
+                title={language === "en" ? "Coming soon" : "Bientôt disponible"}
                 className="flex items-center gap-3 rounded-md px-3 py-2 text-sm text-muted-foreground/60"
               >
                 <Icon className="size-4" aria-hidden="true" />

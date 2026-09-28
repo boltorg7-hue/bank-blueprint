@@ -5,6 +5,7 @@ import { publicMeta } from "@/features/public/lib/seo";
 import { AuthShell } from "@/features/auth/components/AuthShell";
 import { LoginForm } from "@/features/auth/components/LoginForm";
 import { GoogleSignInButton } from "@/features/auth/components/GoogleSignInButton";
+import { useLanguage } from "@/components/providers/LanguageProvider";
 
 const meta = publicMeta({
   title: "Connexion à votre espace",
@@ -24,18 +25,20 @@ export const Route = createFileRoute("/login")({
 });
 
 function LoginPage() {
+  const { language } = useLanguage();
+  const en = language === "en";
   const { redirect } = Route.useSearch();
   const [oauthError, setOauthError] = useState<string | null>(null);
 
   return (
     <AuthShell
-      title="Connexion"
-      description="Saisissez vos identifiants pour accéder à votre espace."
+      title={en ? "Sign in" : "Connexion"}
+      description={en ? "Enter your credentials to access your account." : "Saisissez vos identifiants pour accéder à votre espace."}
       aside={
         <div className="mt-6 space-y-4">
           <div className="flex items-center gap-3">
             <span className="h-px flex-1 bg-border" />
-            <span className="text-caption text-muted-foreground">ou</span>
+            <span className="text-caption text-muted-foreground">{en ? "or" : "ou"}</span>
             <span className="h-px flex-1 bg-border" />
           </div>
           <GoogleSignInButton onError={setOauthError} />
@@ -52,12 +55,12 @@ function LoginPage() {
             to="/forgot-password"
             className="text-body-sm text-brand underline-offset-4 hover:underline"
           >
-            Mot de passe oublié ?
+            {en ? "Forgot your password?" : "Mot de passe oublié ?"}
           </Link>
           <p className="text-body-sm text-muted-foreground">
-            Pas encore client ?{" "}
+            {en ? "New to RFC?" : "Pas encore client ?"}{" "}
             <Link to="/register" className="text-brand underline-offset-4 hover:underline">
-              Ouvrir un compte
+              {en ? "Open an account" : "Ouvrir un compte"}
             </Link>
           </p>
         </div>
