@@ -38,11 +38,11 @@ export function DocumentUploader({
   context,
   editable,
 }: {
-  const { language } = useLanguage();
-  const en = language === "en";
   context: CustomerContext;
   editable: boolean;
 }) {
+  const { language } = useLanguage();
+  const en = language === "en";
   const inputRef = useRef<HTMLInputElement>(null);
   const invalidate = useInvalidateCustomerContext();
   const register = useServerFn(registerDocument);

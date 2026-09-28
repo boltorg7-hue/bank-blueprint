@@ -137,13 +137,13 @@ function Section({
   editable,
   children,
 }: {
-  const { language } = useLanguage();
-  const en = language === "en";
   title: string;
   editRoute: "/onboarding/profile" | "/onboarding/address" | "/onboarding/documents";
   editable: boolean;
   children: React.ReactNode;
 }) {
+  const { language } = useLanguage();
+  const en = language === "en";
   return (
     <section className="rounded-xl border border-border bg-surface px-4 py-4">
       <div className="mb-3 flex items-center justify-between gap-2">
