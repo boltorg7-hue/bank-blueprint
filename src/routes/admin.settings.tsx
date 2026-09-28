@@ -1,3 +1,4 @@
+import { useLanguage } from "@/components/providers/LanguageProvider";
 import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -36,18 +37,20 @@ function display(item: (typeof ITEMS)[number], v: number) {
 }
 
 function AdminSettingsPage() {
+  const { language } = useLanguage();
+  const en = language === "en";
   const fetchFn = useServerFn(listFinancialSettings);
   const { data: staff } = useAdminContext();
   const q = useQuery({ queryKey: KEY, queryFn: () => fetchFn(), staleTime: 5_000, enabled: staff?.authorized === true });
   return (
     <AdminGate>
-      <PageHeader title="Parité & tarifs" description="Valeurs versionnées et auditées. Chaque modification crée une nouvelle version, sans effacer l'historique." />
+      <PageHeader title={en ? "Exchange rate & fees" : "Parité & tarifs"} description={en ? "Audited, versioned values. Every change creates a new version without deleting history." : "Valeurs versionnées et auditées. Chaque modification crée une nouvelle version, sans effacer l’historique."} />
       <div className="mb-4 flex justify-end">
         <Button variant="outline" size="sm" onClick={() => q.refetch()} disabled={q.isFetching}>
-          <RefreshCw className={`mr-2 size-4 ${q.isFetching ? "animate-spin" : ""}`} /> Recharger
+          <RefreshCw className={`mr-2 size-4 ${q.isFetching ? "animate-spin" : ""}`} /> {en ? "Reload" : "Recharger"}
         </Button>
       </div>
-      {q.isError ? <p className="text-sm text-destructive">Impossible de charger les paramètres.</p> : null}
+      {q.isError ? <p className="text-sm text-destructive">{en ? "Could not load settings." : "Impossible de charger les paramètres."}</p> : null}
       <div className="grid gap-4 md:grid-cols-2">
         {ITEMS.map((item) => <SettingCard key={item.key} item={item} rows={(q.data ?? []).filter((r) => r.key === item.key)} />)}
       </div>
@@ -56,6 +59,9 @@ function AdminSettingsPage() {
 }
 
 function SettingCard({ item, rows }: { item: (typeof ITEMS)[number]; rows: SettingVersionDto[] }) {
+  const { language } = useLanguage();
+  const en = language === "en";
+  const label = ({ USD_PER_USDT: "USD / USDT rate", ACCOUNT_MAINTENANCE_MONTHLY: "Monthly account fee", TRANSFER_INTERNAL: "Internal transfer", TRANSFER_EXTERNAL: "External transfer" } as Record<SettingKey, string>)[item.key];
   const current = rows[0];
   const [draft, setDraft] = useState("");
   const qc = useQueryClient();
@@ -64,36 +70,36 @@ function SettingCard({ item, rows }: { item: (typeof ITEMS)[number]; rows: Setti
     mutationFn: (value: number) => updateFn({ data: { key: item.key, value, expectedVersion: current?.version ?? 0 } }),
     onSuccess: async () => {
       setDraft("");
-      toast.success(`${item.label} mis à jour.`);
+      toast.success(`${en ? label : item.label} ${en ? "updated." : "mis à jour."}`);
       await qc.invalidateQueries();
     },
     onError: (e: Error) =>
-      toast.error(e.message === "VERSION_CONFLICT" ? "Valeur modifiée entre-temps : rechargez." : e.message === "FORBIDDEN" ? "Permission insuffisante." : "Mise à jour refusée."),
+      toast.error(e.message === "VERSION_CONFLICT" ? (en ? "Value changed in the meantime. Reload." : "Valeur modifiée entre-temps : rechargez.") : e.message === "FORBIDDEN" ? (en ? "Insufficient permissions." : "Permission insuffisante.") : (en ? "Update rejected." : "Mise à jour refusée.")),
   });
 
   function submit() {
     const n = Number(draft.replace(",", "."));
-    if (!Number.isFinite(n) || n < 0) return void toast.error("Valeur invalide.");
+    if (!Number.isFinite(n) || n < 0) return void toast.error(en ? "Invalid value." : "Valeur invalide.");
     m.mutate(item.isRate ? n : Math.round(n * 100));
   }
 
   return (
     <section className="rounded-lg border border-border bg-surface p-5">
-      <h2 className="text-sm font-semibold">{item.label}</h2>
-      <p className="mt-1 text-xs text-muted-foreground">{item.hint}</p>
+      <h2 className="text-sm font-semibold">{en ? label : item.label}</h2>
+      <p className="mt-1 text-xs text-muted-foreground">{en ? item.isRate ? "USD value of 1 USDT (up to 6 decimal places)." : "Amount in USD." : item.hint}</p>
       <p className="mt-3 text-2xl font-semibold tabular-nums">
         {current ? display(item, current.value) : "—"} {item.isRate ? "USD" : "USD"}
       </p>
-      <p className="text-xs text-muted-foreground">{current ? `Version ${current.version} · ${new Date(current.effectiveAt).toLocaleString("fr-FR")}` : ""}</p>
+      <p className="text-xs text-muted-foreground">{current ? `${en ? "Version" : "Version"} ${current.version} · ${new Date(current.effectiveAt).toLocaleString(en ? "en-US" : "fr-FR")}` : ""}</p>
       <div className="mt-4 flex gap-2">
-        <Input inputMode="decimal" placeholder="Nouvelle valeur" value={draft} onChange={(e) => setDraft(e.target.value)} aria-label={`Nouvelle valeur ${item.label}`} />
-        <Button onClick={submit} disabled={!draft || m.isPending}>Mettre à jour</Button>
+        <Input inputMode="decimal" placeholder={en ? "New value" : "Nouvelle valeur"} value={draft} onChange={(e) => setDraft(e.target.value)} aria-label={`${en ? "New value" : "Nouvelle valeur"} ${en ? label : item.label}`} />
+        <Button onClick={submit} disabled={!draft || m.isPending}>{en ? "Update" : "Mettre à jour"}</Button>
       </div>
       {rows.length > 1 ? (
         <ul className="mt-4 space-y-1 border-t border-border pt-3 text-xs text-muted-foreground">
           {rows.slice(1, 6).map((r) => (
             <li key={r.version} className="flex justify-between tabular-nums">
-              <span>v{r.version} · {new Date(r.effectiveAt).toLocaleDateString("fr-FR")}</span>
+              <span>v{r.version} · {new Date(r.effectiveAt).toLocaleDateString(en ? "en-US" : "fr-FR")}</span>
               <span>{display(item, r.value)} USD</span>
             </li>
           ))}
