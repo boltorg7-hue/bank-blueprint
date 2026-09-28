@@ -48,7 +48,7 @@ function DashboardPage() {
     <BankingContentContainer width="wide">
       <PageHeader
         title={customer ? `Bonjour ${customer.displayName.split(" ")[0]}` : "Bonjour"}
-        description="Voici la situation de votre compte."
+         description="Votre compte, vos opérations et vos prochaines actions au même endroit."
       />
 
       {query.isError ? (
@@ -91,7 +91,7 @@ function DashboardPage() {
 
           <ActionRequiredTransfers />
 
-          <section aria-labelledby="quick-actions-heading" className="space-y-3">
+           <section aria-labelledby="quick-actions-heading" className="space-y-4">
             <h2 id="quick-actions-heading" className="text-heading-sm text-foreground">
               Actions rapides
             </h2>
@@ -154,7 +154,7 @@ function QuickAction({
   );
 
   const className =
-    "flex h-full min-h-24 flex-col justify-between rounded-xl border border-border bg-surface p-4 text-sm";
+     "flex h-full min-h-28 flex-col justify-between rounded-md border border-border bg-surface p-4 text-sm";
 
   return (
     <li>
@@ -166,7 +166,7 @@ function QuickAction({
         <Link
           to={to}
           {...(params ? { params } : {})}
-          className={`${className} press-feedback text-foreground transition-colors hover:border-border-strong`}
+           className={`${className} press-feedback text-foreground transition-colors hover:border-brand hover:shadow-[var(--shadow-card)] active:press-feedback-active`}
         >
           {content}
         </Link>

@@ -60,9 +60,9 @@ export function QuickActions({
           <li key={action.label}>
             <Link
               to={action.to}
-              className="press-feedback flex h-full min-h-24 flex-col justify-between rounded-xl border border-border bg-surface p-4 text-sm text-foreground hover:border-brand/40 hover:bg-surface-sunken"
+               className="press-feedback flex h-full min-h-24 flex-col justify-between rounded-md border border-border bg-surface p-4 text-sm text-foreground hover:border-brand/40 hover:bg-surface-sunken active:press-feedback-active"
             >
-              <Icon className="size-5 text-brand" aria-hidden="true" />
+               <Icon className="size-6 text-brand" aria-hidden="true" />
               <span className="mt-3 flex items-center justify-between gap-2 font-medium leading-snug">
                 {action.label}
                 <ArrowRight className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />

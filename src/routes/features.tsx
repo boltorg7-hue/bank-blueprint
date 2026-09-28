@@ -4,9 +4,9 @@ import { PublicLayout } from "@/components/layout/PublicLayout";
 import { PageHero } from "@/features/public/components/PageHero";
 import { PublicSection, SectionHeader } from "@/features/public/components/SectionHeader";
 import { CtaSection } from "@/features/public/components/CtaSection";
-import { AccountPreview } from "@/features/public/components/ProductPreview";
 import { publicMeta } from "@/features/public/lib/seo";
 import { FEATURE_CATEGORIES } from "@/features/public/content/features";
+import { PLACE_PHOTOS } from "@/features/public/content/home-heritage";
 
 const meta = publicMeta({
   title: "Fonctionnalités de l'espace client",
@@ -25,9 +25,9 @@ function FeaturesPage() {
     <PublicLayout>
       <PageHero
         eyebrow="Fonctionnalités"
-        title="Tout ce que vous pouvez faire depuis votre espace"
-        description="Les capacités listées ici sont celles réellement offertes au client. Les outils internes de la banque n'y figurent pas."
-        aside={<AccountPreview compact />}
+        title="Votre banque, à portée de main"
+        description="Vos comptes, vos virements et vos documents se retrouvent dans un seul espace. Chaque opération reste lisible, du début à la fin."
+        aside={<figure><img src={PLACE_PHOTOS[0].src} alt={PLACE_PHOTOS[0].alt} className="aspect-[4/3] w-full object-cover" /><figcaption className="text-caption mt-2 text-muted-foreground">{PLACE_PHOTOS[0].caption} · Photo : {PLACE_PHOTOS[0].credit}, {PLACE_PHOTOS[0].license}</figcaption></figure>}
       />
 
       <PublicSection>
@@ -37,7 +37,7 @@ function FeaturesPage() {
               <li key={category.id}>
                 <a
                   href={`#${category.id}`}
-                  className="text-body-sm touch-target inline-flex items-center rounded-full border border-border bg-surface px-4 py-2 text-muted-foreground transition-colors hover:text-foreground"
+                   className="text-body-sm touch-target inline-flex items-center border-b-2 border-transparent px-3 py-2 text-foreground transition-colors hover:border-brand hover:text-brand"
                 >
                   {category.label}
                 </a>
@@ -46,7 +46,7 @@ function FeaturesPage() {
           </ul>
         </nav>
 
-        <div className="mt-12 space-y-14">
+         <div className="mt-12 space-y-16">
           {FEATURE_CATEGORIES.map((category) => {
             const Icon = category.icon;
             return (
@@ -57,12 +57,13 @@ function FeaturesPage() {
                     <SectionHeader as="h2" title={category.label} description={category.intro} />
                   </div>
                 </div>
-                <div className="mt-6 grid grid-cols-[minmax(0,1fr)] gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                  {category.items.map((item) => (
+                 <div className="mt-6 grid grid-cols-[minmax(0,1fr)] gap-x-8 sm:grid-cols-2 lg:grid-cols-3">
+                   {category.items.map((item, index) => (
                     <article
                       key={item.title}
-                      className="rounded-2xl border border-border bg-surface p-5 shadow-[var(--shadow-card)]"
+                       className="border-t border-border py-5 transition-colors hover:border-brand"
                     >
+                       <span className="text-overline text-brand">{String(index + 1).padStart(2, "0")}</span>
                       <h3 className="text-heading-sm text-foreground">{item.title}</h3>
                       <p className="text-body-sm mt-2 text-muted-foreground">{item.description}</p>
                     </article>
