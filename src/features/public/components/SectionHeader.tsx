@@ -59,7 +59,7 @@ export function PublicSection({
     <section
       {...(id ? { id } : {})}
       className={cn(
-        "px-4 py-14 sm:px-6 sm:py-20",
+        "px-4 py-12 sm:px-6 sm:py-20",
         tone === "sunken" && "bg-surface-sunken",
         tone === "contrast" && "bg-primary text-primary-foreground",
         className,

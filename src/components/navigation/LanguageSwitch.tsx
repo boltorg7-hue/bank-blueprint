@@ -1,26 +1,26 @@
 import { useLanguage } from "@/components/providers/LanguageProvider";
 import { Button } from "@/components/ui/button";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Check, Languages } from "lucide-react";
 
 /** Available in all three independent site headers. */
 export function LanguageSwitch() {
   const { language, setLanguage } = useLanguage();
   return (
-    <div role="group" aria-label={language === "fr" ? "Choisir la langue" : "Choose language"} className="flex shrink-0 items-center rounded-md border border-border p-0.5">
-      {(["fr", "en"] as const).map((code) => (
-        <Button
-          key={code}
-          type="button"
-          size="sm"
-          variant="ghost"
-          lang={code}
-          aria-label={code === "fr" ? "Français" : "English"}
-          aria-pressed={language === code}
-          onClick={() => setLanguage(code)}
-          className={`touch-target min-w-10 px-2 text-xs font-semibold ${language === code ? "bg-brand-muted text-brand" : "text-muted-foreground"}`}
-        >
-          {code === "fr" ? "FR" : "EN"}
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button type="button" size="icon" variant="ghost" className="touch-target shrink-0" aria-label={language === "fr" ? "Choisir la langue, français sélectionné" : "Choose language, English selected"} title={language === "fr" ? "Langue : Français" : "Language: English"}>
+          <Languages className="size-5" aria-hidden="true" />
         </Button>
-      ))}
-    </div>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="min-w-44">
+        {(["fr", "en"] as const).map((code) => (
+          <DropdownMenuItem key={code} lang={code} onSelect={() => setLanguage(code)} className="min-h-11 justify-between gap-4">
+            <span>{code === "fr" ? "Français" : "English"}</span>
+            {language === code && <Check className="size-4 text-brand" aria-hidden="true" />}
+          </DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }

@@ -17,7 +17,7 @@ export function AccountProductCard({
   return (
     <article
       className={cn(
-        "flex flex-col rounded-2xl border border-border bg-surface p-6 shadow-[var(--shadow-card)]",
+        "flex flex-col rounded-md border border-border bg-surface p-5 shadow-[var(--shadow-card)] sm:p-6",
         className,
       )}
     >

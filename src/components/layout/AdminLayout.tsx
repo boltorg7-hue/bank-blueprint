@@ -20,8 +20,8 @@ export function AdminLayout({ children }: { children: ReactNode }) {
 
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="safe-pt sticky top-0 z-30 border-b border-border bg-surface">
-          <div className="flex h-14 items-center justify-between gap-3 px-4">
-            <div className="flex items-center gap-2">
+          <div className="grid h-14 grid-cols-[minmax(0,1fr)_auto] items-center gap-2 px-4">
+            <div className="flex min-w-0 items-center gap-2">
               <Button
                 variant="ghost"
                 size="icon"
@@ -31,9 +31,9 @@ export function AdminLayout({ children }: { children: ReactNode }) {
               >
                 <Menu className="size-5" aria-hidden="true" />
               </Button>
-               <p className="text-sm font-medium text-muted-foreground">{language === "en" ? "Operations console" : "Console opérationnelle"}</p>
+               <p className="truncate text-sm font-medium text-muted-foreground">{language === "en" ? "Operations console" : "Console opérationnelle"}</p>
             </div>
-             <div className="flex items-center gap-2"><LanguageSwitch /><span className="hidden rounded-full border border-border px-2 py-0.5 text-xs text-muted-foreground sm:inline-flex">
+             <div className="flex shrink-0 items-center gap-2"><LanguageSwitch /><span className="hidden rounded-full border border-border px-2 py-0.5 text-xs text-muted-foreground sm:inline-flex">
                {language === "en" ? "Restricted access" : "Accès restreint"}
              </span></div>
           </div>
