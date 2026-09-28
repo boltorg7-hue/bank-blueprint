@@ -108,7 +108,7 @@ export const setCustomerState = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const service = await import("@/features/admin/services/admin.server");
     await service.requireAdminPermission(context.supabase, "customers.write");
-    const { error } = await context.supabase.rpc("admin_set_customer_state", { _customer_id: data.customerId, _state: data.state, _reason: data.reason } as never);
+    const { error } = await context.supabase.rpc("admin_set_customer_state" as never, { _customer_id: data.customerId, _state: data.state, _reason: data.reason } as never);
     if (error) throw new Error("CUSTOMER_STATE_CHANGE_FAILED");
     return { success: true };
   });
