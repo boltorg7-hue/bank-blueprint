@@ -15,6 +15,7 @@ import { APP_CONFIG } from "@/config/app";
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { PrivacyModeProvider } from "@/components/providers/PrivacyModeProvider";
+import { LanguageProvider } from "@/components/providers/LanguageProvider";
 import { organizationJsonLd } from "@/features/public/lib/seo";
 
 function NotFoundComponent() {
@@ -146,12 +147,14 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
+        <LanguageProvider>
         <PrivacyModeProvider>
           {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
           <Outlet />
           {/* Global feedback layer shared by the three experiences. */}
           <Toaster position="top-center" />
         </PrivacyModeProvider>
+        </LanguageProvider>
       </ThemeProvider>
     </QueryClientProvider>
   );
