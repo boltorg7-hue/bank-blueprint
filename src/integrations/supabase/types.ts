@@ -1403,6 +1403,7 @@ export type Database = {
             | null
           failed_at: string | null
           failure_code: string | null
+          fee_minor: number
           finalized_at: string | null
           hold_id: string | null
           id: string
@@ -1447,6 +1448,7 @@ export type Database = {
             | null
           failed_at?: string | null
           failure_code?: string | null
+          fee_minor?: number
           finalized_at?: string | null
           hold_id?: string | null
           id?: string
@@ -1491,6 +1493,7 @@ export type Database = {
             | null
           failed_at?: string | null
           failure_code?: string | null
+          fee_minor?: number
           finalized_at?: string | null
           hold_id?: string | null
           id?: string
@@ -1842,6 +1845,7 @@ export type Database = {
         }
         Returns: string
       }
+      current_fee_minor: { Args: { _key: string }; Returns: number }
       customer_monthly_activity_summary: {
         Args: {
           _account_reference: string
