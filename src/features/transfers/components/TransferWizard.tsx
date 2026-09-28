@@ -54,7 +54,7 @@ import {
 
 
 const STEPS = [
-  { id: "beneficiary", label: (en ? "Recipient" : "Bénéficiaire") },
+  { id: "beneficiary", label: "Bénéficiaire" },
   { id: "amount", label: "Montant" },
   { id: "review", label: "Récapitulatif" },
   { id: "result", label: "Confirmation" },
