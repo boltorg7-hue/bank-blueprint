@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useLanguage } from "@/components/providers/LanguageProvider";
 
 import { BankingContentContainer } from "@/components/layout/BankingAppLayout";
 import { PageHeader } from "@/components/layout/PageHeader";
@@ -22,6 +23,8 @@ export const Route = createFileRoute("/app/transfers/$transferRef")({
 });
 
 function AppTransferDetailRoute() {
+  const { language } = useLanguage();
+  const en = language === "en";
   const { transferRef } = Route.useParams();
   const { summary } = useCustomerSummary();
   const allowed = summary ? isAllowed(summary.lifecycleState, "banking-read") : true;
@@ -29,14 +32,14 @@ function AppTransferDetailRoute() {
   return (
     <BankingContentContainer width="narrow">
       <PageHeader
-        title="Détail du virement"
-        description="Le montant et le bénéficiaire d'un virement confirmé ne peuvent plus être modifiés."
+        title={en ? "Transfer details" : "Détail du virement"}
+        description={en ? "The amount and recipient of a confirmed transfer cannot be changed." : "Le montant et le bénéficiaire d'un virement confirmé ne peuvent plus être modifiés."}
         backTo="/app/transfers"
       />
       {allowed ? (
         <TransferDetail reference={transferRef} />
       ) : (
-        <PermissionDeniedState description="Le détail de vos virements sera disponible dès l'activation de votre compte." />
+        <PermissionDeniedState description={en ? "Transfer details will be available when your account is activated." : "Le détail de vos virements sera disponible dès l'activation de votre compte."} />
       )}
     </BankingContentContainer>
   );
