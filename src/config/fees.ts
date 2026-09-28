@@ -107,13 +107,11 @@ export function feeMinorFor(code: FeeCode, currency: string): number | null {
 }
 
 /**
- * Whether contracted fees are already debited by the ledger.
- *
- * The published grid is live, but no fee posting exists server-side yet, so the
- * UI MUST NOT pretend a fee is taken from the account. Flip this to `true` in
- * the same change that adds the ledger fee posting.
+ * External transfer fees are debited by the ledger: frozen at confirmation
+ * (transfers.fee_minor), reserved with the amount, posted to FEE_REVENUE on
+ * settlement. Monthly maintenance fees are not yet posted.
  */
-export const FEE_DEBIT_ACTIVE = false;
+export const FEE_DEBIT_ACTIVE = true;
 
 /** Fee code applicable to a transfer, based on the bank-side routing decision. */
 export function transferFeeCode(kind: "INTERNAL_TRANSFER" | "EXTERNAL_TRANSFER"): FeeCode {
