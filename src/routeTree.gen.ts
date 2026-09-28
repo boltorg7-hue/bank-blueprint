@@ -31,7 +31,12 @@ import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as VerifyEmailRouteImport } from './routes/verify-email'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
+import { Route as AdminAccountsRouteImport } from './routes/admin.accounts'
+import { Route as AdminCustomersRouteImport } from './routes/admin.customers'
 import { Route as AdminDashboardRouteImport } from './routes/admin.dashboard'
+import { Route as AdminFundingRouteImport } from './routes/admin.funding'
+import { Route as AdminSupportRouteImport } from './routes/admin.support'
+import { Route as AdminTransfersRouteImport } from './routes/admin.transfers'
 import { Route as AppIndexRouteImport } from './routes/app.index'
 import { Route as AppAccountsRouteImport } from './routes/app.accounts'
 import { Route as AppActivityRouteImport } from './routes/app.activity'
@@ -174,9 +179,34 @@ const AdminIndexRoute = AdminIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminAccountsRoute = AdminAccountsRouteImport.update({
+  id: '/accounts',
+  path: '/accounts',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminCustomersRoute = AdminCustomersRouteImport.update({
+  id: '/customers',
+  path: '/customers',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminDashboardRoute = AdminDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminFundingRoute = AdminFundingRouteImport.update({
+  id: '/funding',
+  path: '/funding',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminSupportRoute = AdminSupportRouteImport.update({
+  id: '/support',
+  path: '/support',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminTransfersRoute = AdminTransfersRouteImport.update({
+  id: '/transfers',
+  path: '/transfers',
   getParentRoute: () => AdminRoute,
 } as any)
 const AppIndexRoute = AppIndexRouteImport.update({
@@ -359,7 +389,12 @@ export interface FileRoutesByFullPath {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/verify-email': typeof VerifyEmailRoute
+  '/admin/accounts': typeof AdminAccountsRoute
+  '/admin/customers': typeof AdminCustomersRoute
   '/admin/dashboard': typeof AdminDashboardRoute
+  '/admin/funding': typeof AdminFundingRoute
+  '/admin/support': typeof AdminSupportRoute
+  '/admin/transfers': typeof AdminTransfersRoute
   '/app/accounts': typeof AppAccountsRouteWithChildren
   '/app/activity': typeof AppActivityRoute
   '/app/beneficiaries': typeof AppBeneficiariesRoute
@@ -412,7 +447,12 @@ export interface FileRoutesByTo {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/verify-email': typeof VerifyEmailRoute
+  '/admin/accounts': typeof AdminAccountsRoute
+  '/admin/customers': typeof AdminCustomersRoute
   '/admin/dashboard': typeof AdminDashboardRoute
+  '/admin/funding': typeof AdminFundingRoute
+  '/admin/support': typeof AdminSupportRoute
+  '/admin/transfers': typeof AdminTransfersRoute
   '/app/activity': typeof AppActivityRoute
   '/app/beneficiaries': typeof AppBeneficiariesRoute
   '/app/dashboard': typeof AppDashboardRoute
@@ -466,7 +506,12 @@ export interface FileRoutesById {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/verify-email': typeof VerifyEmailRoute
+  '/admin/accounts': typeof AdminAccountsRoute
+  '/admin/customers': typeof AdminCustomersRoute
   '/admin/dashboard': typeof AdminDashboardRoute
+  '/admin/funding': typeof AdminFundingRoute
+  '/admin/support': typeof AdminSupportRoute
+  '/admin/transfers': typeof AdminTransfersRoute
   '/app/accounts': typeof AppAccountsRouteWithChildren
   '/app/activity': typeof AppActivityRoute
   '/app/beneficiaries': typeof AppBeneficiariesRoute
@@ -524,7 +569,12 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/terms'
     | '/verify-email'
+    | '/admin/accounts'
+    | '/admin/customers'
     | '/admin/dashboard'
+    | '/admin/funding'
+    | '/admin/support'
+    | '/admin/transfers'
     | '/app/accounts'
     | '/app/activity'
     | '/app/beneficiaries'
@@ -577,7 +627,12 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/terms'
     | '/verify-email'
+    | '/admin/accounts'
+    | '/admin/customers'
     | '/admin/dashboard'
+    | '/admin/funding'
+    | '/admin/support'
+    | '/admin/transfers'
     | '/app/activity'
     | '/app/beneficiaries'
     | '/app/dashboard'
@@ -630,7 +685,12 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/terms'
     | '/verify-email'
+    | '/admin/accounts'
+    | '/admin/customers'
     | '/admin/dashboard'
+    | '/admin/funding'
+    | '/admin/support'
+    | '/admin/transfers'
     | '/app/accounts'
     | '/app/activity'
     | '/app/beneficiaries'
@@ -847,11 +907,46 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminIndexRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/accounts': {
+      id: '/admin/accounts'
+      path: '/accounts'
+      fullPath: '/admin/accounts'
+      preLoaderRoute: typeof AdminAccountsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/customers': {
+      id: '/admin/customers'
+      path: '/customers'
+      fullPath: '/admin/customers'
+      preLoaderRoute: typeof AdminCustomersRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/dashboard': {
       id: '/admin/dashboard'
       path: '/dashboard'
       fullPath: '/admin/dashboard'
       preLoaderRoute: typeof AdminDashboardRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/funding': {
+      id: '/admin/funding'
+      path: '/funding'
+      fullPath: '/admin/funding'
+      preLoaderRoute: typeof AdminFundingRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/support': {
+      id: '/admin/support'
+      path: '/support'
+      fullPath: '/admin/support'
+      preLoaderRoute: typeof AdminSupportRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/transfers': {
+      id: '/admin/transfers'
+      path: '/transfers'
+      fullPath: '/admin/transfers'
+      preLoaderRoute: typeof AdminTransfersRouteImport
       parentRoute: typeof AdminRoute
     }
     '/app/': {
@@ -1075,12 +1170,22 @@ declare module '@tanstack/react-router' {
 }
 
 interface AdminRouteChildren {
+  AdminAccountsRoute: typeof AdminAccountsRoute
+  AdminCustomersRoute: typeof AdminCustomersRoute
   AdminDashboardRoute: typeof AdminDashboardRoute
+  AdminFundingRoute: typeof AdminFundingRoute
+  AdminSupportRoute: typeof AdminSupportRoute
+  AdminTransfersRoute: typeof AdminTransfersRoute
   AdminIndexRoute: typeof AdminIndexRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
+  AdminAccountsRoute: AdminAccountsRoute,
+  AdminCustomersRoute: AdminCustomersRoute,
   AdminDashboardRoute: AdminDashboardRoute,
+  AdminFundingRoute: AdminFundingRoute,
+  AdminSupportRoute: AdminSupportRoute,
+  AdminTransfersRoute: AdminTransfersRoute,
   AdminIndexRoute: AdminIndexRoute,
 }
 
