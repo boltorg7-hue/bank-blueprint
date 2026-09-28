@@ -13,7 +13,7 @@ function SidebarItem({ item }: { item: NavItem }) {
     return (
       <span
         aria-disabled="true"
-        title="Bientôt disponible"
+        title={language === "en" ? "Coming soon" : "Bientôt disponible"}
         className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-muted-foreground/60"
       >
         <Icon className="size-4" aria-hidden="true" />
@@ -46,7 +46,7 @@ export function CustomerSidebar() {
         <BrandMark to="/app/dashboard" />
       </div>
 
-      <nav aria-label="Navigation client (latérale)" className="flex-1 space-y-1 px-3 py-2">
+      <nav aria-label={language === "en" ? "Customer navigation (sidebar)" : "Navigation client (latérale)"} className="flex-1 space-y-1 px-3 py-2">
         {CUSTOMER_DESKTOP_NAV.map((item) => (
           <SidebarItem key={item.label} item={item} />
         ))}
