@@ -77,7 +77,7 @@ function validRange(filters: Filters): boolean {
   const max = amountToMinor(filters.maxAmount);
   return validAmount(filters.minAmount) && validAmount(filters.maxAmount) &&
     (min === null || max === null || min <= max) &&
-    (filters.datePreset !== "CUSTOM" || !filters.from || !filters.to || filters.from <= filters.to);
+    (filters.datePreset !== "CUSTOM" || !filters.from || !filters.to || filters.from < filters.to);
 }
 
 function dayAfter(date: string): string {
@@ -225,7 +225,7 @@ function FilterFields({
             <Input
               id="filter-to"
               type="date"
-              value={(filters.to ?? "").slice(0, 10)}
+              value={filters.to ? new Date(Date.parse(filters.to) - 86_400_000).toISOString().slice(0, 10) : ""}
               onChange={(event) =>
                 onChange({
                   ...filters,
