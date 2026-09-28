@@ -22,7 +22,7 @@ export function SupportCenter() {
   const [body, setBody] = useState("");
 
   async function submit() {
-    if (subject.trim().length < 5 || !body.trim()) return toast.error("Ajoutez un sujet précis et votre message.");
+    if (subject.trim().length < 5 || !body.trim()) return void toast.error("Ajoutez un sujet précis et votre message.");
     try { await create.mutateAsync({ subject, category, body }); setSubject(""); setBody(""); toast.success("Votre demande a été transmise au service client."); }
     catch { toast.error("La demande n’a pas pu être envoyée."); }
   }
