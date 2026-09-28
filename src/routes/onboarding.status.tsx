@@ -65,8 +65,9 @@ function OnboardingStatusPage() {
           </div>
         ) : (
           <p className="text-body-sm text-muted-foreground">
-            Nous vous informerons dès que la vérification aura avancé. Aucune action n'est requise de
-            votre part pour le moment.
+            {en
+              ? "We will let you know when your verification progresses. No action is needed for now."
+              : "Nous vous informerons dès que la vérification aura avancé. Aucune action n'est requise de votre part pour le moment."}
           </p>
         )}
 
