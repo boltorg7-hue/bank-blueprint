@@ -179,7 +179,7 @@ export function TransferWizard({ initialBeneficiary }: { initialBeneficiary?: st
             </Select>
             {available !== null ? (
               <p className="text-caption text-muted-foreground">
-                Solde disponible :{" "}
+                {en ? "Available balance" : "Solde disponible"} :{" "}
                 {formatMoneyFromMinor(available, {
                   currency,
                   minorUnitScale: 10 ** minorUnit,
@@ -202,7 +202,7 @@ export function TransferWizard({ initialBeneficiary }: { initialBeneficiary?: st
               maxLength={128}
             />
             <p className="text-caption text-muted-foreground">
-              Cette vérification protège l’exécution de l’opération sensible.
+              {en ? "This check protects this sensitive transaction." : "Cette vérification protège l’exécution de l’opération sensible."}
             </p>
           </div>
 
@@ -211,7 +211,7 @@ export function TransferWizard({ initialBeneficiary }: { initialBeneficiary?: st
             {beneficiaries.length === 0 ? (
               <div className="space-y-3 rounded-lg border border-dashed border-border p-4">
                 <p className="text-sm text-muted-foreground">
-                  Vous n'avez pas encore de bénéficiaire enregistré.
+                  {en ? "You have no saved recipients yet." : "Vous n'avez pas encore de bénéficiaire enregistré."}
                 </p>
                 <div className="flex flex-col gap-2 sm:flex-row">
                   <AddBeneficiaryDialog onAdded={(reference) => setBeneficiaryReference(reference)} />
@@ -245,7 +245,7 @@ export function TransferWizard({ initialBeneficiary }: { initialBeneficiary?: st
                   <AddBeneficiaryDialog
                     trigger={
                       <Button variant="ghost" size="sm" className="px-0">
-                        Ajouter un bénéficiaire de notre banque
+                        {en ? "Add a recipient at our bank" : "Ajouter un bénéficiaire de notre banque"}
                       </Button>
                     }
                     onAdded={(reference) => setBeneficiaryReference(reference)}
@@ -253,7 +253,7 @@ export function TransferWizard({ initialBeneficiary }: { initialBeneficiary?: st
                   <AddExternalBeneficiaryDialog
                     trigger={
                       <Button variant="ghost" size="sm" className="px-0">
-                        Ajouter un bénéficiaire d'une autre banque
+                        {en ? "Add a recipient at another bank" : "Ajouter un bénéficiaire d'une autre banque"}
                       </Button>
                     }
                     onAdded={(reference) => setBeneficiaryReference(reference)}
@@ -271,7 +271,7 @@ export function TransferWizard({ initialBeneficiary }: { initialBeneficiary?: st
               setStepIndex(1);
             }}
           >
-            Continuer
+            {en ? "Continue" : "Continuer"}
             <ArrowRight className="size-4" aria-hidden="true" />
           </Button>
         </Card>
@@ -319,12 +319,12 @@ export function TransferWizard({ initialBeneficiary }: { initialBeneficiary?: st
             ) : null}
             {overBalance ? (
               <p role="alert" className="text-caption text-danger">
-                Le montant dépasse votre solde disponible.
+                {en ? "The amount exceeds your available balance." : "Le montant dépasse votre solde disponible."}
               </p>
             ) : null}
             {overLimit && limit !== null ? (
               <p role="alert" className="text-caption text-danger">
-                Le plafond par virement est de{" "}
+                {en ? "The per-transfer limit is" : "Le plafond par virement est de"}{" "}
                 {formatMoneyFromMinor(limit, { currency, minorUnitScale: 10 ** minorUnit })}.
               </p>
             ) : null}
@@ -344,7 +344,7 @@ export function TransferWizard({ initialBeneficiary }: { initialBeneficiary?: st
 
           <div className="flex flex-col-reverse gap-2 sm:flex-row">
             <Button variant="outline" onClick={() => setStepIndex(0)} className="w-full sm:w-auto">
-              Retour
+              {en ? "Back" : "Retour"}
             </Button>
             <Button
               className="w-full sm:w-auto"
@@ -370,7 +370,7 @@ export function TransferWizard({ initialBeneficiary }: { initialBeneficiary?: st
               }}
             >
               {initiate.isPending ? <Loader2 className="size-4 animate-spin" /> : null}
-              Vérifier le virement
+              {en ? "Review transfer" : "Vérifier le virement"}
             </Button>
           </div>
 
@@ -508,7 +508,7 @@ export function TransferWizard({ initialBeneficiary }: { initialBeneficiary?: st
               className="w-full sm:w-auto"
               onClick={() => void navigate({ to: "/app/transfers" })}
             >
-              Voir mes virements
+              {en ? "View my transfers" : "Voir mes virements"}
             </Button>
             <Button
               className="w-full sm:w-auto"
@@ -519,7 +519,7 @@ export function TransferWizard({ initialBeneficiary }: { initialBeneficiary?: st
                 })
               }
             >
-              Voir le détail
+              {en ? "View details" : "Voir le détail"}
             </Button>
           </div>
         </Card>
