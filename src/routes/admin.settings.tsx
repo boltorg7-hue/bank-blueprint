@@ -9,6 +9,7 @@ import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { AdminGate } from "@/features/admin/components/AdminGate";
+import { useAdminContext } from "@/features/admin/hooks/useAdmin";
 import {
   listFinancialSettings,
   updateFinancialSetting,
@@ -36,7 +37,8 @@ function display(item: (typeof ITEMS)[number], v: number) {
 
 function AdminSettingsPage() {
   const fetchFn = useServerFn(listFinancialSettings);
-  const q = useQuery({ queryKey: KEY, queryFn: () => fetchFn(), staleTime: 5_000 });
+  const { data: staff } = useAdminContext();
+  const q = useQuery({ queryKey: KEY, queryFn: () => fetchFn(), staleTime: 5_000, enabled: staff?.authorized === true });
   return (
     <AdminGate>
       <PageHeader title="Parité & tarifs" description="Valeurs versionnées et auditées. Chaque modification crée une nouvelle version, sans effacer l'historique." />

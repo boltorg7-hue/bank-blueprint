@@ -27,22 +27,26 @@ export function useAdminContext() {
 
 export function useAdminDashboard() {
   const fn = useServerFn(getAdminDashboard);
-  return useQuery({ queryKey: ADMIN_DASHBOARD_KEY, queryFn: () => fn(), staleTime: 10_000, retry: 1 });
+  const { data: staff } = useAdminContext();
+  return useQuery({ queryKey: ADMIN_DASHBOARD_KEY, queryFn: () => fn(), staleTime: 10_000, retry: 1, enabled: staff?.authorized === true && staff.permissions.includes("admin.access") });
 }
 
 export function useAdminCustomers(search: string) {
   const fn = useServerFn(listAdminCustomers);
-  return useQuery({ queryKey: ["admin", "customers", search], queryFn: () => fn({ data: { search } }), staleTime: 10_000 });
+  const { data: staff } = useAdminContext();
+  return useQuery({ queryKey: ["admin", "customers", search], queryFn: () => fn({ data: { search } }), staleTime: 10_000, enabled: staff?.authorized === true && staff.permissions.includes("customers.read") });
 }
 
 export function useAdminAccounts(search = "") {
   const fn = useServerFn(listAdminAccounts);
-  return useQuery({ queryKey: [...ADMIN_ACCOUNTS_KEY, search], queryFn: () => fn({ data: { search } }), staleTime: 10_000 });
+  const { data: staff } = useAdminContext();
+  return useQuery({ queryKey: [...ADMIN_ACCOUNTS_KEY, search], queryFn: () => fn({ data: { search } }), staleTime: 10_000, enabled: staff?.authorized === true && staff.permissions.includes("accounts.read") });
 }
 
 export function useFundingRequests() {
   const fn = useServerFn(listFundingRequests);
-  return useQuery({ queryKey: ADMIN_FUNDING_KEY, queryFn: () => fn(), staleTime: 5_000 });
+  const { data: staff } = useAdminContext();
+  return useQuery({ queryKey: ADMIN_FUNDING_KEY, queryFn: () => fn(), staleTime: 5_000, enabled: staff?.authorized === true && (staff.permissions.includes("finance.adjustment.create") || staff.permissions.includes("finance.adjustment.approve")) });
 }
 
 export function useCreateFundingRequest() {
@@ -84,5 +88,5 @@ export function useSetAccountStatus() {
   return useMutation({ mutationFn: (input: { accountReference: string; status: "ACTIVE" | "RESTRICTED" | "SUSPENDED" | "FROZEN"; reason: string }) => fn({ data: input }), onSuccess: () => queryClient.invalidateQueries({ queryKey: ADMIN_ACCOUNTS_KEY }) });
 }
 export const ADMIN_EXTERNAL_TRANSFERS_KEY=["admin","external-transfers"] as const;
-export function useAdminExternalTransfers(){const fn=useServerFn(listAdminExternalTransfers);return useQuery({queryKey:ADMIN_EXTERNAL_TRANSFERS_KEY,queryFn:()=>fn(),staleTime:5_000});}
+export function useAdminExternalTransfers(){const fn=useServerFn(listAdminExternalTransfers);const {data:staff}=useAdminContext();return useQuery({queryKey:ADMIN_EXTERNAL_TRANSFERS_KEY,queryFn:()=>fn(),staleTime:5_000,enabled:staff?.authorized===true&&(staff.permissions.includes("compliance.review")||staff.permissions.includes("transfers.approve"))});}
 export function useAdvanceExternalTransfer(){const fn=useServerFn(advanceAdminExternalTransfer);const qc=useQueryClient();return useMutation({mutationFn:(data:{reference:string;action:"APPROVE"|"QUEUE"|"FINALIZE"})=>fn({data}),onSuccess:()=>qc.invalidateQueries({queryKey:ADMIN_EXTERNAL_TRANSFERS_KEY})});}
