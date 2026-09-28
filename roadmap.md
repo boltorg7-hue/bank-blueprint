@@ -11,6 +11,7 @@
 - Accueil et pages publiques principales modernisés dans une direction éditoriale « photo puis récit » ; navigation mobile publique et client affinée sans modification des opérations.
 
 ## À faire
+- Opérations : filtres mobiles par date, fourchette de montant et catégorie, avec réinitialisation et pagination exacte.
 - Bilinguisme FR/EN : terminer les dialogues bénéficiaires, certains panneaux détaillés de comptes/virements et les libellés provenant des données ou documents générés ; vérifier les vues administrateur avec un compte personnel autorisé (compte de test actuel non autorisé).
 - Parcours mobile-first : séparer les rubriques sur les pages restantes et revoir les cartes de données denses sans modifier les règles bancaires.
 - Phase 10 : notifications et messagerie de service client (base + écrans câblés ; validation d'exécution de bout en bout restante).

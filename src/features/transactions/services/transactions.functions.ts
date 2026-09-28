@@ -39,12 +39,18 @@ function validatePageRequest(input: TransactionPageRequest | undefined): Transac
   const datePreset = PRESETS.includes(raw.datePreset as never) ? raw.datePreset! : "ALL";
   const type = typeof raw.type === "string" && /^[A-Z_]{3,32}$/.test(raw.type) ? raw.type : "ALL";
   const search = typeof raw.search === "string" ? raw.search.slice(0, 64) : null;
+  const validAmount = (value: unknown) => typeof value === "number" && Number.isSafeInteger(value) && value >= 0 && value <= 1_000_000_000_000;
+  const minAmountMinor = validAmount(raw.minAmountMinor) ? raw.minAmountMinor : null;
+  const maxAmountMinor = validAmount(raw.maxAmountMinor) ? raw.maxAmountMinor : null;
+  if (minAmountMinor != null && maxAmountMinor != null && minAmountMinor > maxAmountMinor) throw new Error("INVALID_AMOUNT_RANGE");
 
   return {
     accountReference,
     direction,
     status,
     type,
+    minAmountMinor,
+    maxAmountMinor,
     datePreset,
     from: typeof raw.from === "string" ? raw.from : null,
     to: typeof raw.to === "string" ? raw.to : null,
