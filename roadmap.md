@@ -11,10 +11,15 @@
 - Accueil et pages publiques principales modernisés dans une direction éditoriale « photo puis récit » ; navigation mobile publique et client affinée sans modification des opérations.
 
 ## À faire
-- Phase 10 : notifications et messagerie de service client (implémentées dans les étapes 3 et 5 ; validation d’exécution restante).
-- Sécurité client minimale : centre de sécurité, sessions observées, révocation des autres sessions, historique et step-up des virements (étape 6 implémentée ; certification restante).
-- Administration avancée des paramètres financiers : écrans de parité USD/USDT, tenue mensuelle, frais, plafonds et historique.
-- Détails administratifs enrichis : historique complet d’un client, d’un compte et exports d’audit.
-- Génération automatique et idempotente des relevés mensuels réconciliés à chaque clôture, après les pages admin.
-- Lien direct du dashboard client vers le site public.
-- Appliquer en base les 6 nouveaux fichiers ajoutés (admin, profil, notifications, virements externes, support, sécurité) après validation.
+- Phase 10 : notifications et messagerie de service client (base + écrans câblés ; validation d'exécution de bout en bout restante).
+- Sécurité client : centre de sécurité, sessions, révocation, historique, step-up (base + écrans câblés ; certification restante).
+- Détails administratifs enrichis : historique complet d'un client, d'un compte et exports d'audit.
+- Créer la tâche planifiée mensuelle (Cloud → Jobs) appelant POST /api/public/cron/monthly-statements avec l'en-tête x-cron-secret — action utilisateur requise.
+
+## Fait (ce cycle)
+- 5 migrations 20260924 appliquées (durcissement admin, préférences client, workflow virements externes simulés, messagerie support, centre de sécurité).
+- Écrans /app/messages et /app/security vérifiés câblés sur les nouvelles fonctions.
+- Frais de virement externe réellement prélevés via le ledger (FEE_DEBIT_ACTIVE).
+- Route cron relevés mensuels sécurisée (/api/public/cron/monthly-statements, 401 sans secret).
+- Lien « Voir le site public de la banque » ajouté au tableau de bord client.
+- Pages admin parité/tarifs, comptes clients et approvisionnements opérationnelles.
