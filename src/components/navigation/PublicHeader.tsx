@@ -40,7 +40,7 @@ export function PublicHeader() {
   const signOut = useSignOut();
 
   return (
-    <header className="safe-pt sticky top-0 z-40 border-b border-border bg-background/85 backdrop-blur">
+    <header className="safe-pt sticky top-0 z-40 border-b border-border bg-surface/95 shadow-[var(--shadow-subtle)] backdrop-blur-xl">
       <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between gap-3 px-4 sm:px-6">
         <BrandMark />
 
@@ -48,7 +48,7 @@ export function PublicHeader() {
           <NavLinks />
         </nav>
 
-        <div className="flex items-center gap-2">
+        <div className="flex shrink-0 items-center gap-1 sm:gap-2">
           <ThemeToggle className="touch-target" />
           {loading ? null : user ? (
             <>
@@ -87,17 +87,18 @@ export function PublicHeader() {
 
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>
-              <Button variant="outline" size="icon" className="touch-target lg:hidden">
+              <Button variant="ghost" size="icon" className="touch-target lg:hidden" aria-label="Ouvrir le menu">
                 <Menu className="size-5" aria-hidden="true" />
                 <span className="sr-only">Ouvrir le menu</span>
               </Button>
             </SheetTrigger>
-            <SheetContent side="right" className="safe-pt safe-pb w-[85vw] max-w-xs overflow-y-auto">
+            <SheetContent side="right" className="safe-pt safe-pb w-[90vw] max-w-sm overflow-y-auto bg-surface">
               <SheetHeader>
-                <SheetTitle>Menu</SheetTitle>
+                <SheetTitle className="text-heading-md text-foreground">RFC Royal FINANCE Bank</SheetTitle>
               </SheetHeader>
-              <nav aria-label="Navigation mobile" className="mt-2 flex flex-col gap-1 px-4 pb-6">
+              <nav aria-label="Navigation mobile" className="mt-6 flex flex-col gap-1 px-4 pb-6 [&_a]:min-h-12 [&_a]:rounded-md [&_a]:px-3 [&_a]:py-3 [&_a]:text-base [&_a]:hover:bg-surface-sunken">
                 <NavLinks onNavigate={() => setOpen(false)} />
+                <Link to="/contact" onClick={() => setOpen(false)} className="text-muted-foreground transition-colors">Contact</Link>
                 {user ? (
                   <>
                     <Button asChild className="mt-4 touch-target">
