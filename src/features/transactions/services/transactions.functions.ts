@@ -40,8 +40,8 @@ function validatePageRequest(input: TransactionPageRequest | undefined): Transac
   const type = typeof raw.type === "string" && /^[A-Z_]{3,32}$/.test(raw.type) ? raw.type : "ALL";
   const search = typeof raw.search === "string" ? raw.search.slice(0, 64) : null;
   const validAmount = (value: unknown) => typeof value === "number" && Number.isSafeInteger(value) && value >= 0 && value <= 1_000_000_000_000;
-  const minAmountMinor = validAmount(raw.minAmountMinor) ? raw.minAmountMinor : null;
-  const maxAmountMinor = validAmount(raw.maxAmountMinor) ? raw.maxAmountMinor : null;
+  const minAmountMinor = validAmount(raw.minAmountMinor) ? Number(raw.minAmountMinor) : null;
+  const maxAmountMinor = validAmount(raw.maxAmountMinor) ? Number(raw.maxAmountMinor) : null;
   if (minAmountMinor != null && maxAmountMinor != null && minAmountMinor > maxAmountMinor) throw new Error("INVALID_AMOUNT_RANGE");
 
   return {
