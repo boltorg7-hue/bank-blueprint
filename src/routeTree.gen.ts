@@ -69,6 +69,7 @@ import { Route as AppTransactionsTransactionRefRouteImport } from './routes/app.
 import { Route as AppTransfersIndexRouteImport } from './routes/app.transfers.index'
 import { Route as AppTransfersTransferRefRouteImport } from './routes/app.transfers.$transferRef'
 import { Route as AppTransfersNewRouteImport } from './routes/app.transfers.new'
+import { Route as ApiPublicCronMonthlyStatementsRouteImport } from './routes/api/public/cron/monthly-statements'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -372,6 +373,12 @@ const AppTransfersNewRoute = AppTransfersNewRouteImport.update({
   path: '/transfers/new',
   getParentRoute: () => AppRoute,
 } as any)
+const ApiPublicCronMonthlyStatementsRoute =
+  ApiPublicCronMonthlyStatementsRouteImport.update({
+    id: '/api/public/cron/monthly-statements',
+    path: '/api/public/cron/monthly-statements',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -434,6 +441,7 @@ export interface FileRoutesByFullPath {
   '/app/statements/': typeof AppStatementsIndexRoute
   '/app/transactions/': typeof AppTransactionsIndexRoute
   '/app/transfers/': typeof AppTransfersIndexRoute
+  '/api/public/cron/monthly-statements': typeof ApiPublicCronMonthlyStatementsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -490,6 +498,7 @@ export interface FileRoutesByTo {
   '/app/statements': typeof AppStatementsIndexRoute
   '/app/transactions': typeof AppTransactionsIndexRoute
   '/app/transfers': typeof AppTransfersIndexRoute
+  '/api/public/cron/monthly-statements': typeof ApiPublicCronMonthlyStatementsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -553,6 +562,7 @@ export interface FileRoutesById {
   '/app/statements/': typeof AppStatementsIndexRoute
   '/app/transactions/': typeof AppTransactionsIndexRoute
   '/app/transfers/': typeof AppTransfersIndexRoute
+  '/api/public/cron/monthly-statements': typeof ApiPublicCronMonthlyStatementsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -617,6 +627,7 @@ export interface FileRouteTypes {
     | '/app/statements/'
     | '/app/transactions/'
     | '/app/transfers/'
+    | '/api/public/cron/monthly-statements'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -673,6 +684,7 @@ export interface FileRouteTypes {
     | '/app/statements'
     | '/app/transactions'
     | '/app/transfers'
+    | '/api/public/cron/monthly-statements'
   id:
     | '__root__'
     | '/'
@@ -735,6 +747,7 @@ export interface FileRouteTypes {
     | '/app/statements/'
     | '/app/transactions/'
     | '/app/transfers/'
+    | '/api/public/cron/monthly-statements'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -761,6 +774,7 @@ export interface RootRouteChildren {
   VerifyEmailRoute: typeof VerifyEmailRoute
   AuthCallbackRoute: typeof AuthCallbackRoute
   DevDesignSystemRoute: typeof DevDesignSystemRoute
+  ApiPublicCronMonthlyStatementsRoute: typeof ApiPublicCronMonthlyStatementsRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -1185,6 +1199,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppTransfersNewRouteImport
       parentRoute: typeof AppRoute
     }
+    '/api/public/cron/monthly-statements': {
+      id: '/api/public/cron/monthly-statements'
+      path: '/api/public/cron/monthly-statements'
+      fullPath: '/api/public/cron/monthly-statements'
+      preLoaderRoute: typeof ApiPublicCronMonthlyStatementsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -1342,6 +1363,7 @@ const rootRouteChildren: RootRouteChildren = {
   VerifyEmailRoute: VerifyEmailRoute,
   AuthCallbackRoute: AuthCallbackRoute,
   DevDesignSystemRoute: DevDesignSystemRoute,
+  ApiPublicCronMonthlyStatementsRoute: ApiPublicCronMonthlyStatementsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

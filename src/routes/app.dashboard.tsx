@@ -50,6 +50,11 @@ function DashboardPage() {
         title={customer ? `Bonjour ${customer.displayName.split(" ")[0]}` : "Bonjour"}
          description="Votre compte, vos opérations et vos prochaines actions au même endroit."
       />
+      <p className="-mt-4 mb-2 text-caption">
+        <Link to="/" className="text-primary hover:underline">
+          Voir le site public de la banque
+        </Link>
+      </p>
 
       {query.isError ? (
         <ErrorState
