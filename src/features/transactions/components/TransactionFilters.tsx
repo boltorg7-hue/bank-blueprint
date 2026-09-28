@@ -80,6 +80,10 @@ function validRange(filters: Filters): boolean {
     (filters.datePreset !== "CUSTOM" || !filters.from || !filters.to || filters.from <= filters.to);
 }
 
+function dayAfter(date: string): string {
+  return new Date(Date.parse(`${date}T00:00:00.000Z`) + 86_400_000).toISOString();
+}
+
 export const EMPTY_FILTERS: Filters = {
   type: "ALL",
   minAmount: "",
@@ -225,7 +229,7 @@ function FilterFields({
               onChange={(event) =>
                 onChange({
                   ...filters,
-                  to: event.target.value ? new Date(`${event.target.value}T00:00:00.000Z`).toISOString().replace(/^\d{4}-\d{2}-\d{2}/, (day) => new Date(Date.parse(`${day}T00:00:00.000Z`) + 86_400_000).toISOString().slice(0, 10)) : null,
+                  to: event.target.value ? dayAfter(event.target.value) : null,
                 })
               }
             />
@@ -249,7 +253,6 @@ export function TransactionFilters({
   const { language } = useLanguage();
   const en = language === "en";
   const count = activeFilterCount(filters);
-  const draftCount = activeFilterCount(draft);
 
   return (
     <>
@@ -317,14 +320,13 @@ export function TransactionFilters({
       <div className="hidden lg:block">
         <div className="rounded-xl border border-border bg-surface p-4">
           <FilterFields filters={draft} onChange={setDraft} />
-          {count > 0 ? (
-            <div className="mt-3 flex justify-end">
-            <Button variant="ghost" size="sm" onClick={() => { setDraft({ ...EMPTY_FILTERS }); onChange({ ...EMPTY_FILTERS }); }}>
+          <div className="mt-4 flex justify-end gap-2">
+            {count > 0 ? <Button variant="ghost" size="sm" onClick={() => { setDraft({ ...EMPTY_FILTERS }); onChange({ ...EMPTY_FILTERS }); }}>
                 <X className="size-4" aria-hidden="true" />
                 {en ? "Reset all filters" : "Tout réinitialiser"}
-              </Button>
-            </div>
-          ) : null}
+              </Button> : null}
+            <Button size="sm" disabled={!validRange(draft)} onClick={() => onChange(draft)}>{en ? "Show results" : "Voir les résultats"}</Button>
+          </div>
         </div>
       </div>
     </>
