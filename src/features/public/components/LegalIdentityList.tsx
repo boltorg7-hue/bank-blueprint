@@ -26,15 +26,22 @@ export function LegalIdentityList({
     <dl
       className={cn(
         layout === "grid"
-          ? "grid grid-cols-[minmax(0,1fr)] gap-4 sm:grid-cols-2 lg:grid-cols-3"
+          ? "grid grid-cols-[minmax(0,1fr)] gap-y-0 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3"
           : "space-y-4",
         className,
       )}
     >
       {rows.map((row) => (
-        <div key={row.label} className="min-w-0">
+        <div
+          key={row.label}
+          className={cn(
+            "min-w-0",
+            layout === "grid" &&
+              "border-b border-border/60 py-3.5 first:border-t-0 last:border-b-0 sm:border-0 sm:py-0",
+          )}
+        >
           <dt className="text-overline text-muted-foreground">{row.label}</dt>
-          <dd className="text-body-sm mt-1 break-words text-foreground">
+          <dd className="text-body-sm mt-1 break-words leading-relaxed text-foreground">
             {row.value ?? (
               <span className="inline-flex items-center rounded-md border border-dashed border-border px-1.5 py-0.5 text-xs font-medium text-muted-foreground">
                 {LEGAL_IDENTITY_PENDING_LABEL}
