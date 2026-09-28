@@ -10,7 +10,7 @@ export async function simulatePendingSms(userId:string) {
   for (const row of rows) { const result=await simulationSmsProvider.send({recipient:row.recipient,templateKey:row.template_key,payload:row.payload??{}}); await admin.from("notification_outbox").update({status:result.state,provider_reference:result.providerReference,attempts:1,processed_at:new Date().toISOString(),last_error_code:result.errorCode}).eq("id",row.id).eq("status","PENDING"); }
 }
 export async function loadNotifications(client:Client,userId:string):Promise<NotificationCenterDto> {
-  await simulatePendingSms(userId);
+
   const { data,error }=await client.from("notifications" as any).select("id,category,severity,title,body,resource_path,read_at,created_at").eq("user_id",userId).is("archived_at",null).order("created_at",{ascending:false}).limit(100);
   if(error) throw new Error("NOTIFICATIONS_UNAVAILABLE");
   const items=(data??[]).map((row:any)=>({id:row.id,category:row.category,severity:row.severity,title:row.title,body:row.body,resourcePath:row.resource_path??null,readAt:row.read_at??null,createdAt:row.created_at}));
