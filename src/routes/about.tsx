@@ -32,8 +32,8 @@ function AboutPage() {
   const { language } = useLanguage();
   const en = language === "en";
   const intro = en ? aboutEn.intro : ABOUT_INTRO;
-  const sections = en ? sections.map((section, index) => ({ ...section, ...aboutEn.sections[index] })) : ABOUT_SECTIONS;
-  const values = en ? values.map((value, index) => ({ ...value, title: aboutEn.values[index]?.[0] ?? value.title, description: aboutEn.values[index]?.[1] ?? value.description })) : ABOUT_VALUES;
+  const sections = en ? ABOUT_SECTIONS.map((section, index) => ({ ...section, ...aboutEn.sections[index] })) : ABOUT_SECTIONS;
+  const values = en ? ABOUT_VALUES.map((value, index) => ({ ...value, title: aboutEn.values[index]?.[0] ?? value.title, description: aboutEn.values[index]?.[1] ?? value.description })) : ABOUT_VALUES;
   const commitment = en ? aboutEn.commitment : ABOUT_COMMITMENT;
   const governance = en ? aboutEn.governance : ABOUT_GOVERNANCE;
   return (
