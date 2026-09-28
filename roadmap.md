@@ -12,12 +12,14 @@
 
 ## À faire
 - Bilinguisme FR/EN : poursuivre la traduction du contenu détaillé des pages publiques, des parcours client et du back-office ; le sélecteur et les écrans principaux sont en place.
+- Parcours mobile-first : séparer les rubriques sur les pages restantes et revoir les cartes de données denses sans modifier les règles bancaires.
 - Phase 10 : notifications et messagerie de service client (base + écrans câblés ; validation d'exécution de bout en bout restante).
 - Sécurité client : centre de sécurité, sessions, révocation, historique, step-up (base + écrans câblés ; certification restante).
 - Détails administratifs enrichis : historique complet d'un client, d'un compte et exports d'audit.
 - Créer la tâche planifiée mensuelle (Cloud → Jobs) appelant POST /api/public/cron/monthly-statements avec l'en-tête x-cron-secret — action utilisateur requise.
 
 ## Fait (ce cycle)
+- Sélecteur de langue compact dans les trois en-têtes avec détection initiale de la langue du système et mémorisation du choix ; menu public regroupé, navigation admin regroupée, grille des services client et cartes de fonctionnalités affinées sur mobile.
 - 5 migrations 20260924 appliquées (durcissement admin, préférences client, workflow virements externes simulés, messagerie support, centre de sécurité).
 - Écrans /app/messages et /app/security vérifiés câblés sur les nouvelles fonctions.
 - Frais de virement externe réellement prélevés via le ledger (FEE_DEBIT_ACTIVE).
