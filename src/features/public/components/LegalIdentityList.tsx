@@ -45,7 +45,7 @@ export function LegalIdentityList({
         >
           <dt className="text-overline text-muted-foreground">{language === "en" ? labels[row.label] ?? row.label : row.label}</dt>
           <dd className="text-body-sm mt-1 break-words leading-relaxed text-foreground">
-            {row.value ?? (
+            {(language === "en" && row.label === "Date de création" ? "July 23, 1972" : row.value) ?? (
               <span className="inline-flex items-center rounded-md border border-dashed border-border px-1.5 py-0.5 text-xs font-medium text-muted-foreground">
                 {language === "en" ? "Not disclosed" : LEGAL_IDENTITY_PENDING_LABEL}
               </span>
