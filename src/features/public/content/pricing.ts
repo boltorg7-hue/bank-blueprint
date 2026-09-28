@@ -68,7 +68,8 @@ export function pricingLineFor(code: FeeCode): PricingLine {
   };
 }
 
-export const PRICING_CATEGORIES: PricingCategory[] = [
+export function buildPricingCategories(): PricingCategory[] {
+  return [
   {
     id: "account",
     title: "Tenue de compte",
@@ -111,4 +112,7 @@ export const PRICING_CATEGORIES: PricingCategory[] = [
     description: "Services optionnels, ajoutés au fur et à mesure de l'ouverture du produit.",
     lines: [{ label: "Services optionnels", amount: null }],
   },
-];
+  ];
+}
+
+export const PRICING_CATEGORIES: PricingCategory[] = buildPricingCategories();

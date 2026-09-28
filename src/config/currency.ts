@@ -32,7 +32,12 @@ export const QUOTE_UNITS: ReadonlyArray<{
  * Reference parity applied to customer quotes: 1 USDT = 0.9994 USD.
  * USDT is a dollar-referenced unit, so the parity stays close to par.
  */
-export const USD_PER_USDT = 0.9994;
+export let USD_PER_USDT = 0.9994;
+
+/** Applies the live parity published by the back-office (versioned in database). */
+export function setUsdPerUsdt(value: number): void {
+  if (Number.isFinite(value) && value > 0 && value <= 2) USD_PER_USDT = value;
+}
 
 /** Minor-unit precision used when displaying a USDT amount. */
 export const USDT_MINOR_UNIT = 2;

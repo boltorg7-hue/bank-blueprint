@@ -1,3 +1,4 @@
+import { useLiveFinancialSettings } from "@/features/settings/useLiveFinancialSettings";
 import { createFileRoute } from "@tanstack/react-router";
 import { Info } from "lucide-react";
 
@@ -7,7 +8,7 @@ import { PublicSection, SectionHeader } from "@/features/public/components/Secti
 import { PricingTable } from "@/features/public/components/PricingTable";
 import { CtaSection } from "@/features/public/components/CtaSection";
 import { publicMeta } from "@/features/public/lib/seo";
-import { PRICING_CATEGORIES, PRICING_DISCLAIMER } from "@/features/public/content/pricing";
+import { buildPricingCategories, PRICING_DISCLAIMER } from "@/features/public/content/pricing";
 
 const meta = publicMeta({
   title: "Tarifs et conditions",
@@ -22,6 +23,7 @@ export const Route = createFileRoute("/pricing")({
 });
 
 function PricingPage() {
+  useLiveFinancialSettings();
   return (
     <PublicLayout>
       <PageHero
@@ -44,7 +46,7 @@ function PricingPage() {
           eyebrow="Détail"
           title="Conditions tarifaires par catégorie"
         />
-        <PricingTable className="mt-6" categories={PRICING_CATEGORIES} />
+        <PricingTable className="mt-6" categories={buildPricingCategories()} />
       </PublicSection>
 
       <CtaSection />

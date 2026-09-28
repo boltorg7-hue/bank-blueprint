@@ -119,3 +119,11 @@ export const FEE_DEBIT_ACTIVE = false;
 export function transferFeeCode(kind: "INTERNAL_TRANSFER" | "EXTERNAL_TRANSFER"): FeeCode {
   return kind === "EXTERNAL_TRANSFER" ? "TRANSFER_EXTERNAL" : "TRANSFER_INTERNAL";
 }
+
+/** Applies live fee amounts (USD minor units) published by the back-office. */
+export function applyLiveFees(values: Partial<Record<FeeCode, number>>): void {
+  for (const [code, minor] of Object.entries(values)) {
+    const def = FEE_SCHEDULE[code as FeeCode];
+    if (def && Number.isSafeInteger(minor) && (minor as number) >= 0) def.amounts.USD = minor as number;
+  }
+}

@@ -1,3 +1,4 @@
+import { useLiveFinancialSettings } from "@/features/settings/useLiveFinancialSettings";
 import { useMemo, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { AlertTriangle, ArrowRight, CheckCircle2, Loader2 } from "lucide-react";
@@ -74,6 +75,7 @@ function toMinorUnits(raw: string, minorUnit: number): number | null {
  * server-side and atomic.
  */
 export function TransferWizard({ initialBeneficiary }: { initialBeneficiary?: string | undefined }) {
+  useLiveFinancialSettings();
   const navigate = useNavigate();
   const accountsQuery = useCustomerAccounts();
   const beneficiariesQuery = useBeneficiaries();
