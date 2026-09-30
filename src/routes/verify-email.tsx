@@ -91,6 +91,45 @@ function VerifyEmailPage() {
     setCooldown(RESEND_COOLDOWN_SECONDS);
   }
 
+  async function handleChangeEmail(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const value = newEmail.trim().toLowerCase();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(value)) {
+      setNotice({ tone: "error", text: en ? "Please enter a valid email address." : "Saisissez une adresse e-mail valide." });
+      return;
+    }
+    if (target && value === target.toLowerCase()) {
+      setNotice({ tone: "error", text: en ? "This is already your current address." : "C’est déjà votre adresse actuelle." });
+      return;
+    }
+    setSavingEmail(true);
+    const { data: sessionData } = await supabase.auth.getSession();
+    if (!sessionData.session) {
+      setSavingEmail(false);
+      void navigate({ to: "/register" });
+      return;
+    }
+    const { error } = await supabase.auth.updateUser(
+      { email: value },
+      { emailRedirectTo: `${window.location.origin}/auth/callback` },
+    );
+    setSavingEmail(false);
+    if (error) {
+      setNotice({ tone: "error", text: signUpErrorMessage(error, en ? "en" : "fr") });
+      return;
+    }
+    setEditing(false);
+    setNewEmail("");
+    setCooldown(RESEND_COOLDOWN_SECONDS);
+    setNotice({
+      tone: "ok",
+      text: en
+        ? `A confirmation link has been sent to ${maskEmail(value)}.`
+        : `Un lien de confirmation a été envoyé à ${maskEmail(value)}.`,
+    });
+    void checkStatus();
+  }
+
   const statusCard =
     verified === true ? (
       <div role="status" className="flex items-start gap-3 rounded-xl border border-success/40 bg-success-muted px-4 py-3">
