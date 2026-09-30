@@ -4,6 +4,8 @@ import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { ChoiceField } from "@/features/onboarding/components/ChoiceField";
+import { COUNTRIES, TT_CITIES, TT_REGIONS } from "@/features/onboarding/lib/choices";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Spinner } from "@/components/ui/spinner";
@@ -27,6 +29,7 @@ function AddressStepPage() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [formError, setFormError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
+  const [country, setCountry] = useState<string | null>(null);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -71,6 +74,7 @@ function AddressStepPage() {
   }
 
   const address = context.address;
+  const isTT = (country ?? address?.country ?? context.profile.country_of_residence ?? "Trinidad and Tobago") === "Trinidad and Tobago";
 
   return (
     <OnboardingShell
@@ -80,11 +84,21 @@ function AddressStepPage() {
       why={en ? "Your address determines available services and must match your proof of address." : "Votre adresse détermine les services disponibles et doit correspondre à votre justificatif de domicile."}
     >
       <form onSubmit={handleSubmit} noValidate className="space-y-5">
-        <Field name="country" label={en ? "Country" : "Pays"} autoComplete="country-name" defaultValue={address?.country} error={errors["country"]} />
+        <ChoiceField id="address-country" name="country" label={en ? "Country" : "Pays"} options={COUNTRIES} en={en} defaultValue={address?.country ?? context.profile.country_of_residence ?? "Trinidad and Tobago"} error={errors["country"]} onChange={setCountry} />
         <Field name="addressLine1" label={en ? "Address" : "Adresse"} autoComplete="address-line1" defaultValue={address?.address_line1} error={errors["addressLine1"]} />
         <Field name="addressLine2" label={en ? "Address line 2 (optional)" : "Complément d'adresse (optionnel)"} autoComplete="address-line2" defaultValue={address?.address_line2} error={errors["addressLine2"]} />
-        <Field name="city" label={en ? "City" : "Ville"} autoComplete="address-level2" defaultValue={address?.city} error={errors["city"]} />
-        <Field name="region" label={en ? "Region, state or province (if applicable)" : "Région, état ou province (si applicable)"} autoComplete="address-level1" defaultValue={address?.region} error={errors["region"]} />
+        {isTT ? (
+          <>
+            <Field name="city" label={en ? "City or town — choose or type" : "Ville ou localité — choisir ou saisir"} autoComplete="address-level2" defaultValue={address?.city} error={errors["city"]} list="tt-cities" />
+            <datalist id="tt-cities">{TT_CITIES.map((c) => <option key={c} value={c} />)}</datalist>
+            <ChoiceField id="address-region" name="region" label={en ? "Region" : "Région"} options={TT_REGIONS.map((r) => ({ value: r, fr: r, en: r }))} en={en} defaultValue={address?.region} error={errors["region"]} />
+          </>
+        ) : (
+          <>
+            <Field name="city" label={en ? "City" : "Ville"} autoComplete="address-level2" defaultValue={address?.city} error={errors["city"]} />
+            <Field name="region" label={en ? "Region, state or province (if applicable)" : "Région, état ou province (si applicable)"} autoComplete="address-level1" defaultValue={address?.region} error={errors["region"]} />
+          </>
+        )}
         <Field name="postalCode" label={en ? "Postal code (if applicable)" : "Code postal (si applicable)"} autoComplete="postal-code" defaultValue={address?.postal_code} error={errors["postalCode"]} />
 
         {formError ? (
@@ -94,7 +108,7 @@ function AddressStepPage() {
         ) : null}
 
         <Button type="submit" className="w-full touch-target" loading={pending}>
-          Enregistrer et continuer
+          {en ? "Save and continue" : "Enregistrer et continuer"}
         </Button>
       </form>
     </OnboardingShell>
@@ -105,12 +119,14 @@ function Field({
   name,
   label,
   autoComplete,
+  list,
   defaultValue,
   error,
 }: {
   name: string;
   label: string;
   autoComplete: string;
+  list?: string | undefined;
   defaultValue?: string | null | undefined;
   error?: string | undefined;
 }) {
@@ -122,6 +138,7 @@ function Field({
         id={id}
         name={name}
         autoComplete={autoComplete}
+        list={list}
         defaultValue={defaultValue ?? ""}
         aria-invalid={error ? true : undefined}
         aria-describedby={error ? `${id}-error` : undefined}

@@ -11,6 +11,8 @@ import { OnboardingShell } from "@/features/onboarding/components/OnboardingShel
 import { useCustomerContext, useInvalidateCustomerContext } from "@/features/onboarding/hooks/useCustomerContext";
 import { profileStepSchema } from "@/features/onboarding/schemas/onboarding.schemas";
 import { fieldErrorsFrom } from "@/features/auth/schemas/auth.schemas";
+import { ChoiceField } from "@/features/onboarding/components/ChoiceField";
+import { COUNTRIES, OCCUPATIONS } from "@/features/onboarding/lib/choices";
 import { saveProfileStep } from "@/features/onboarding/services/onboarding.functions";
 
 export const Route = createFileRoute("/onboarding/profile")({
@@ -86,10 +88,10 @@ function ProfileStepPage() {
         <Field name="middleName" label={en ? "Middle name (optional)" : "Deuxième prénom (optionnel)"} autoComplete="additional-name" defaultValue={profile.middle_name} error={errors["middleName"]} />
         <Field name="lastName" label={en ? "Last name" : "Nom"} autoComplete="family-name" defaultValue={profile.last_name} error={errors["lastName"]} />
         <Field name="dateOfBirth" label={en ? "Date of birth" : "Date de naissance"} type="date" autoComplete="bday" defaultValue={profile.date_of_birth} error={errors["dateOfBirth"]} />
-        <Field name="nationality" label={en ? "Nationality" : "Nationalité"} autoComplete="country-name" defaultValue={profile.nationality} error={errors["nationality"]} />
-        <Field name="countryOfResidence" label={en ? "Country of residence" : "Pays de résidence"} autoComplete="country-name" defaultValue={profile.country_of_residence} error={errors["countryOfResidence"]} />
-        <Field name="occupation" label={en ? "Occupation" : "Profession"} autoComplete="organization-title" defaultValue={profile.occupation} error={errors["occupation"]} />
-        <Field name="phone" label={en ? "Phone number (optional)" : "Numéro de téléphone (optionnel)"} type="tel" autoComplete="tel" defaultValue={profile.phone} error={errors["phone"]} />
+        <ChoiceField id="profile-nationality" name="nationality" label={en ? "Nationality" : "Nationalité"} options={COUNTRIES} en={en} defaultValue={profile.nationality ?? "Trinidad and Tobago"} error={errors["nationality"]} />
+        <ChoiceField id="profile-countryOfResidence" name="countryOfResidence" label={en ? "Country of residence" : "Pays de résidence"} options={COUNTRIES} en={en} defaultValue={profile.country_of_residence ?? "Trinidad and Tobago"} error={errors["countryOfResidence"]} />
+        <ChoiceField id="profile-occupation" name="occupation" label={en ? "Occupation" : "Profession"} options={OCCUPATIONS} en={en} allowOther defaultValue={profile.occupation} error={errors["occupation"]} />
+        <Field name="phone" label={en ? "Phone number (optional)" : "Numéro de téléphone (optionnel)"} type="tel" autoComplete="tel" defaultValue={profile.phone ?? (profile.country_of_residence && profile.country_of_residence !== "Trinidad and Tobago" ? "" : "+1 868 ")} error={errors["phone"]} />
 
         {formError ? (
           <p role="alert" className="text-body-sm rounded-lg bg-destructive/10 px-3 py-2 text-destructive">
@@ -98,7 +100,7 @@ function ProfileStepPage() {
         ) : null}
 
         <Button type="submit" className="w-full touch-target" loading={pending}>
-          Enregistrer et continuer
+          {en ? "Save and continue" : "Enregistrer et continuer"}
         </Button>
       </form>
     </OnboardingShell>

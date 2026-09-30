@@ -1,5 +1,6 @@
 import { useLanguage } from "@/components/providers/LanguageProvider";
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { CheckCircle2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
@@ -41,14 +42,28 @@ function DocumentsStepPage() {
       <DocumentUploader context={context} editable={editable} />
 
       <div className="mt-8 space-y-3">
-        <p className="text-body-sm text-muted-foreground">
-          {ready
-            ? (en ? "The required documents are present. You can review your application." : "Les documents requis sont présents. Vous pouvez passer à la relecture de votre dossier.")
-            : (en ? "Required: an identity card, passport or residence permit, and proof of address." : "Documents requis : une pièce d'identité (carte d'identité, passeport ou titre de séjour) et un justificatif de domicile.")}
-        </p>
-        <Button asChild className="w-full touch-target" disabled={!ready}>
-          <Link to="/onboarding/review">{en ? "Review my application" : "Relire mon dossier"}</Link>
-        </Button>
+        {ready ? (
+          <div role="status" className="flex items-start gap-3 rounded-2xl border border-success/40 bg-success-muted px-4 py-4 animate-in fade-in slide-in-from-bottom-2 duration-500">
+            <CheckCircle2 className="mt-0.5 size-6 shrink-0 text-success animate-in zoom-in-50 duration-700" aria-hidden="true" />
+            <div>
+              <p className="text-label text-foreground">{en ? "Step 3 of 4 completed" : "Étape 3 sur 4 terminée"}</p>
+              <p className="text-body-sm text-muted-foreground">
+                {en ? "Your identity documents are provided. One last check and you're done." : "Vos documents d'identité sont bien renseignés. Une dernière relecture et c'est terminé."}
+              </p>
+            </div>
+          </div>
+        ) : (
+          <p className="text-body-sm text-muted-foreground">
+            {en ? "Required: an identity card, passport or residence permit, and proof of address." : "Documents requis : une pièce d'identité (carte d'identité, passeport ou titre de séjour) et un justificatif de domicile."}
+          </p>
+        )}
+        {ready || !editable ? (
+          <Button asChild className="w-full touch-target">
+            <Link to={editable ? "/onboarding/review" : "/onboarding/status"}>{en ? "Continue to review" : "Continuer vers la relecture"}</Link>
+          </Button>
+        ) : (
+          <Button className="w-full touch-target" disabled>{en ? "Review my application" : "Relire mon dossier"}</Button>
+        )}
       </div>
     </OnboardingShell>
   );
