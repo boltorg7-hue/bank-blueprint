@@ -1,4 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import { CheckCircle2, Circle, ArrowRight } from "lucide-react";
 
 import { useLanguage } from "@/components/providers/LanguageProvider";
@@ -27,7 +29,13 @@ export const Route = createFileRoute("/email-verified")({
 function EmailVerifiedPage() {
   const { language } = useLanguage();
   const en = language === "en";
-  const { data: context, isLoading: isPending } = useCustomerContext();
+  const [hasSession, setHasSession] = useState<boolean | null>(null);
+  useEffect(() => {
+    void supabase.auth.getSession().then(({ data }) => setHasSession(Boolean(data.session)));
+  }, []);
+  const query = useCustomerContext({ enabled: hasSession === true });
+  const context = query.data;
+  const isPending = hasSession === null || query.isLoading;
 
   const steps = en
     ? [
