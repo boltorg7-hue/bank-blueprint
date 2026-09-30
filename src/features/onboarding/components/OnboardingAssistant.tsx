@@ -83,7 +83,7 @@ export function OnboardingAssistant() {
             <li key={i} className="space-y-2">
               <p className="ml-auto w-fit max-w-[85%] rounded-2xl bg-primary px-3 py-2 text-body-sm text-primary-foreground">{e.question}</p>
               <p className={`w-fit max-w-[95%] whitespace-pre-line rounded-2xl bg-background px-3 py-2 text-body-sm ${e.error ? "text-destructive" : "text-foreground"}`}>
-                {e.answer ?? e.error ?? (en ? "Thinking…" : "Réflexion en cours…")}
+                {e.answer?.replace(/\*\*/g, "") ?? e.error ?? (en ? "Thinking…" : "Réflexion en cours…")}
               </p>
             </li>
           ))}
