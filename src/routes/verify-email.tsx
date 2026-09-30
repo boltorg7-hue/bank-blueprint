@@ -1,12 +1,14 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useCallback, useEffect, useState } from "react";
-import { CheckCircle2, Clock, MailCheck, RefreshCw } from "lucide-react";
+import { CheckCircle2, Clock, MailCheck, PencilLine, RefreshCw } from "lucide-react";
 import { useLanguage } from "@/components/providers/LanguageProvider";
 
 import { AuthShell } from "@/features/auth/components/AuthShell";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
-import { maskEmail } from "@/features/auth/lib/auth-errors";
+import { maskEmail, signUpErrorMessage } from "@/features/auth/lib/auth-errors";
 import { publicMeta } from "@/features/public/lib/seo";
 
 const meta = publicMeta({
@@ -37,6 +39,10 @@ function VerifyEmailPage() {
   const [cooldown, setCooldown] = useState(0);
   const [notice, setNotice] = useState<{ tone: "ok" | "error"; text: string } | null>(null);
   const [pending, setPending] = useState(false);
+  const [editing, setEditing] = useState(false);
+  const [newEmail, setNewEmail] = useState("");
+  const [savingEmail, setSavingEmail] = useState(false);
+  const navigate = useNavigate();
 
   const checkStatus = useCallback(async () => {
     setChecking(true);
@@ -83,6 +89,45 @@ function VerifyEmailPage() {
       setNotice({ tone: "ok", text: en ? "If a confirmation is still needed, a new email has just been sent." : "Si une confirmation est encore nécessaire, un nouvel e-mail vient d'être envoyé." });
     }
     setCooldown(RESEND_COOLDOWN_SECONDS);
+  }
+
+  async function handleChangeEmail(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const value = newEmail.trim().toLowerCase();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(value)) {
+      setNotice({ tone: "error", text: en ? "Please enter a valid email address." : "Saisissez une adresse e-mail valide." });
+      return;
+    }
+    if (target && value === target.toLowerCase()) {
+      setNotice({ tone: "error", text: en ? "This is already your current address." : "C’est déjà votre adresse actuelle." });
+      return;
+    }
+    setSavingEmail(true);
+    const { data: sessionData } = await supabase.auth.getSession();
+    if (!sessionData.session) {
+      setSavingEmail(false);
+      void navigate({ to: "/register" });
+      return;
+    }
+    const { error } = await supabase.auth.updateUser(
+      { email: value },
+      { emailRedirectTo: `${window.location.origin}/auth/callback` },
+    );
+    setSavingEmail(false);
+    if (error) {
+      setNotice({ tone: "error", text: signUpErrorMessage(error, en ? "en" : "fr") });
+      return;
+    }
+    setEditing(false);
+    setNewEmail("");
+    setCooldown(RESEND_COOLDOWN_SECONDS);
+    setNotice({
+      tone: "ok",
+      text: en
+        ? `A confirmation link has been sent to ${maskEmail(value)}.`
+        : `Un lien de confirmation a été envoyé à ${maskEmail(value)}.`,
+    });
+    void checkStatus();
   }
 
   const statusCard =
@@ -155,12 +200,63 @@ function VerifyEmailPage() {
           </>
         )}
 
-        <div className="flex flex-col gap-2">
-          {!verified ? (
-            <Button asChild variant="ghost" className="touch-target">
-              <Link to="/register">{en ? "Change my email address" : "Modifier mon adresse e-mail"}</Link>
+        {!verified ? (
+          editing ? (
+            <form onSubmit={(event) => void handleChangeEmail(event)} className="space-y-3 rounded-xl border border-border bg-surface p-4">
+              <Label htmlFor="new-email">{en ? "New email address" : "Nouvelle adresse e-mail"}</Label>
+              <Input
+                id="new-email"
+                type="email"
+                inputMode="email"
+                autoComplete="email"
+                autoCapitalize="none"
+                autoFocus
+                required
+                className="touch-target"
+                placeholder={en ? "you@example.com" : "vous@exemple.com"}
+                value={newEmail}
+                onChange={(event) => setNewEmail(event.target.value)}
+              />
+              <p className="text-caption text-muted-foreground">
+                {en
+                  ? "We'll send a new confirmation link to this address."
+                  : "Nous enverrons un nouveau lien de confirmation à cette adresse."}
+              </p>
+              <div className="flex flex-col gap-2 sm:flex-row">
+                <Button type="submit" className="w-full touch-target" loading={savingEmail}>
+                  {en ? "Save and send the link" : "Enregistrer et envoyer le lien"}
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full touch-target"
+                  onClick={() => {
+                    setEditing(false);
+                    setNewEmail("");
+                  }}
+                >
+                  {en ? "Cancel" : "Annuler"}
+                </Button>
+              </div>
+            </form>
+          ) : (
+            <Button
+              type="button"
+              variant="ghost"
+              className="w-full touch-target"
+              onClick={() => {
+                setNotice(null);
+                setNewEmail(target ?? "");
+                setEditing(true);
+              }}
+            >
+              <PencilLine className="size-4" aria-hidden="true" />
+              {en ? "Wrong address? Change my email" : "Adresse incorrecte ? Modifier mon e-mail"}
             </Button>
-          ) : null}
+          )
+        ) : null}
+
+        <div className="flex flex-col gap-2">
           <Button asChild variant="ghost" className="touch-target">
             <Link to="/login">{en ? "Back to sign in" : "Retour à la connexion"}</Link>
           </Button>
