@@ -27,7 +27,7 @@ export const Route = createFileRoute("/email-verified")({
 function EmailVerifiedPage() {
   const { language } = useLanguage();
   const en = language === "en";
-  const { data: context, isPending } = useCustomerContext();
+  const { data: context, isLoading: isPending } = useCustomerContext();
 
   const steps = en
     ? [
