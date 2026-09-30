@@ -64,7 +64,7 @@ export function RegisterForm() {
 
     if (error) {
       setPending(false);
-      setFormError(signUpErrorMessage(error));
+      setFormError(signUpErrorMessage(error, en ? "en" : "fr"));
       return;
     }
 

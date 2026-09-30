@@ -63,7 +63,7 @@ export function PasswordField({
       {showRules ? (
         <ul id={`${id}-rules`} className="text-caption space-y-0.5 text-muted-foreground">
           {PASSWORD_RULES.map((rule) => (
-            <li key={rule}>• {language === "en" ? ({ "12 caractères minimum": "At least 12 characters", "Une lettre majuscule": "One uppercase letter", "Une lettre minuscule": "One lowercase letter", "Un chiffre": "One number", "Un caractère spécial": "One special character" } as Record<string, string>)[rule] ?? rule : rule}</li>
+            <li key={rule}>• {language === "en" ? ({ "12 caractères minimum": "At least 12 characters", "au moins une lettre majuscule et une minuscule": "at least one uppercase and one lowercase letter", "au moins un chiffre": "at least one number" } as Record<string, string>)[rule] ?? rule : rule}</li>
           ))}
         </ul>
       ) : null}
