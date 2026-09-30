@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { getRequest } from "@tanstack/react-start/server";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import type {
@@ -43,6 +44,60 @@ export const listAdminOnboardingCases = createServerFn({ method: "POST" })
   .handler(async ({ data, context }): Promise<AdminOnboardingCaseDto[]> => {
     const service = await import("@/features/admin/services/admin.server");
     return service.loadAdminOnboardingCases(context.supabase, data.search);
+  });
+
+export const inviteAdminCustomer = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { email: string; firstName: string; lastName: string }) => {
+    const email = String(input?.email ?? "").trim().toLowerCase();
+    const firstName = String(input?.firstName ?? "").trim();
+    const lastName = String(input?.lastName ?? "").trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || firstName.length < 2 || firstName.length > 80 || lastName.length < 2 || lastName.length > 80) throw new Error("INVALID_INVITATION");
+    return { email, firstName, lastName };
+  })
+  .handler(async ({ data, context }) => {
+    const request = getRequest();
+    const service = await import("@/features/admin/services/admin.server");
+    return service.inviteCustomer(context.supabase, context.userId, data, new URL(request.url).origin);
+  });
+
+export const reviewAdminOnboardingCase = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { customerId: string; recommendation: "APPROVE" | "REJECT" | "REQUEST_INFO"; note: string }) => {
+    const customerId = String(input?.customerId ?? "");
+    const note = String(input?.note ?? "").trim();
+    if (!/^[0-9a-f-]{36}$/i.test(customerId) || !["APPROVE", "REJECT", "REQUEST_INFO"].includes(input?.recommendation) || note.length < 8 || note.length > 500) throw new Error("INVALID_REVIEW");
+    return { customerId, recommendation: input.recommendation, note };
+  })
+  .handler(async ({ data, context }) => {
+    const service = await import("@/features/admin/services/admin.server");
+    return service.reviewOnboardingCase(context.supabase, context.userId, data);
+  });
+
+export const decideAdminOnboardingCase = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { requestId: string; confirm: boolean; note: string }) => {
+    const requestId = String(input?.requestId ?? "");
+    const note = String(input?.note ?? "").trim();
+    if (!/^[0-9a-f-]{36}$/i.test(requestId) || typeof input?.confirm !== "boolean" || note.length < 8 || note.length > 500) throw new Error("INVALID_DECISION");
+    return { requestId, confirm: input.confirm, note };
+  })
+  .handler(async ({ data, context }) => {
+    const service = await import("@/features/admin/services/admin.server");
+    return service.decideOnboardingCase(context.supabase, context.userId, data);
+  });
+
+export const activateAdminOnboardingCustomer = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { customerId: string; reason: string }) => {
+    const customerId = String(input?.customerId ?? "");
+    const reason = String(input?.reason ?? "").trim();
+    if (!/^[0-9a-f-]{36}$/i.test(customerId) || reason.length < 8 || reason.length > 300) throw new Error("INVALID_ACTIVATION");
+    return { customerId, reason };
+  })
+  .handler(async ({ data, context }) => {
+    const service = await import("@/features/admin/services/admin.server");
+    return service.activateOnboardingCustomer(context.supabase, context.userId, data);
   });
 
 export const listAdminAccounts = createServerFn({ method: "POST" })

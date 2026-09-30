@@ -14,6 +14,10 @@ import {
   setCustomerState,
   listAdminExternalTransfers,
   advanceAdminExternalTransfer,
+  activateAdminOnboardingCustomer,
+  decideAdminOnboardingCase,
+  inviteAdminCustomer,
+  reviewAdminOnboardingCase,
 } from "@/features/admin/services/admin.functions";
 
 export const ADMIN_CONTEXT_KEY = ["admin", "context"] as const;
@@ -48,6 +52,31 @@ export function useAdminOnboardingCases(search: string) {
     staleTime: 10_000,
     enabled: staff?.authorized === true && staff.permissions.includes("customers.read"),
   });
+}
+
+function onboardingMutation<T>(fn: (input: T) => Promise<unknown>) {
+  const queryClient = useQueryClient();
+  return useMutation({ mutationFn: fn, onSuccess: () => queryClient.invalidateQueries({ queryKey: ADMIN_ONBOARDING_KEY }) });
+}
+
+export function useInviteAdminCustomer() {
+  const fn = useServerFn(inviteAdminCustomer);
+  return onboardingMutation((data: { email: string; firstName: string; lastName: string }) => fn({ data }));
+}
+
+export function useReviewAdminOnboardingCase() {
+  const fn = useServerFn(reviewAdminOnboardingCase);
+  return onboardingMutation((data: { customerId: string; recommendation: "APPROVE" | "REJECT" | "REQUEST_INFO"; note: string }) => fn({ data }));
+}
+
+export function useDecideAdminOnboardingCase() {
+  const fn = useServerFn(decideAdminOnboardingCase);
+  return onboardingMutation((data: { requestId: string; confirm: boolean; note: string }) => fn({ data }));
+}
+
+export function useActivateAdminOnboardingCustomer() {
+  const fn = useServerFn(activateAdminOnboardingCustomer);
+  return onboardingMutation((data: { customerId: string; reason: string }) => fn({ data }));
 }
 
 export function useAdminAccounts(search = "") {

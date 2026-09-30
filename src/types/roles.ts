@@ -26,11 +26,13 @@ export type Permission =
   | "admin.access"
   | "customers.read"
   | "customers.write"
+  | "customers.invite"
   | "accounts.read"
   | "accounts.manage"
   | "finance.adjustment.create"
   | "finance.adjustment.approve"
   | "kyc.review"
+  | "kyc.approve"
   | "compliance.review"
   | "transfers.approve"
   | "support.read"
@@ -49,17 +51,19 @@ export const ROLE_PERMISSIONS: Record<StaffRole, readonly Permission[]> = {
   kyc_agent: ["admin.access", "customers.read", "kyc.review"],
   compliance_officer: ["admin.access", "customers.read", "compliance.review", "audit.read"],
   finance_operator: ["admin.access", "accounts.read", "finance.adjustment.create", "ledger.post"],
-  supervisor: ["admin.access", "customers.read", "accounts.read", "finance.adjustment.approve", "transfers.approve", "compliance.review", "support.read", "support.reply"],
-  administrator: ["admin.access", "customers.read", "customers.write", "accounts.read", "accounts.manage", "support.read", "support.reply", "staff.manage", "settings.manage"],
+  supervisor: ["admin.access", "customers.read", "accounts.read", "finance.adjustment.approve", "kyc.approve", "transfers.approve", "compliance.review", "support.read", "support.reply"],
+  administrator: ["admin.access", "customers.read", "customers.write", "customers.invite", "accounts.read", "accounts.manage", "support.read", "support.reply", "staff.manage", "settings.manage"],
   super_admin: [
     "admin.access",
     "customers.read",
     "customers.write",
+    "customers.invite",
     "accounts.read",
     "accounts.manage",
     "finance.adjustment.create",
     "finance.adjustment.approve",
     "kyc.review",
+    "kyc.approve",
     "compliance.review",
     "transfers.approve",
     "support.read",

@@ -1,8 +1,15 @@
-import { FileCheck2, Files, UserRoundCheck } from "lucide-react";
+import { useState } from "react";
+import { FileCheck2, Files, ShieldCheck, UserRoundCheck } from "lucide-react";
+import { toast } from "sonner";
 
 import { useLanguage } from "@/components/providers/LanguageProvider";
 import { StatusBadge, type StatusTone } from "@/components/ui/status-badge";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Textarea } from "@/components/ui/textarea";
+import { useActivateAdminOnboardingCustomer, useAdminContext, useDecideAdminOnboardingCase, useReviewAdminOnboardingCase } from "@/features/admin/hooks/useAdmin";
 import type { AdminOnboardingCaseDto } from "@/features/admin/types/admin";
 import { formatDate, formatDateTime } from "@/lib/format";
 
@@ -88,6 +95,41 @@ function Progress({ step }: { step: string }) {
 export function AdminOnboardingCases({ cases }: { cases: AdminOnboardingCaseDto[] }) {
   const { language } = useLanguage();
   const en = language === "en";
+  const context = useAdminContext();
+  const review = useReviewAdminOnboardingCase();
+  const decide = useDecideAdminOnboardingCase();
+  const activate = useActivateAdminOnboardingCustomer();
+  const permissions = context.data?.permissions ?? [];
+  const [action, setAction] = useState<{ item: AdminOnboardingCaseDto; type: "APPROVE" | "REJECT" | "REQUEST_INFO" | "CONFIRM" | "RETURN" | "ACTIVATE" } | null>(null);
+  const [note, setNote] = useState("");
+
+  function actions(item: AdminOnboardingCaseDto) {
+    const pending = item.approval?.status === "PENDING_SECOND_REVIEW";
+    return <div className="grid gap-2 sm:flex sm:flex-wrap">
+      {permissions.includes("kyc.review") && ["SUBMITTED", "UNDER_REVIEW"].includes(item.verificationStatus) && !pending ? <>
+        <Button size="sm" onClick={() => setAction({ item, type: "APPROVE" })}>{en ? "Recommend approval" : "Recommander l’approbation"}</Button>
+        <Button size="sm" variant="outline" onClick={() => setAction({ item, type: "REQUEST_INFO" })}>{en ? "Request information" : "Demander un complément"}</Button>
+        <Button size="sm" variant="ghost" onClick={() => setAction({ item, type: "REJECT" })}>{en ? "Recommend rejection" : "Recommander le refus"}</Button>
+      </> : null}
+      {permissions.includes("kyc.approve") && pending ? <>
+        <Button size="sm" onClick={() => setAction({ item, type: "CONFIRM" })}>{en ? "Second approval" : "Seconde validation"}</Button>
+        <Button size="sm" variant="outline" onClick={() => setAction({ item, type: "RETURN" })}>{en ? "Return to review" : "Renvoyer à l’examen"}</Button>
+      </> : null}
+      {permissions.includes("accounts.manage") && item.verificationStatus === "VERIFIED" && item.accountStatus === "PENDING" ? <Button size="sm" onClick={() => setAction({ item, type: "ACTIVATE" })}>{en ? "Activate banking" : "Activer le compte"}</Button> : null}
+    </div>;
+  }
+
+  async function confirmAction() {
+    if (!action || note.trim().length < 8) return;
+    try {
+      if (["APPROVE", "REJECT", "REQUEST_INFO"].includes(action.type)) await review.mutateAsync({ customerId: action.item.customerId, recommendation: action.type as "APPROVE" | "REJECT" | "REQUEST_INFO", note: note.trim() });
+      else if (action.type === "ACTIVATE") await activate.mutateAsync({ customerId: action.item.customerId, reason: note.trim() });
+      else if (action.item.approval) await decide.mutateAsync({ requestId: action.item.approval.id, confirm: action.type === "CONFIRM", note: note.trim() });
+      toast.success(en ? "Decision recorded." : "Décision enregistrée."); setAction(null); setNote("");
+    } catch (error) {
+      toast.error(error instanceof Error && error.message.includes("MAKER") ? (en ? "The first reviewer cannot perform the second approval." : "Le premier examinateur ne peut pas effectuer la seconde validation.") : (en ? "The decision could not be recorded." : "La décision n’a pas pu être enregistrée."));
+    }
+  }
   return (
     <>
       <ul className="native-list divide-y divide-border md:hidden">
@@ -105,21 +147,24 @@ export function AdminOnboardingCases({ cases }: { cases: AdminOnboardingCaseDto[
               <div className="col-span-2"><p className="text-xs text-muted-foreground">{en ? "Decision date" : "Date de validation"}</p><p className="mt-1 text-sm font-medium">{item.decidedAt ? formatDateTime(item.decidedAt) : (en ? "Pending" : "En attente")}</p></div>
             </div>
             <DocumentList documents={item.documents} />
+            {item.approval ? <div className="rounded-md border border-border p-3"><p className="text-xs text-muted-foreground">{en ? "First review" : "Premier examen"}</p><p className="mt-1 text-sm font-medium">{item.approval.reviewerName} · {item.approval.recommendation === "APPROVE" ? (en ? "Approval recommended" : "Approbation recommandée") : (en ? "Rejection recommended" : "Refus recommandé")}</p><p className="mt-1 text-sm text-muted-foreground">{item.approval.reviewerNote}</p></div> : null}
+            {actions(item)}
           </li>
         ))}
       </ul>
       <div className="hidden overflow-hidden rounded-md border border-border bg-surface md:block">
         <Table>
-          <TableHeader><TableRow><TableHead>{en ? "Customer" : "Client"}</TableHead><TableHead>{en ? "Application status" : "Statut du dossier"}</TableHead><TableHead>{en ? "Documents received" : "Documents reçus"}</TableHead><TableHead>{en ? "Submitted" : "Soumission"}</TableHead><TableHead>{en ? "Decision date" : "Date de validation"}</TableHead></TableRow></TableHeader>
+        <TableHeader><TableRow><TableHead>{en ? "Customer" : "Client"}</TableHead><TableHead>{en ? "Application status" : "Statut du dossier"}</TableHead><TableHead>{en ? "Documents received" : "Documents reçus"}</TableHead><TableHead>{en ? "Review" : "Examen"}</TableHead><TableHead>{en ? "Action" : "Action"}</TableHead></TableRow></TableHeader>
           <TableBody>{cases.map((item) => <TableRow key={item.customerId}>
             <TableCell><div className="flex gap-3"><UserRoundCheck className="mt-0.5 size-4 shrink-0 text-muted-foreground" /><div><p className="font-medium">{item.fullName}</p><p className="text-xs text-muted-foreground">{item.reference}</p><p className="text-xs text-muted-foreground">{item.email ?? "—"}</p></div></div></TableCell>
             <TableCell><CaseStatus status={item.verificationStatus} /><Progress step={item.onboardingStep} /></TableCell>
             <TableCell><div className="flex items-center gap-2"><FileCheck2 className="size-4 text-muted-foreground" /><span className="font-medium">{item.documents.length}</span></div><div className="mt-2 max-w-sm"><DocumentList documents={item.documents} /></div></TableCell>
-            <TableCell>{item.submittedAt ? formatDateTime(item.submittedAt) : "—"}</TableCell>
-            <TableCell>{item.decidedAt ? formatDateTime(item.decidedAt) : <span className="text-muted-foreground">{en ? "Pending" : "En attente"}</span>}</TableCell>
+            <TableCell>{item.approval ? <div><p className="font-medium">{item.approval.reviewerName}</p><p className="text-xs text-muted-foreground">{item.approval.recommendation === "APPROVE" ? (en ? "Approval recommended" : "Approbation recommandée") : (en ? "Rejection recommended" : "Refus recommandé")}</p></div> : item.submittedAt ? formatDateTime(item.submittedAt) : "—"}</TableCell>
+            <TableCell><div className="min-w-56">{actions(item)}</div></TableCell>
           </TableRow>)}</TableBody>
         </Table>
       </div>
+      <Dialog open={Boolean(action)} onOpenChange={(open) => { if (!open) { setAction(null); setNote(""); } }}><DialogContent className="w-[calc(100%-2rem)] rounded-md"><DialogHeader><DialogTitle className="flex items-center gap-2"><ShieldCheck className="size-5" />{en ? "Confirm this decision" : "Confirmer cette décision"}</DialogTitle><DialogDescription>{action?.type === "CONFIRM" ? (en ? "You are the second reviewer. The first reviewer cannot confirm their own recommendation." : "Vous êtes le second examinateur. Le premier ne peut pas confirmer sa propre recommandation.") : (en ? "Record a clear, auditable reason before continuing." : "Consignez un motif clair et traçable avant de continuer.")}</DialogDescription></DialogHeader><div className="space-y-2"><Label htmlFor="onboarding-decision-note">{en ? "Decision note" : "Motif de la décision"}</Label><Textarea id="onboarding-decision-note" value={note} onChange={(event) => setNote(event.target.value)} minLength={8} maxLength={500} autoFocus /></div><DialogFooter className="gap-2"><Button variant="outline" onClick={() => setAction(null)}>{en ? "Cancel" : "Annuler"}</Button><Button onClick={() => void confirmAction()} disabled={note.trim().length < 8 || review.isPending || decide.isPending || activate.isPending}>{en ? "Confirm" : "Confirmer"}</Button></DialogFooter></DialogContent></Dialog>
     </>
   );
 }

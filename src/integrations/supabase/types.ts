@@ -1147,6 +1147,79 @@ export type Database = {
         }
         Relationships: []
       }
+      onboarding_approval_requests: {
+        Row: {
+          account_id: string | null
+          checker_note: string | null
+          checker_user_id: string | null
+          created_at: string
+          customer_id: string
+          decided_at: string | null
+          id: string
+          recommendation: string
+          reviewed_at: string
+          reviewer_note: string
+          reviewer_user_id: string
+          status: string
+          updated_at: string
+          verification_id: string
+        }
+        Insert: {
+          account_id?: string | null
+          checker_note?: string | null
+          checker_user_id?: string | null
+          created_at?: string
+          customer_id: string
+          decided_at?: string | null
+          id?: string
+          recommendation: string
+          reviewed_at?: string
+          reviewer_note: string
+          reviewer_user_id: string
+          status?: string
+          updated_at?: string
+          verification_id: string
+        }
+        Update: {
+          account_id?: string | null
+          checker_note?: string | null
+          checker_user_id?: string | null
+          created_at?: string
+          customer_id?: string
+          decided_at?: string | null
+          id?: string
+          recommendation?: string
+          reviewed_at?: string
+          reviewer_note?: string
+          reviewer_user_id?: string
+          status?: string
+          updated_at?: string
+          verification_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "onboarding_approval_requests_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "bank_accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "onboarding_approval_requests_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "onboarding_approval_requests_verification_id_fkey"
+            columns: ["verification_id"]
+            isOneToOne: false
+            referencedRelation: "identity_verifications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       onboarding_assistant_questions: {
         Row: {
           created_at: string
@@ -2003,6 +2076,10 @@ export type Database = {
         Args: { _account_id: string; _at: string }
         Returns: number
       }
+      activate_approved_customer: {
+        Args: { _customer_id: string; _reason: string }
+        Returns: string
+      }
       admin_approve_simulated_external: {
         Args: { _reference: string }
         Returns: undefined
@@ -2013,6 +2090,10 @@ export type Database = {
       }
       admin_queue_simulated_external: {
         Args: { _reference: string }
+        Returns: undefined
+      }
+      admin_record_customer_invitation: {
+        Args: { _customer_id: string; _email: string }
         Returns: undefined
       }
       admin_set_account_status: {
@@ -2184,6 +2265,10 @@ export type Database = {
         Args: { _approve: boolean; _request_id: string }
         Returns: Json
       }
+      decide_identity_application: {
+        Args: { _confirm: boolean; _note: string; _request_id: string }
+        Returns: Json
+      }
       decide_transfer_compliance: {
         Args: {
           _decision: string
@@ -2290,6 +2375,10 @@ export type Database = {
       next_ledger_transaction_reference: { Args: never; Returns: string }
       next_statement_public_reference: { Args: never; Returns: string }
       next_transfer_public_reference: { Args: never; Returns: string }
+      open_limited_primary_account: {
+        Args: { _user_id: string }
+        Returns: string
+      }
       post_ledger_transaction: {
         Args: {
           _created_by?: string
@@ -2383,6 +2472,10 @@ export type Database = {
           public_reference: string
         }[]
       }
+      review_identity_application: {
+        Args: { _customer_id: string; _note: string; _recommendation: string }
+        Returns: string
+      }
       review_transfer_document: {
         Args: {
           _accept: boolean
@@ -2391,6 +2484,32 @@ export type Database = {
           _staff_id: string
         }
         Returns: undefined
+      }
+      service_activate_approved_customer: {
+        Args: { _actor_user_id: string; _customer_id: string; _reason: string }
+        Returns: string
+      }
+      service_decide_identity_application: {
+        Args: {
+          _actor_user_id: string
+          _confirm: boolean
+          _note: string
+          _request_id: string
+        }
+        Returns: Json
+      }
+      service_record_customer_invitation: {
+        Args: { _actor_user_id: string; _customer_id: string; _email: string }
+        Returns: undefined
+      }
+      service_review_identity_application: {
+        Args: {
+          _actor_user_id: string
+          _customer_id: string
+          _note: string
+          _recommendation: string
+        }
+        Returns: string
       }
       set_transfer_progress: {
         Args: {
