@@ -7,6 +7,7 @@ import type {
   FundingRequestDto,
   StaffContextDto,
   AdminExternalTransferDto,
+  AdminOnboardingCaseDto,
 } from "@/features/admin/types/admin";
 import type { CustomerLifecycleState } from "@/types/customer-lifecycle";
 
@@ -89,6 +90,68 @@ export async function loadAdminCustomers(
     [customer.reference, customer.fullName, customer.email, customer.phone]
       .filter(Boolean)
       .some((value) => String(value).toLocaleLowerCase("fr").includes(needle)),
+  );
+}
+
+export async function loadAdminOnboardingCases(
+  client: Client,
+  search = "",
+): Promise<AdminOnboardingCaseDto[]> {
+  await requireAdminPermission(client, "customers.read");
+  const admin = await adminClient();
+  const { data: profiles, error } = await admin
+    .from("profiles")
+    .select("id, first_name, middle_name, last_name, lifecycle_state, onboarding_step, created_at")
+    .order("created_at", { ascending: false })
+    .limit(100);
+  if (error) throw new AdminAccessError("ONBOARDING_CASES_UNAVAILABLE");
+
+  const rows = profiles ?? [];
+  const customerIds = rows.map((row: any) => String(row.id));
+  const [{ data: verifications }, { data: documents }, { data: authPage }] = await Promise.all([
+    customerIds.length
+      ? admin.from("identity_verifications").select("user_id,status,submitted_at,decided_at").in("user_id", customerIds)
+      : Promise.resolve({ data: [] as any[] }),
+    customerIds.length
+      ? admin.from("verification_documents").select("user_id,document_type,status,created_at").in("user_id", customerIds).order("created_at", { ascending: true })
+      : Promise.resolve({ data: [] as any[] }),
+    admin.auth.admin.listUsers({ page: 1, perPage: 1000 }),
+  ]);
+  const verificationByUser = new Map((verifications ?? []).map((row: any) => [String(row.user_id), row]));
+  const documentsByUser = new Map<string, AdminOnboardingCaseDto["documents"]>();
+  for (const document of documents ?? []) {
+    const userId = String((document as any).user_id);
+    const customerDocuments = documentsByUser.get(userId) ?? [];
+    customerDocuments.push({
+      type: String((document as any).document_type),
+      status: String((document as any).status),
+      receivedAt: String((document as any).created_at),
+    });
+    documentsByUser.set(userId, customerDocuments);
+  }
+  const emailById = new Map((authPage?.users ?? []).map((user) => [user.id, user.email ?? null]));
+  const cases: AdminOnboardingCaseDto[] = rows.map((row: any) => {
+    const verification: any = verificationByUser.get(String(row.id));
+    return {
+      customerId: String(row.id),
+      reference: `CUS-${String(row.id).replace(/-/g, "").slice(0, 12).toUpperCase()}`,
+      fullName: [row.first_name, row.middle_name, row.last_name].filter(Boolean).join(" ") || "Client sans nom",
+      email: emailById.get(String(row.id)) ?? null,
+      lifecycleState: row.lifecycle_state as CustomerLifecycleState,
+      onboardingStep: String(row.onboarding_step),
+      verificationStatus: String(verification?.status ?? "NOT_STARTED"),
+      submittedAt: verification?.submitted_at ? String(verification.submitted_at) : null,
+      decidedAt: verification?.decided_at ? String(verification.decided_at) : null,
+      createdAt: String(row.created_at),
+      documents: documentsByUser.get(String(row.id)) ?? [],
+    };
+  });
+  const term = search.trim().replace(/[%_,()]/g, "").toLocaleLowerCase("fr");
+  if (!term) return cases;
+  return cases.filter((item) =>
+    [item.reference, item.fullName, item.email]
+      .filter(Boolean)
+      .some((value) => String(value).toLocaleLowerCase("fr").includes(term)),
   );
 }
 

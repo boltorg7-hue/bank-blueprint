@@ -8,6 +8,7 @@ import {
   getAdminStaffContext,
   listAdminAccounts,
   listAdminCustomers,
+  listAdminOnboardingCases,
   listFundingRequests,
   setAccountStatus,
   setCustomerState,
@@ -19,6 +20,7 @@ export const ADMIN_CONTEXT_KEY = ["admin", "context"] as const;
 export const ADMIN_DASHBOARD_KEY = ["admin", "dashboard"] as const;
 export const ADMIN_ACCOUNTS_KEY = ["admin", "accounts"] as const;
 export const ADMIN_FUNDING_KEY = ["admin", "funding"] as const;
+export const ADMIN_ONBOARDING_KEY = ["admin", "onboarding-cases"] as const;
 
 export function useAdminContext() {
   const fn = useServerFn(getAdminStaffContext);
@@ -35,6 +37,17 @@ export function useAdminCustomers(search: string) {
   const fn = useServerFn(listAdminCustomers);
   const { data: staff } = useAdminContext();
   return useQuery({ queryKey: ["admin", "customers", search], queryFn: () => fn({ data: { search } }), staleTime: 10_000, enabled: staff?.authorized === true && staff.permissions.includes("customers.read") });
+}
+
+export function useAdminOnboardingCases(search: string) {
+  const fn = useServerFn(listAdminOnboardingCases);
+  const { data: staff } = useAdminContext();
+  return useQuery({
+    queryKey: [...ADMIN_ONBOARDING_KEY, search],
+    queryFn: () => fn({ data: { search } }),
+    staleTime: 10_000,
+    enabled: staff?.authorized === true && staff.permissions.includes("customers.read"),
+  });
 }
 
 export function useAdminAccounts(search = "") {

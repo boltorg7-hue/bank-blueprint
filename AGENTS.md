@@ -15,3 +15,4 @@ The FR/EN interface choice lives in the shared LanguageProvider and each shell e
 The first language choice follows the browser's preferred supported locale (FR/EN), while a manual choice takes precedence via local storage; the header control is shared across public, customer, and admin shells.
 Mobile presentation follows a restrained “modern organic luxury” direction: immersive local photography publicly, compact native surfaces and thumb-reachable controls in banking shells; this preserves institutional trust without changing financial behavior.
 The onboarding AI receives fully localized FR/EN requirements and customer progress through a request-scoped Gateway client; this prevents mixed-language answers and keeps correlation isolated.
+The admin account-opening register joins profiles, identity verification and received-document metadata behind `customers.read`; this keeps KYC tracking server-authorized and read-only.

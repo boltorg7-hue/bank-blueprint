@@ -110,11 +110,11 @@ export const CUSTOMER_MORE_GROUPS: { title: string; items: NavItem[] }[] = [
 export const ADMIN_NAV: NavItem[] = [
   { label: "Tableau de bord", to: "/admin/dashboard", icon: Gauge },
   { label: "Clients", to: "/admin/customers" as AppPath, icon: Users },
+  { label: "Dossiers d’ouverture", to: "/admin/onboarding-cases" as AppPath, icon: BadgeCheck },
   { label: "Comptes", to: "/admin/accounts" as AppPath, icon: Wallet },
   { label: "Approvisionnements", to: "/admin/funding" as AppPath, icon: CircleDollarSign },
   { label: "Transferts externes", to: "/admin/transfers" as AppPath, icon: Banknote },
   { label: "Service client", to: "/admin/support" as AppPath, icon: MessagesSquare },
-  { label: "KYC & conformité", to: "/admin/dashboard", icon: BadgeCheck, upcoming: true },
   { label: "Audit", to: "/admin/dashboard", icon: FileText, upcoming: true },
   { label: "Parité & tarifs", to: "/admin/settings" as AppPath, icon: Settings },
 ];

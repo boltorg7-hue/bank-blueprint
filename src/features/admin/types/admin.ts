@@ -29,6 +29,26 @@ export type AdminCustomerDto = {
   createdAt: string;
 };
 
+export type AdminOnboardingDocumentDto = {
+  type: string;
+  status: string;
+  receivedAt: string;
+};
+
+export type AdminOnboardingCaseDto = {
+  customerId: string;
+  reference: string;
+  fullName: string;
+  email: string | null;
+  lifecycleState: CustomerLifecycleState;
+  onboardingStep: string;
+  verificationStatus: string;
+  submittedAt: string | null;
+  decidedAt: string | null;
+  createdAt: string;
+  documents: AdminOnboardingDocumentDto[];
+};
+
 export type AdminAccountDto = {
   id: string;
   reference: string;

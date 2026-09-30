@@ -11,7 +11,6 @@
 - Accueil et pages publiques principales modernisés dans une direction éditoriale « photo puis récit » ; navigation mobile publique et client affinée sans modification des opérations.
 
 ## À faire
-- Ajouter le suivi administrateur des dossiers d’ouverture : statut, pièces reçues, progression et dates de soumission/décision, avec recherche et filtres mobiles.
 - Bilinguisme FR/EN : terminer les dialogues bénéficiaires, certains panneaux détaillés de comptes/virements et les libellés provenant des données ou documents générés ; vérifier les vues administrateur avec un compte personnel autorisé (compte de test actuel non autorisé).
 - Parcours mobile-first : vérifier les vues administrateur internes avec un compte personnel autorisé et poursuivre l'inspection des écrans secondaires sans modifier les règles bancaires.
 - Phase 10 : notifications et messagerie de service client (base + écrans câblés ; validation d'exécution de bout en bout restante).
@@ -34,3 +33,4 @@
 - Pages admin parité/tarifs, comptes clients et approvisionnements opérationnelles.
 - Assistant d’ouverture de compte : interface, exigences et progression client entièrement localisées FR/EN ; réponses réelles validées via AI Gateway sur les prochaines étapes, les documents acceptés et les demandes hors périmètre.
 - Parcours d’un nouveau client validé de bout en bout sur mobile : inscription, confirmation d’e-mail, reconnexion, étapes 1 à 4, envoi du dossier et arrivée dans l’espace limité avec opérations verrouillées. Progression et dernière relecture harmonisées en FR/EN.
+- Registre administrateur des dossiers d’ouverture ajouté : recherche, filtre de statut, progression, documents reçus et dates de soumission/décision, avec vue mobile dédiée et accès protégé par l’autorisation clients.
