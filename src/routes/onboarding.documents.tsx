@@ -10,6 +10,17 @@ import { useCustomerContext } from "@/features/onboarding/hooks/useCustomerConte
 import { hasIdentityDocument, hasProofOfAddress, isSubmitted } from "@/features/onboarding/lib/tasks";
 
 export const Route = createFileRoute("/onboarding/documents")({
+  head: () => ({
+    meta: [
+      { title: "Vérification d’identité — Ouverture de compte RFC" },
+      { name: "description", content: "Transmettez vos justificatifs dans l’espace sécurisé RFC." },
+      { property: "og:title", content: "Vérification d’identité — RFC FINANCE Bank" },
+      { property: "og:description", content: "Troisième étape sécurisée de l’ouverture de compte RFC." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+      { name: "robots", content: "noindex,nofollow" },
+    ],
+  }),
   component: DocumentsStepPage,
 });
 

@@ -26,6 +26,7 @@ export function OnboardingShell({
   const { language } = useLanguage();
   const en = language === "en";
   const index = ONBOARDING_FLOW.findIndex((step) => step.id === stepId);
+  const progress = index >= 0 ? Math.round(((index + 1) / ONBOARDING_FLOW.length) * 100) : 0;
 
   return (
     <div className="mx-auto w-full max-w-2xl px-4 py-8 sm:px-6 sm:py-12">
@@ -36,13 +37,13 @@ export function OnboardingShell({
               {en ? "Step" : "Étape"} {index + 1} {en ? "of" : "sur"} {ONBOARDING_FLOW.length}
             </p>
             <p className="text-caption text-muted-foreground">
-              {Math.round((index / ONBOARDING_FLOW.length) * 100)} %
+              {progress} %
             </p>
           </div>
           <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-muted" aria-hidden="true">
             <div
               className="h-full rounded-full bg-brand transition-all"
-              style={{ width: `${((index + 1) / ONBOARDING_FLOW.length) * 100}%` }}
+              style={{ width: `${progress}%` }}
             />
           </div>
           <ol className="-mx-4 mt-3 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:flex-wrap sm:px-0" aria-label={en ? "Account opening progress" : "Progression de l’ouverture de compte"}>

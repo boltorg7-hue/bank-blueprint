@@ -16,6 +16,17 @@ import { COUNTRIES, OCCUPATIONS } from "@/features/onboarding/lib/choices";
 import { saveProfileStep } from "@/features/onboarding/services/onboarding.functions";
 
 export const Route = createFileRoute("/onboarding/profile")({
+  head: () => ({
+    meta: [
+      { title: "Informations personnelles — Ouverture de compte RFC" },
+      { name: "description", content: "Renseignez vos informations personnelles pour ouvrir votre compte RFC." },
+      { property: "og:title", content: "Informations personnelles — RFC FINANCE Bank" },
+      { property: "og:description", content: "Première étape sécurisée de l’ouverture de compte RFC." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+      { name: "robots", content: "noindex,nofollow" },
+    ],
+  }),
   component: ProfileStepPage,
 });
 

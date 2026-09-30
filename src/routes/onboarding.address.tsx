@@ -16,6 +16,17 @@ import { fieldErrorsFrom } from "@/features/auth/schemas/auth.schemas";
 import { saveAddressStep } from "@/features/onboarding/services/onboarding.functions";
 
 export const Route = createFileRoute("/onboarding/address")({
+  head: () => ({
+    meta: [
+      { title: "Adresse de résidence — Ouverture de compte RFC" },
+      { name: "description", content: "Ajoutez votre adresse de résidence à votre dossier d’ouverture de compte RFC." },
+      { property: "og:title", content: "Adresse de résidence — RFC FINANCE Bank" },
+      { property: "og:description", content: "Deuxième étape sécurisée de l’ouverture de compte RFC." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+      { name: "robots", content: "noindex,nofollow" },
+    ],
+  }),
   component: AddressStepPage,
 });
 
