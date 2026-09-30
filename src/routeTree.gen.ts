@@ -36,6 +36,7 @@ import { Route as AdminAccountsRouteImport } from './routes/admin.accounts'
 import { Route as AdminCustomersRouteImport } from './routes/admin.customers'
 import { Route as AdminDashboardRouteImport } from './routes/admin.dashboard'
 import { Route as AdminFundingRouteImport } from './routes/admin.funding'
+import { Route as AdminOnboardingCasesRouteImport } from './routes/admin.onboarding-cases'
 import { Route as AdminSettingsRouteImport } from './routes/admin.settings'
 import { Route as AdminSupportRouteImport } from './routes/admin.support'
 import { Route as AdminTransfersRouteImport } from './routes/admin.transfers'
@@ -206,6 +207,11 @@ const AdminDashboardRoute = AdminDashboardRouteImport.update({
 const AdminFundingRoute = AdminFundingRouteImport.update({
   id: '/funding',
   path: '/funding',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminOnboardingCasesRoute = AdminOnboardingCasesRouteImport.update({
+  id: '/onboarding-cases',
+  path: '/onboarding-cases',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminSettingsRoute = AdminSettingsRouteImport.update({
@@ -419,6 +425,7 @@ export interface FileRoutesByFullPath {
   '/admin/customers': typeof AdminCustomersRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/funding': typeof AdminFundingRoute
+  '/admin/onboarding-cases': typeof AdminOnboardingCasesRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/support': typeof AdminSupportRoute
   '/admin/transfers': typeof AdminTransfersRoute
@@ -481,6 +488,7 @@ export interface FileRoutesByTo {
   '/admin/customers': typeof AdminCustomersRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/funding': typeof AdminFundingRoute
+  '/admin/onboarding-cases': typeof AdminOnboardingCasesRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/support': typeof AdminSupportRoute
   '/admin/transfers': typeof AdminTransfersRoute
@@ -544,6 +552,7 @@ export interface FileRoutesById {
   '/admin/customers': typeof AdminCustomersRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/funding': typeof AdminFundingRoute
+  '/admin/onboarding-cases': typeof AdminOnboardingCasesRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/support': typeof AdminSupportRoute
   '/admin/transfers': typeof AdminTransfersRoute
@@ -611,6 +620,7 @@ export interface FileRouteTypes {
     | '/admin/customers'
     | '/admin/dashboard'
     | '/admin/funding'
+    | '/admin/onboarding-cases'
     | '/admin/settings'
     | '/admin/support'
     | '/admin/transfers'
@@ -673,6 +683,7 @@ export interface FileRouteTypes {
     | '/admin/customers'
     | '/admin/dashboard'
     | '/admin/funding'
+    | '/admin/onboarding-cases'
     | '/admin/settings'
     | '/admin/support'
     | '/admin/transfers'
@@ -735,6 +746,7 @@ export interface FileRouteTypes {
     | '/admin/customers'
     | '/admin/dashboard'
     | '/admin/funding'
+    | '/admin/onboarding-cases'
     | '/admin/settings'
     | '/admin/support'
     | '/admin/transfers'
@@ -991,6 +1003,13 @@ declare module '@tanstack/react-router' {
       path: '/funding'
       fullPath: '/admin/funding'
       preLoaderRoute: typeof AdminFundingRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/onboarding-cases': {
+      id: '/admin/onboarding-cases'
+      path: '/onboarding-cases'
+      fullPath: '/admin/onboarding-cases'
+      preLoaderRoute: typeof AdminOnboardingCasesRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/settings': {
@@ -1253,6 +1272,7 @@ interface AdminRouteChildren {
   AdminCustomersRoute: typeof AdminCustomersRoute
   AdminDashboardRoute: typeof AdminDashboardRoute
   AdminFundingRoute: typeof AdminFundingRoute
+  AdminOnboardingCasesRoute: typeof AdminOnboardingCasesRoute
   AdminSettingsRoute: typeof AdminSettingsRoute
   AdminSupportRoute: typeof AdminSupportRoute
   AdminTransfersRoute: typeof AdminTransfersRoute
@@ -1264,6 +1284,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminCustomersRoute: AdminCustomersRoute,
   AdminDashboardRoute: AdminDashboardRoute,
   AdminFundingRoute: AdminFundingRoute,
+  AdminOnboardingCasesRoute: AdminOnboardingCasesRoute,
   AdminSettingsRoute: AdminSettingsRoute,
   AdminSupportRoute: AdminSupportRoute,
   AdminTransfersRoute: AdminTransfersRoute,
