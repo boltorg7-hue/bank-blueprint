@@ -8,6 +8,7 @@ import type {
   StaffContextDto,
   AdminExternalTransferDto,
   AdminOnboardingCaseDto,
+  AdminActionResult,
 } from "@/features/admin/types/admin";
 import type { CustomerLifecycleState } from "@/types/customer-lifecycle";
 
@@ -192,49 +193,76 @@ export async function inviteCustomer(
   actorUserId: string,
   input: { email: string; firstName: string; lastName: string },
   origin: string,
-) {
+): Promise<AdminActionResult<{ customerId: string; invited: true }, "INVITATION_ALREADY_REGISTERED" | "INVITATION_RATE_LIMITED" | "INVITATION_UNAVAILABLE">> {
   await requireAdminPermission(client, "customers.invite");
   const admin = await adminClient();
+  const normalizedEmail = input.email.trim().toLowerCase();
+  const { data: existingUserId, error: lookupError } = await admin.rpc("auth_user_for_email" as never, {
+    _email: normalizedEmail,
+  } as never);
+  if (lookupError) throw new AdminAccessError("CUSTOMER_INVITATION_LOOKUP_FAILED");
+  if (existingUserId) return { ok: false, code: "INVITATION_ALREADY_REGISTERED" };
   const { data, error } = await admin.auth.admin.inviteUserByEmail(input.email, {
     redirectTo: `${origin}/reset-password`,
     data: { first_name: input.firstName, last_name: input.lastName, invited_by_bank: true },
   });
-  if (error || !data.user) throw new AdminAccessError(error?.status === 429 ? "CUSTOMER_INVITATION_RATE_LIMITED" : "CUSTOMER_INVITATION_FAILED");
+  if (error || !data.user) {
+    const message = error?.message.toLowerCase() ?? "";
+    if (error?.status === 429) return { ok: false, code: "INVITATION_RATE_LIMITED" };
+    if (error?.status === 422 || message.includes("registered") || message.includes("exists")) {
+      return { ok: false, code: "INVITATION_ALREADY_REGISTERED" };
+    }
+    if (error?.status && error.status < 500) return { ok: false, code: "INVITATION_UNAVAILABLE" };
+    throw new AdminAccessError("CUSTOMER_INVITATION_FAILED");
+  }
   const { error: auditError } = await admin.rpc("service_record_customer_invitation" as never, {
     _actor_user_id: actorUserId,
     _customer_id: data.user.id,
-    _email: input.email,
+    _email: normalizedEmail,
   } as never);
-  if (auditError) throw new AdminAccessError("CUSTOMER_INVITATION_AUDIT_FAILED");
-  return { customerId: data.user.id, invited: true as const };
+  if (auditError) {
+    await admin.auth.admin.deleteUser(data.user.id);
+    throw new AdminAccessError("CUSTOMER_INVITATION_AUDIT_FAILED");
+  }
+  return { ok: true, customerId: data.user.id, invited: true as const };
 }
 
 export async function reviewOnboardingCase(
   client: Client,
   actorUserId: string,
   input: { customerId: string; recommendation: "APPROVE" | "REJECT" | "REQUEST_INFO"; note: string },
-) {
+): Promise<AdminActionResult<{ requestId: string | null }, "APPROVAL_ALREADY_PENDING">> {
   await requireAdminPermission(client, "kyc.review");
   const admin = await adminClient();
   const { data, error } = await admin.rpc("service_review_identity_application" as never, {
     _actor_user_id: actorUserId, _customer_id: input.customerId, _recommendation: input.recommendation, _note: input.note,
   } as never);
-  if (error) throw new AdminAccessError(error.message.toLowerCase().includes("already pending") ? "APPROVAL_ALREADY_PENDING" : "KYC_REVIEW_FAILED");
-  return { requestId: data ?? null };
+  if (error) {
+    if (error.message.toLowerCase().includes("already pending")) return { ok: false, code: "APPROVAL_ALREADY_PENDING" };
+    throw new AdminAccessError("KYC_REVIEW_FAILED");
+  }
+  return { ok: true, requestId: data ? String(data) : null };
 }
 
 export async function decideOnboardingCase(
   client: Client,
   actorUserId: string,
   input: { requestId: string; confirm: boolean; note: string },
-) {
+): Promise<AdminActionResult<{ decision: Record<string, string | null> | null }, "MAKER_CANNOT_APPROVE" | "DECISION_ALREADY_RECORDED" | "APPLICATION_STATE_CHANGED">> {
   await requireAdminPermission(client, "kyc.approve");
   const admin = await adminClient();
   const { data, error } = await admin.rpc("service_decide_identity_application" as never, {
     _actor_user_id: actorUserId, _request_id: input.requestId, _confirm: input.confirm, _note: input.note,
   } as never);
-  if (error) throw new AdminAccessError(error.message.toLowerCase().includes("four-eyes") ? "MAKER_CANNOT_APPROVE" : "KYC_DECISION_FAILED");
-  return data;
+  if (error) {
+    const message = error.message.toLowerCase();
+    if (message.includes("four-eyes")) return { ok: false, code: "MAKER_CANNOT_APPROVE" };
+    if (message.includes("already decided") || message.includes("request not found")) return { ok: false, code: "DECISION_ALREADY_RECORDED" };
+    if (message.includes("application state changed")) return { ok: false, code: "APPLICATION_STATE_CHANGED" };
+    throw new AdminAccessError("KYC_DECISION_FAILED");
+  }
+  const decision = data && typeof data === "object" ? data as Record<string, string | null> : null;
+  return { ok: true, decision };
 }
 
 export async function activateOnboardingCustomer(

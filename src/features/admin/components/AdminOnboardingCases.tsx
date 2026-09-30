@@ -122,9 +122,21 @@ export function AdminOnboardingCases({ cases }: { cases: AdminOnboardingCaseDto[
   async function confirmAction() {
     if (!action || note.trim().length < 8) return;
     try {
-      if (["APPROVE", "REJECT", "REQUEST_INFO"].includes(action.type)) await review.mutateAsync({ customerId: action.item.customerId, recommendation: action.type as "APPROVE" | "REJECT" | "REQUEST_INFO", note: note.trim() });
+      let result;
+      if (["APPROVE", "REJECT", "REQUEST_INFO"].includes(action.type)) result = await review.mutateAsync({ customerId: action.item.customerId, recommendation: action.type as "APPROVE" | "REJECT" | "REQUEST_INFO", note: note.trim() });
       else if (action.type === "ACTIVATE") await activate.mutateAsync({ customerId: action.item.customerId, reason: note.trim() });
-      else if (action.item.approval) await decide.mutateAsync({ requestId: action.item.approval.id, confirm: action.type === "CONFIRM", note: note.trim() });
+      else if (action.item.approval) result = await decide.mutateAsync({ requestId: action.item.approval.id, confirm: action.type === "CONFIRM", note: note.trim() });
+      if (result && !result.ok) {
+        const messages = {
+          APPROVAL_ALREADY_PENDING: en ? "This application is already awaiting a supervisor." : "Ce dossier attend déjà la validation d’un superviseur.",
+          MAKER_CANNOT_APPROVE: en ? "The first reviewer cannot perform the second approval." : "Le premier examinateur ne peut pas effectuer la seconde validation.",
+          DECISION_ALREADY_RECORDED: en ? "This decision was already recorded. The list has been refreshed." : "Cette décision a déjà été enregistrée. La liste a été actualisée.",
+          APPLICATION_STATE_CHANGED: en ? "The application changed before this decision. The list has been refreshed." : "Le dossier a changé avant cette décision. La liste a été actualisée.",
+        } as const;
+        toast.error(messages[result.code]);
+        setAction(null); setNote("");
+        return;
+      }
       toast.success(en ? "Decision recorded." : "Décision enregistrée."); setAction(null); setNote("");
     } catch (error) {
       toast.error(error instanceof Error && error.message.includes("MAKER") ? (en ? "The first reviewer cannot perform the second approval." : "Le premier examinateur ne peut pas effectuer la seconde validation.") : (en ? "The decision could not be recorded." : "La décision n’a pas pu être enregistrée."));

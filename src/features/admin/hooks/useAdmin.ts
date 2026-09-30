@@ -54,7 +54,7 @@ export function useAdminOnboardingCases(search: string) {
   });
 }
 
-function onboardingMutation<T>(fn: (input: T) => Promise<unknown>) {
+function onboardingMutation<T, R>(fn: (input: T) => Promise<R>) {
   const queryClient = useQueryClient();
   return useMutation({ mutationFn: fn, onSuccess: () => queryClient.invalidateQueries({ queryKey: ADMIN_ONBOARDING_KEY }) });
 }
