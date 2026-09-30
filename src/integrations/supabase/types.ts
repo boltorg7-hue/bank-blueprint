@@ -2485,6 +2485,32 @@ export type Database = {
         }
         Returns: undefined
       }
+      service_activate_approved_customer: {
+        Args: { _actor_user_id: string; _customer_id: string; _reason: string }
+        Returns: string
+      }
+      service_decide_identity_application: {
+        Args: {
+          _actor_user_id: string
+          _confirm: boolean
+          _note: string
+          _request_id: string
+        }
+        Returns: Json
+      }
+      service_record_customer_invitation: {
+        Args: { _actor_user_id: string; _customer_id: string; _email: string }
+        Returns: undefined
+      }
+      service_review_identity_application: {
+        Args: {
+          _actor_user_id: string
+          _customer_id: string
+          _note: string
+          _recommendation: string
+        }
+        Returns: string
+      }
       set_transfer_progress: {
         Args: {
           _freeze?: boolean
