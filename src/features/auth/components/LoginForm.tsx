@@ -41,7 +41,7 @@ export function LoginForm({ redirectTo }: { redirectTo?: string | undefined }) {
 
     if (error) {
       setPending(false);
-      setFormError(signInErrorMessage(error));
+      setFormError(signInErrorMessage(error, language === "en" ? "en" : "fr"));
       return;
     }
 

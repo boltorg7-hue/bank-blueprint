@@ -1,6 +1,7 @@
 import { Check } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { useLanguage } from "@/components/providers/LanguageProvider";
 
 export type StepperStep = {
   id: string;
@@ -21,6 +22,7 @@ export function Stepper({
   className?: string;
 }) {
   const current = steps[Math.min(Math.max(currentIndex, 0), steps.length - 1)];
+  const en = useLanguage().language === "en";
 
   return (
     <div className={cn("w-full", className)}>
@@ -60,7 +62,7 @@ export function Stepper({
         })}
       </ol>
       <p className="text-caption mt-2 text-muted-foreground sm:hidden" aria-live="polite">
-        Étape {Math.min(currentIndex + 1, steps.length)} sur {steps.length}
+        {en ? "Step" : "Étape"} {Math.min(currentIndex + 1, steps.length)} {en ? "of" : "sur"} {steps.length}
         {current ? ` — ${current.label}` : ""}
       </p>
     </div>
