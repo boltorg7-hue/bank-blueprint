@@ -1,12 +1,14 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useCallback, useEffect, useState } from "react";
-import { CheckCircle2, Clock, MailCheck, RefreshCw } from "lucide-react";
+import { CheckCircle2, Clock, MailCheck, PencilLine, RefreshCw } from "lucide-react";
 import { useLanguage } from "@/components/providers/LanguageProvider";
 
 import { AuthShell } from "@/features/auth/components/AuthShell";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
-import { maskEmail } from "@/features/auth/lib/auth-errors";
+import { maskEmail, signUpErrorMessage } from "@/features/auth/lib/auth-errors";
 import { publicMeta } from "@/features/public/lib/seo";
 
 const meta = publicMeta({
