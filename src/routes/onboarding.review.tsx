@@ -1,7 +1,7 @@
 import { useLanguage } from "@/components/providers/LanguageProvider";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
@@ -47,9 +47,11 @@ function ReviewStepPage() {
     );
   }
 
-  if (isSubmitted(context)) {
-    void navigate({ to: "/onboarding/status", replace: true });
-  }
+  const submitted = isSubmitted(context);
+
+  useEffect(() => {
+    if (submitted) void navigate({ to: "/onboarding/status", replace: true });
+  }, [navigate, submitted]);
 
   const profile = context.profile;
   const address = context.address;
@@ -61,8 +63,8 @@ function ReviewStepPage() {
     setPending(true);
     try {
       await submit({ data: undefined });
-      await invalidate();
       await navigate({ to: "/onboarding/transition" });
+      await invalidate();
     } catch {
       setError((en ? "We could not submit your application. Please try again shortly." : "Nous n'avons pas pu transmettre votre dossier. Réessayez dans un instant."));
     } finally {
