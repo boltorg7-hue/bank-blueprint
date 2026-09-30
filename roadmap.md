@@ -11,6 +11,7 @@
 - Accueil et pages publiques principales modernisés dans une direction éditoriale « photo puis récit » ; navigation mobile publique et client affinée sans modification des opérations.
 
 ## À faire
+- Ajouter le suivi administrateur des dossiers d’ouverture : statut, pièces reçues, progression et dates de soumission/décision, avec recherche et filtres mobiles.
 - Bilinguisme FR/EN : terminer les dialogues bénéficiaires, certains panneaux détaillés de comptes/virements et les libellés provenant des données ou documents générés ; vérifier les vues administrateur avec un compte personnel autorisé (compte de test actuel non autorisé).
 - Parcours mobile-first : vérifier les vues administrateur internes avec un compte personnel autorisé et poursuivre l'inspection des écrans secondaires sans modifier les règles bancaires.
 - Phase 10 : notifications et messagerie de service client (base + écrans câblés ; validation d'exécution de bout en bout restante).
