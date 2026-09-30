@@ -31,3 +31,4 @@
 - Route cron relevés mensuels sécurisée (/api/public/cron/monthly-statements, 401 sans secret).
 - Lien « Voir le site public de la banque » ajouté au tableau de bord client.
 - Pages admin parité/tarifs, comptes clients et approvisionnements opérationnelles.
+- Assistant d’ouverture de compte : interface, exigences et progression client entièrement localisées FR/EN ; réponses réelles validées via AI Gateway sur les prochaines étapes, les documents acceptés et les demandes hors périmètre.
