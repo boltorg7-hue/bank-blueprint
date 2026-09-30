@@ -29,7 +29,7 @@ export function ChoiceField({
   label: string;
   options: Choice[];
   en: boolean;
-  defaultValue?: string | null;
+  defaultValue?: string | null | undefined;
   error?: string | undefined;
   allowOther?: boolean;
   onChange?: (value: string) => void;

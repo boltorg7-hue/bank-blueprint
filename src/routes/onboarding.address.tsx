@@ -126,7 +126,7 @@ function Field({
   name: string;
   label: string;
   autoComplete: string;
-  list?: string;
+  list?: string | undefined;
   defaultValue?: string | null | undefined;
   error?: string | undefined;
 }) {
