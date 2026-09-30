@@ -15,6 +15,7 @@ import { Route as AccountsRouteImport } from './routes/accounts'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AppRouteImport } from './routes/app'
 import { Route as ContactRouteImport } from './routes/contact'
+import { Route as EmailVerifiedRouteImport } from './routes/email-verified'
 import { Route as FeaturesRouteImport } from './routes/features'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as HelpRouteImport } from './routes/help'
@@ -99,6 +100,11 @@ const AppRoute = AppRouteImport.update({
 const ContactRoute = ContactRouteImport.update({
   id: '/contact',
   path: '/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EmailVerifiedRoute = EmailVerifiedRouteImport.update({
+  id: '/email-verified',
+  path: '/email-verified',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FeaturesRoute = FeaturesRouteImport.update({
@@ -387,6 +393,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminRouteWithChildren
   '/app': typeof AppRouteWithChildren
   '/contact': typeof ContactRoute
+  '/email-verified': typeof EmailVerifiedRoute
   '/features': typeof FeaturesRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/help': typeof HelpRoute
@@ -448,6 +455,7 @@ export interface FileRoutesByTo {
   '/about': typeof AboutRoute
   '/accounts': typeof AccountsRoute
   '/contact': typeof ContactRoute
+  '/email-verified': typeof EmailVerifiedRoute
   '/features': typeof FeaturesRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/help': typeof HelpRoute
@@ -508,6 +516,7 @@ export interface FileRoutesById {
   '/admin': typeof AdminRouteWithChildren
   '/app': typeof AppRouteWithChildren
   '/contact': typeof ContactRoute
+  '/email-verified': typeof EmailVerifiedRoute
   '/features': typeof FeaturesRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/help': typeof HelpRoute
@@ -573,6 +582,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/app'
     | '/contact'
+    | '/email-verified'
     | '/features'
     | '/forgot-password'
     | '/help'
@@ -634,6 +644,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/accounts'
     | '/contact'
+    | '/email-verified'
     | '/features'
     | '/forgot-password'
     | '/help'
@@ -693,6 +704,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/app'
     | '/contact'
+    | '/email-verified'
     | '/features'
     | '/forgot-password'
     | '/help'
@@ -757,6 +769,7 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRouteWithChildren
   AppRoute: typeof AppRouteWithChildren
   ContactRoute: typeof ContactRoute
+  EmailVerifiedRoute: typeof EmailVerifiedRoute
   FeaturesRoute: typeof FeaturesRoute
   ForgotPasswordRoute: typeof ForgotPasswordRoute
   HelpRoute: typeof HelpRoute
@@ -819,6 +832,13 @@ declare module '@tanstack/react-router' {
       path: '/contact'
       fullPath: '/contact'
       preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/email-verified': {
+      id: '/email-verified'
+      path: '/email-verified'
+      fullPath: '/email-verified'
+      preLoaderRoute: typeof EmailVerifiedRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/features': {
@@ -1346,6 +1366,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRouteWithChildren,
   AppRoute: AppRouteWithChildren,
   ContactRoute: ContactRoute,
+  EmailVerifiedRoute: EmailVerifiedRoute,
   FeaturesRoute: FeaturesRoute,
   ForgotPasswordRoute: ForgotPasswordRoute,
   HelpRoute: HelpRoute,

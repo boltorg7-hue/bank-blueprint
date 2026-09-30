@@ -7,12 +7,14 @@ import type { CustomerContext } from "@/features/onboarding/types/customer-conte
 export const CUSTOMER_CONTEXT_KEY = ["customer-context"] as const;
 
 /** Single source of truth for the signed-in customer's trusted state. */
-export function useCustomerContext() {
+export function useCustomerContext(options: { enabled?: boolean } = {}) {
   const fetchContext = useServerFn(getCustomerContext);
   return useQuery<CustomerContext>({
     queryKey: CUSTOMER_CONTEXT_KEY,
     queryFn: () => fetchContext(),
     staleTime: 15_000,
+    enabled: options.enabled ?? true,
+    retry: false,
   });
 }
 

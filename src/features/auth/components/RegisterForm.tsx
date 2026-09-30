@@ -51,7 +51,7 @@ export function RegisterForm() {
       email: parsed.data.email,
       password: parsed.data.password,
       options: {
-        emailRedirectTo: `${window.location.origin}/auth/callback`,
+        emailRedirectTo: `${window.location.origin}/auth/callback?next=verified`,
         data: {
           first_name: parsed.data.firstName,
           last_name: parsed.data.lastName,

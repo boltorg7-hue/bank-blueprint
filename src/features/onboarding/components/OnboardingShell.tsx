@@ -2,6 +2,7 @@ import { useLanguage } from "@/components/providers/LanguageProvider";
 import type { ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 
+import { OnboardingAssistant } from "@/features/onboarding/components/OnboardingAssistant";
 import { ONBOARDING_FLOW } from "@/features/onboarding/lib/tasks";
 
 /**
@@ -86,6 +87,7 @@ export function OnboardingShell({
       ) : null}
 
       <div className="mt-8">{children}</div>
+      <OnboardingAssistant />
 
       <p className="text-caption mt-10 text-muted-foreground">
         {en ? "You can stop at any time: your progress is saved." : "Vous pouvez interrompre à tout moment : votre progression est conservée."}{" "}

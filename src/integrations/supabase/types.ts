@@ -720,6 +720,48 @@ export type Database = {
           },
         ]
       }
+      email_confirmation_links: {
+        Row: {
+          current_nonce: string
+          email: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          current_nonce?: string
+          email: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          current_nonce?: string
+          email?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      email_confirmation_sends: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          kind: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          kind: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          kind?: string
+        }
+        Relationships: []
+      }
       external_settlement_rails: {
         Row: {
           code: string
@@ -1101,6 +1143,24 @@ export type Database = {
           resource_path?: string | null
           severity?: string
           title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      onboarding_assistant_questions: {
+        Row: {
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
           user_id?: string
         }
         Relationships: []
@@ -1981,6 +2041,13 @@ export type Database = {
           progress_percent: number
           status: Database["public"]["Enums"]["transfer_status"]
           transaction_reference: string
+        }[]
+      }
+      auth_user_for_email: {
+        Args: { _email: string }
+        Returns: {
+          email_confirmed_at: string
+          id: string
         }[]
       }
       cancel_transfer: {
