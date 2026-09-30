@@ -82,9 +82,21 @@ function OnboardingHome() {
         ))}
       </ul>
 
-      <Button asChild className="mt-6 w-full touch-target">
-        <Link to={resume}>{en ? "Continue" : "Continuer"}</Link>
-      </Button>
+      <div className="safe-pb sticky bottom-0 z-20 -mx-4 mt-6 border-t border-border bg-background/95 px-4 py-3 backdrop-blur sm:static sm:mx-0 sm:border-0 sm:bg-transparent sm:px-0 sm:py-0">
+        <p className="text-caption mb-2 text-muted-foreground" role="status">
+          {tasks.filter((task) => task.status === "done").length}/{tasks.length}{" "}
+          {en ? "steps completed — pick up where you left off." : "étapes terminées — reprenez là où vous vous êtes arrêté."}
+        </p>
+        <div className="mb-3 h-1.5 overflow-hidden rounded-full bg-muted" aria-hidden="true">
+          <div
+            className="h-full rounded-full bg-brand transition-all"
+            style={{ width: `${(tasks.filter((task) => task.status === "done").length / tasks.length) * 100}%` }}
+          />
+        </div>
+        <Button asChild className="w-full touch-target">
+          <Link to={resume}>{en ? "Resume my application" : "Reprendre mon ouverture"}</Link>
+        </Button>
+      </div>
     </OnboardingShell>
   );
 }
