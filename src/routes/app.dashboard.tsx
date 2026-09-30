@@ -76,7 +76,7 @@ function DashboardPage() {
           description={en ? "Your bank account will open when your application is fully approved." : "Votre compte bancaire sera ouvert dès la validation complète de votre dossier."}
         />
       ) : (
-        <div className="space-y-6 md:space-y-10">
+        <div className="space-y-5 md:space-y-10">
           <AccountBalanceCard
             account={account}
             isRefreshing={query.isFetching}
@@ -87,7 +87,7 @@ function DashboardPage() {
           {restriction && (
             <p
               role="status"
-              className="rounded-xl border border-warning/40 bg-warning-muted p-4 text-sm text-warning"
+              className="rounded-md border border-warning/40 bg-warning-muted p-4 text-sm text-warning"
             >
               {restriction}
             </p>
@@ -99,7 +99,7 @@ function DashboardPage() {
             <h2 id="quick-actions-heading" className="text-heading-sm font-semibold text-foreground md:text-heading-md">
               {en ? "Quick actions" : "Actions rapides"}
             </h2>
-            <ul className="grid grid-cols-2 gap-3 md:gap-4 lg:grid-cols-4">
+            <ul className="grid grid-cols-2 gap-2.5 sm:gap-3 md:gap-4 lg:grid-cols-4">
               <QuickAction
                 to="/app/transfers"
                 label={en ? "Send money" : "Envoyer de l'argent"}
@@ -162,13 +162,13 @@ function QuickAction({
       </div>
       <div className="mt-3">
         <span className="block font-semibold leading-tight tracking-tight">{label}</span>
-        {disabled && <span className="text-[0.625rem] mt-1 block font-medium opacity-70">Indisponible</span>}
+        {disabled && <span className="text-caption mt-1 block font-medium opacity-70">Indisponible</span>}
       </div>
     </>
   );
 
   const baseClassName =
-     "flex h-full min-h-[100px] flex-col justify-between rounded-xl border border-border bg-surface p-4 text-sm transition-all duration-200";
+     "native-surface flex h-full min-h-28 flex-col justify-between p-3 text-sm transition-all duration-200 sm:p-4";
 
   return (
     <li>

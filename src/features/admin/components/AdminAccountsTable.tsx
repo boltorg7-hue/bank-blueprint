@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useLanguage } from "@/components/providers/LanguageProvider";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -6,23 +7,40 @@ import { formatMoneyFromMinor } from "@/lib/format";
 import { Button } from "@/components/ui/button";
 import { useAdminContext, useSetAccountStatus } from "@/features/admin/hooks/useAdmin";
 import { toast } from "sonner";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 export function AdminAccountsTable({ accounts }: { accounts: AdminAccountDto[] }) {
   const { language } = useLanguage();
   const en = language === "en";
   const context = useAdminContext(); const mutation = useSetAccountStatus();
   const canManage = context.data?.permissions.includes("accounts.manage") ?? false;
-  async function change(account: AdminAccountDto, status: "ACTIVE" | "RESTRICTED" | "SUSPENDED" | "FROZEN") {
-    const reason = window.prompt((en ? "Reason for this change (at least 8 characters):" : "Motif obligatoire de cette modification (8 caractères minimum) :"))?.trim() ?? "";
-    if (reason.length < 8) return;
-    try { await mutation.mutateAsync({ accountReference: account.reference, status, reason }); toast.success((en ? "Account status updated." : "Statut du compte mis à jour.")); }
+  const [decision, setDecision] = useState<{ account: AdminAccountDto; status: "ACTIVE" | "FROZEN" } | null>(null);
+  const [reason, setReason] = useState("");
+  async function confirmChange() {
+    if (!decision || reason.trim().length < 8) return;
+    try { await mutation.mutateAsync({ accountReference: decision.account.reference, status: decision.status, reason: reason.trim() }); toast.success(en ? "Account status updated." : "Statut du compte mis à jour."); setDecision(null); setReason(""); }
     catch { toast.error((en ? "Account status could not be changed." : "Le statut du compte n’a pas pu être modifié.")); }
   }
+  const actionFor = (account: AdminAccountDto) => {
+    const status = account.status === "ACTIVE" ? "FROZEN" : "ACTIVE";
+    return <Button className="w-full md:w-auto" size="sm" variant="outline" onClick={() => setDecision({ account, status })}>{status === "FROZEN" ? (en ? "Freeze" : "Geler") : (en ? "Reactivate" : "Réactiver")}</Button>;
+  };
   return (
-    <div className="overflow-hidden rounded-xl border border-border bg-surface">
+    <>
+    <ul className="native-list divide-y divide-border md:hidden">
+      {accounts.map((account) => <li key={account.id} className="space-y-4 p-4">
+        <div className="grid grid-cols-[minmax(0,1fr)_auto] gap-3"><div className="min-w-0"><p className="truncate font-semibold text-foreground">{account.displayName}</p><p className="text-caption mt-1 text-muted-foreground">{account.reference} · {account.maskedNumber}</p></div><StatusBadge label={account.status} tone={account.status === "ACTIVE" ? "success" : account.status === "PENDING" ? "pending" : "failed"} /></div>
+        <div><p className="text-caption text-muted-foreground">{en ? "Account holder" : "Titulaire"}</p><p className="text-body-sm mt-1 text-foreground">{account.holderName}</p></div>
+        <dl className="grid grid-cols-2 gap-3 rounded-md bg-surface-sunken p-3"><div><dt className="text-caption text-muted-foreground">{en ? "Available" : "Disponible"}</dt><dd className="text-numeric mt-1 text-sm font-semibold">{formatMoneyFromMinor(account.availableBalanceMinor, { currency: account.currency, minorUnitScale: 10 ** account.minorUnit })}</dd></div><div><dt className="text-caption text-muted-foreground">{en ? "Reserved" : "Réservé"}</dt><dd className="text-numeric mt-1 text-sm">{formatMoneyFromMinor(account.heldBalanceMinor, { currency: account.currency, minorUnitScale: 10 ** account.minorUnit })}</dd></div></dl>
+        {canManage ? actionFor(account) : null}
+      </li>)}
+    </ul>
+    <div className="hidden overflow-hidden rounded-md border border-border bg-surface md:block">
       <Table>
         <TableHeader><TableRow>
-          <TableHead>{en ? "Account" : (en ? "Account" : "Compte")}</TableHead><TableHead>{en ? "Account holder" : (en ? "Account holder" : "Titulaire")}</TableHead><TableHead>{en ? "Status" : (en ? "Status" : "Statut")}</TableHead><TableHead>{en ? "Ledger balance" : (en ? "Ledger balance" : "Solde comptable")}</TableHead><TableHead>{en ? "Available" : (en ? "Available" : "Disponible")}</TableHead><TableHead>{en ? "Reserved" : (en ? "Reserved" : "Réservé")}</TableHead>{canManage ? <TableHead>{en ? (en ? "Action" : "Action") : (en ? "Action" : "Action")}</TableHead> : null}
+          <TableHead>{en ? "Account" : "Compte"}</TableHead><TableHead>{en ? "Account holder" : "Titulaire"}</TableHead><TableHead>{en ? "Status" : "Statut"}</TableHead><TableHead>{en ? "Ledger balance" : "Solde comptable"}</TableHead><TableHead>{en ? "Available" : "Disponible"}</TableHead><TableHead>{en ? "Reserved" : "Réservé"}</TableHead>{canManage ? <TableHead>Action</TableHead> : null}
         </TableRow></TableHeader>
         <TableBody>
           {accounts.map((account) => (
@@ -33,11 +51,13 @@ export function AdminAccountsTable({ accounts }: { accounts: AdminAccountDto[] }
               <TableCell>{formatMoneyFromMinor(account.ledgerBalanceMinor, { currency: account.currency, minorUnitScale: 10 ** account.minorUnit })}</TableCell>
               <TableCell>{formatMoneyFromMinor(account.availableBalanceMinor, { currency: account.currency, minorUnitScale: 10 ** account.minorUnit })}</TableCell>
               <TableCell>{formatMoneyFromMinor(account.heldBalanceMinor, { currency: account.currency, minorUnitScale: 10 ** account.minorUnit })}</TableCell>
-              {canManage ? <TableCell>{account.status === "ACTIVE" ? <Button size="sm" variant="outline" onClick={() => void change(account, "FROZEN")}>{en ? "Freeze" : (en ? "Freeze" : "Geler")}</Button> : <Button size="sm" variant="outline" onClick={() => void change(account, "ACTIVE")}>{en ? "Reactivate" : (en ? "Reactivate" : "Réactiver")}</Button>}</TableCell> : null}
+              {canManage ? <TableCell>{actionFor(account)}</TableCell> : null}
             </TableRow>
           ))}
         </TableBody>
       </Table>
     </div>
+    <Dialog open={Boolean(decision)} onOpenChange={(open) => { if (!open) { setDecision(null); setReason(""); } }}><DialogContent className="w-[calc(100%-2rem)] rounded-md"><DialogHeader><DialogTitle>{decision?.status === "FROZEN" ? (en ? "Freeze account" : "Geler le compte") : (en ? "Reactivate account" : "Réactiver le compte")}</DialogTitle><DialogDescription>{en ? "Record an auditable reason before confirming this sensitive action." : "Consignez un motif traçable avant de confirmer cette action sensible."}</DialogDescription></DialogHeader><div className="space-y-2"><Label htmlFor="account-decision-reason">{en ? "Reason" : "Motif"}</Label><Textarea id="account-decision-reason" value={reason} onChange={(event) => setReason(event.target.value)} minLength={8} autoFocus /></div><DialogFooter className="gap-2"><Button variant="outline" onClick={() => setDecision(null)}>{en ? "Cancel" : "Annuler"}</Button><Button onClick={() => void confirmChange()} disabled={reason.trim().length < 8 || mutation.isPending} loading={mutation.isPending}>{en ? "Confirm" : "Confirmer"}</Button></DialogFooter></DialogContent></Dialog>
+    </>
   );
 }

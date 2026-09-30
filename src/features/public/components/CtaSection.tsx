@@ -18,12 +18,12 @@ export function CtaSection({
   const { language } = useLanguage();
   return (
     <section className={cn("px-4 py-14 sm:px-6 sm:py-20", className)}>
-      <div className="mx-auto w-full max-w-6xl overflow-hidden rounded-2xl border border-border bg-primary px-6 py-10 text-primary-foreground sm:px-10 sm:py-14">
+      <div className="mx-auto w-full max-w-6xl overflow-hidden rounded-md border border-border bg-primary px-5 py-9 text-primary-foreground shadow-[var(--shadow-elevated)] sm:px-10 sm:py-14">
         <div className="max-w-2xl space-y-3">
           <h2 className="text-heading-lg">{language === "en" && title === "Prêt à ouvrir votre compte ?" ? "Ready to open your account?" : title}</h2>
-          <p className="text-body opacity-90">{language === "en" && description.startsWith("L'ouverture se fait") ? "Apply online and follow each step through to account activation." : description}</p>
+          <p className="text-body text-primary-foreground">{language === "en" && description.startsWith("L'ouverture se fait") ? "Apply online and follow each step through to account activation." : description}</p>
         </div>
-        <div className="mt-7 flex flex-col gap-3 sm:flex-row">
+        <div className="mt-7 grid grid-cols-1 gap-3 min-[380px]:grid-cols-2 sm:flex sm:flex-row">
           <Button asChild variant="brand" size="lg" className="touch-target">
             <Link to={PUBLIC_CTA.primaryTo} data-analytics-event="open_account_clicked">
               {language === "en" ? "Open an account" : PUBLIC_CTA.primary}

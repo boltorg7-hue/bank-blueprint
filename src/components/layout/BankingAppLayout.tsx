@@ -22,7 +22,7 @@ export function BankingAppLayout({ children }: { children: ReactNode }) {
           <CustomerAppHeader />
           <NetworkStatusBanner />
 
-          <main id="main" className="pb-mobile-nav flex-1 lg:pb-10">
+          <main id="main" className="pb-mobile-nav min-w-0 flex-1 lg:pb-10">
             {children}
           </main>
         </div>
@@ -47,6 +47,6 @@ export function BankingContentContainer({
     width === "narrow" ? "max-w-2xl" : width === "wide" ? "max-w-7xl" : "max-w-5xl";
 
   return (
-    <div className={`mx-auto w-full px-4 py-4 md:py-6 sm:px-6 sm:py-8 ${maxWidth}`}>{children}</div>
+    <div className={`mx-auto w-full min-w-0 px-4 py-5 sm:px-6 sm:py-8 ${maxWidth}`}>{children}</div>
   );
 }

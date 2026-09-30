@@ -39,7 +39,7 @@ export function AccountBalanceCard({
 
   if (!account) {
     return (
-      <section className={cn("rounded-2xl border border-border bg-surface p-5 sm:p-6", className)}>
+      <section className={cn("native-surface p-5 sm:p-6", className)}>
         <Skeleton className="h-4 w-28" />
         <Skeleton className="mt-3 h-10 w-48" />
         <Skeleton className="mt-4 h-4 w-40" />
@@ -57,11 +57,11 @@ export function AccountBalanceCard({
     <section
       aria-labelledby="balance-card-heading"
       className={cn(
-        "rounded-2xl border border-border bg-surface p-5 sm:p-6 shadow-[var(--shadow-card)]",
+        "native-surface overflow-hidden border-t-2 border-t-brand p-5 sm:p-6",
         className,
       )}
     >
-      <div className="flex flex-wrap items-start justify-between gap-3">
+      <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
         <div className="min-w-0">
           <h2 id="balance-card-heading" className="text-heading-md truncate text-foreground sm:text-heading-lg">
             {account.displayName}
@@ -112,13 +112,13 @@ export function AccountBalanceCard({
       {balance && (
         <>
           <dl className="mt-6 grid gap-3 sm:mt-8 sm:grid-cols-2 sm:gap-4">
-            <div className="rounded-xl bg-surface-sunken p-3.5 sm:p-4 transition-colors hover:bg-muted/50">
+            <div className="rounded-md bg-surface-sunken p-3.5 transition-colors hover:bg-muted/50 sm:p-4">
               <dt className="text-caption text-muted-foreground sm:text-body-sm">Solde comptable</dt>
               <dd className="text-amount mt-1 text-foreground sm:text-heading-md">
                 {renderAmount(balance.ledgerBalanceMinor)}
               </dd>
             </div>
-            <div className="rounded-xl bg-surface-sunken p-3.5 sm:p-4 transition-colors hover:bg-muted/50">
+            <div className="rounded-md bg-surface-sunken p-3.5 transition-colors hover:bg-muted/50 sm:p-4">
               <dt className="text-caption text-muted-foreground sm:text-body-sm">Montants réservés</dt>
               <dd className="text-amount mt-1 text-foreground sm:text-heading-md">
                 {renderAmount(balance.heldBalanceMinor)}

@@ -28,7 +28,7 @@ export function TransactionList({
   }
 
   return (
-    <ul className="divide-y divide-border overflow-hidden rounded-xl border border-border bg-surface">
+    <ul className="native-list divide-y divide-border">
       {items.map((item) => (
         <li key={`${item.reference}-${item.accountReference}-${item.direction}`}>
           <Link

@@ -257,7 +257,7 @@ export function TransactionFilters({
   return (
     <>
       {/* Mobile: bottom sheet (§90) */}
-      <div className="flex items-center gap-2 lg:hidden">
+      <div className="sticky top-[4.5rem] z-20 -mx-4 flex items-center gap-2 border-y border-border bg-background/95 px-4 py-3 backdrop-blur lg:hidden">
         <Button
           variant="outline"
           className="touch-target flex-1"
@@ -318,7 +318,7 @@ export function TransactionFilters({
 
       {/* Desktop: inline toolbar (§162) */}
       <div className="hidden lg:block">
-        <div className="rounded-xl border border-border bg-surface p-4">
+        <div className="native-surface p-4">
           <FilterFields filters={draft} onChange={setDraft} />
           <div className="mt-4 flex justify-end gap-2">
             {count > 0 ? <Button variant="ghost" size="sm" onClick={() => { setDraft({ ...EMPTY_FILTERS }); onChange({ ...EMPTY_FILTERS }); }}>

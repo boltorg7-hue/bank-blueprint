@@ -34,7 +34,7 @@ function MoreRoute() {
     <BankingContentContainer width="narrow">
       <PageHeader title={en ? "More" : "Plus"} description={en ? "Your banking services, organised by topic." : "Tous les services de votre espace client, classés par rubrique."} />
 
-      <div className="grid gap-5 sm:grid-cols-2 sm:items-start">
+      <div className="grid gap-6 sm:grid-cols-2 sm:items-start">
         {CUSTOMER_MORE_GROUPS.map((group) => (
           <section key={group.title} aria-labelledby={`group-${group.title}`} className="min-w-0 space-y-2">
             <h2
@@ -43,7 +43,7 @@ function MoreRoute() {
             >
               {en ? ({ Banque: "Banking", Documents: "Documents", Échanges: "Communication", "Mon compte": "My account" } as Record<string, string>)[group.title] ?? group.title : group.title}
             </h2>
-            <ul className="divide-y divide-border overflow-hidden rounded-md border border-border bg-surface">
+            <ul className="native-list divide-y divide-border">
               {group.items.map((item) => {
                 const Icon = item.icon;
                 const blocked = Boolean(item.transactional) && !transactional;
