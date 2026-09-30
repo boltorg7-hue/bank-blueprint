@@ -108,12 +108,18 @@ export async function loadAdminOnboardingCases(
 
   const rows = profiles ?? [];
   const customerIds = rows.map((row: any) => String(row.id));
-  const [{ data: verifications }, { data: documents }, { data: authPage }] = await Promise.all([
+  const [{ data: verifications }, { data: documents }, { data: approvals }, { data: accounts }, { data: authPage }] = await Promise.all([
     customerIds.length
       ? admin.from("identity_verifications").select("user_id,status,submitted_at,decided_at").in("user_id", customerIds)
       : Promise.resolve({ data: [] as any[] }),
     customerIds.length
       ? admin.from("verification_documents").select("user_id,document_type,status,created_at").in("user_id", customerIds).order("created_at", { ascending: true })
+      : Promise.resolve({ data: [] as any[] }),
+    customerIds.length
+      ? admin.from("onboarding_approval_requests" as any).select("id,customer_id,recommendation,status,reviewer_user_id,reviewer_note,reviewed_at,checker_user_id,checker_note,decided_at").in("customer_id", customerIds).order("created_at", { ascending: false })
+      : Promise.resolve({ data: [] as any[] }),
+    customerIds.length
+      ? admin.from("bank_accounts").select("user_id,public_reference,status").in("user_id", customerIds).eq("is_primary", true)
       : Promise.resolve({ data: [] as any[] }),
     admin.auth.admin.listUsers({ page: 1, perPage: 1000 }),
   ]);
@@ -129,20 +135,45 @@ export async function loadAdminOnboardingCases(
     });
     documentsByUser.set(userId, customerDocuments);
   }
-  const emailById = new Map((authPage?.users ?? []).map((user) => [user.id, user.email ?? null]));
+  const authById = new Map((authPage?.users ?? []).map((user) => [user.id, user]));
+  const accountByUser = new Map((accounts ?? []).map((row: any) => [String(row.user_id), row]));
+  const staffIds = [...new Set((approvals ?? []).flatMap((row: any) => [row.reviewer_user_id, row.checker_user_id]).filter(Boolean).map(String))];
+  const { data: staffProfiles } = staffIds.length
+    ? await admin.from("staff_profiles").select("user_id,display_name").in("user_id", staffIds)
+    : { data: [] as any[] };
+  const staffNames = new Map((staffProfiles ?? []).map((row: any) => [String(row.user_id), String(row.display_name)]));
+  const approvalByUser = new Map<string, any>();
+  for (const approval of approvals ?? []) if (!approvalByUser.has(String((approval as any).customer_id))) approvalByUser.set(String((approval as any).customer_id), approval);
   const cases: AdminOnboardingCaseDto[] = rows.map((row: any) => {
     const verification: any = verificationByUser.get(String(row.id));
+    const approval: any = approvalByUser.get(String(row.id));
+    const account: any = accountByUser.get(String(row.id));
+    const authUser = authById.get(String(row.id));
     return {
       customerId: String(row.id),
       reference: `CUS-${String(row.id).replace(/-/g, "").slice(0, 12).toUpperCase()}`,
       fullName: [row.first_name, row.middle_name, row.last_name].filter(Boolean).join(" ") || "Client sans nom",
-      email: emailById.get(String(row.id)) ?? null,
+      email: authUser?.email ?? null,
       lifecycleState: row.lifecycle_state as CustomerLifecycleState,
       onboardingStep: String(row.onboarding_step),
       verificationStatus: String(verification?.status ?? "NOT_STARTED"),
       submittedAt: verification?.submitted_at ? String(verification.submitted_at) : null,
       decidedAt: verification?.decided_at ? String(verification.decided_at) : null,
       createdAt: String(row.created_at),
+      emailVerified: Boolean(authUser?.email_confirmed_at),
+      accountReference: account?.public_reference ? String(account.public_reference) : null,
+      accountStatus: account?.status ? String(account.status) : null,
+      approval: approval ? {
+        id: String(approval.id),
+        recommendation: approval.recommendation,
+        status: approval.status,
+        reviewerName: staffNames.get(String(approval.reviewer_user_id)) ?? "Agent KYC",
+        reviewerNote: String(approval.reviewer_note),
+        reviewedAt: String(approval.reviewed_at),
+        checkerName: approval.checker_user_id ? staffNames.get(String(approval.checker_user_id)) ?? "Superviseur" : null,
+        checkerNote: approval.checker_note ? String(approval.checker_note) : null,
+        decidedAt: approval.decided_at ? String(approval.decided_at) : null,
+      } : null,
       documents: documentsByUser.get(String(row.id)) ?? [],
     };
   });
@@ -153,6 +184,70 @@ export async function loadAdminOnboardingCases(
       .filter(Boolean)
       .some((value) => String(value).toLocaleLowerCase("fr").includes(term)),
   );
+}
+
+export async function inviteCustomer(
+  client: Client,
+  actorUserId: string,
+  input: { email: string; firstName: string; lastName: string },
+  origin: string,
+) {
+  await requireAdminPermission(client, "customers.invite");
+  const admin = await adminClient();
+  const { data, error } = await admin.auth.admin.inviteUserByEmail(input.email, {
+    redirectTo: `${origin}/reset-password`,
+    data: { first_name: input.firstName, last_name: input.lastName, invited_by_bank: true },
+  });
+  if (error || !data.user) throw new AdminAccessError("CUSTOMER_INVITATION_FAILED");
+  const { error: auditError } = await admin.rpc("service_record_customer_invitation" as never, {
+    _actor_user_id: actorUserId,
+    _customer_id: data.user.id,
+    _email: input.email,
+  } as never);
+  if (auditError) throw new AdminAccessError("CUSTOMER_INVITATION_AUDIT_FAILED");
+  return { customerId: data.user.id, invited: true as const };
+}
+
+export async function reviewOnboardingCase(
+  client: Client,
+  actorUserId: string,
+  input: { customerId: string; recommendation: "APPROVE" | "REJECT" | "REQUEST_INFO"; note: string },
+) {
+  await requireAdminPermission(client, "kyc.review");
+  const admin = await adminClient();
+  const { data, error } = await admin.rpc("service_review_identity_application" as never, {
+    _actor_user_id: actorUserId, _customer_id: input.customerId, _recommendation: input.recommendation, _note: input.note,
+  } as never);
+  if (error) throw new AdminAccessError(error.message.toLowerCase().includes("already pending") ? "APPROVAL_ALREADY_PENDING" : "KYC_REVIEW_FAILED");
+  return { requestId: data ?? null };
+}
+
+export async function decideOnboardingCase(
+  client: Client,
+  actorUserId: string,
+  input: { requestId: string; confirm: boolean; note: string },
+) {
+  await requireAdminPermission(client, "kyc.approve");
+  const admin = await adminClient();
+  const { data, error } = await admin.rpc("service_decide_identity_application" as never, {
+    _actor_user_id: actorUserId, _request_id: input.requestId, _confirm: input.confirm, _note: input.note,
+  } as never);
+  if (error) throw new AdminAccessError(error.message.toLowerCase().includes("four-eyes") ? "MAKER_CANNOT_APPROVE" : "KYC_DECISION_FAILED");
+  return data;
+}
+
+export async function activateOnboardingCustomer(
+  client: Client,
+  actorUserId: string,
+  input: { customerId: string; reason: string },
+) {
+  await requireAdminPermission(client, "accounts.manage");
+  const admin = await adminClient();
+  const { data, error } = await admin.rpc("service_activate_approved_customer" as never, {
+    _actor_user_id: actorUserId, _customer_id: input.customerId, _reason: input.reason,
+  } as never);
+  if (error) throw new AdminAccessError("CUSTOMER_ACTIVATION_FAILED");
+  return { accountReference: String(data) };
 }
 
 export async function loadAdminAccounts(
