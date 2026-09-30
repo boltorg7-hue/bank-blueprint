@@ -196,6 +196,12 @@ export async function inviteCustomer(
 ): Promise<AdminActionResult<{ customerId: string; invited: true }, "INVITATION_ALREADY_REGISTERED" | "INVITATION_RATE_LIMITED" | "INVITATION_UNAVAILABLE">> {
   await requireAdminPermission(client, "customers.invite");
   const admin = await adminClient();
+  const normalizedEmail = input.email.trim().toLowerCase();
+  const { data: existingUserId, error: lookupError } = await admin.rpc("auth_user_for_email" as never, {
+    _email: normalizedEmail,
+  } as never);
+  if (lookupError) throw new AdminAccessError("CUSTOMER_INVITATION_LOOKUP_FAILED");
+  if (existingUserId) return { ok: false, code: "INVITATION_ALREADY_REGISTERED" };
   const { data, error } = await admin.auth.admin.inviteUserByEmail(input.email, {
     redirectTo: `${origin}/reset-password`,
     data: { first_name: input.firstName, last_name: input.lastName, invited_by_bank: true },
@@ -212,7 +218,7 @@ export async function inviteCustomer(
   const { error: auditError } = await admin.rpc("service_record_customer_invitation" as never, {
     _actor_user_id: actorUserId,
     _customer_id: data.user.id,
-    _email: input.email,
+    _email: normalizedEmail,
   } as never);
   if (auditError) {
     await admin.auth.admin.deleteUser(data.user.id);
