@@ -2,7 +2,7 @@ import { HELP_ARTICLES, HELP_CATEGORIES, type HelpArticle } from "./help";
 
 const categories = ["Getting started", "Opening an account", "Sign-in and access", "Transfers", "Documents", "Statements", "Security", "Profile", "Contact the bank"];
 const articles: [string, string][] = [
-  ["What is RFC?", "RFC is a digital bank: current accounts, transfers, transaction tracking, digital statements, documents and secure messaging, available online."],
+  ["What is RFC?", "RFC is a traditional bank founded in 1972. It provides current accounts, transfers, statements and banking support, with secure online access."],
   ["Which devices can I use with RFC?", "Use an up-to-date browser on your phone, tablet or computer. An internet connection is required; banking data is not stored offline."],
   ["How do I open an account?", "Create your profile, confirm your contact details, provide the required information and verify your identity. Your account is activated after review."],
   ["Which documents do I need?", "A valid identity document is required. Additional documents may be requested depending on your circumstances; the exact list appears in your account."],

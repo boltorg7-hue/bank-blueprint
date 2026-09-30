@@ -27,11 +27,11 @@ export const securityEn = {
 };
 
 export const aboutEn = {
-  intro: { title: "Digital banking built on clarity", description: "RFC designs online banking around a simple question: where is my money, and what happens next?" },
+  intro: { title: "A trusted bank built on clarity", description: "RFC provides banking services around a simple question: where is my money, and what happens next?" },
   sections: [
-    { title: "Our story", paragraphs: ["RFC began with a simple observation: banking interfaces often do a poor job of explaining what happens to customers' money. Transactions appear, disappear and change status without explanation.", "We are building a digital banking platform where every transaction can be traced, every check is explained and every document is easy to find."] },
+    { title: "Our story", paragraphs: ["RFC began with a simple observation: banking interfaces often do a poor job of explaining what happens to customers' money. Transactions appear, disappear and change status without explanation.", "We are improving our banking services so every transaction can be traced, every check is explained and every document is easy to find."] },
     { title: "Our mission", paragraphs: ["Make banking understandable: provide a faithful view of accounts, remove needless complexity and make daily transactions accessible in a few steps.", "That mission comes with a responsibility to maintain sound financial controls, even when they slow a transaction down."] },
-    { title: "Our vision", paragraphs: ["A fully digital banking relationship where customers always know what the bank needs from them and what has happened to their request."] },
+    { title: "Our vision", paragraphs: ["A lasting banking relationship where customers always know what the bank needs from them and what has happened to their request."] },
     { title: "Our approach to banking", paragraphs: ["Balances are never changed directly: they follow double-entry ledger records, keeping what customers see consistent with what the bank records.", "Sensitive processing happens on the bank's systems with an audit trail, not in the browser."] },
     { title: "Technology and innovation", paragraphs: ["The platform is designed for mobile access and accessibility, and works over mobile networks. It operates online without local copies of banking data.", "Innovation means making the product clearer: transfer tracking, guided document requests, digital statements and contextual messaging."] },
     { title: "Security and responsibility", paragraphs: ["Security is part of the product, not an afterthought: stronger authentication, confirmation of sensitive actions, access logs and session management."] },

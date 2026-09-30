@@ -86,11 +86,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         name: "viewport",
         content: "width=device-width, initial-scale=1, viewport-fit=cover",
       },
-      { title: "RFC Royal FINANCE Bank — Banque digitale" },
+      { title: "RFC Royal FINANCE Bank — Banque depuis 1972" },
       {
         name: "description",
         content:
-          "RFC : comptes, virements et suivi des opérations dans une plateforme bancaire digitale sécurisée.",
+          "RFC : une banque classique fondée en 1972, avec des services bancaires sécurisés accessibles en ligne.",
       },
       { property: "og:site_name", content: APP_CONFIG.fullName },
       { property: "og:type", content: "website" },
