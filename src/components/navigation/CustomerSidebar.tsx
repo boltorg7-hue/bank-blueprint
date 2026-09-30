@@ -70,6 +70,6 @@ export function CustomerSidebar() {
 }
 
 export function englishNavLabel(label: string): string {
-  const labels: Record<string, string> = { Accueil: "Home", Comptes: "Accounts", Virement: "Transfer", Virements: "Transfers", Activité: "Activity", Bénéficiaires: "Beneficiaries", Relevés: "Statements", Documents: "Documents", Messages: "Messages", Notifications: "Notifications", Profil: "Profile", Sécurité: "Security", Préférences: "Settings", Aide: "Help", Plus: "More", Opérations: "Transactions", Clients: "Customers", Approvisionnements: "Funding", "Transferts externes": "External transfers", "Service client": "Customer support", "KYC & conformité": "KYC & compliance", Audit: "Audit", "Parité & tarifs": "Exchange rate & fees", "Tableau de bord": "Dashboard" };
+  const labels: Record<string, string> = { Accueil: "Home", Comptes: "Accounts", Virement: "Transfer", Virements: "Transfers", Activité: "Activity", Bénéficiaires: "Beneficiaries", Relevés: "Statements", Documents: "Documents", Messages: "Messages", Notifications: "Notifications", Profil: "Profile", Sécurité: "Security", Préférences: "Settings", Aide: "Help", Plus: "More", Opérations: "Transactions", Clients: "Customers", "Dossiers d’ouverture": "Account applications", Approvisionnements: "Funding", "Transferts externes": "External transfers", "Service client": "Customer support", "KYC & conformité": "KYC & compliance", Audit: "Audit", "Parité & tarifs": "Exchange rate & fees", "Tableau de bord": "Dashboard" };
   return labels[label] ?? label;
 }

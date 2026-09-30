@@ -8,6 +8,7 @@ import type {
   FundingRequestDto,
   StaffContextDto,
   AdminExternalTransferDto,
+  AdminOnboardingCaseDto,
 } from "@/features/admin/types/admin";
 
 function searchInput(input: { search?: string } | undefined) {
@@ -34,6 +35,14 @@ export const listAdminCustomers = createServerFn({ method: "POST" })
   .handler(async ({ data, context }): Promise<AdminCustomerDto[]> => {
     const service = await import("@/features/admin/services/admin.server");
     return service.loadAdminCustomers(context.supabase, data.search);
+  });
+
+export const listAdminOnboardingCases = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator(searchInput)
+  .handler(async ({ data, context }): Promise<AdminOnboardingCaseDto[]> => {
+    const service = await import("@/features/admin/services/admin.server");
+    return service.loadAdminOnboardingCases(context.supabase, data.search);
   });
 
 export const listAdminAccounts = createServerFn({ method: "POST" })
