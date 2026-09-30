@@ -146,7 +146,7 @@ function VerifyEmailPage() {
         INVALID: ["C’est déjà votre adresse actuelle.", "This is already your current address."],
         SEND_FAILED: ["La modification a échoué. Réessayez plus tard.", "The change failed. Try again later."],
       };
-      const text = result.code === "RATE_LIMITED" ? rateMessage(result.retryAfter) : (messages[result.code] ?? messages.SEND_FAILED)![en ? 1 : 0];
+      const text = result.code === "RATE_LIMITED" ? rateMessage(result.retryAfter) : (messages[result.code] ?? messages["SEND_FAILED"])![en ? 1 : 0];
       setNotice({ tone: "error", text });
       return;
     }
