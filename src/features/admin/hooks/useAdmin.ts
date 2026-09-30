@@ -19,7 +19,6 @@ import {
   inviteAdminCustomer,
   reviewAdminOnboardingCase,
 } from "@/features/admin/services/admin.functions";
-import type { AdminActionResult } from "@/features/admin/types/admin";
 
 export const ADMIN_CONTEXT_KEY = ["admin", "context"] as const;
 export const ADMIN_DASHBOARD_KEY = ["admin", "dashboard"] as const;
@@ -55,7 +54,7 @@ export function useAdminOnboardingCases(search: string) {
   });
 }
 
-function onboardingMutation<T, R extends AdminActionResult>(fn: (input: T) => Promise<R>) {
+function onboardingMutation<T, R>(fn: (input: T) => Promise<R>) {
   const queryClient = useQueryClient();
   return useMutation({ mutationFn: fn, onSuccess: () => queryClient.invalidateQueries({ queryKey: ADMIN_ONBOARDING_KEY }) });
 }
