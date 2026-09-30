@@ -1,5 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
-import { getRequest } from "@tanstack/react-start/server";
+import { getRequestHeader } from "@tanstack/react-start/server";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import type {
@@ -56,9 +56,15 @@ export const inviteAdminCustomer = createServerFn({ method: "POST" })
     return { email, firstName, lastName };
   })
   .handler(async ({ data, context }) => {
-    const request = getRequest();
+    const requestOrigin = getRequestHeader("origin");
+    const requestHost = getRequestHeader("host");
+    const origin = requestOrigin && /^https?:\/\//.test(requestOrigin)
+      ? requestOrigin
+      : requestHost
+        ? `https://${requestHost}`
+        : "https://rfbank.lovable.app";
     const service = await import("@/features/admin/services/admin.server");
-    return service.inviteCustomer(context.supabase, context.userId, data, new URL(request.url).origin);
+    return service.inviteCustomer(context.supabase, context.userId, data, origin);
   });
 
 export const reviewAdminOnboardingCase = createServerFn({ method: "POST" })

@@ -1,5 +1,6 @@
 import { useLanguage } from "@/components/providers/LanguageProvider";
 import { createFileRoute } from "@tanstack/react-router";
+import { ArrowRight, CalendarDays, FileCheck2, Send } from "lucide-react";
 import { toast } from "sonner";
 
 import { EmptyState, ErrorState, LoadingState } from "@/components/feedback";
@@ -20,7 +21,12 @@ export const Route = createFileRoute("/admin/transfers")({
   component: AdminTransfersPage,
   head: () => ({
     meta: [
-      { title: "Transferts externes — Back-office" },
+      { title: "Virements en attente — RFC Royal FINANCE Bank" },
+      { name: "description", content: "Suivi administratif sécurisé des virements externes en attente." },
+      { property: "og:title", content: "Virements en attente — RFC Royal FINANCE Bank" },
+      { property: "og:description", content: "Suivi administratif sécurisé des virements externes en attente." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex, nofollow" },
     ],
   }),
@@ -40,15 +46,15 @@ function AdminTransfersPage() {
   return (
     <AdminGate>
       <PageHeader
-        title={en ? "Simulated external transfers" : "Transferts externes simulés"}
-        description={en ? "Review supporting documents and the administrative stages at 95%, 99% and 100%." : "Contrôlez les justificatifs et les passages administratifs à 95 %, 99 % et 100 %."}
+        title={en ? "Pending transfers" : "Virements en attente"}
+        description={en ? "Track each amount, recipient and processing status." : "Suivez chaque montant, destinataire et statut de traitement."}
       />
       {query.isPending ? (
         <LoadingState />
       ) : query.isError ? (
         <ErrorState onRetry={() => query.refetch()} />
       ) : !query.data?.length ? (
-        <EmptyState title={en ? "No external transfers" : "Aucun transfert externe"} />
+        <EmptyState title={en ? "No pending transfers" : "Aucun virement en attente"} />
       ) : (
         <ExternalTransfersTable transfers={query.data} />
       )}
@@ -83,7 +89,23 @@ function ExternalTransfersTable({ transfers }: { transfers: AdminExternalTransfe
   }
 
   return (
-    <div className="overflow-x-auto rounded-lg border bg-card">
+    <>
+    <div className="native-list md:hidden">
+      {transfers.map((transfer) => {
+        const canApprove = transfer.status === "COMPLIANCE_REVIEW" && transfer.documentsOpen === 0 && permissions.has("compliance.review");
+        const canQueue = transfer.status === "APPROVED" && permissions.has("transfers.approve");
+        const canFinalize = transfer.status === "SETTLEMENT_PENDING" && permissions.has("transfers.approve");
+        const action = canApprove ? "APPROVE" : canQueue ? "QUEUE" : canFinalize ? "FINALIZE" : null;
+        return <article key={transfer.reference} className="native-list-item block space-y-4">
+          <div className="flex items-start justify-between gap-3"><div className="min-w-0"><p className="font-mono text-xs text-muted-foreground">{transfer.reference}</p><p className="mt-1 truncate font-semibold">{transfer.recipient}</p><p className="text-sm text-muted-foreground">{transfer.customerName}</p></div><StatusBadge label={transfer.status} tone={statusTone(transfer.status)} /></div>
+          <p className="text-xl font-semibold">{formatMoneyFromMinor(transfer.amountMinor, { currency: transfer.currency })}</p>
+          <div className="grid grid-cols-2 gap-3 text-sm"><div><p className="flex items-center gap-1 text-xs text-muted-foreground"><ArrowRight className="size-3.5" />{en ? "Progress" : "Progression"}</p><p className="mt-1 font-medium">{transfer.progressPercent} %</p></div><div><p className="flex items-center gap-1 text-xs text-muted-foreground"><FileCheck2 className="size-3.5" />{en ? "Documents" : "Justificatifs"}</p><p className="mt-1 font-medium">{transfer.documentsOpen === 0 ? (en ? "Complete" : "Complets") : `${transfer.documentsOpen} ${en ? "open" : "ouvert(s)"}`}</p></div></div>
+          <p className="flex items-center gap-1 text-xs text-muted-foreground"><CalendarDays className="size-3.5" />{formatDateTime(transfer.createdAt)}</p>
+          {action ? <Button className="w-full" disabled={mutation.isPending} onClick={() => advance(transfer.reference, action)}><Send className="size-4" />{action === "APPROVE" ? (en ? "Approve at 95%" : "Approuver à 95 %") : action === "QUEUE" ? (en ? "Move to 99%" : "Passer à 99 %") : (en ? "Finalize at 100%" : "Finaliser à 100 %")}</Button> : null}
+        </article>;
+      })}
+    </div>
+    <div className="hidden overflow-x-auto rounded-lg border bg-card md:block">
       <Table>
         <TableHeader>
           <TableRow>
@@ -146,5 +168,6 @@ function ExternalTransfersTable({ transfers }: { transfers: AdminExternalTransfe
         </TableBody>
       </Table>
     </div>
+    </>
   );
 }

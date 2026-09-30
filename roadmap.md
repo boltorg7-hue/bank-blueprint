@@ -19,6 +19,8 @@
 - Créer la tâche planifiée mensuelle (Cloud → Jobs) appelant POST /api/public/cron/monthly-statements avec l'en-tête x-cron-secret — action utilisateur requise.
 
 ## Fait (ce cycle)
+- Parcours administrateur réel validé à 393 px avec deux agents distincts : invitation client, dossier transmis avec deux pièces, premier examen, seconde validation et ouverture de l’espace USD limité (`BANKING_REVIEW`, compte `PENDING`) ; agents temporaires supprimés après le test.
+- Vue administrateur mobile des virements en attente : montant, destinataire, statut, progression, justificatifs et actions autorisées.
 - Audit UI/UX mobile 2026 : direction « luxe organique moderne » validée ; fondations tactiles, accueil immersif, navigation basse, surfaces client, filtres mobiles et largeur des recherches admin harmonisés.
 - Audit responsive validé sans débordement à 320, 393, 768 et 1280 px sur les principales routes publiques ; cibles tactiles publiques renforcées et footer lisible dès 320 px.
 - Comptes, clients et approvisionnements administratifs disposent de cartes mobiles dédiées ; les motifs de décisions sensibles utilisent des dialogues accessibles à la place des fenêtres système.

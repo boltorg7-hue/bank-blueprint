@@ -97,7 +97,8 @@ export async function loadAdminOnboardingCases(
   client: Client,
   search = "",
 ): Promise<AdminOnboardingCaseDto[]> {
-  await requireAdminPermission(client, "customers.read");
+  const staff = await requireAdminPermission(client, "customers.read");
+  const canReadKycDecisions = staff.permissions.includes("kyc.review") || staff.permissions.includes("kyc.approve");
   const admin = await adminClient();
   const { data: profiles, error } = await admin
     .from("profiles")
@@ -115,7 +116,7 @@ export async function loadAdminOnboardingCases(
     customerIds.length
       ? admin.from("verification_documents").select("user_id,document_type,status,created_at").in("user_id", customerIds).order("created_at", { ascending: true })
       : Promise.resolve({ data: [] as any[] }),
-    customerIds.length
+    customerIds.length && canReadKycDecisions
       ? admin.from("onboarding_approval_requests" as any).select("id,customer_id,recommendation,status,reviewer_user_id,reviewer_note,reviewed_at,checker_user_id,checker_note,decided_at").in("customer_id", customerIds).order("created_at", { ascending: false })
       : Promise.resolve({ data: [] as any[] }),
     customerIds.length
@@ -198,7 +199,7 @@ export async function inviteCustomer(
     redirectTo: `${origin}/reset-password`,
     data: { first_name: input.firstName, last_name: input.lastName, invited_by_bank: true },
   });
-  if (error || !data.user) throw new AdminAccessError("CUSTOMER_INVITATION_FAILED");
+  if (error || !data.user) throw new AdminAccessError(error?.status === 429 ? "CUSTOMER_INVITATION_RATE_LIMITED" : "CUSTOMER_INVITATION_FAILED");
   const { error: auditError } = await admin.rpc("service_record_customer_invitation" as never, {
     _actor_user_id: actorUserId,
     _customer_id: data.user.id,
@@ -374,7 +375,7 @@ export async function loadAdminDashboard(client: Client): Promise<AdminDashboard
 
 export async function loadExternalTransfers(client:Client):Promise<AdminExternalTransferDto[]> {
   const staff=await requireAdminPermission(client); if(!staff.permissions.includes("compliance.review")&&!staff.permissions.includes("transfers.approve")) throw new AdminAccessError("ADMIN_FORBIDDEN");
-  const admin=await adminClient(); const {data,error}=await admin.from("transfers").select("id,public_reference,sender_user_id,recipient_display_snapshot,amount_minor,currency,status,progress_percent,created_at").eq("transfer_kind","EXTERNAL_TRANSFER").order("created_at",{ascending:false}).limit(100); if(error)throw new AdminAccessError("TRANSFERS_UNAVAILABLE");
+  const admin=await adminClient(); const {data,error}=await admin.from("transfers").select("id,public_reference,sender_user_id,recipient_display_snapshot,amount_minor,currency,status,progress_percent,created_at").eq("transfer_kind","EXTERNAL_TRANSFER").not("status","in","(COMPLETED,FAILED,REJECTED,CANCELLED,REVERSED)").order("created_at",{ascending:false}).limit(100); if(error)throw new AdminAccessError("TRANSFERS_UNAVAILABLE");
   const ids=(data??[]).map((r:any)=>r.sender_user_id); const transferIds=(data??[]).map((r:any)=>r.id);
   const [{data:profiles},{data:reqs}]=await Promise.all([admin.from("profiles").select("id,first_name,last_name").in("id",ids),admin.from("transfer_requirements").select("transfer_id,status").in("transfer_id",transferIds)]);
   const names=new Map((profiles??[]).map((p:any)=>[p.id,[p.first_name,p.last_name].filter(Boolean).join(" ")||"Client"])); const open=new Map<string,number>(); for(const r of reqs??[]){if(["REQUIRED","REPLACEMENT_REQUIRED","UNDER_REVIEW"].includes((r as any).status))open.set((r as any).transfer_id,(open.get((r as any).transfer_id)??0)+1);}
