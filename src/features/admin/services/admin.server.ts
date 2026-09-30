@@ -242,7 +242,7 @@ export async function decideOnboardingCase(
   client: Client,
   actorUserId: string,
   input: { requestId: string; confirm: boolean; note: string },
-): Promise<AdminActionResult<{ decision: unknown }, "MAKER_CANNOT_APPROVE" | "DECISION_ALREADY_RECORDED" | "APPLICATION_STATE_CHANGED">> {
+): Promise<AdminActionResult<{ decision: Record<string, string | null> | null }, "MAKER_CANNOT_APPROVE" | "DECISION_ALREADY_RECORDED" | "APPLICATION_STATE_CHANGED">> {
   await requireAdminPermission(client, "kyc.approve");
   const admin = await adminClient();
   const { data, error } = await admin.rpc("service_decide_identity_application" as never, {
@@ -255,7 +255,8 @@ export async function decideOnboardingCase(
     if (message.includes("application state changed")) return { ok: false, code: "APPLICATION_STATE_CHANGED" };
     throw new AdminAccessError("KYC_DECISION_FAILED");
   }
-  return { ok: true, decision: data };
+  const decision = data && typeof data === "object" ? data as Record<string, string | null> : null;
+  return { ok: true, decision };
 }
 
 export async function activateOnboardingCustomer(
