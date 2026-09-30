@@ -74,6 +74,7 @@ function AddressStepPage() {
   }
 
   const address = context.address;
+  const isTT = (country ?? address?.country ?? context.profile.country_of_residence ?? "Trinidad and Tobago") === "Trinidad and Tobago";
 
   return (
     <OnboardingShell
@@ -118,12 +119,14 @@ function Field({
   name,
   label,
   autoComplete,
+  list,
   defaultValue,
   error,
 }: {
   name: string;
   label: string;
   autoComplete: string;
+  list?: string;
   defaultValue?: string | null | undefined;
   error?: string | undefined;
 }) {
@@ -135,6 +138,7 @@ function Field({
         id={id}
         name={name}
         autoComplete={autoComplete}
+        list={list}
         defaultValue={defaultValue ?? ""}
         aria-invalid={error ? true : undefined}
         aria-describedby={error ? `${id}-error` : undefined}
