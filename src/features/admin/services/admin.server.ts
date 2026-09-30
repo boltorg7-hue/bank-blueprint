@@ -199,7 +199,7 @@ export async function inviteCustomer(
     redirectTo: `${origin}/reset-password`,
     data: { first_name: input.firstName, last_name: input.lastName, invited_by_bank: true },
   });
-  if (error || !data.user) throw new AdminAccessError("CUSTOMER_INVITATION_FAILED");
+  if (error || !data.user) throw new AdminAccessError(error?.status === 429 ? "CUSTOMER_INVITATION_RATE_LIMITED" : "CUSTOMER_INVITATION_FAILED");
   const { error: auditError } = await admin.rpc("service_record_customer_invitation" as never, {
     _actor_user_id: actorUserId,
     _customer_id: data.user.id,

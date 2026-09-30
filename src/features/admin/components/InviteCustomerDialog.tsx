@@ -24,8 +24,11 @@ export function InviteCustomerDialog() {
       await mutation.mutateAsync({ email, firstName, lastName });
       toast.success(en ? "Invitation sent securely." : "Invitation envoyée en toute sécurité.");
       setOpen(false); setEmail(""); setFirstName(""); setLastName("");
-    } catch {
-      toast.error(en ? "The invitation could not be sent. Check whether the address is already registered." : "L’invitation n’a pas pu être envoyée. Vérifiez si l’adresse est déjà inscrite.");
+    } catch (error) {
+      const message = error instanceof Error && error.message.includes("RATE")
+        ? (en ? "Too many invitations were sent. Try again later." : "Trop d’invitations ont été envoyées. Réessayez plus tard.")
+        : (en ? "The invitation could not be sent. Check the address or whether it is already registered." : "L’invitation n’a pas pu être envoyée. Vérifiez l’adresse ou si elle est déjà inscrite.");
+      toast.error(message);
     }
   }
 
