@@ -7,6 +7,7 @@ import { PRIVACY_PLACEHOLDER } from "@/lib/format/mask";
 import { usePrivacyMode } from "@/components/providers/PrivacyModeProvider";
 import { formatDateTime } from "@/lib/format/date";
 import { cn } from "@/lib/utils";
+import { useLanguage } from "@/components/providers/LanguageProvider";
 import type { CustomerAccountSummaryDto } from "@/features/accounts/types/account";
 import {
   accountStatusLabel,
@@ -36,6 +37,7 @@ export function AccountBalanceCard({
   className?: string;
 }) {
   const { privacyMode } = usePrivacyMode();
+  const en = useLanguage().language === "en";
 
   if (!account) {
     return (
@@ -78,14 +80,14 @@ export function AccountBalanceCard({
       </div>
 
       <div className="mt-6 sm:mt-8">
-        <p className="text-overline text-muted-foreground">Solde disponible</p>
+        <p className="text-overline text-muted-foreground">{en ? "Available balance" : "Solde disponible"}</p>
         {balance ? (
           <p
             className="text-balance-value mt-1.5 text-foreground"
             aria-label={
               hidden
-                ? "Solde masqué"
-                : `Solde disponible : ${formatAccountAmount(
+                ? en ? "Balance hidden" : "Solde masqué"
+                : `${en ? "Available balance" : "Solde disponible"} : ${formatAccountAmount(
                     balance.availableBalanceMinor,
                     account.currency,
                     account.minorUnit,
@@ -96,13 +98,15 @@ export function AccountBalanceCard({
           </p>
         ) : (
           <div className="mt-1">
-            <p className="text-heading-sm text-muted-foreground">Solde indisponible</p>
+            <p className="text-heading-sm text-muted-foreground">{en ? "Balance unavailable" : "Solde indisponible"}</p>
             <p className="text-caption mt-1 text-muted-foreground">
-              Nous n'avons pas pu récupérer votre solde. Aucun montant approximatif n'est affiché.
+              {en
+                ? "We couldn't retrieve your balance. No approximate amount is shown."
+                : "Nous n'avons pas pu récupérer votre solde. Aucun montant approximatif n'est affiché."}
             </p>
             {onRetry && (
               <Button variant="outline" size="sm" className="mt-3" onClick={onRetry}>
-                Réessayer
+                {en ? "Retry" : "Réessayer"}
               </Button>
             )}
           </div>
@@ -113,13 +117,13 @@ export function AccountBalanceCard({
         <>
           <dl className="mt-6 grid gap-3 sm:mt-8 sm:grid-cols-2 sm:gap-4">
             <div className="rounded-md bg-surface-sunken p-3.5 transition-colors hover:bg-muted/50 sm:p-4">
-              <dt className="text-caption text-muted-foreground sm:text-body-sm">Solde comptable</dt>
+              <dt className="text-caption text-muted-foreground sm:text-body-sm">{en ? "Ledger balance" : "Solde comptable"}</dt>
               <dd className="text-amount mt-1 text-foreground sm:text-heading-md">
                 {renderAmount(balance.ledgerBalanceMinor)}
               </dd>
             </div>
             <div className="rounded-md bg-surface-sunken p-3.5 transition-colors hover:bg-muted/50 sm:p-4">
-              <dt className="text-caption text-muted-foreground sm:text-body-sm">Montants réservés</dt>
+              <dt className="text-caption text-muted-foreground sm:text-body-sm">{en ? "Held amounts" : "Montants réservés"}</dt>
               <dd className="text-amount mt-1 text-foreground sm:text-heading-md">
                 {renderAmount(balance.heldBalanceMinor)}
               </dd>
@@ -129,10 +133,12 @@ export function AccountBalanceCard({
           <p className="text-caption mt-5 flex items-start gap-1.5 text-muted-foreground sm:mt-6">
             <Info className="mt-0.5 size-3.5 shrink-0" aria-hidden="true" />
             <span className="leading-normal">
-              Le solde disponible tient compte des montants réservés. Dernière mise à jour :{" "}
+              {en
+                ? "The available balance accounts for held amounts. Last updated: "
+                : "Le solde disponible tient compte des montants réservés. Dernière mise à jour : "}
               {formatDateTime(balance.calculatedAt)}.
-              {isRefreshing && " Actualisation en cours…"}
-              {isStale && !isRefreshing && " Cette valeur peut avoir changé."}
+              {isRefreshing && (en ? " Refreshing…" : " Actualisation en cours…")}
+              {isStale && !isRefreshing && (en ? " This value may have changed." : " Cette valeur peut avoir changé.")}
             </span>
           </p>
         </>
