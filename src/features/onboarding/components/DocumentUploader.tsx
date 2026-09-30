@@ -1,7 +1,8 @@
 import { useLanguage } from "@/components/providers/LanguageProvider";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { FileText, Trash2, UploadCloud } from "lucide-react";
+import { CheckCircle2, Circle, FileText, Trash2, UploadCloud } from "lucide-react";
+import { hasIdentityDocument, hasProofOfAddress } from "@/features/onboarding/lib/tasks";
 
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -51,6 +52,15 @@ export function DocumentUploader({
   const [error, setError] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [pendingRemoval, setPendingRemoval] = useState<string | null>(null);
+  const idDone = hasIdentityDocument(context);
+  const proofDone = hasProofOfAddress(context);
+  const allDone = idDone && proofDone;
+
+  // Pre-select the document still missing, so the customer never has to think about it.
+  useEffect(() => {
+    if (idDone && !proofDone) setDocumentType("PROOF_OF_ADDRESS");
+    else if (!idDone && documentType === "PROOF_OF_ADDRESS" && proofDone) setDocumentType("IDENTITY_CARD");
+  }, [idDone, proofDone]); // eslint-disable-line react-hooks/exhaustive-deps
 
   async function handleFile(file: File) {
     setError(null);
@@ -120,6 +130,36 @@ export function DocumentUploader({
 
   return (
     <div className="space-y-6">
+      <ul className="grid gap-2 sm:grid-cols-2" aria-label={en ? "Required documents" : "Documents requis"}>
+        {[
+          { done: idDone, label: en ? "Identity document" : "Pièce d'identité" },
+          { done: proofDone, label: en ? "Proof of address" : "Justificatif de domicile" },
+        ].map((slot) => (
+          <li
+            key={slot.label}
+            className={`flex items-center gap-3 rounded-xl border px-4 py-3 transition-colors duration-500 ${slot.done ? "border-success/40 bg-success-muted" : "border-border bg-surface"}`}
+          >
+            {slot.done ? (
+              <CheckCircle2 className="size-5 shrink-0 text-success animate-in zoom-in-50 duration-500" aria-hidden="true" />
+            ) : (
+              <Circle className="size-5 shrink-0 text-muted-foreground" aria-hidden="true" />
+            )}
+            <div>
+              <p className="text-label text-foreground">{slot.label}</p>
+              <p className="text-caption text-muted-foreground">
+                {slot.done ? (en ? "Already provided" : "Déjà renseigné") : (en ? "To provide" : "À fournir")}
+              </p>
+            </div>
+          </li>
+        ))}
+      </ul>
+
+      {editable && allDone ? (
+        <p className="text-body-sm rounded-xl border border-border bg-surface px-4 py-3 text-muted-foreground">
+          {en ? "Both documents are provided. You can still add or replace a document below." : "Les deux documents sont renseignés. Vous pouvez encore ajouter ou remplacer un document ci-dessous."}
+        </p>
+      ) : null}
+
       {editable ? (
         <div className="space-y-4 rounded-xl border border-border bg-surface p-4">
           <div className="space-y-2">
@@ -157,7 +197,7 @@ export function DocumentUploader({
             onClick={() => inputRef.current?.click()}
           >
             <UploadCloud className="size-4" aria-hidden="true" />
-            Choisir un fichier
+            {en ? `Add: ${documentType === "PROOF_OF_ADDRESS" ? "proof of address" : "identity document"}` : `Ajouter : ${DOCUMENT_TYPE_LABELS[documentType as keyof typeof DOCUMENT_TYPE_LABELS]?.toLowerCase() ?? "document"}`}
           </Button>
           <p className="text-caption text-muted-foreground">
             {en ? "JPEG, PNG, HEIC, WEBP or PDF — 10 MB maximum. Your documents are stored privately and never published." : "JPEG, PNG, HEIC, WEBP ou PDF — 10 Mo maximum. Vos documents sont stockés dans un espace privé et ne sont jamais publiés."}
