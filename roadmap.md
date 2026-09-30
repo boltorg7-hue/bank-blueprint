@@ -11,6 +11,7 @@
 - Accueil et pages publiques principales modernisés dans une direction éditoriale « photo puis récit » ; navigation mobile publique et client affinée sans modification des opérations.
 
 ## À faire
+- Exécuter sur mobile le parcours administrateur réel : invitation client, soumission du dossier, premier examen, seconde validation par un autre agent et ouverture de l’espace limité.
 - Bilinguisme FR/EN : terminer les dialogues bénéficiaires, certains panneaux détaillés de comptes/virements et les libellés provenant des données ou documents générés ; vérifier les vues administrateur avec un compte personnel autorisé (compte de test actuel non autorisé).
 - Parcours mobile-first : vérifier les vues administrateur internes avec un compte personnel autorisé et poursuivre l'inspection des écrans secondaires sans modifier les règles bancaires.
 - Phase 10 : notifications et messagerie de service client (base + écrans câblés ; validation d'exécution de bout en bout restante).
@@ -19,6 +20,7 @@
 - Créer la tâche planifiée mensuelle (Cloud → Jobs) appelant POST /api/public/cron/monthly-statements avec l'en-tête x-cron-secret — action utilisateur requise.
 
 ## Fait (ce cycle)
+- Vue administrateur mobile des virements en attente : montant, destinataire, statut, progression, justificatifs et actions autorisées.
 - Audit UI/UX mobile 2026 : direction « luxe organique moderne » validée ; fondations tactiles, accueil immersif, navigation basse, surfaces client, filtres mobiles et largeur des recherches admin harmonisés.
 - Audit responsive validé sans débordement à 320, 393, 768 et 1280 px sur les principales routes publiques ; cibles tactiles publiques renforcées et footer lisible dès 320 px.
 - Comptes, clients et approvisionnements administratifs disposent de cartes mobiles dédiées ; les motifs de décisions sensibles utilisent des dialogues accessibles à la place des fenêtres système.
