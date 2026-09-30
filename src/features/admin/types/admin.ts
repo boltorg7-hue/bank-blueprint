@@ -9,18 +9,20 @@ export type StaffContextDto = {
   permissions: string[];
 };
 
-export type AdminActionResult<T = Record<string, never>> =
+export type AdminActionErrorCode =
+  | "INVITATION_ALREADY_REGISTERED"
+  | "INVITATION_RATE_LIMITED"
+  | "INVITATION_UNAVAILABLE"
+  | "APPROVAL_ALREADY_PENDING"
+  | "MAKER_CANNOT_APPROVE"
+  | "DECISION_ALREADY_RECORDED"
+  | "APPLICATION_STATE_CHANGED";
+
+export type AdminActionResult<T = Record<string, never>, C extends AdminActionErrorCode = AdminActionErrorCode> =
   | ({ ok: true } & T)
   | {
       ok: false;
-      code:
-        | "INVITATION_ALREADY_REGISTERED"
-        | "INVITATION_RATE_LIMITED"
-        | "INVITATION_UNAVAILABLE"
-        | "APPROVAL_ALREADY_PENDING"
-        | "MAKER_CANNOT_APPROVE"
-        | "DECISION_ALREADY_RECORDED"
-        | "APPLICATION_STATE_CHANGED";
+      code: C;
     };
 
 export type AdminDashboardDto = {

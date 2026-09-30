@@ -193,7 +193,7 @@ export async function inviteCustomer(
   actorUserId: string,
   input: { email: string; firstName: string; lastName: string },
   origin: string,
-): Promise<AdminActionResult<{ customerId: string; invited: true }>> {
+): Promise<AdminActionResult<{ customerId: string; invited: true }, "INVITATION_ALREADY_REGISTERED" | "INVITATION_RATE_LIMITED" | "INVITATION_UNAVAILABLE">> {
   await requireAdminPermission(client, "customers.invite");
   const admin = await adminClient();
   const { data, error } = await admin.auth.admin.inviteUserByEmail(input.email, {
@@ -225,7 +225,7 @@ export async function reviewOnboardingCase(
   client: Client,
   actorUserId: string,
   input: { customerId: string; recommendation: "APPROVE" | "REJECT" | "REQUEST_INFO"; note: string },
-): Promise<AdminActionResult<{ requestId: string | null }>> {
+): Promise<AdminActionResult<{ requestId: string | null }, "APPROVAL_ALREADY_PENDING">> {
   await requireAdminPermission(client, "kyc.review");
   const admin = await adminClient();
   const { data, error } = await admin.rpc("service_review_identity_application" as never, {
@@ -242,7 +242,7 @@ export async function decideOnboardingCase(
   client: Client,
   actorUserId: string,
   input: { requestId: string; confirm: boolean; note: string },
-): Promise<AdminActionResult<{ decision: unknown }>> {
+): Promise<AdminActionResult<{ decision: unknown }, "MAKER_CANNOT_APPROVE" | "DECISION_ALREADY_RECORDED" | "APPLICATION_STATE_CHANGED">> {
   await requireAdminPermission(client, "kyc.approve");
   const admin = await adminClient();
   const { data, error } = await admin.rpc("service_decide_identity_application" as never, {
