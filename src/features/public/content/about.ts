@@ -6,7 +6,7 @@
  */
 
 export const ABOUT_INTRO = {
-  title: "Une banque digitale construite sur la clarté",
+  title: "Une banque de confiance construite sur la clarté",
   description:
     "RFC conçoit une banque en ligne dont chaque écran répond à une question simple : où en est mon argent, et que se passe-t-il ensuite ?",
 } as const;
@@ -17,7 +17,7 @@ export const ABOUT_SECTIONS: { id: string; title: string; paragraphs: string[] }
     title: "Notre histoire",
     paragraphs: [
       "RFC est né d'un constat simple : la plupart des interfaces bancaires expliquent mal ce qui arrive à l'argent des clients. Les opérations apparaissent, disparaissent, changent de statut sans explication.",
-      "Nous construisons une plateforme bancaire digitale où chaque opération est traçable, chaque contrôle est expliqué, et chaque document est retrouvable.",
+      "Nous faisons évoluer nos services bancaires pour que chaque opération soit traçable, chaque contrôle expliqué et chaque document facile à retrouver.",
     ],
   },
   {
@@ -32,7 +32,7 @@ export const ABOUT_SECTIONS: { id: string; title: string; paragraphs: string[] }
     id: "vision",
     title: "Notre vision",
     paragraphs: [
-      "Une relation bancaire entièrement digitale, où le client sait à tout moment ce que la banque attend de lui et ce qu'elle a fait de sa demande.",
+      "Une relation bancaire durable, où le client sait à tout moment ce que la banque attend de lui et ce qu'elle a fait de sa demande.",
     ],
   },
   {

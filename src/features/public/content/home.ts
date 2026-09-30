@@ -23,7 +23,7 @@ import {
 } from "lucide-react";
 
 export const HERO = {
-  eyebrow: "Banque digitale",
+  eyebrow: "Banque depuis 1972",
   headline: "Une banque claire, du solde au virement",
   subline:
     "Consultez votre compte en temps réel, effectuez vos virements et suivez chaque étape sans appeler personne.",
@@ -187,7 +187,7 @@ export const INNOVATION_ITEMS: { title: string; description: string; icon: Lucid
     icon: Send,
   },
   {
-    title: "Parcours d'identité digital",
+    title: "Ouverture de compte en ligne",
     description: "L'ouverture de compte et la vérification d'identité se font en ligne.",
     icon: KeyRound,
   },

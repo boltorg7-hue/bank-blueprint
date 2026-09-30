@@ -40,7 +40,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
     category: "getting-started",
     question: "Qu'est-ce que RFC ?",
     answer:
-      "RFC est une banque digitale : compte courant, virements, suivi des opérations, relevés numériques, documents et messagerie sécurisée, accessibles en ligne.",
+      "RFC est une banque classique fondée en 1972. Elle propose des comptes courants, des virements, des relevés et une assistance bancaire, avec un accès sécurisé en ligne.",
   },
   {
     id: "start-devices",

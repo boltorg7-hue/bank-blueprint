@@ -15,7 +15,7 @@ export const BRAND = {
   /** Symbol-only mark (compact / favicon / document header). */
   symbol: "R",
   /** Short descriptor used next to the wordmark where space allows. */
-  descriptor: "Banque digitale",
+  descriptor: "Banque depuis 1972",
   tagline: APP_CONFIG.tagline,
   supportEmail: APP_CONFIG.supportEmail,
 
