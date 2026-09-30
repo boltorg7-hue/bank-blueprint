@@ -61,6 +61,7 @@ import { Route as OnboardingDocumentsRouteImport } from './routes/onboarding.doc
 import { Route as OnboardingProfileRouteImport } from './routes/onboarding.profile'
 import { Route as OnboardingReviewRouteImport } from './routes/onboarding.review'
 import { Route as OnboardingStatusRouteImport } from './routes/onboarding.status'
+import { Route as OnboardingTransitionRouteImport } from './routes/onboarding.transition'
 import { Route as AppAccountsIndexRouteImport } from './routes/app.accounts.index'
 import { Route as AppAccountsAccountRefRouteImport } from './routes/app.accounts.$accountRef'
 import { Route as AppStatementsIndexRouteImport } from './routes/app.statements.index'
@@ -332,6 +333,11 @@ const OnboardingStatusRoute = OnboardingStatusRouteImport.update({
   path: '/status',
   getParentRoute: () => OnboardingRoute,
 } as any)
+const OnboardingTransitionRoute = OnboardingTransitionRouteImport.update({
+  id: '/transition',
+  path: '/transition',
+  getParentRoute: () => OnboardingRoute,
+} as any)
 const AppAccountsIndexRoute = AppAccountsIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -436,6 +442,7 @@ export interface FileRoutesByFullPath {
   '/onboarding/profile': typeof OnboardingProfileRoute
   '/onboarding/review': typeof OnboardingReviewRoute
   '/onboarding/status': typeof OnboardingStatusRoute
+  '/onboarding/transition': typeof OnboardingTransitionRoute
   '/admin/': typeof AdminIndexRoute
   '/app/': typeof AppIndexRoute
   '/onboarding/': typeof OnboardingIndexRoute
@@ -494,6 +501,7 @@ export interface FileRoutesByTo {
   '/onboarding/profile': typeof OnboardingProfileRoute
   '/onboarding/review': typeof OnboardingReviewRoute
   '/onboarding/status': typeof OnboardingStatusRoute
+  '/onboarding/transition': typeof OnboardingTransitionRoute
   '/admin': typeof AdminIndexRoute
   '/app': typeof AppIndexRoute
   '/onboarding': typeof OnboardingIndexRoute
@@ -559,6 +567,7 @@ export interface FileRoutesById {
   '/onboarding/profile': typeof OnboardingProfileRoute
   '/onboarding/review': typeof OnboardingReviewRoute
   '/onboarding/status': typeof OnboardingStatusRoute
+  '/onboarding/transition': typeof OnboardingTransitionRoute
   '/admin/': typeof AdminIndexRoute
   '/app/': typeof AppIndexRoute
   '/onboarding/': typeof OnboardingIndexRoute
@@ -625,6 +634,7 @@ export interface FileRouteTypes {
     | '/onboarding/profile'
     | '/onboarding/review'
     | '/onboarding/status'
+    | '/onboarding/transition'
     | '/admin/'
     | '/app/'
     | '/onboarding/'
@@ -683,6 +693,7 @@ export interface FileRouteTypes {
     | '/onboarding/profile'
     | '/onboarding/review'
     | '/onboarding/status'
+    | '/onboarding/transition'
     | '/admin'
     | '/app'
     | '/onboarding'
@@ -747,6 +758,7 @@ export interface FileRouteTypes {
     | '/onboarding/profile'
     | '/onboarding/review'
     | '/onboarding/status'
+    | '/onboarding/transition'
     | '/admin/'
     | '/app/'
     | '/onboarding/'
@@ -1156,6 +1168,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OnboardingStatusRouteImport
       parentRoute: typeof OnboardingRoute
     }
+    '/onboarding/transition': {
+      id: '/onboarding/transition'
+      path: '/transition'
+      fullPath: '/onboarding/transition'
+      preLoaderRoute: typeof OnboardingTransitionRouteImport
+      parentRoute: typeof OnboardingRoute
+    }
     '/app/accounts/': {
       id: '/app/accounts/'
       path: '/'
@@ -1343,6 +1362,7 @@ interface OnboardingRouteChildren {
   OnboardingProfileRoute: typeof OnboardingProfileRoute
   OnboardingReviewRoute: typeof OnboardingReviewRoute
   OnboardingStatusRoute: typeof OnboardingStatusRoute
+  OnboardingTransitionRoute: typeof OnboardingTransitionRoute
   OnboardingIndexRoute: typeof OnboardingIndexRoute
 }
 
@@ -1352,6 +1372,7 @@ const OnboardingRouteChildren: OnboardingRouteChildren = {
   OnboardingProfileRoute: OnboardingProfileRoute,
   OnboardingReviewRoute: OnboardingReviewRoute,
   OnboardingStatusRoute: OnboardingStatusRoute,
+  OnboardingTransitionRoute: OnboardingTransitionRoute,
   OnboardingIndexRoute: OnboardingIndexRoute,
 }
 

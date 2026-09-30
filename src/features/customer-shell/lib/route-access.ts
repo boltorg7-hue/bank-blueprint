@@ -22,13 +22,26 @@ const SHELL_STATES: readonly CustomerLifecycleState[] = [
   "SUSPENDED",
 ];
 
+/** Submitted applications get a limited area: no money movement until identity is validated. */
+const PENDING_STATES: readonly CustomerLifecycleState[] = [
+  "IDENTITY_SUBMITTED",
+  "IDENTITY_UNDER_REVIEW",
+  "ADDITIONAL_DOCUMENT_REQUIRED",
+  "IDENTITY_VERIFIED",
+  "BANKING_REVIEW",
+];
+
+export function isPendingVerification(state: CustomerLifecycleState): boolean {
+  return PENDING_STATES.includes(state);
+}
+
 export function canEnterBankingShell(state: CustomerLifecycleState): boolean {
-  return SHELL_STATES.includes(state);
+  return SHELL_STATES.includes(state) || PENDING_STATES.includes(state);
 }
 
 /** Read access to account information, statements, documents and messages. */
 export function canReadBanking(state: CustomerLifecycleState): boolean {
-  return canEnterBankingShell(state);
+  return SHELL_STATES.includes(state);
 }
 
 /** Money movement requires a fully active banking status — never verified-only. */

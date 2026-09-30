@@ -7,6 +7,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { supabase } from "@/integrations/supabase/client";
 import { useCustomerContext } from "@/features/onboarding/hooks/useCustomerContext";
 import { nextRouteForLifecycle } from "@/types/customer-lifecycle";
+import { LimitedAccessBanner } from "@/features/customer-shell/components/LimitedAccessBanner";
 import { canEnterBankingShell } from "@/features/customer-shell/lib/route-access";
 
 /**
@@ -61,6 +62,7 @@ function CustomerAppLayoutRoute() {
 
   return (
     <BankingAppLayout>
+      {lifecycle ? <LimitedAccessBanner state={lifecycle} /> : null}
       <Outlet />
     </BankingAppLayout>
   );

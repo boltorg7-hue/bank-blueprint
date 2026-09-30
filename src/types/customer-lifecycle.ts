@@ -76,11 +76,12 @@ export function nextRouteForLifecycle(state: CustomerLifecycleState): string {
     case "PROFILE_INCOMPLETE":
     case "IDENTITY_REQUIRED":
       return "/onboarding";
+    case "ADDITIONAL_DOCUMENT_REQUIRED":
+      return "/onboarding/status";
     case "IDENTITY_SUBMITTED":
     case "IDENTITY_UNDER_REVIEW":
-    case "ADDITIONAL_DOCUMENT_REQUIRED":
     case "BANKING_REVIEW":
-      return "/onboarding/status";
+      return "/app/dashboard";
     case "IDENTITY_VERIFIED":
     case "ACTIVE":
       return "/app/dashboard";
