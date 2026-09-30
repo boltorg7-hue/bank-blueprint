@@ -39,6 +39,10 @@ function VerifyEmailPage() {
   const [cooldown, setCooldown] = useState(0);
   const [notice, setNotice] = useState<{ tone: "ok" | "error"; text: string } | null>(null);
   const [pending, setPending] = useState(false);
+  const [editing, setEditing] = useState(false);
+  const [newEmail, setNewEmail] = useState("");
+  const [savingEmail, setSavingEmail] = useState(false);
+  const navigate = useNavigate();
 
   const checkStatus = useCallback(async () => {
     setChecking(true);
