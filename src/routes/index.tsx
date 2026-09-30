@@ -60,38 +60,40 @@ function HomePage() {
     <PublicLayout>
       {/* Photograph first, then the bank's own story — no staged people or invented history. */}
       <section className="bg-surface">
-        <div className="mx-auto max-w-7xl px-4 pt-5 sm:px-6 sm:pt-8">
-          <figure className="relative">
+        <div className="mx-auto max-w-7xl sm:px-6 sm:pt-8">
+          <figure className="relative sm:overflow-hidden sm:rounded-md">
             <img
               src={HERO_PHOTO.src}
               alt={HERO_PHOTO.alt}
               width={1920}
               height={1440}
-              className="h-[29vh] min-h-44 max-h-72 w-full object-cover object-center sm:h-[42vh] sm:max-h-[440px]"
+              className="h-[48svh] min-h-[320px] max-h-[520px] w-full object-cover object-center sm:h-[48vh]"
               fetchPriority="high"
             />
-            <figcaption className="mt-2 flex flex-wrap justify-between gap-x-5 gap-y-1">
+            <div aria-hidden="true" className="absolute inset-0 bg-gradient-to-t from-primary/90 via-primary/15 to-transparent" />
+            <div className="absolute inset-x-0 bottom-0 z-10 px-5 pb-6 text-primary-foreground sm:px-8 sm:pb-8">
+              <p className="text-overline text-warning-muted">{copy("Trinidad-et-Tobago · depuis 1972", HOME_EN.date)}</p>
+              <h1 className="text-display mt-3 max-w-3xl text-balance text-primary-foreground sm:text-5xl lg:text-6xl">RFC Royal FINANCE Bank</h1>
+              <p className="text-heading-sm mt-3 max-w-xl text-primary-foreground sm:text-heading-md">{copy("Une banque ancrée à Woodbrook, pensée pour vos projets d’aujourd’hui.", HOME_EN.intro)}</p>
+            </div>
+            <figcaption className="flex flex-wrap justify-between gap-x-5 gap-y-1 px-4 py-2 sm:px-0">
                <span className="text-caption text-foreground">{copy(HERO_PHOTO.caption, "Woodbrook, Port of Spain — the neighbourhood around our head office")}</span>
               <PhotoCredit photo={HERO_PHOTO} />
             </figcaption>
           </figure>
-          <div className="grid gap-5 py-7 sm:py-9 lg:grid-cols-[1.1fr_0.9fr] lg:items-end lg:gap-16">
+          <div className="grid gap-5 px-4 py-7 sm:px-0 sm:py-9 lg:grid-cols-[1.1fr_0.9fr] lg:items-end lg:gap-16">
             <div className="min-w-0 animate-enter">
-               <p className="text-overline mb-3 text-brand">{copy("Trinidad-et-Tobago · depuis 1972", HOME_EN.date)}</p>
-              <h1 className="text-display max-w-3xl text-balance text-foreground sm:text-5xl lg:text-6xl">RFC Royal FINANCE Bank</h1>
-               <p className="text-heading-md mt-3 max-w-2xl text-foreground">{copy("Une banque ancrée à Woodbrook, pensée pour vos projets d’aujourd’hui.", HOME_EN.intro)}</p>
-            </div>
-            <div className="min-w-0">
                <p className="text-body max-w-prose text-muted-foreground">{copy("Fondée le 23 juillet 1972 à Trinidad-et-Tobago. Consultez votre compte en dollars américains et suivez vos virements depuis votre espace client.", HOME_EN.lead)}</p>
-              <div className="mt-5 flex flex-wrap items-center gap-3">
-                <Button asChild variant="brand" size="lg" className="touch-target press-feedback active:press-feedback-active">
+              <div className="mt-5 grid grid-cols-1 gap-3 min-[380px]:grid-cols-2 sm:flex sm:flex-wrap sm:items-center">
+                <Button asChild variant="brand" size="lg" className="touch-target press-feedback w-full active:press-feedback-active sm:w-auto">
                    <Link to={PUBLIC_CTA.primaryTo} data-analytics-event="open_account_clicked">{copy("Ouvrir un compte", HOME_EN.open)} <ArrowRight className="size-4" aria-hidden="true" /></Link>
                 </Button>
-                <Button asChild variant="outline" size="lg" className="touch-target">
+                <Button asChild variant="outline" size="lg" className="touch-target w-full sm:w-auto">
                    <Link to="/about">{copy("Notre histoire", HOME_EN.history)}</Link>
                 </Button>
               </div>
             </div>
+            <div className="hidden border-l border-border pl-8 lg:block"><p className="text-overline text-brand">{copy("Une institution locale", "A local institution")}</p><p className="text-body mt-3 text-muted-foreground">{copy("Siège à Woodbrook, supervision de la Central Bank of Trinidad and Tobago.", "Headquartered in Woodbrook and supervised by the Central Bank of Trinidad and Tobago.")}</p></div>
           </div>
         </div>
       </section>

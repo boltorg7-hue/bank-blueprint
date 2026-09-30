@@ -16,7 +16,7 @@ function AdminCustomersPage() {
   const en = language === "en";
   const [search, setSearch] = useState("");
   const query = useAdminCustomers(search);
-  return <AdminGate permission="customers.read"><PageHeader title={en ? "Customers" : "Clients"} description={en ? "Customer profiles, account-opening statuses and account counts." : "Profils clients, états d’ouverture et nombre de comptes."} action={<Input aria-label={en ? "Search customers" : "Rechercher un client"} placeholder={en ? "Name, email or reference" : "Nom, e-mail ou référence"} value={search} onChange={(event) => setSearch(event.target.value)} className="w-72" />} />
+  return <AdminGate permission="customers.read"><PageHeader title={en ? "Customers" : "Clients"} description={en ? "Customer profiles, account-opening statuses and account counts." : "Profils clients, états d’ouverture et nombre de comptes."} action={<Input aria-label={en ? "Search customers" : "Rechercher un client"} placeholder={en ? "Name, email or reference" : "Nom, e-mail ou référence"} value={search} onChange={(event) => setSearch(event.target.value)} className="w-full sm:w-72" />} />
     {query.isPending ? <LoadingState /> : query.isError ? <ErrorState onRetry={() => query.refetch()} /> : !query.data?.length ? <EmptyState title={en ? "No customers found" : "Aucun client trouvé"} /> : <AdminCustomersTable customers={query.data} />}
   </AdminGate>;
 }

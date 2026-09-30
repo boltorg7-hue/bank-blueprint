@@ -22,7 +22,7 @@ export function PublicFooter() {
 
           <nav
             aria-label={language === "en" ? "Site map" : "Plan du site"}
-            className="grid grid-cols-2 gap-x-4 gap-y-8 min-[420px]:grid-cols-2 sm:grid-cols-4"
+            className="grid grid-cols-1 gap-x-4 gap-y-7 min-[380px]:grid-cols-2 sm:grid-cols-4"
           >
             {PUBLIC_FOOTER_GROUPS.map((group) => (
               <div key={group.title} className="min-w-0">

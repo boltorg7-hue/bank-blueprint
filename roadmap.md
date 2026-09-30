@@ -19,6 +19,7 @@
 - Créer la tâche planifiée mensuelle (Cloud → Jobs) appelant POST /api/public/cron/monthly-statements avec l'en-tête x-cron-secret — action utilisateur requise.
 
 ## Fait (ce cycle)
+- Audit UI/UX mobile 2026 : direction « luxe organique moderne » validée ; fondations tactiles, accueil immersif, navigation basse, surfaces client, filtres mobiles et largeur des recherches admin harmonisés.
 - Opérations : filtres mobiles par date, fourchette de montant et catégorie, réinitialisation et pagination filtrée côté serveur.
 - Pages publiques, étapes d'ouverture de compte, profil, centre de sécurité, écrans client/admin principaux et détails de relevés, opérations et virements traduits FR/EN ; contrôle navigateur public et onboarding en deux langues sans erreur ni débordement. Accès admin refusé correctement au compte client de test ; vues internes admin non vérifiées avec un compte personnel.
 - Sélecteur de langue compact dans les trois en-têtes avec détection initiale de la langue du système et mémorisation du choix ; menu public regroupé, navigation admin regroupée, grille des services client et cartes de fonctionnalités affinées sur mobile.

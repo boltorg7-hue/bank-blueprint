@@ -24,7 +24,7 @@ export function PageHeader({
   backTo?: AppPath | undefined;
 }) {
   return (
-    <div className="mb-6 flex flex-col gap-4 sm:mb-8 sm:flex-row sm:items-start sm:justify-between">
+    <div className="mb-5 grid grid-cols-1 gap-4 sm:mb-8 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-start">
       <div className="flex min-w-0 items-start gap-3">
         {backTo ? (
           <Button variant="ghost" size="icon" className="touch-target -ml-2 shrink-0" asChild>
@@ -35,7 +35,7 @@ export function PageHeader({
         ) : null}
         <div className="min-w-0 space-y-1.5">
           <div className="flex flex-wrap items-center gap-2">
-            <h1 className="text-xl font-bold tracking-tight text-foreground sm:text-2xl md:text-3xl">
+            <h1 className="text-heading-lg text-balance text-foreground sm:text-2xl md:text-3xl">
               {title}
             </h1>
             {status}
@@ -48,7 +48,7 @@ export function PageHeader({
           {context}
         </div>
       </div>
-      {action ? <div className="flex shrink-0 items-center gap-2 sm:mt-1">{action}</div> : null}
+      {action ? <div className="flex min-w-0 items-center gap-2 sm:mt-1 sm:shrink-0">{action}</div> : null}
     </div>
   );
 }

@@ -47,7 +47,7 @@ export function PublicHeader() {
 
   return (
     <header className="safe-pt sticky top-0 z-40 border-b border-border bg-surface/95 shadow-[var(--shadow-subtle)] backdrop-blur-xl">
-      <div className="mx-auto grid h-16 w-full max-w-6xl grid-cols-[minmax(0,1fr)_auto] items-center gap-2 px-4 sm:px-6 lg:flex lg:justify-between">
+      <div className="mx-auto grid h-16 w-full max-w-6xl grid-cols-[minmax(0,1fr)_auto] items-center gap-1 px-4 sm:gap-2 sm:px-6 lg:flex lg:justify-between">
         <BrandMark />
 
         <nav aria-label={en ? "Main navigation" : "Navigation principale"} className="hidden items-center gap-5 lg:flex">
@@ -95,11 +95,11 @@ export function PublicHeader() {
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon" className="touch-target lg:hidden" aria-label={en ? "Open menu" : "Ouvrir le menu"}>
-                <Menu className="size-5" aria-hidden="true" />
+                <Menu className="size-6" aria-hidden="true" />
                  <span className="sr-only">{en ? "Open menu" : "Ouvrir le menu"}</span>
               </Button>
             </SheetTrigger>
-            <SheetContent side="right" className="safe-pt safe-pb w-[90vw] max-w-sm overflow-y-auto bg-surface">
+            <SheetContent side="right" className="safe-pt safe-pb w-[92vw] max-w-sm overflow-y-auto border-l border-border bg-surface shadow-[var(--shadow-elevated)]">
               <SheetHeader>
                 <SheetTitle className="text-heading-md text-foreground">RFC Royal FINANCE Bank</SheetTitle>
               </SheetHeader>
