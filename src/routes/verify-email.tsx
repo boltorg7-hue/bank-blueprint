@@ -200,12 +200,63 @@ function VerifyEmailPage() {
           </>
         )}
 
-        <div className="flex flex-col gap-2">
-          {!verified ? (
-            <Button asChild variant="ghost" className="touch-target">
-              <Link to="/register">{en ? "Change my email address" : "Modifier mon adresse e-mail"}</Link>
+        {!verified ? (
+          editing ? (
+            <form onSubmit={(event) => void handleChangeEmail(event)} className="space-y-3 rounded-xl border border-border bg-surface p-4">
+              <Label htmlFor="new-email">{en ? "New email address" : "Nouvelle adresse e-mail"}</Label>
+              <Input
+                id="new-email"
+                type="email"
+                inputMode="email"
+                autoComplete="email"
+                autoCapitalize="none"
+                autoFocus
+                required
+                className="touch-target"
+                placeholder={en ? "you@example.com" : "vous@exemple.com"}
+                value={newEmail}
+                onChange={(event) => setNewEmail(event.target.value)}
+              />
+              <p className="text-caption text-muted-foreground">
+                {en
+                  ? "We'll send a new confirmation link to this address."
+                  : "Nous enverrons un nouveau lien de confirmation à cette adresse."}
+              </p>
+              <div className="flex flex-col gap-2 sm:flex-row">
+                <Button type="submit" className="w-full touch-target" loading={savingEmail}>
+                  {en ? "Save and send the link" : "Enregistrer et envoyer le lien"}
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full touch-target"
+                  onClick={() => {
+                    setEditing(false);
+                    setNewEmail("");
+                  }}
+                >
+                  {en ? "Cancel" : "Annuler"}
+                </Button>
+              </div>
+            </form>
+          ) : (
+            <Button
+              type="button"
+              variant="ghost"
+              className="w-full touch-target"
+              onClick={() => {
+                setNotice(null);
+                setNewEmail(target ?? "");
+                setEditing(true);
+              }}
+            >
+              <PencilLine className="size-4" aria-hidden="true" />
+              {en ? "Wrong address? Change my email" : "Adresse incorrecte ? Modifier mon e-mail"}
             </Button>
-          ) : null}
+          )
+        ) : null}
+
+        <div className="flex flex-col gap-2">
           <Button asChild variant="ghost" className="touch-target">
             <Link to="/login">{en ? "Back to sign in" : "Retour à la connexion"}</Link>
           </Button>
