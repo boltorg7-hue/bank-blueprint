@@ -35,6 +35,18 @@ export type AdminOnboardingDocumentDto = {
   receivedAt: string;
 };
 
+export type AdminOnboardingApprovalDto = {
+  id: string;
+  recommendation: "APPROVE" | "REJECT";
+  status: "PENDING_SECOND_REVIEW" | "APPROVED" | "REJECTED" | "CANCELLED";
+  reviewerName: string;
+  reviewerNote: string;
+  reviewedAt: string;
+  checkerName: string | null;
+  checkerNote: string | null;
+  decidedAt: string | null;
+};
+
 export type AdminOnboardingCaseDto = {
   customerId: string;
   reference: string;
@@ -46,6 +58,10 @@ export type AdminOnboardingCaseDto = {
   submittedAt: string | null;
   decidedAt: string | null;
   createdAt: string;
+  emailVerified: boolean;
+  accountReference: string | null;
+  accountStatus: string | null;
+  approval: AdminOnboardingApprovalDto | null;
   documents: AdminOnboardingDocumentDto[];
 };
 
