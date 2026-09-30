@@ -21,14 +21,20 @@ export function InviteCustomerDialog() {
   async function submit(event: React.FormEvent) {
     event.preventDefault();
     try {
-      await mutation.mutateAsync({ email, firstName, lastName });
+      const result = await mutation.mutateAsync({ email, firstName, lastName });
+      if (!result.ok) {
+        const messages = {
+          INVITATION_ALREADY_REGISTERED: en ? "This address is already registered." : "Cette adresse est déjà inscrite.",
+          INVITATION_RATE_LIMITED: en ? "Too many invitations were sent. Try again later." : "Trop d’invitations ont été envoyées. Réessayez plus tard.",
+          INVITATION_UNAVAILABLE: en ? "The invitation service is temporarily unavailable. Try again later." : "Le service d’invitation est temporairement indisponible. Réessayez plus tard.",
+        } as const;
+        toast.error(messages[result.code]);
+        return;
+      }
       toast.success(en ? "Invitation sent securely." : "Invitation envoyée en toute sécurité.");
       setOpen(false); setEmail(""); setFirstName(""); setLastName("");
     } catch (error) {
-      const message = error instanceof Error && error.message.includes("RATE")
-        ? (en ? "Too many invitations were sent. Try again later." : "Trop d’invitations ont été envoyées. Réessayez plus tard.")
-        : (en ? "The invitation could not be sent. Check the address or whether it is already registered." : "L’invitation n’a pas pu être envoyée. Vérifiez l’adresse ou si elle est déjà inscrite.");
-      toast.error(message);
+      toast.error(en ? "The invitation could not be sent. Try again later." : "L’invitation n’a pas pu être envoyée. Réessayez plus tard.");
     }
   }
 

@@ -9,6 +9,20 @@ export type StaffContextDto = {
   permissions: string[];
 };
 
+export type AdminActionResult<T = Record<string, never>> =
+  | ({ ok: true } & T)
+  | {
+      ok: false;
+      code:
+        | "INVITATION_ALREADY_REGISTERED"
+        | "INVITATION_RATE_LIMITED"
+        | "INVITATION_UNAVAILABLE"
+        | "APPROVAL_ALREADY_PENDING"
+        | "MAKER_CANNOT_APPROVE"
+        | "DECISION_ALREADY_RECORDED"
+        | "APPLICATION_STATE_CHANGED";
+    };
+
 export type AdminDashboardDto = {
   customers: number;
   activeCustomers: number;

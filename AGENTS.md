@@ -17,3 +17,4 @@ Mobile presentation follows a restrained “modern organic luxury” direction: 
 The onboarding AI receives fully localized FR/EN requirements and customer progress through a request-scoped Gateway client; this prevents mixed-language answers and keeps correlation isolated.
 The admin account-opening register joins profiles, identity verification and received-document metadata behind `customers.read`; this keeps KYC tracking server-authorized and read-only.
 Customer onboarding decisions use a two-person workflow: `kyc.review` recommends, a distinct `kyc.approve` actor decides, and only the privileged server opens the pending USD account; approval notes are disclosed only to KYC-authorized staff.
+Recoverable admin conflicts return typed action results instead of thrown server errors; this keeps stale or duplicate actions inside the dialog without blanking the admin screen.
