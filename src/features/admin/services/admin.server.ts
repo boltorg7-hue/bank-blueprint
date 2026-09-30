@@ -97,7 +97,8 @@ export async function loadAdminOnboardingCases(
   client: Client,
   search = "",
 ): Promise<AdminOnboardingCaseDto[]> {
-  await requireAdminPermission(client, "customers.read");
+  const staff = await requireAdminPermission(client, "customers.read");
+  const canReadKycDecisions = staff.permissions.includes("kyc.review") || staff.permissions.includes("kyc.approve");
   const admin = await adminClient();
   const { data: profiles, error } = await admin
     .from("profiles")
@@ -115,7 +116,7 @@ export async function loadAdminOnboardingCases(
     customerIds.length
       ? admin.from("verification_documents").select("user_id,document_type,status,created_at").in("user_id", customerIds).order("created_at", { ascending: true })
       : Promise.resolve({ data: [] as any[] }),
-    customerIds.length
+    customerIds.length && canReadKycDecisions
       ? admin.from("onboarding_approval_requests" as any).select("id,customer_id,recommendation,status,reviewer_user_id,reviewer_note,reviewed_at,checker_user_id,checker_note,decided_at").in("customer_id", customerIds).order("created_at", { ascending: false })
       : Promise.resolve({ data: [] as any[] }),
     customerIds.length
