@@ -34,6 +34,17 @@ const DOCUMENT_STATUS: Record<string, { fr: string; en: string; tone: StatusTone
   EXPIRED: { fr: "Expiré", en: "Expired", tone: "failed" },
 };
 
+const STEP_PROGRESS: Record<string, number> = {
+  NOT_STARTED: 0,
+  CONTACT: 10,
+  PERSONAL_DETAILS: 25,
+  ADDRESS: 50,
+  IDENTITY: 65,
+  DOCUMENTS: 75,
+  REVIEW: 90,
+  COMPLETED: 100,
+};
+
 function CaseStatus({ status }: { status: string }) {
   const { language } = useLanguage();
   const value = STATUS_LABELS[status] ?? { fr: status, en: status, tone: "neutral" as const };
@@ -63,6 +74,17 @@ function DocumentList({ documents }: { documents: AdminOnboardingCaseDto["docume
   );
 }
 
+function Progress({ step }: { step: string }) {
+  const { language } = useLanguage();
+  const progress = STEP_PROGRESS[step] ?? 0;
+  return (
+    <div className="mt-2 min-w-36">
+      <div className="mb-1 flex justify-between text-xs text-muted-foreground"><span>{language === "en" ? "Progress" : "Progression"}</span><span>{progress}%</span></div>
+      <div className="h-1.5 overflow-hidden rounded-full bg-muted"><div className="h-full rounded-full bg-brand" style={{ width: `${progress}%` }} /></div>
+    </div>
+  );
+}
+
 export function AdminOnboardingCases({ cases }: { cases: AdminOnboardingCaseDto[] }) {
   const { language } = useLanguage();
   const en = language === "en";
@@ -75,6 +97,7 @@ export function AdminOnboardingCases({ cases }: { cases: AdminOnboardingCaseDto[
               <div className="min-w-0"><p className="font-semibold text-foreground">{item.fullName}</p><p className="mt-1 text-xs text-muted-foreground">{item.reference}</p></div>
               <CaseStatus status={item.verificationStatus} />
             </div>
+            <Progress step={item.onboardingStep} />
             <p className="break-all text-sm text-muted-foreground">{item.email ?? (en ? "No email provided" : "E-mail non renseigné")}</p>
             <div className="grid grid-cols-2 gap-3 rounded-md bg-surface-sunken p-3">
               <div><p className="text-xs text-muted-foreground">{en ? "Documents" : "Documents"}</p><p className="mt-1 flex items-center gap-2 font-semibold"><Files className="size-4" />{item.documents.length}</p></div>
@@ -90,7 +113,7 @@ export function AdminOnboardingCases({ cases }: { cases: AdminOnboardingCaseDto[
           <TableHeader><TableRow><TableHead>{en ? "Customer" : "Client"}</TableHead><TableHead>{en ? "Application status" : "Statut du dossier"}</TableHead><TableHead>{en ? "Documents received" : "Documents reçus"}</TableHead><TableHead>{en ? "Submitted" : "Soumission"}</TableHead><TableHead>{en ? "Decision date" : "Date de validation"}</TableHead></TableRow></TableHeader>
           <TableBody>{cases.map((item) => <TableRow key={item.customerId}>
             <TableCell><div className="flex gap-3"><UserRoundCheck className="mt-0.5 size-4 shrink-0 text-muted-foreground" /><div><p className="font-medium">{item.fullName}</p><p className="text-xs text-muted-foreground">{item.reference}</p><p className="text-xs text-muted-foreground">{item.email ?? "—"}</p></div></div></TableCell>
-            <TableCell><CaseStatus status={item.verificationStatus} /></TableCell>
+            <TableCell><CaseStatus status={item.verificationStatus} /><Progress step={item.onboardingStep} /></TableCell>
             <TableCell><div className="flex items-center gap-2"><FileCheck2 className="size-4 text-muted-foreground" /><span className="font-medium">{item.documents.length}</span></div><div className="mt-2 max-w-sm"><DocumentList documents={item.documents} /></div></TableCell>
             <TableCell>{item.submittedAt ? formatDateTime(item.submittedAt) : "—"}</TableCell>
             <TableCell>{item.decidedAt ? formatDateTime(item.decidedAt) : <span className="text-muted-foreground">{en ? "Pending" : "En attente"}</span>}</TableCell>
