@@ -32,3 +32,4 @@
 - Lien « Voir le site public de la banque » ajouté au tableau de bord client.
 - Pages admin parité/tarifs, comptes clients et approvisionnements opérationnelles.
 - Assistant d’ouverture de compte : interface, exigences et progression client entièrement localisées FR/EN ; réponses réelles validées via AI Gateway sur les prochaines étapes, les documents acceptés et les demandes hors périmètre.
+- Parcours d’un nouveau client validé de bout en bout sur mobile : inscription, confirmation d’e-mail, reconnexion, étapes 1 à 4, envoi du dossier et arrivée dans l’espace limité avec opérations verrouillées. Progression et dernière relecture harmonisées en FR/EN.

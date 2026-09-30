@@ -12,6 +12,17 @@ import { isProfileComplete, hasIdentityDocument, hasProofOfAddress, isSubmitted 
 import { formatDate } from "@/lib/format/date";
 
 export const Route = createFileRoute("/onboarding/review")({
+  head: () => ({
+    meta: [
+      { title: "Relecture du dossier — Ouverture de compte RFC" },
+      { name: "description", content: "Relisez et transmettez votre dossier d’ouverture de compte RFC." },
+      { property: "og:title", content: "Relecture du dossier — RFC FINANCE Bank" },
+      { property: "og:description", content: "Dernière étape sécurisée avant l’examen du dossier RFC." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+      { name: "robots", content: "noindex,nofollow" },
+    ],
+  }),
   component: ReviewStepPage,
 });
 
@@ -114,7 +125,9 @@ function ReviewStepPage() {
       <div className="mt-8 space-y-3">
         {!complete ? (
           <p className="text-body-sm rounded-xl border border-warning/30 bg-warning-muted px-4 py-3 text-foreground">
-            Il manque encore des informations ou des documents obligatoires.
+            {en
+              ? "Some required information or documents are still missing. Use the Edit buttons above to complete them."
+              : "Des informations ou documents obligatoires manquent encore. Utilisez les boutons Modifier ci-dessus pour les compléter."}
           </p>
         ) : null}
         <Button
@@ -124,7 +137,7 @@ function ReviewStepPage() {
           disabled={!complete}
           onClick={() => void handleSubmit()}
         >
-          Transmettre mon dossier
+          {en ? "Submit my application" : "Transmettre mon dossier"}
         </Button>
       </div>
     </OnboardingShell>

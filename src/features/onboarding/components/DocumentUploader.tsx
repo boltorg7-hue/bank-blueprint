@@ -30,6 +30,14 @@ import {
 } from "@/features/onboarding/types/customer-context";
 import { useInvalidateCustomerContext } from "@/features/onboarding/hooks/useCustomerContext";
 
+const DOCUMENT_TYPE_LABELS_EN: Record<(typeof DOCUMENT_TYPES)[number], string> = {
+  IDENTITY_CARD: "Identity card",
+  PASSPORT: "Passport",
+  RESIDENCE_PERMIT: "Residence permit",
+  PROOF_OF_ADDRESS: "Proof of address",
+  ADDITIONAL_DOCUMENT: "Additional document",
+};
+
 /**
  * Identity document upload (§41-§46).
  * Files go to a private storage area under the customer's own folder; the
@@ -171,7 +179,7 @@ export function DocumentUploader({
               <SelectContent>
                 {DOCUMENT_TYPES.map((type) => (
                   <SelectItem key={type} value={type}>
-                    {en ? type.replaceAll("_", " ").toLowerCase() : DOCUMENT_TYPE_LABELS[type]}
+                    {en ? DOCUMENT_TYPE_LABELS_EN[type] : DOCUMENT_TYPE_LABELS[type]}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -224,7 +232,7 @@ export function DocumentUploader({
                 <FileText className="mt-0.5 size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
                 <div className="min-w-0 flex-1">
                   <p className="text-body-sm text-foreground">
-                    {en ? document.document_type.replaceAll("_", " ").toLowerCase() : DOCUMENT_TYPE_LABELS[document.document_type]}
+                    {en ? DOCUMENT_TYPE_LABELS_EN[document.document_type] : DOCUMENT_TYPE_LABELS[document.document_type]}
                   </p>
                   <p className="text-caption truncate text-muted-foreground">
                     {document.original_filename ?? "Document"} ·{" "}
