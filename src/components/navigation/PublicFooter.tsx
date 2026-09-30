@@ -32,7 +32,7 @@ export function PublicFooter() {
                     <li key={`${group.title}-${link.label}`}>
                       <Link
                         to={link.to}
-                        className="inline-flex min-h-11 items-center text-body-sm text-muted-foreground transition-colors hover:text-foreground active:text-foreground sm:min-h-0 sm:py-0.5"
+                        className="inline-flex min-h-11 min-w-11 items-center text-body-sm text-muted-foreground transition-colors hover:text-foreground active:text-foreground sm:min-h-0 sm:min-w-0 sm:py-0.5"
                       >
                         {label(link.label)}
                       </Link>

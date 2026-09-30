@@ -44,7 +44,7 @@ function PhotoCredit({ photo }: { photo: HomePhoto }) {
       href={photo.sourceUrl}
       target="_blank"
       rel="noopener noreferrer"
-      className="text-caption text-muted-foreground underline-offset-2 hover:underline"
+      className="inline-flex min-h-11 items-center text-caption text-muted-foreground underline-offset-2 hover:underline sm:min-h-0"
     >
       Photo : {photo.credit} · {photo.license}
     </a>
