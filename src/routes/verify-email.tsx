@@ -10,6 +10,11 @@ import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { maskEmail, signUpErrorMessage } from "@/features/auth/lib/auth-errors";
 import { publicMeta } from "@/features/public/lib/seo";
+import { useServerFn } from "@tanstack/react-start";
+import {
+  changePendingEmail,
+  resendConfirmationEmail,
+} from "@/features/auth/services/email-confirmation.functions";
 
 const meta = publicMeta({
   title: "Confirmez votre adresse e-mail",
@@ -42,6 +47,10 @@ function VerifyEmailPage() {
   const [editing, setEditing] = useState(false);
   const [newEmail, setNewEmail] = useState("");
   const [savingEmail, setSavingEmail] = useState(false);
+  const [password, setPassword] = useState("");
+  const [overrideEmail, setOverrideEmail] = useState<string | null>(null);
+  const resendFn = useServerFn(resendConfirmationEmail);
+  const changeFn = useServerFn(changePendingEmail);
   const navigate = useNavigate();
 
   const checkStatus = useCallback(async () => {
@@ -72,23 +81,38 @@ function VerifyEmailPage() {
     return () => clearTimeout(timer);
   }, [cooldown]);
 
-  const target = email ?? sessionEmail;
+  const target = overrideEmail ?? sessionEmail ?? email;
+
+  function rateMessage(seconds?: number) {
+    const wait = seconds && seconds > 90 ? Math.ceil(seconds / 60) : null;
+    return en
+      ? wait ? `Too many requests. Try again in ${wait} min.` : "Too many requests. Please wait a minute and try again."
+      : wait ? `Trop de demandes. Réessayez dans ${wait} min.` : "Trop de demandes. Patientez une minute puis réessayez.";
+  }
 
   async function handleResend() {
     if (!target) return;
     setPending(true);
-    const { error } = await supabase.auth.resend({
-      type: "signup",
-      email: target,
-      options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
-    });
-    setPending(false);
-    if (error && /rate|seconds|429/i.test(error.message)) {
-      setNotice({ tone: "error", text: en ? "Too many requests. Please wait a minute and try again." : "Trop de demandes. Patientez une minute puis réessayez." });
-    } else {
-      setNotice({ tone: "ok", text: en ? "If a confirmation is still needed, a new email has just been sent." : "Si une confirmation est encore nécessaire, un nouvel e-mail vient d'être envoyé." });
+    try {
+      const result = await resendFn({ data: { email: target } });
+      if (result.ok) {
+        setCooldown(result.retryAfter);
+        setNotice({ tone: "ok", text: en
+          ? `A new link has been sent. Previous links no longer work. ${result.remaining} resend(s) left this hour.`
+          : `Un nouveau lien a été envoyé. Les liens précédents ne fonctionnent plus. ${result.remaining} renvoi(s) restant(s) cette heure.` });
+      } else if (result.code === "RATE_LIMITED") {
+        setCooldown(result.retryAfter ?? RESEND_COOLDOWN_SECONDS);
+        setNotice({ tone: "error", text: rateMessage(result.retryAfter) });
+      } else if (result.code === "ALREADY_VERIFIED") {
+        setNotice({ tone: "ok", text: en ? "This address is already verified. Sign in to continue." : "Cette adresse est déjà vérifiée. Connectez-vous pour continuer." });
+      } else {
+        setNotice({ tone: "error", text: en ? "The email could not be sent. Try again later." : "L’e-mail n’a pas pu être envoyé. Réessayez plus tard." });
+      }
+    } catch {
+      setNotice({ tone: "error", text: en ? "The email could not be sent. Try again later." : "L’e-mail n’a pas pu être envoyé. Réessayez plus tard." });
+    } finally {
+      setPending(false);
     }
-    setCooldown(RESEND_COOLDOWN_SECONDS);
   }
 
   async function handleChangeEmail(event: React.FormEvent<HTMLFormElement>) {
@@ -102,30 +126,40 @@ function VerifyEmailPage() {
       setNotice({ tone: "error", text: en ? "This is already your current address." : "C’est déjà votre adresse actuelle." });
       return;
     }
-    setSavingEmail(true);
-    const { data: sessionData } = await supabase.auth.getSession();
-    if (!sessionData.session) {
-      setSavingEmail(false);
+    if (!target) {
       void navigate({ to: "/register" });
       return;
     }
-    const { error } = await supabase.auth.updateUser(
-      { email: value },
-      { emailRedirectTo: `${window.location.origin}/auth/callback` },
-    );
+    setSavingEmail(true);
+    let result;
+    try {
+      result = await changeFn({ data: { currentEmail: target, newEmail: value, password } });
+    } catch {
+      result = { ok: false as const, code: "SEND_FAILED" as const };
+    }
     setSavingEmail(false);
-    if (error) {
-      setNotice({ tone: "error", text: signUpErrorMessage(error, en ? "en" : "fr") });
+    if (!result.ok) {
+      const messages: Record<string, [string, string]> = {
+        AUTH_FAILED: ["Mot de passe incorrect.", "Incorrect password."],
+        EMAIL_TAKEN: ["Cette adresse est déjà utilisée.", "This address is already in use."],
+        ALREADY_VERIFIED: ["Votre adresse est déjà vérifiée : modifiez-la depuis votre espace sécurité.", "Your address is already verified: change it from your security settings."],
+        INVALID: ["C’est déjà votre adresse actuelle.", "This is already your current address."],
+        SEND_FAILED: ["La modification a échoué. Réessayez plus tard.", "The change failed. Try again later."],
+      };
+      const text = result.code === "RATE_LIMITED" ? rateMessage(result.retryAfter) : (messages[result.code] ?? messages.SEND_FAILED)![en ? 1 : 0];
+      setNotice({ tone: "error", text });
       return;
     }
+    setOverrideEmail(value);
     setEditing(false);
     setNewEmail("");
-    setCooldown(RESEND_COOLDOWN_SECONDS);
+    setPassword("");
+    setCooldown(result.retryAfter);
     setNotice({
       tone: "ok",
       text: en
-        ? `A confirmation link has been sent to ${maskEmail(value)}.`
-        : `Un lien de confirmation a été envoyé à ${maskEmail(value)}.`,
+        ? `A confirmation link has been sent to ${maskEmail(value)}. Links sent to your previous address are no longer valid.`
+        : `Un lien de confirmation a été envoyé à ${maskEmail(value)}. Les liens envoyés à l’ancienne adresse ne sont plus valables.`,
     });
     void checkStatus();
   }
@@ -167,7 +201,7 @@ function VerifyEmailPage() {
 
         {verified ? (
           <Button asChild className="w-full touch-target">
-            <Link to="/onboarding">{en ? "Continue my account opening" : "Continuer mon ouverture de compte"}</Link>
+            <Link to="/email-verified">{en ? "Continue my account opening" : "Continuer mon ouverture de compte"}</Link>
           </Button>
         ) : (
           <>
@@ -217,10 +251,20 @@ function VerifyEmailPage() {
                 value={newEmail}
                 onChange={(event) => setNewEmail(event.target.value)}
               />
+              <Label htmlFor="confirm-password">{en ? "Your password" : "Votre mot de passe"}</Label>
+              <Input
+                id="confirm-password"
+                type="password"
+                autoComplete="current-password"
+                required
+                className="touch-target"
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
+              />
               <p className="text-caption text-muted-foreground">
                 {en
-                  ? "We'll send a new confirmation link to this address."
-                  : "Nous enverrons un nouveau lien de confirmation à cette adresse."}
+                  ? "We'll send a new link to this address. Links sent before will stop working."
+                  : "Nous enverrons un nouveau lien à cette adresse. Les liens envoyés auparavant ne fonctionneront plus."}
               </p>
               <div className="flex flex-col gap-2 sm:flex-row">
                 <Button type="submit" className="w-full touch-target" loading={savingEmail}>
