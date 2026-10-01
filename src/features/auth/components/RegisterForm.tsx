@@ -33,7 +33,6 @@ export function RegisterForm() {
       firstName: String(formData.get("firstName") ?? ""),
       lastName: String(formData.get("lastName") ?? ""),
       email: String(formData.get("email") ?? ""),
-      phone: String(formData.get("phone") ?? ""),
       password: String(formData.get("password") ?? ""),
       confirmPassword: String(formData.get("confirmPassword") ?? ""),
       terms,
@@ -55,7 +54,6 @@ export function RegisterForm() {
         data: {
           first_name: parsed.data.firstName,
           last_name: parsed.data.lastName,
-          phone: parsed.data.phone,
           terms_accepted: "true",
           marketing_consent: parsed.data.marketing ? "true" : "false",
         },
@@ -87,13 +85,6 @@ export function RegisterForm() {
         type="email"
         autoComplete="email"
         error={errors["email"]}
-      />
-      <Field
-        name="phone"
-        label={en ? "Phone number (optional)" : "Numéro de téléphone (optionnel)"}
-        type="tel"
-        autoComplete="tel"
-        error={errors["phone"]}
       />
 
       <PasswordField

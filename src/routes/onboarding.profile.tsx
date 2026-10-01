@@ -99,10 +99,10 @@ function ProfileStepPage() {
         <Field name="middleName" label={en ? "Middle name (optional)" : "Deuxième prénom (optionnel)"} autoComplete="additional-name" defaultValue={profile.middle_name} error={errors["middleName"]} />
         <Field name="lastName" label={en ? "Last name" : "Nom"} autoComplete="family-name" defaultValue={profile.last_name} error={errors["lastName"]} />
         <Field name="dateOfBirth" label={en ? "Date of birth" : "Date de naissance"} type="date" autoComplete="bday" defaultValue={profile.date_of_birth} error={errors["dateOfBirth"]} />
-        <ChoiceField id="profile-nationality" name="nationality" label={en ? "Nationality" : "Nationalité"} options={COUNTRIES} en={en} defaultValue={profile.nationality ?? "Trinidad and Tobago"} error={errors["nationality"]} />
-        <ChoiceField id="profile-countryOfResidence" name="countryOfResidence" label={en ? "Country of residence" : "Pays de résidence"} options={COUNTRIES} en={en} defaultValue={profile.country_of_residence ?? "Trinidad and Tobago"} error={errors["countryOfResidence"]} />
+        <ChoiceField id="profile-nationality" name="nationality" label={en ? "Nationality" : "Nationalité"} options={COUNTRIES} en={en} defaultValue={profile.nationality ?? ""} error={errors["nationality"]} />
+        <ChoiceField id="profile-countryOfResidence" name="countryOfResidence" label={en ? "Country of residence" : "Pays de résidence"} options={COUNTRIES} en={en} defaultValue={profile.country_of_residence ?? ""} error={errors["countryOfResidence"]} />
         <ChoiceField id="profile-occupation" name="occupation" label={en ? "Occupation" : "Profession"} options={OCCUPATIONS} en={en} allowOther defaultValue={profile.occupation} error={errors["occupation"]} />
-        <Field name="phone" label={en ? "Phone number" : "Numéro de téléphone"} type="tel" autoComplete="tel" defaultValue={profile.phone ?? (profile.country_of_residence && profile.country_of_residence !== "Trinidad and Tobago" ? "" : "+1 868 ")} error={errors["phone"]} />
+        <Field name="phone" label={en ? "Phone number" : "Numéro de téléphone"} type="tel" autoComplete="tel" defaultValue={profile.phone ?? ""} error={errors["phone"]} />
 
         {formError ? (
           <p role="alert" className="text-body-sm rounded-lg bg-destructive/10 px-3 py-2 text-destructive">

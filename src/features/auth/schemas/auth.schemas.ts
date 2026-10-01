@@ -36,13 +36,6 @@ export const registerSchema = z
     firstName: z.string().trim().min(2, "Indiquez votre prénom.").max(60),
     lastName: z.string().trim().min(2, "Indiquez votre nom.").max(60),
     email,
-    phone: z
-      .string()
-      .trim()
-      .max(24, "Numéro trop long.")
-      .refine((value) => value === "" || /^\+?[0-9 ().-]{6,}$/.test(value), {
-        message: "Numéro de téléphone invalide.",
-      }),
     password: passwordSchema,
     confirmPassword: z.string(),
     terms: z.literal(true, { message: "Vous devez accepter les conditions et la politique de confidentialité." }),
