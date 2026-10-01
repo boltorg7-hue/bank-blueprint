@@ -81,7 +81,7 @@ export const africaTalkingSmsProvider: SmsProvider = {
       const recipient = data.SMSMessageData?.Recipients?.[0];
       const statusCode = recipient?.statusCode;
 
-      if (statusCode === 101 || statusCode === 100) {
+      if (statusCode === 100 || statusCode === 101 || statusCode === 102) {
         return {
           state: "SENT",
           providerReference: recipient?.messageId ?? null,
