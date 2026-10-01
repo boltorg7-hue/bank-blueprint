@@ -62,9 +62,12 @@ function ReviewStepPage() {
     setError(null);
     setPending(true);
     try {
-      await submit({ data: undefined });
-      await navigate({ to: "/onboarding/transition" });
-      await invalidate();
+await submit({ data: undefined });
+await invalidate();
+await navigate({
+  to: "/onboarding/transition",
+  replace: true,
+});
     } catch {
       setError((en ? "We could not submit your application. Please try again shortly." : "Nous n'avons pas pu transmettre votre dossier. Réessayez dans un instant."));
     } finally {
