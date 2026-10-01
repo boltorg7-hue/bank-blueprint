@@ -2,8 +2,10 @@
  * Explicit customer lifecycle & onboarding states.
  *
  * Authentication, profile completeness, identity verification and banking
- * account status are FOUR SEPARATE concepts. Never collapse them into a
- * single `verified` boolean (docs/banking/03 §1).
+ * account status are FOUR SEPARATE concepts.
+ *
+ * The lifecycle is authoritative for customer-facing routing.
+ * A customer is allowed to use banking features only when ACTIVE.
  */
 
 export const CUSTOMER_LIFECYCLE_STATES = [
@@ -24,7 +26,8 @@ export const CUSTOMER_LIFECYCLE_STATES = [
   "CLOSED",
 ] as const;
 
-export type CustomerLifecycleState = (typeof CUSTOMER_LIFECYCLE_STATES)[number];
+export type CustomerLifecycleState =
+  (typeof CUSTOMER_LIFECYCLE_STATES)[number];
 
 export const ONBOARDING_STEPS = [
   "NOT_STARTED",
@@ -39,7 +42,10 @@ export const ONBOARDING_STEPS = [
 
 export type OnboardingStep = (typeof ONBOARDING_STEPS)[number];
 
-/** Customer-facing labels — technical enum values are never shown to users. */
+/**
+ * Customer-facing labels.
+ * Technical enum values must never be shown directly to customers.
+ */
 export const LIFECYCLE_LABELS: Record<CustomerLifecycleState, string> = {
   VISITOR: "Visiteur",
   REGISTERED: "Compte créé",
@@ -58,34 +64,56 @@ export const LIFECYCLE_LABELS: Record<CustomerLifecycleState, string> = {
   CLOSED: "Compte clôturé",
 };
 
-/** Only these states may use banking functionality. */
+/**
+ * Only ACTIVE customers may use transactional banking features.
+ */
 export function canUseBanking(state: CustomerLifecycleState): boolean {
   return state === "ACTIVE";
 }
 
-/** Trusted backend state decides post-login routing — never localStorage. */
-export function nextRouteForLifecycle(state: CustomerLifecycleState): string {
+/**
+ * Determines where a customer must be sent after authentication.
+ *
+ * Important:
+ * - pending verification states must NOT enter the normal banking dashboard;
+ * - only ACTIVE customers enter the fully operational banking area;
+ * - RESTRICTED/SUSPENDED may enter the shell so that the customer can
+ *   understand the restriction, but they must not transact.
+ */
+export function nextRouteForLifecycle(
+  state: CustomerLifecycleState,
+): string {
   switch (state) {
     case "VISITOR":
       return "/login";
+
     case "REGISTERED":
     case "EMAIL_VERIFICATION_REQUIRED":
       return "/verify-email";
+
     case "CONTACT_VERIFICATION_REQUIRED":
       return "/verify-contact";
+
     case "PROFILE_INCOMPLETE":
     case "IDENTITY_REQUIRED":
       return "/onboarding";
+
     case "ADDITIONAL_DOCUMENT_REQUIRED":
-      return "/onboarding/status";
     case "IDENTITY_SUBMITTED":
     case "IDENTITY_UNDER_REVIEW":
-    case "BANKING_REVIEW":
-      return "/app/dashboard";
     case "IDENTITY_VERIFIED":
+    case "BANKING_REVIEW":
+      return "/onboarding/status";
+
     case "ACTIVE":
+    case "RESTRICTED":
+    case "SUSPENDED":
       return "/app/dashboard";
+
+    case "CLOSED":
+      return "/onboarding/status";
+
     default:
-      return "/app/dashboard";
+      return "/onboarding";
   }
 }
