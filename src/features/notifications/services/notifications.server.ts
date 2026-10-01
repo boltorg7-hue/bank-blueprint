@@ -17,7 +17,7 @@ export async function dispatchPendingSms(userId:string) {
   if (error) throw new Error("SMS_QUEUE_READ_FAILED");
   if (!rows?.length) return { processed: 0 };
 
-  const providerName = process.env.SMS_PROVIDER?.trim().toLowerCase() || "simulation";
+  const providerName = process.env["SMS_PROVIDER"]?.trim().toLowerCase() || "simulation";
   const { africaTalkingSmsProvider } = providerName === "africastalking"
     ? await import("@/features/notifications/services/sms/africastalking-provider")
     : { africaTalkingSmsProvider: null };
@@ -52,13 +52,13 @@ export async function dispatchPendingSms(userId:string) {
 }
 
 export async function simulatePendingSms(userId:string) {
-  const previousProvider=process.env.SMS_PROVIDER;
-  process.env.SMS_PROVIDER="simulation";
+  const previousProvider=process.env["SMS_PROVIDER"];
+  process.env["SMS_PROVIDER"]="simulation";
   try {
     return await dispatchPendingSms(userId);
   } finally {
-    if (previousProvider === undefined) delete process.env.SMS_PROVIDER;
-    else process.env.SMS_PROVIDER=previousProvider;
+    if (previousProvider === undefined) delete process.env["SMS_PROVIDER"];
+    else process.env["SMS_PROVIDER"]=previousProvider;
   }
 }
 

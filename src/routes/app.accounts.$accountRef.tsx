@@ -130,17 +130,17 @@ function mapRecentActivity(items: CustomerTransactionDto[]) {
     .map((item) => ({
       reference: item.reference,
       type: item.type,
-      direction: item.direction === "INCOMING" ? "credit" : "debit",
+      direction: (item.direction === "INCOMING" ? "credit" : "debit") as "credit" | "debit",
       displayName: item.displayTitle,
       amountMinor: item.amountMinor,
       currency: item.currency,
       minorUnit: item.minorUnit,
       occurredAt: item.occurredAt,
-      status:
+      status: (
         item.status === "COMPLETED"
           ? "POSTED"
           : item.status === "FAILED" || item.status === "CANCELLED"
             ? "FAILED"
-            : "PENDING",
+            : "PENDING") as "POSTED" | "FAILED" | "PENDING",
     }));
 }

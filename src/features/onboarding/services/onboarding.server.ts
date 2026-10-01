@@ -243,7 +243,7 @@ export async function submitForVerification(userId: string) {
   const { data: profile } = await supabaseAdmin
     .from("profiles")
     .select(
-      "first_name, last_name, date_of_birth, nationality, country_of_residence, occupation, lifecycle_state",
+      "first_name, last_name, date_of_birth, nationality, country_of_residence, occupation, lifecycle_state, phone_verified_at",
     )
     .eq("id", userId)
     .single();
