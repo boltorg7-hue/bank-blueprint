@@ -8,6 +8,8 @@ import { AccountBalanceCard } from "@/features/accounts/components/AccountBalanc
 import { AccountCoordinatesPanel } from "@/features/accounts/components/AccountCoordinatesPanel";
 import { RecentActivityList } from "@/features/accounts/components/RecentActivityList";
 import { useAccountDetails } from "@/features/accounts/hooks/useAccounts";
+import { useAccountActivity } from "@/features/transactions/hooks/useTransactions";
+import type { CustomerTransactionDto } from "@/features/transactions/types/transaction";
 import {
   accountRestrictionMessage,
   accountTypeLabel,
@@ -35,6 +37,7 @@ function AccountDetailsPage() {
   const { accountRef } = Route.useParams();
   const query = useAccountDetails(accountRef);
   const account = query.data ?? null;
+  const activityQuery = useAccountActivity(account?.reference ?? null, 5);
   const restriction = account ? accountRestrictionMessage(account.status) : null;
 
   return (
@@ -84,7 +87,16 @@ function AccountDetailsPage() {
             <h2 id="account-activity-heading" className="text-heading-sm text-foreground">
               {en ? "Recent activity" : "Activité récente"}
             </h2>
-            <RecentActivityList items={[]} />
+            {activityQuery.isError ? (
+              <ErrorState
+                title={en ? "Recent activity could not be loaded" : "L’activité récente n’a pas pu être chargée"}
+                onRetry={() => activityQuery.refetch()}
+              />
+            ) : activityQuery.isPending ? (
+              <LoadingState label={en ? "Loading recent activity…" : "Chargement de l’activité récente…"} />
+            ) : (
+              <RecentActivityList items={mapRecentActivity(activityQuery.data ?? [])} />
+            )}
           </section>
 
           <dl className="text-caption grid gap-2 text-muted-foreground">
@@ -109,4 +121,20 @@ function AccountDetailsPage() {
       )}
     </BankingContentContainer>
   );
+}
+
+
+function mapRecentActivity(items: CustomerTransactionDto[]) {
+  return items.map((item) => ({
+    reference: item.reference,
+    title: item.displayTitle,
+    description: item.displayDescription,
+    amountMinor: item.amountMinor,
+    currency: item.currency,
+    minorUnit: item.minorUnit,
+    direction: item.direction,
+    status: item.status,
+    occurredAt: item.occurredAt,
+    counterpartyDisplay: item.counterpartyDisplay,
+  }));
 }
