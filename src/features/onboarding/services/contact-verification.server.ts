@@ -1,5 +1,8 @@
 import { createHash, randomInt } from "node:crypto";
-import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { supabaseAdmin as typedAdmin } from "@/integrations/supabase/client.server";
+
+// Contact-verification tables are not yet in the generated types.
+const supabaseAdmin = typedAdmin as any;
 import { profileStepSchema } from "@/features/onboarding/schemas/onboarding.schemas";
 
 const OTP_TTL_MINUTES = 10;
@@ -7,7 +10,7 @@ const RESEND_COOLDOWN_SECONDS = 60;
 const MAX_ATTEMPTS = 5;
 
 function otpHash(userId: string, phone: string, code: string) {
-  const secret = process.env.PHONE_OTP_SECRET || process.env.SUPABASE_SERVICE_ROLE_KEY || "development-only-secret";
+  const secret = process.env["PHONE_OTP_SECRET"] || process.env["SUPABASE_SERVICE_ROLE_KEY"] || "development-only-secret";
   return createHash("sha256").update(`${secret}:${userId}:${phone}:${code}`).digest("hex");
 }
 

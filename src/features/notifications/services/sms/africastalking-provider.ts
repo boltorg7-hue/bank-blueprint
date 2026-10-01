@@ -26,8 +26,8 @@ function requiredEnv(name: string) {
 
 function renderMessage(message: SmsMessage) {
   if (message.templateKey === "CONTACT_VERIFICATION_CODE") {
-    const code = String(message.payload.code ?? "");
-    const expires = String(message.payload.expires_in_minutes ?? "10");
+    const code = String(message.payload["code"] ?? "");
+    const expires = String(message.payload["expires_in_minutes"] ?? "10");
     if (!/^\d{6}$/.test(code)) throw new Error("SMS_TEMPLATE_INVALID");
     return `RFCBANK : votre code de vérification est ${code}. Il expire dans ${expires} minutes.`;
   }
@@ -39,9 +39,9 @@ export const africaTalkingSmsProvider: SmsProvider = {
   async send(message): Promise<SmsResult> {
     try {
       const apiKey = requiredEnv("AFRICASTALKING_API_KEY");
-      const username = process.env.AFRICASTALKING_USERNAME?.trim() || "sandbox";
+      const username = process.env["AFRICASTALKING_USERNAME"]?.trim() || "sandbox";
       const senderId = requiredEnv("AFRICASTALKING_SENDER_ID");
-      const environment = process.env.AFRICASTALKING_ENV?.trim().toLowerCase() || "sandbox";
+      const environment = process.env["AFRICASTALKING_ENV"]?.trim().toLowerCase() || "sandbox";
       const endpoint = environment === "production" || environment === "live" ? LIVE_URL : SANDBOX_URL;
       const text = renderMessage(message);
 
