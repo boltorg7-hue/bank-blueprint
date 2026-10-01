@@ -40,6 +40,7 @@ export function useAccountActivity(accountReference: string | null, limit = 5) {
   return useQuery<CustomerTransactionDto[]>({
     queryKey: [...TRANSACTIONS_KEY, "activity", accountReference, limit],
     queryFn: () => fetchActivity({ data: { accountReference, limit } }),
+    enabled: Boolean(accountReference),
     ...QUERY_BEHAVIOUR,
   });
 }
