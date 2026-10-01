@@ -30,7 +30,9 @@ export const profileStepSchema = z.object({
   phone: z
     .string()
     .trim()
-    .refine((value) => value === "" || /^\+?[0-9 ().-]{6,24}$/.test(value), {
+    .min(6, "Le numéro de téléphone est requis.")
+    .max(24)
+    .refine((value) => /^\+?[0-9 ().-]{6,24}$/.test(value), {
       message: "Numéro de téléphone invalide.",
     }),
 });
