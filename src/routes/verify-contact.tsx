@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
+import { MessageSquareText } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -62,6 +63,22 @@ function VerifyContactPage() {
       title={en ? "Verify your phone number" : "Vérifiez votre numéro de téléphone"}
       description={en ? `We use ${context.profile.phone ?? "your phone"} to secure your customer account.` : `Nous utilisons ${context.profile.phone ?? "votre téléphone"} pour sécuriser votre espace client.`}
     >
+      <div className="rounded-xl border border-border bg-surface px-4 py-4">
+        <div className="flex items-start gap-3">
+          <MessageSquareText className="mt-0.5 size-5 shrink-0 text-brand" aria-hidden="true" />
+          <div className="min-w-0">
+            <p className="text-label text-foreground">
+              {en ? "Verification channel" : "Canal de vérification"}
+            </p>
+            <p className="mt-1 text-body-sm text-muted-foreground">
+              {en
+                ? "SMS is currently the available channel. Your code will be sent to the international phone number above."
+                : "Le SMS est actuellement le seul canal disponible. Votre code sera envoyé au numéro international indiqué ci-dessus."}
+            </p>
+          </div>
+        </div>
+      </div>
+
       <form onSubmit={handleVerify} className="space-y-5">
         <div className="space-y-2">
           <Label htmlFor="contact-code">{en ? "6-digit code" : "Code à 6 chiffres"}</Label>
@@ -70,7 +87,7 @@ function VerifyContactPage() {
         {error ? <p role="alert" className="text-body-sm rounded-lg bg-destructive/10 px-3 py-2 text-destructive">{error}</p> : null}
         {message ? <p className="text-body-sm rounded-lg bg-success-muted px-3 py-2 text-foreground">{message}</p> : null}
         <Button type="submit" className="w-full touch-target" loading={pending} disabled={code.length !== 6}>{en ? "Verify phone" : "Vérifier le téléphone"}</Button>
-        <Button type="button" variant="outline" className="w-full touch-target" loading={sending} onClick={() => void handleSend()}>{en ? "Send me a new code" : "Recevoir un nouveau code"}</Button>
+        <Button type="button" variant="outline" className="w-full touch-target" loading={sending} onClick={() => void handleSend()}>{en ? "Send code by SMS" : "Recevoir le code par SMS"}</Button>
         <Button asChild variant="ghost" className="w-full"><Link to="/onboarding">{en ? "Back to onboarding" : "Retour à l’onboarding"}</Link></Button>
       </form>
     </OnboardingShell>
