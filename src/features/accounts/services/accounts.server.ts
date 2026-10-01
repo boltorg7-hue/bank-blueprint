@@ -270,7 +270,9 @@ async function recentActivityFor(
   );
   try {
     const items = await getAccountActivity(client, accountReference, 5);
-    return items.map((item) => ({
+    return items
+      .filter((item) => item.direction !== "NEUTRAL")
+      .map((item) => ({
       reference: item.reference,
       type: item.type,
       direction: item.direction === "INCOMING" ? "credit" : "debit",
