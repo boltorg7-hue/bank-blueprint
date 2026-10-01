@@ -125,16 +125,22 @@ function AccountDetailsPage() {
 
 
 function mapRecentActivity(items: CustomerTransactionDto[]) {
-  return items.map((item) => ({
-    reference: item.reference,
-    title: item.displayTitle,
-    description: item.displayDescription,
-    amountMinor: item.amountMinor,
-    currency: item.currency,
-    minorUnit: item.minorUnit,
-    direction: item.direction,
-    status: item.status,
-    occurredAt: item.occurredAt,
-    counterpartyDisplay: item.counterpartyDisplay,
-  }));
+  return items
+    .filter((item) => item.direction !== "NEUTRAL")
+    .map((item) => ({
+      reference: item.reference,
+      type: item.type,
+      direction: item.direction === "INCOMING" ? "credit" : "debit",
+      displayName: item.displayTitle,
+      amountMinor: item.amountMinor,
+      currency: item.currency,
+      minorUnit: item.minorUnit,
+      occurredAt: item.occurredAt,
+      status:
+        item.status === "COMPLETED"
+          ? "POSTED"
+          : item.status === "FAILED" || item.status === "CANCELLED"
+            ? "FAILED"
+            : "PENDING",
+    }));
 }
