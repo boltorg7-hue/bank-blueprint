@@ -30,6 +30,7 @@ import { Route as SecurityRouteImport } from './routes/security'
 import { Route as SessionExpiredRouteImport } from './routes/session-expired'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as TermsRouteImport } from './routes/terms'
+import { Route as VerifyContactRouteImport } from './routes/verify-contact'
 import { Route as VerifyEmailRouteImport } from './routes/verify-email'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as AdminAccountsRouteImport } from './routes/admin.accounts'
@@ -177,6 +178,11 @@ const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
   path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const VerifyContactRoute = VerifyContactRouteImport.update({
+  id: '/verify-contact',
+  path: '/verify-contact',
   getParentRoute: () => rootRouteImport,
 } as any)
 const VerifyEmailRoute = VerifyEmailRouteImport.update({
@@ -420,6 +426,7 @@ export interface FileRoutesByFullPath {
   '/session-expired': typeof SessionExpiredRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
+  '/verify-contact': typeof VerifyContactRoute
   '/verify-email': typeof VerifyEmailRoute
   '/admin/accounts': typeof AdminAccountsRoute
   '/admin/customers': typeof AdminCustomersRoute
@@ -483,6 +490,7 @@ export interface FileRoutesByTo {
   '/session-expired': typeof SessionExpiredRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
+  '/verify-contact': typeof VerifyContactRoute
   '/verify-email': typeof VerifyEmailRoute
   '/admin/accounts': typeof AdminAccountsRoute
   '/admin/customers': typeof AdminCustomersRoute
@@ -547,6 +555,7 @@ export interface FileRoutesById {
   '/session-expired': typeof SessionExpiredRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
+  '/verify-contact': typeof VerifyContactRoute
   '/verify-email': typeof VerifyEmailRoute
   '/admin/accounts': typeof AdminAccountsRoute
   '/admin/customers': typeof AdminCustomersRoute
@@ -615,6 +624,7 @@ export interface FileRouteTypes {
     | '/session-expired'
     | '/sitemap.xml'
     | '/terms'
+    | '/verify-contact'
     | '/verify-email'
     | '/admin/accounts'
     | '/admin/customers'
@@ -678,6 +688,7 @@ export interface FileRouteTypes {
     | '/session-expired'
     | '/sitemap.xml'
     | '/terms'
+    | '/verify-contact'
     | '/verify-email'
     | '/admin/accounts'
     | '/admin/customers'
@@ -741,6 +752,7 @@ export interface FileRouteTypes {
     | '/session-expired'
     | '/sitemap.xml'
     | '/terms'
+    | '/verify-contact'
     | '/verify-email'
     | '/admin/accounts'
     | '/admin/customers'
@@ -808,6 +820,7 @@ export interface RootRouteChildren {
   SessionExpiredRoute: typeof SessionExpiredRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TermsRoute: typeof TermsRoute
+  VerifyContactRoute: typeof VerifyContactRoute
   VerifyEmailRoute: typeof VerifyEmailRoute
   AuthCallbackRoute: typeof AuthCallbackRoute
   DevDesignSystemRoute: typeof DevDesignSystemRoute
@@ -961,6 +974,13 @@ declare module '@tanstack/react-router' {
       path: '/terms'
       fullPath: '/terms'
       preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/verify-contact': {
+      id: '/verify-contact'
+      path: '/verify-contact'
+      fullPath: '/verify-contact'
+      preLoaderRoute: typeof VerifyContactRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/verify-email': {
@@ -1423,6 +1443,7 @@ const rootRouteChildren: RootRouteChildren = {
   SessionExpiredRoute: SessionExpiredRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   TermsRoute: TermsRoute,
+  VerifyContactRoute: VerifyContactRoute,
   VerifyEmailRoute: VerifyEmailRoute,
   AuthCallbackRoute: AuthCallbackRoute,
   DevDesignSystemRoute: DevDesignSystemRoute,
