@@ -60,10 +60,8 @@ export async function sendContactVerificationCode(userId: string) {
   });
   if (outboxError) throw new Error("SMS_QUEUE_FAILED");
 
-  // Current project uses the existing simulation provider. Production must replace it
-  // with a real SMS provider before customer launch.
-  const { simulatePendingSms } = await import("@/features/notifications/services/notifications.server");
-  await simulatePendingSms(userId);
+  const { dispatchPendingSms } = await import("@/features/notifications/services/notifications.server");
+  await dispatchPendingSms(userId);
 
   return { alreadyVerified: false as const, phone: profile.phone, expiresAt };
 }
