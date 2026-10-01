@@ -6,6 +6,21 @@ import { z } from "zod";
 
 const MIN_AGE = 18;
 
+/**
+ * International phone numbers are stored and sent in E.164-compatible form:
+ * + followed by 8–15 digits. Spaces, hyphens and parentheses are accepted in
+ * the form for readability, then normalized before persistence.
+ */
+export const internationalPhoneSchema = z
+  .string()
+  .trim()
+  .min(8, "Indiquez un numéro international valide avec son indicatif (+...).")
+  .max(24, "Numéro trop long.")
+  .transform((value) => value.replace(/[\s().-]/g, ""))
+  .refine((value) => /^\+[1-9]\d{7,14}$/.test(value), {
+    message: "Utilisez le format international, par exemple +237 6 99 99 99 99.",
+  });
+
 export const profileStepSchema = z.object({
   firstName: z.string().trim().min(2, "Indiquez votre prénom.").max(60),
   middleName: z.string().trim().max(60).optional().or(z.literal("")),
@@ -27,14 +42,7 @@ export const profileStepSchema = z.object({
   nationality: z.string().trim().min(2, "Indiquez votre nationalité.").max(60),
   countryOfResidence: z.string().trim().min(2, "Indiquez votre pays de résidence.").max(60),
   occupation: z.string().trim().min(2, "Indiquez votre profession.").max(80),
-  phone: z
-    .string()
-    .trim()
-    .min(6, "Le numéro de téléphone est requis.")
-    .max(24)
-    .refine((value) => /^\+?[0-9 ().-]{6,24}$/.test(value), {
-      message: "Numéro de téléphone invalide.",
-    }),
+  phone: internationalPhoneSchema,
 });
 
 export const addressStepSchema = z.object({
