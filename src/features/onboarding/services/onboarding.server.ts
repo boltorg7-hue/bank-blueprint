@@ -46,7 +46,7 @@ export async function loadCustomerContext(
   if (emailVerified && profile.lifecycle_state === "EMAIL_VERIFICATION_REQUIRED") {
     const { data } = await supabaseAdmin
       .from("profiles")
-      .update({ lifecycle_state: "PROFILE_INCOMPLETE" })
+      .update({ lifecycle_state: profile.phone && !profile.phone_verified_at ? "CONTACT_VERIFICATION_REQUIRED" : "PROFILE_INCOMPLETE" })
       .eq("id", userId)
       .select(PROFILE_COLUMNS)
       .single();
@@ -105,6 +105,8 @@ export async function saveProfileStep(userId: string, input: unknown) {
       country_of_residence: data.countryOfResidence,
       occupation: data.occupation,
       phone: data.phone ? data.phone : null,
+      phone_verified_at: null,
+      lifecycle_state: data.phone ? "CONTACT_VERIFICATION_REQUIRED" : "PROFILE_INCOMPLETE",
       onboarding_step: "ADDRESS",
     })
     .eq("id", userId);
@@ -245,6 +247,10 @@ export async function submitForVerification(userId: string) {
     )
     .eq("id", userId)
     .single();
+
+  if (!profile?.phone_verified_at) {
+    throw new OnboardingError("Vérifiez votre numéro de téléphone avant l'envoi du dossier.");
+  }
 
   if (
     !profile?.first_name ||

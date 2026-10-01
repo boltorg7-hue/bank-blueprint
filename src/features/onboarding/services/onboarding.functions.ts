@@ -62,3 +62,19 @@ export const submitVerification = createServerFn({ method: "POST" })
     const service = await import("@/features/onboarding/services/onboarding.server");
     return service.submitForVerification(context.userId);
   });
+
+
+export const sendContactVerificationCode = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const service = await import("@/features/onboarding/services/contact-verification.server");
+    return service.sendContactVerificationCode(context.userId);
+  });
+
+export const verifyContactCode = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { code: string }) => input)
+  .handler(async ({ data, context }) => {
+    const service = await import("@/features/onboarding/services/contact-verification.server");
+    return service.verifyContactCode(context.userId, data.code);
+  });
