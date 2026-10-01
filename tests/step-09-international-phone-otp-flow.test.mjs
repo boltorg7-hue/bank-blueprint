@@ -19,7 +19,7 @@ assert.doesNotMatch(registerForm, /name="phone"/);
 assert.doesNotMatch(registerForm, /formData\.get\("phone"\)/);
 assert.match(profileSchema, /internationalPhoneSchema/);
 assert.match(profileSchema, /\^\\\+\[1-9\]\\d\{7,14\}\$/);
-assert.match(profileSchema, /replace\(\/[\\\\s\(\)\.\-\]\/g, ""\)/);
+assert.ok(profileSchema.includes(`replace(/[\\s().-]/g, "")`));
 assert.match(profileRoute, /name="phone"/);
 assert.match(profileRoute, /defaultValue=\{profile\.phone \?\? ""\}/);
 assert.doesNotMatch(profileRoute, /\+1 868/);
