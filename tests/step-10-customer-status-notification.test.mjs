@@ -1,0 +1,11 @@
+import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+const sql=readFileSync("supabase/migrations/20261002100000_step10_customer_status_notifications.sql","utf8");
+assert.match(sql,/admin_set_customer_state/);
+assert.match(sql,/emit_customer_notification/);
+assert.match(sql,/customers\.write/);
+assert.match(sql,/customer\.state_changed/);
+assert.match(sql,/ACTIVE/);
+assert.match(sql,/RESTRICTED/);
+assert.match(sql,/SUSPENDED/);
+console.log("Step 10 customer status notification certification: PASS");
