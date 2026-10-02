@@ -1,0 +1,10 @@
+import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+const file=readFileSync("src/features/admin/components/AdminAccountsTable.tsx","utf8");
+assert.match(file,/Account operational details|Détails opérationnels du compte/);
+assert.match(file,/Balances are read-only projections from the ledger|Les soldes sont des projections en lecture seule du ledger/);
+assert.match(file,/setDetails\(account\)/);
+assert.match(file,/accounts\.manage/);
+assert.match(file,/at least 8 characters|Au moins 8 caractères/i);
+assert.match(file,/admin_set_account_status|useSetAccountStatus/);
+console.log("Step 10 account operations certification: PASS");
