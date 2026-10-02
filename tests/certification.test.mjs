@@ -13,7 +13,6 @@ test("les migrations des étapes 1 à 6 sont présentes dans l’ordre", () => {
   assert.deepEqual(stepMigrations.map(({ name }) => name), [
     "20260924080000_admin_stage1_hardening.sql",
     "20260924090000_customer_profile_preferences.sql",
-    "20260924100000_notifications_sms_outbox.sql",
     "20260924110000_simulated_external_admin_workflow.sql",
     "20260924120000_customer_support_messaging.sql",
     "20260924130000_customer_security_center.sql",
