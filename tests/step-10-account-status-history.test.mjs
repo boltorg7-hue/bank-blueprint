@@ -1,0 +1,16 @@
+import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+const server=readFileSync("src/features/admin/services/admin.server.ts","utf8");
+const fn=readFileSync("src/features/admin/services/admin.functions.ts","utf8");
+const hook=readFileSync("src/features/admin/hooks/useAdmin.ts","utf8");
+const ui=readFileSync("src/features/admin/components/AdminAccountsTable.tsx","utf8");
+assert.match(server,/loadAdminAccountStatusHistory/);
+assert.match(server,/requireAdminPermission\(client, "accounts\.read"\)/);
+assert.match(server,/account_status_history/);
+assert.match(fn,/listAdminAccountStatusHistory/);
+assert.match(fn,/INVALID_ACCOUNT_REFERENCE/);
+assert.match(hook,/useAdminAccountStatusHistory/);
+assert.match(hook,/accounts\.read/);
+assert.match(ui,/Status history|Historique des statuts/);
+assert.match(ui,/previousStatus.*newStatus/);
+console.log("Step 10 account status history certification: PASS");
