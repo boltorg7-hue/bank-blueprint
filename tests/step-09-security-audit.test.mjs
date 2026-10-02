@@ -41,7 +41,7 @@ test("all SECURITY DEFINER SQL functions declare a fixed public search_path", ()
   const migrationDir = new URL("supabase/migrations/", root);
   for (const name of readdirSync(migrationDir).filter((entry) => entry.endsWith(".sql"))) {
     const sql = read(`supabase/migrations/${name}`);
-    const functions = sql.match(/(?:CREATE|CREATE OR REPLACE) FUNCTION[\s\S]*?(?=\n(?:CREATE|CREATE OR REPLACE) FUNCTION|\z)/gi) ?? [];
+    const functions = sql.match(/(?:CREATE|CREATE OR REPLACE) FUNCTION[\s\S]*?(?=\n(?:CREATE|CREATE OR REPLACE) FUNCTION|$)/gi) ?? [];
     for (const fn of functions) {
       if (/SECURITY DEFINER/i.test(fn)) {
         assert.match(fn, /SET\s+search_path\s*(?:=|TO)?\s*'?public'?/i, name);
