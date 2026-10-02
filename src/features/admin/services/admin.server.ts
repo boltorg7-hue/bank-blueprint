@@ -330,6 +330,23 @@ export async function loadAdminAccounts(
   });
 }
 
+export async function loadAdminAuditEvents(client: Client, search = ""): Promise<AdminAuditEventDto[]> {
+  await requireAdminPermission(client, "audit.read");
+  const admin = await adminClient();
+  const term = search.trim().replace(/[%,_()]/g, "").slice(0, 80);
+  let query = admin.from("admin_audit_events").select("id, actor_user_id, action, resource_type, resource_reference, permission_checked, result, context, created_at").order("created_at", { ascending: false }).limit(100);
+  if (term) query = query.or(`action.ilike.%${term}%,resource_type.ilike.%${term}%,resource_reference.ilike.%${term}%,permission_checked.ilike.%${term}%`);
+  const { data, error } = await query;
+  if (error) throw new AdminAccessError("AUDIT_UNAVAILABLE");
+  const actorIds = [...new Set((data ?? []).map((row: any) => String(row.actor_user_id)))];
+  const { data: staff } = actorIds.length ? await admin.from("staff_profiles").select("user_id,display_name,public_reference").in("user_id", actorIds) : { data: [] as any[] };
+  const staffById = new Map((staff ?? []).map((row: any) => [String(row.user_id), row]));
+  return (data ?? []).map((row: any) => {
+    const actor = staffById.get(String(row.actor_user_id));
+    return { id: String(row.id), actorName: actor?.display_name ?? "Staff indisponible", actorReference: actor?.public_reference ? String(actor.public_reference) : null, action: String(row.action), resourceType: row.resource_type ? String(row.resource_type) : null, resourceReference: row.resource_reference ? String(row.resource_reference) : null, permissionChecked: row.permission_checked ? String(row.permission_checked) : null, result: row.result === "DENIED" ? "DENIED" : "ALLOWED", context: row.context && typeof row.context === "object" && !Array.isArray(row.context) ? row.context : {}, createdAt: String(row.created_at) };
+  });
+}
+
 export async function loadFundingRequests(client: Client): Promise<FundingRequestDto[]> {
   const staff = await requireAdminPermission(client);
   const canRead = staff.permissions.includes("finance.adjustment.create") || staff.permissions.includes("finance.adjustment.approve");

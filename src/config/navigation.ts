@@ -115,6 +115,6 @@ export const ADMIN_NAV: NavItem[] = [
   { label: "Approvisionnements", to: "/admin/funding" as AppPath, icon: CircleDollarSign },
   { label: "Transferts externes", to: "/admin/transfers" as AppPath, icon: Banknote },
   { label: "Service client", to: "/admin/support" as AppPath, icon: MessagesSquare },
-  { label: "Audit", to: "/admin/dashboard", icon: FileText, upcoming: true },
+  { label: "Audit", to: "/admin/audit" as AppPath, icon: FileText },
   { label: "Parité & tarifs", to: "/admin/settings" as AppPath, icon: Settings },
 ];
