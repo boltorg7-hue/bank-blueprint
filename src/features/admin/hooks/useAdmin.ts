@@ -18,6 +18,7 @@ import {
   decideAdminOnboardingCase,
   inviteAdminCustomer,
   reviewAdminOnboardingCase,
+  listAdminAuditEvents,
 } from "@/features/admin/services/admin.functions";
 
 export const ADMIN_CONTEXT_KEY = ["admin", "context"] as const;
@@ -132,3 +133,10 @@ export function useSetAccountStatus() {
 export const ADMIN_EXTERNAL_TRANSFERS_KEY=["admin","external-transfers"] as const;
 export function useAdminExternalTransfers(){const fn=useServerFn(listAdminExternalTransfers);const {data:staff}=useAdminContext();return useQuery({queryKey:ADMIN_EXTERNAL_TRANSFERS_KEY,queryFn:()=>fn(),staleTime:5_000,enabled:staff?.authorized===true&&(staff.permissions.includes("compliance.review")||staff.permissions.includes("transfers.approve"))});}
 export function useAdvanceExternalTransfer(){const fn=useServerFn(advanceAdminExternalTransfer);const qc=useQueryClient();return useMutation({mutationFn:(data:{reference:string;action:"APPROVE"|"QUEUE"|"FINALIZE"})=>fn({data}),onSuccess:()=>qc.invalidateQueries({queryKey:ADMIN_EXTERNAL_TRANSFERS_KEY})});}
+
+export const ADMIN_AUDIT_KEY = ["admin", "audit"] as const;
+export function useAdminAudit(search = "") {
+  const fn = useServerFn(listAdminAuditEvents);
+  const { data: staff } = useAdminContext();
+  return useQuery({ queryKey: [...ADMIN_AUDIT_KEY, search], queryFn: () => fn({ data: { search } }), staleTime: 5_000, enabled: staff?.authorized === true && staff.permissions.includes("audit.read") });
+}
