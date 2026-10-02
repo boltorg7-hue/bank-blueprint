@@ -19,6 +19,7 @@ import {
   inviteAdminCustomer,
   reviewAdminOnboardingCase,
   listAdminAuditEvents,
+  listAdminAccountStatusHistory,
 } from "@/features/admin/services/admin.functions";
 
 export const ADMIN_CONTEXT_KEY = ["admin", "context"] as const;
@@ -139,4 +140,15 @@ export function useAdminAudit(search = "") {
   const fn = useServerFn(listAdminAuditEvents);
   const { data: staff } = useAdminContext();
   return useQuery({ queryKey: [...ADMIN_AUDIT_KEY, search], queryFn: () => fn({ data: { search } }), staleTime: 5_000, enabled: staff?.authorized === true && staff.permissions.includes("audit.read") });
+}
+
+export function useAdminAccountStatusHistory(accountReference: string | null) {
+  const fn = useServerFn(listAdminAccountStatusHistory);
+  const { data: staff } = useAdminContext();
+  return useQuery({
+    queryKey: ["admin", "account-status-history", accountReference],
+    queryFn: () => fn({ data: { accountReference: accountReference! } }),
+    staleTime: 5_000,
+    enabled: Boolean(accountReference) && staff?.authorized === true && staff.permissions.includes("accounts.read"),
+  });
 }
