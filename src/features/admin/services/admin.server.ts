@@ -310,6 +310,7 @@ export async function loadAdminAccounts(
   return rows.map((row: any) => {
     const profile: any = profileById.get(row.user_id);
     const balance: any = balanceById.get(row.id);
+    if (!balance) throw new AdminAccessError("ACCOUNT_BALANCE_UNAVAILABLE");
     return {
       id: row.id,
       reference: row.public_reference,
