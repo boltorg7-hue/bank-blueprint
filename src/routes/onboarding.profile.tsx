@@ -66,7 +66,7 @@ function ProfileStepPage() {
     try {
       await save({ data: parsed.data });
       await invalidate();
-      await navigate({ to: "/onboarding/address" });
+      await navigate({ to: "/verify-contact" });
     } catch {
       setFormError((en ? "We could not save your details. Please try again." : "Nous n'avons pas pu enregistrer vos informations. Réessayez."));
     } finally {
