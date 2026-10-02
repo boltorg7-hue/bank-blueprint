@@ -37,9 +37,9 @@ export function RecentActivityList({ items }: { items: ActivitySummaryItemDto[] 
         const Icon = credit ? ArrowDownLeft : ArrowUpRight;
         const status = STATUS[item.status];
         return (
-          <li key={item.reference} className="flex items-center gap-3 p-4">
+          <li key={item.reference} className="flex items-center gap-3 p-4 transition-colors hover:bg-muted/30 motion-safe:duration-200">
             <span
-              className="flex size-9 shrink-0 items-center justify-center rounded-full bg-surface-sunken"
+              className="flex size-9 shrink-0 items-center justify-center rounded-full bg-surface-sunken transition-transform motion-safe:duration-200"
               aria-hidden="true"
             >
               <Icon className={credit ? "size-4 text-success" : "size-4 text-danger"} />
