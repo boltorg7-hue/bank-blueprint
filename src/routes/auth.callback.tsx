@@ -47,7 +47,15 @@ function AuthCallbackPage() {
       }
       const isConfirmation = next === "verified" || /type=signup/.test(window.location.hash);
       if (isConfirmation) {
-        const check = await checkConfirmationLink({ data: { nonce: v } }).catch(() => ({ valid: true }));
+        let check: { valid: boolean };
+        try {
+          check = await checkConfirmationLink({ data: { nonce: v } });
+        } catch {
+          await supabase.auth.signOut();
+          if (!active) return;
+          setFailed(true);
+          return;
+        }
         if (!active) return;
         if (!check.valid) {
           await supabase.auth.signOut();
