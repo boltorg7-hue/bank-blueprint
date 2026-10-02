@@ -90,7 +90,7 @@ export function PasswordField({
             return (
               <li key={rule} className="flex items-center gap-2">
                 {valid ? (
-                  <CheckCircle2 className="size-4 shrink-0 text-success" aria-hidden="true" />
+                  <CheckCircle2 className="size-4 shrink-0 text-emerald-600 dark:text-emerald-400" aria-hidden="true" />
                 ) : (
                   <XCircle className="size-4 shrink-0 text-destructive" aria-hidden="true" />
                 )}
