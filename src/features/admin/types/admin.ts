@@ -114,3 +114,16 @@ export type FundingRequestDto = {
 };
 
 export type AdminExternalTransferDto = { reference:string; customerName:string; recipient:string; amountMinor:number; currency:string; status:string; progressPercent:number; documentsOpen:number; createdAt:string };
+
+export type AdminAuditEventDto = {
+  id: string;
+  actorName: string;
+  actorReference: string | null;
+  action: string;
+  resourceType: string | null;
+  resourceReference: string | null;
+  permissionChecked: string | null;
+  result: "ALLOWED" | "DENIED";
+  context: Record<string, unknown>;
+  createdAt: string;
+};
