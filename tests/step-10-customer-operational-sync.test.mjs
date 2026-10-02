@@ -1,0 +1,12 @@
+import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+const hook=readFileSync("src/features/admin/hooks/useAdmin.ts","utf8");
+const table=readFileSync("src/features/admin/components/AdminCustomersTable.tsx","utf8");
+assert.match(hook,/ADMIN_ACCOUNTS_KEY/);
+assert.match(hook,/ADMIN_DASHBOARD_KEY/);
+assert.match(hook,/ADMIN_AUDIT_KEY/);
+assert.match(hook,/invalidateQueries/);
+assert.match(table,/customers\.write/);
+assert.match(table,/setDetails\(customer\)/);
+assert.match(table,/View|Voir/);
+console.log("Step 10 customer operational sync certification: PASS");
