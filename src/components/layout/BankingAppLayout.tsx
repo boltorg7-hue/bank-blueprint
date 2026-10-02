@@ -6,23 +6,17 @@ import { AccountsShellProvider } from "@/features/accounts/components/AccountsSh
 import { CustomerAppHeader } from "@/features/customer-shell/components/CustomerAppHeader";
 import { NetworkStatusBanner } from "@/features/customer-shell/components/NetworkStatusBanner";
 
-/**
- * Authenticated customer application shell.
- *
- * Persistent chrome (header, navigation) stays mounted between customer
- * routes. Never reuse PublicLayout or AdminLayout here.
- */
 export function BankingAppLayout({ children }: { children: ReactNode }) {
   return (
     <AccountsShellProvider>
-      <div className="min-h-dvh-safe flex bg-surface-sunken">
+      <div className="flex min-h-dvh-safe bg-surface-sunken">
         <CustomerSidebar />
 
         <div className="flex min-w-0 flex-1 flex-col">
           <CustomerAppHeader />
           <NetworkStatusBanner />
 
-          <main id="main" className="pb-mobile-nav min-w-0 flex-1 lg:pb-10">
+          <main id="main" className="min-w-0 flex-1 pb-mobile-nav lg:pb-10">
             {children}
           </main>
         </div>
@@ -35,7 +29,6 @@ export function BankingAppLayout({ children }: { children: ReactNode }) {
 
 export type ContentWidth = "default" | "narrow" | "wide";
 
-/** Reusable content container for authenticated banking pages. */
 export function BankingContentContainer({
   children,
   width = "default",
@@ -47,6 +40,15 @@ export function BankingContentContainer({
     width === "narrow" ? "max-w-2xl" : width === "wide" ? "max-w-7xl" : "max-w-5xl";
 
   return (
-    <div className={`mx-auto w-full min-w-0 px-4 py-5 sm:px-6 sm:py-8 ${maxWidth}`}>{children}</div>
+    <div
+      className={[
+        "mx-auto w-full min-w-0",
+        "px-4 py-5 sm:px-6 sm:py-8",
+        "lg:px-8 lg:py-10",
+        maxWidth,
+      ].join(" ")}
+    >
+      {children}
+    </div>
   );
 }
