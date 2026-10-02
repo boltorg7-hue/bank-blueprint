@@ -26,6 +26,7 @@ export function AdminAccountsTable({ accounts }: { accounts: AdminAccountDto[] }
   const canManage = context.data?.permissions.includes("accounts.manage") ?? false;
   const [decision, setDecision] = useState<{ account: AdminAccountDto; status: "ACTIVE" | "FROZEN" } | null>(null);
   const [reason, setReason] = useState("");
+  const [details, setDetails] = useState<AdminAccountDto | null>(null);
   const reasonValid = reason.trim().length >= 8;
 
   async function confirmChange() {
@@ -74,7 +75,7 @@ export function AdminAccountsTable({ accounts }: { accounts: AdminAccountDto[] }
               <div><dt className="text-caption text-muted-foreground">{en ? "Available" : "Disponible"}</dt><dd className="text-numeric mt-1 text-sm font-semibold">{balance(account.availableBalanceMinor, account.currency, account.minorUnit)}</dd></div>
               <div><dt className="text-caption text-muted-foreground">{en ? "Reserved" : "Réservé"}</dt><dd className="text-numeric mt-1 text-sm">{balance(account.heldBalanceMinor, account.currency, account.minorUnit)}</dd></div>
             </dl>
-            {actionFor(account)}
+            <div className="flex flex-wrap gap-2"><Button className="w-full md:w-auto" size="sm" variant="ghost" onClick={() => setDetails(account)}>{en ? "View account" : "Voir le compte"}</Button>{actionFor(account)}</div>
           </li>
         ))}
       </ul>
@@ -88,7 +89,7 @@ export function AdminAccountsTable({ accounts }: { accounts: AdminAccountDto[] }
             <TableHead>{en ? "Ledger balance" : "Solde comptable"}</TableHead>
             <TableHead>{en ? "Available" : "Disponible"}</TableHead>
             <TableHead>{en ? "Reserved" : "Réservé"}</TableHead>
-            {canManage ? <TableHead>{en ? "Action" : "Action"}</TableHead> : null}
+            <TableHead>{en ? "Action" : "Action"}</TableHead>
           </TableRow></TableHeader>
           <TableBody>
             {accounts.map((account) => (
@@ -99,13 +100,35 @@ export function AdminAccountsTable({ accounts }: { accounts: AdminAccountDto[] }
                 <TableCell>{balance(account.ledgerBalanceMinor, account.currency, account.minorUnit)}</TableCell>
                 <TableCell>{balance(account.availableBalanceMinor, account.currency, account.minorUnit)}</TableCell>
                 <TableCell>{balance(account.heldBalanceMinor, account.currency, account.minorUnit)}</TableCell>
-                {canManage ? <TableCell>{actionFor(account)}</TableCell> : null}
+                <TableCell><div className="flex flex-wrap gap-2"><Button size="sm" variant="ghost" onClick={() => setDetails(account)}>{en ? "View" : "Voir"}</Button>{actionFor(account)}</div></TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
       </div>
 
+      <Dialog open={Boolean(details)} onOpenChange={(open) => { if (!open) setDetails(null); }}>
+        <DialogContent className="w-[calc(100%-2rem)] max-w-lg rounded-md">
+          <DialogHeader>
+            <DialogTitle>{en ? "Account operational details" : "Détails opérationnels du compte"}</DialogTitle>
+            <DialogDescription>{details?.reference}</DialogDescription>
+          </DialogHeader>
+          {details ? <div className="space-y-5">
+            <div className="rounded-md bg-surface-sunken p-4">
+              <p className="font-semibold">{details.displayName}</p>
+              <p className="text-sm text-muted-foreground">{details.holderName} · {details.holderReference}</p>
+              <div className="mt-3 flex flex-wrap gap-2"><StatusBadge label={details.status} tone={statusTone(details.status)} /><span className="rounded-full border border-border px-2 py-1 text-xs">{details.currency}</span><span className="rounded-full border border-border px-2 py-1 text-xs">{details.maskedNumber}</span></div>
+            </div>
+            <dl className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+              <div className="rounded-md border border-border p-3"><dt className="text-caption text-muted-foreground">{en ? "Ledger balance" : "Solde comptable"}</dt><dd className="text-numeric mt-1 font-semibold">{balance(details.ledgerBalanceMinor, details.currency, details.minorUnit)}</dd></div>
+              <div className="rounded-md border border-border p-3"><dt className="text-caption text-muted-foreground">{en ? "Available" : "Disponible"}</dt><dd className="text-numeric mt-1 font-semibold">{balance(details.availableBalanceMinor, details.currency, details.minorUnit)}</dd></div>
+              <div className="rounded-md border border-border p-3"><dt className="text-caption text-muted-foreground">{en ? "Reserved" : "Réservé"}</dt><dd className="text-numeric mt-1 font-semibold">{balance(details.heldBalanceMinor, details.currency, details.minorUnit)}</dd></div>
+            </dl>
+            <p className="text-xs text-muted-foreground">{en ? "Balances are read-only projections from the ledger. Financial adjustments remain restricted to the funding workflow." : "Les soldes sont des projections en lecture seule du ledger. Les ajustements financiers restent limités au workflow de financement."}</p>
+          </div> : null}
+          <DialogFooter><Button variant="outline" onClick={() => setDetails(null)}>{en ? "Close" : "Fermer"}</Button></DialogFooter>
+        </DialogContent>
+      </Dialog>
       <Dialog open={Boolean(decision)} onOpenChange={(open) => { if (!open) { setDecision(null); setReason(""); } }}>
         <DialogContent className="w-[calc(100%-2rem)] rounded-md">
           <DialogHeader>
