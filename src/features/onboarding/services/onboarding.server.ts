@@ -107,7 +107,7 @@ export async function saveProfileStep(userId: string, input: unknown) {
       phone: data.phone ? data.phone : null,
       phone_verified_at: null,
       lifecycle_state: data.phone ? "CONTACT_VERIFICATION_REQUIRED" : "PROFILE_INCOMPLETE",
-      onboarding_step: "ADDRESS",
+      onboarding_step: data.phone ? "CONTACT" : "ADDRESS",
     })
     .eq("id", userId);
   if (error) throw new OnboardingError(error.message);
