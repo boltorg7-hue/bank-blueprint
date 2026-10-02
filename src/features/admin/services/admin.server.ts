@@ -279,6 +279,29 @@ export async function activateOnboardingCustomer(
   return { accountReference: String(data) };
 }
 
+export async function loadAdminAccountStatusHistory(client: Client, accountReference: string): Promise<AdminAccountStatusHistoryDto[]> {
+  await requireAdminPermission(client, "accounts.read");
+  const admin = await adminClient();
+  const { data: account, error: accountError } = await admin.from("bank_accounts").select("id").eq("public_reference", accountReference).maybeSingle();
+  if (accountError || !account) throw new AdminAccessError("ACCOUNT_HISTORY_UNAVAILABLE");
+  const { data, error } = await admin.from("account_status_history")
+    .select("id,previous_status,new_status,reason_category,internal_note,changed_by,created_at")
+    .eq("account_id", account.id).order("created_at", { ascending: false }).limit(50);
+  if (error) throw new AdminAccessError("ACCOUNT_HISTORY_UNAVAILABLE");
+  const actorIds = [...new Set((data ?? []).map((row: any) => String(row.changed_by)).filter(Boolean))];
+  const { data: actors } = actorIds.length
+    ? await admin.from("staff_profiles").select("user_id,display_name,public_reference").in("user_id", actorIds)
+    : { data: [] as any[] };
+  const actorMap = new Map((actors ?? []).map((row: any) => [String(row.user_id), row]));
+  return (data ?? []).map((row: any) => {
+    const actor = actorMap.get(String(row.changed_by));
+    return { id:String(row.id), previousStatus:String(row.previous_status), newStatus:String(row.new_status),
+      reasonCategory:String(row.reason_category), internalNote:row.internal_note ? String(row.internal_note) : null,
+      changedByName:actor?.display_name ? String(actor.display_name) : "Agent bancaire",
+      changedByReference:actor?.public_reference ? String(actor.public_reference) : null, changedAt:String(row.created_at) };
+  });
+}
+
 export async function loadAdminAccounts(
   client: Client,
   search = "",
