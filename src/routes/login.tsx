@@ -5,6 +5,7 @@ import { publicMeta } from "@/features/public/lib/seo";
 import { AuthShell } from "@/features/auth/components/AuthShell";
 import { LoginForm } from "@/features/auth/components/LoginForm";
 import { GoogleSignInButton } from "@/features/auth/components/GoogleSignInButton";
+import { AppleSignInButton } from "@/features/auth/components/AppleSignInButton";
 import { useLanguage } from "@/components/providers/LanguageProvider";
 
 const meta = publicMeta({
@@ -41,7 +42,15 @@ function LoginPage() {
             <span className="text-caption text-muted-foreground">{en ? "or" : "ou"}</span>
             <span className="h-px flex-1 bg-border" />
           </div>
-          <GoogleSignInButton onError={setOauthError} />
+          <div className="grid gap-3 sm:grid-cols-2">
+            <GoogleSignInButton onError={setOauthError} />
+            <AppleSignInButton onError={setOauthError} />
+          </div>
+          <p className="text-caption text-muted-foreground">
+            {en
+              ? "New customers continue through the same verification flow before banking access."
+              : "Les nouveaux clients suivent le même parcours de vérification avant l’accès bancaire."}
+          </p>
           {oauthError ? (
             <p role="alert" className="text-caption text-destructive">
               {oauthError}
