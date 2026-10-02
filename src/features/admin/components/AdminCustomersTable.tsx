@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { CheckCircle2, CircleAlert, XCircle } from "lucide-react";
 import { useLanguage } from "@/components/providers/LanguageProvider";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -19,14 +20,15 @@ export function AdminCustomersTable({ customers }: { customers: AdminCustomerDto
   const canManage = context.data?.permissions.includes("customers.write") ?? false;
   const [decision, setDecision] = useState<{ customer: AdminCustomerDto; state: "ACTIVE" | "RESTRICTED" | "SUSPENDED" } | null>(null);
   const [reason, setReason] = useState("");
+  const [details, setDetails] = useState<AdminCustomerDto | null>(null);
   async function confirmChange() {
-    if (!decision || reason.trim().length < 8) return;
+    if (!decision || reason.trim().length < 8 || decision.state === decision.customer.lifecycleState) return;
     try { await mutation.mutateAsync({ customerId: decision.customer.id, state: decision.state, reason: reason.trim() }); toast.success(en ? "Customer status updated." : "Statut client mis à jour."); setDecision(null); setReason(""); }
     catch { toast.error((en ? "Customer status could not be changed." : "Le statut client n’a pas pu être modifié.")); }
   }
   const actionsFor = (customer: AdminCustomerDto) => {
-    if (!["ACTIVE", "RESTRICTED", "SUSPENDED"].includes(customer.lifecycleState)) return null;
-    return <div className="grid grid-cols-2 gap-3 md:flex">{customer.lifecycleState === "ACTIVE" ? <Button size="sm" variant="outline" onClick={() => setDecision({ customer, state: "RESTRICTED" })}>{en ? "Restrict" : "Restreindre"}</Button> : <Button size="sm" variant="outline" onClick={() => setDecision({ customer, state: "ACTIVE" })}>{en ? "Reactivate" : "Réactiver"}</Button>}<Button size="sm" variant="ghost" onClick={() => setDecision({ customer, state: "SUSPENDED" })}>{en ? "Suspend" : "Suspendre"}</Button></div>;
+    if (!canManage || !["ACTIVE", "RESTRICTED", "SUSPENDED"].includes(customer.lifecycleState)) return null;
+    return <div className="grid grid-cols-2 gap-3 md:flex"><Button size="sm" variant="ghost" onClick={() => setDetails(customer)}>{en ? "View" : "Voir"}</Button>{customer.lifecycleState === "ACTIVE" ? <Button size="sm" variant="outline" onClick={() => setDecision({ customer, state: "RESTRICTED" })}>{en ? "Restrict" : "Restreindre"}</Button> : <Button size="sm" variant="outline" onClick={() => setDecision({ customer, state: "ACTIVE" })}>{en ? "Reactivate" : "Réactiver"}</Button>}<Button size="sm" variant="ghost" onClick={() => setDecision({ customer, state: "SUSPENDED" })} disabled={customer.lifecycleState === "SUSPENDED"}>{en ? "Suspend" : "Suspendre"}</Button></div>;
   };
   return (
     <>
@@ -50,7 +52,22 @@ export function AdminCustomersTable({ customers }: { customers: AdminCustomerDto
         </TableBody>
       </Table>
     </div>
-    <Dialog open={Boolean(decision)} onOpenChange={(open) => { if (!open) { setDecision(null); setReason(""); } }}><DialogContent className="w-[calc(100%-2rem)] rounded-md"><DialogHeader><DialogTitle>{en ? "Confirm customer status" : "Confirmer le statut client"}</DialogTitle><DialogDescription>{en ? "Record an auditable reason before confirming this sensitive action." : "Consignez un motif traçable avant de confirmer cette action sensible."}</DialogDescription></DialogHeader><div className="space-y-2"><Label htmlFor="customer-decision-reason">{en ? "Reason" : "Motif"}</Label><Textarea id="customer-decision-reason" value={reason} onChange={(event) => setReason(event.target.value)} minLength={8} autoFocus /></div><DialogFooter className="gap-2"><Button variant="outline" onClick={() => setDecision(null)}>{en ? "Cancel" : "Annuler"}</Button><Button onClick={() => void confirmChange()} disabled={reason.trim().length < 8 || mutation.isPending} loading={mutation.isPending}>{en ? "Confirm" : "Confirmer"}</Button></DialogFooter></DialogContent></Dialog>
+    <Dialog open={Boolean(decision)} onOpenChange={(open) => { if (!open) { setDecision(null); setReason(""); } }}><DialogContent className="w-[calc(100%-2rem)] rounded-md"><DialogHeader><DialogTitle>{en ? "Confirm customer status" : "Confirmer le statut client"}</DialogTitle><DialogDescription>{en ? "Record an auditable reason before confirming this sensitive action." : "Consignez un motif traçable avant de confirmer cette action sensible."}</DialogDescription></DialogHeader><div className="space-y-2"><Label htmlFor="customer-decision-reason">{en ? "Reason" : "Motif"}</Label><Textarea id="customer-decision-reason" value={reason} onChange={(event) => setReason(event.target.value)} minLength={8} autoFocus aria-invalid={reason.length > 0 && reason.trim().length < 8} />
+        {reason.length > 0 ? <p className={reason.trim().length >= 8 ? "flex items-center gap-1.5 text-xs text-emerald-600 dark:text-emerald-400" : "flex items-center gap-1.5 text-xs text-destructive"}>{reason.trim().length >= 8 ? <CheckCircle2 className="size-3.5" aria-hidden="true" /> : <XCircle className="size-3.5" aria-hidden="true" />}{reason.trim().length >= 8 ? (en ? "Valid reason." : "Motif valide.") : (en ? "At least 8 characters." : "Au moins 8 caractères.")}</p> : <p className="flex items-center gap-1.5 text-xs text-muted-foreground"><CircleAlert className="size-3.5" aria-hidden="true" />{en ? "Required for audit." : "Requis pour la traçabilité."}</p>}</div><DialogFooter className="gap-2"><Button variant="outline" onClick={() => setDecision(null)}>{en ? "Cancel" : "Annuler"}</Button><Button onClick={() => void confirmChange()} disabled={reason.trim().length < 8 || mutation.isPending} loading={mutation.isPending}>{en ? "Confirm" : "Confirmer"}</Button></DialogFooter></DialogContent></Dialog>
+    <Dialog open={Boolean(details)} onOpenChange={(open) => { if (!open) setDetails(null); }}>
+      <DialogContent className="w-[calc(100%-2rem)] rounded-md">
+        <DialogHeader><DialogTitle>{en ? "Customer details" : "Détails du client"}</DialogTitle><DialogDescription>{details?.reference}</DialogDescription></DialogHeader>
+        {details ? <dl className="grid gap-4 sm:grid-cols-2">
+          <div><dt className="text-caption text-muted-foreground">{en ? "Full name" : "Nom complet"}</dt><dd className="mt-1 font-medium">{details.fullName}</dd></div>
+          <div><dt className="text-caption text-muted-foreground">{en ? "Status" : "Statut"}</dt><dd className="mt-1"><StatusBadge label={LIFECYCLE_LABELS[details.lifecycleState]} tone={details.lifecycleState === "ACTIVE" ? "success" : details.lifecycleState === "SUSPENDED" || details.lifecycleState === "CLOSED" ? "failed" : "pending"} /></dd></div>
+          <div><dt className="text-caption text-muted-foreground">E-mail</dt><dd className="mt-1 break-all">{details.email ?? "—"}</dd></div>
+          <div><dt className="text-caption text-muted-foreground">{en ? "Phone" : "Téléphone"}</dt><dd className="mt-1">{details.phone ?? "—"}</dd></div>
+          <div><dt className="text-caption text-muted-foreground">{en ? "Accounts" : "Comptes"}</dt><dd className="mt-1 font-semibold">{details.accountCount}</dd></div>
+          <div><dt className="text-caption text-muted-foreground">{en ? "Registered" : "Inscription"}</dt><dd className="mt-1">{formatDate(details.createdAt)}</dd></div>
+        </dl> : null}
+        <DialogFooter><Button variant="outline" onClick={() => setDetails(null)}>{en ? "Close" : "Fermer"}</Button></DialogFooter>
+      </DialogContent>
+    </Dialog>
     </>
   );
 }
