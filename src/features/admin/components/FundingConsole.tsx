@@ -1,5 +1,6 @@
 import { useLanguage } from "@/components/providers/LanguageProvider";
 import { useMemo, useState } from "react";
+import { CheckCircle2, XCircle } from "lucide-react";
 import { toast } from "sonner";
 
 import { ErrorState, LoadingState } from "@/components/feedback";
@@ -25,6 +26,7 @@ export function FundingConsole() {
   const [accountReference, setAccountReference] = useState("");
   const [amount, setAmount] = useState("");
   const [reason, setReason] = useState("");
+  const [touched, setTouched] = useState({ account: false, amount: false, reason: false });
   const permissions = context.data?.permissions ?? [];
   const canCreate = permissions.includes("finance.adjustment.create");
   const canApprove = permissions.includes("finance.adjustment.approve");
@@ -32,14 +34,16 @@ export function FundingConsole() {
 
   async function submit(event: React.FormEvent) {
     event.preventDefault();
+    setTouched({ account: true, amount: true, reason: true });
+    const decimalPattern = /^\\d+(?:[.,]\\d{1,2})?$/;
     const decimal = Number(amount.replace(",", "."));
-    if (!Number.isFinite(decimal) || decimal <= 0 || reason.trim().length < 8) {
+    if (!accountReference || !decimalPattern.test(amount.trim()) || !Number.isFinite(decimal) || decimal <= 0 || reason.trim().length < 8) {
       toast.error((en ? "Check the account, amount and reason (at least 8 characters)." : "Vérifiez le compte, le montant et le motif (8 caractères minimum)."));
       return;
     }
     try {
       await create.mutateAsync({ accountReference, amountMinor: Math.round(decimal * 100), reason: reason.trim(), idempotencyKey: crypto.randomUUID() });
-      setAmount(""); setReason("");
+      setAmount(""); setReason(""); setTouched({ account: false, amount: false, reason: false });
       toast.success((en ? "Request created. A different supervisor must approve it." : "Demande créée. Un superviseur distinct doit la valider."));
     } catch { toast.error((en ? "Funding request could not be created." : "La demande d’approvisionnement n’a pas pu être créée.")); }
   }
@@ -60,9 +64,24 @@ export function FundingConsole() {
     {canCreate ? <Card>
       <CardHeader><CardTitle>{(en ? "New request" : "Nouvelle demande")}</CardTitle><CardDescription>{(en ? "Funds will be posted only after approval by another authorized staff member." : "Le crédit ne sera comptabilisé qu’après validation par un autre membre autorisé.")}</CardDescription></CardHeader>
       <CardContent><form onSubmit={submit} className="grid gap-4 lg:grid-cols-3">
-        <div className="space-y-2"><Label>{(en ? "Active account" : "Compte actif")}</Label><Select value={accountReference} onValueChange={setAccountReference}><SelectTrigger><SelectValue placeholder={en ? "Select an account" : "Sélectionner un compte"} /></SelectTrigger><SelectContent>{activeAccounts.map((account) => <SelectItem key={account.id} value={account.reference}>{account.holderName} · {account.reference}</SelectItem>)}</SelectContent></Select></div>
-        <div className="space-y-2"><Label htmlFor="funding-amount">{(en ? "Amount" : "Montant")}</Label><Input id="funding-amount" inputMode="decimal" value={amount} onChange={(event) => setAmount(event.target.value)} placeholder="1000,00" /></div>
-        <div className="space-y-2 lg:col-span-3"><Label htmlFor="funding-reason">{(en ? "Operational reason" : "Motif opérationnel")}</Label><Textarea id="funding-reason" value={reason} onChange={(event) => setReason(event.target.value)} maxLength={500} placeholder={en ? "Auditable reason for funding" : "Motif traçable de l’approvisionnement"} /></div>
+        <div className="space-y-2">
+          <Label>{en ? "Active account" : "Compte actif"}</Label>
+          <Select value={accountReference} onValueChange={(value) => { setAccountReference(value); setTouched((current) => ({ ...current, account: true })); }}>
+            <SelectTrigger aria-invalid={touched.account && !accountReference || undefined}><SelectValue placeholder={en ? "Select an account" : "Sélectionner un compte"} /></SelectTrigger>
+            <SelectContent>{activeAccounts.map((account) => <SelectItem key={account.id} value={account.reference}>{account.holderName} · {account.reference}</SelectItem>)}</SelectContent>
+          </Select>
+          {touched.account ? <FieldHint valid={Boolean(accountReference)} text={en ? "Select an active customer account." : "Sélectionnez un compte client actif."} /> : null}
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="funding-amount">{en ? "Amount" : "Montant"}</Label>
+          <Input id="funding-amount" inputMode="decimal" value={amount} onChange={(event) => { setAmount(event.target.value); setTouched((current) => ({ ...current, amount: true })); }} placeholder="1000,00" aria-invalid={touched.amount && (!/^\\d+(?:[.,]\\d{1,2})?$/.test(amount.trim()) || Number(amount.replace(",", ".")) <= 0) || undefined} />
+          {touched.amount ? <FieldHint valid={/^\\d+(?:[.,]\\d{1,2})?$/.test(amount.trim()) && Number(amount.replace(",", ".")) > 0} text={en ? "Use a positive amount with up to 2 decimals." : "Utilisez un montant positif avec au plus 2 décimales."} /> : null}
+        </div>
+        <div className="space-y-2 lg:col-span-3">
+          <Label htmlFor="funding-reason">{en ? "Operational reason" : "Motif opérationnel"}</Label>
+          <Textarea id="funding-reason" value={reason} onChange={(event) => { setReason(event.target.value); setTouched((current) => ({ ...current, reason: true })); }} maxLength={500} placeholder={en ? "Auditable reason for funding" : "Motif traçable de l’approvisionnement"} aria-invalid={touched.reason && reason.trim().length < 8 || undefined} />
+          {touched.reason ? <FieldHint valid={reason.trim().length >= 8} text={en ? "At least 8 characters are required for an auditable reason." : "Au moins 8 caractères sont requis pour un motif traçable."} /> : null}
+        </div>
         <div><Button type="submit" disabled={!accountReference || create.isPending}>{create.isPending ? (en ? "Creating…" : "Création…") : (en ? "Create request" : "Créer la demande")}</Button></div>
       </form></CardContent>
     </Card> : null}
