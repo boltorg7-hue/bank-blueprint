@@ -6,7 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import type { AdminAccountDto } from "@/features/admin/types/admin";
 import { formatMoneyFromMinor } from "@/lib/format";
 import { Button } from "@/components/ui/button";
-import { useAdminContext, useSetAccountStatus } from "@/features/admin/hooks/useAdmin";
+import { useAdminContext, useSetAccountStatus, useAdminAccountStatusHistory } from "@/features/admin/hooks/useAdmin";
 import { toast } from "sonner";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -27,6 +27,7 @@ export function AdminAccountsTable({ accounts }: { accounts: AdminAccountDto[] }
   const [decision, setDecision] = useState<{ account: AdminAccountDto; status: "ACTIVE" | "FROZEN" } | null>(null);
   const [reason, setReason] = useState("");
   const [details, setDetails] = useState<AdminAccountDto | null>(null);
+  const history = useAdminAccountStatusHistory(details?.reference ?? null);
   const reasonValid = reason.trim().length >= 8;
 
   async function confirmChange() {
@@ -125,6 +126,27 @@ export function AdminAccountsTable({ accounts }: { accounts: AdminAccountDto[] }
               <div className="rounded-md border border-border p-3"><dt className="text-caption text-muted-foreground">{en ? "Reserved" : "Réservé"}</dt><dd className="text-numeric mt-1 font-semibold">{balance(details.heldBalanceMinor, details.currency, details.minorUnit)}</dd></div>
             </dl>
             <p className="text-xs text-muted-foreground">{en ? "Balances are read-only projections from the ledger. Financial adjustments remain restricted to the funding workflow." : "Les soldes sont des projections en lecture seule du ledger. Les ajustements financiers restent limités au workflow de financement."}</p>
+            <div className="space-y-3">
+              <div>
+                <p className="font-semibold">{en ? "Status history" : "Historique des statuts"}</p>
+                <p className="text-xs text-muted-foreground">{en ? "Read-only operational history." : "Historique opérationnel en lecture seule."}</p>
+              </div>
+              {history.isLoading ? <div className="rounded-md border border-border p-3 text-sm text-muted-foreground">{en ? "Loading history…" : "Chargement de l’historique…"}</div> : null}
+              {history.isError ? <div className="rounded-md border border-destructive/30 p-3 text-sm text-destructive">{en ? "History unavailable." : "Historique indisponible."}</div> : null}
+              {!history.isLoading && !history.isError && history.data?.length === 0 ? <div className="rounded-md border border-border p-3 text-sm text-muted-foreground">{en ? "No status change recorded." : "Aucun changement de statut enregistré."}</div> : null}
+              <ul className="space-y-2">
+                {(history.data ?? []).map((item) => (
+                  <li key={item.id} className="rounded-md border border-border p-3">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <p className="text-sm font-medium">{item.previousStatus} → {item.newStatus}</p>
+                      <time className="text-xs text-muted-foreground">{new Date(item.changedAt).toLocaleString(en ? "en-GB" : "fr-FR")}</time>
+                    </div>
+                    <p className="mt-1 text-xs text-muted-foreground">{item.changedByName}{item.changedByReference ? ` · ${item.changedByReference}` : ""} · {item.reasonCategory}</p>
+                    {item.internalNote ? <p className="mt-2 text-sm">{item.internalNote}</p> : null}
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div> : null}
           <DialogFooter><Button variant="outline" onClick={() => setDetails(null)}>{en ? "Close" : "Fermer"}</Button></DialogFooter>
         </DialogContent>
