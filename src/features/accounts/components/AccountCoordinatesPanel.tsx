@@ -50,7 +50,7 @@ export function AccountCoordinatesPanel({
   return (
     <section
       aria-labelledby="coordinates-heading"
-      className="rounded-2xl border border-border bg-surface p-5"
+      className="rounded-2xl border border-border bg-surface p-5 motion-safe:transition-shadow motion-safe:duration-200"
     >
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h2 id="coordinates-heading" className="text-heading-sm text-foreground">
@@ -71,7 +71,7 @@ export function AccountCoordinatesPanel({
 
       <dl className="mt-4 divide-y divide-border">
         {rows.map((row) => (
-          <div key={row.label} className="flex items-center justify-between gap-3 py-3">
+          <div key={row.label} className="flex items-center justify-between gap-3 py-3 transition-colors hover:bg-muted/20 motion-safe:duration-200">
             <dt className="text-caption text-muted-foreground">{row.label}</dt>
             <dd className="text-numeric text-body flex min-w-0 items-center gap-2 text-foreground">
               <span className="truncate">{row.value}</span>

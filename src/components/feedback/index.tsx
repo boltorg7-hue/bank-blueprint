@@ -25,7 +25,7 @@ export function LoadingState({
       role="status"
       aria-live="polite"
       className={cn(
-        "flex items-center justify-center gap-2 py-8 text-sm text-muted-foreground",
+        "flex items-center justify-center gap-2 py-8 text-sm text-muted-foreground",\n        "motion-safe:transition-opacity motion-safe:duration-200",
         className,
       )}
     >
@@ -38,7 +38,7 @@ export function LoadingState({
 /** Skeleton placeholder for content whose shape is known. */
 export function SkeletonBlock({ lines = 3, className }: { lines?: number | undefined; className?: string | undefined }) {
   return (
-    <div className={cn("space-y-3", className)} aria-hidden="true">
+    <div className={cn("space-y-3 motion-safe:transition-opacity motion-safe:duration-200", className)} aria-hidden="true">
       {Array.from({ length: lines }).map((_, index) => (
         <Skeleton key={index} className={cn("h-4 w-full", index === lines - 1 && "w-2/3")} />
       ))}

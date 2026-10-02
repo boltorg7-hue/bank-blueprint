@@ -59,7 +59,7 @@ export function AccountBalanceCard({
     <section
       aria-labelledby="balance-card-heading"
       className={cn(
-        "native-surface overflow-hidden border-t-2 border-t-brand p-5 sm:p-6",
+        "native-surface overflow-hidden border-t-2 border-t-brand p-5 sm:p-6 motion-safe:transition-shadow motion-safe:duration-200",
         className,
       )}
     >
@@ -116,7 +116,7 @@ export function AccountBalanceCard({
       {balance && (
         <>
           <dl className="mt-6 grid gap-3 sm:mt-8 sm:grid-cols-2 sm:gap-4">
-            <div className="rounded-md bg-surface-sunken p-3.5 transition-colors hover:bg-muted/50 sm:p-4">
+            <div className="rounded-md bg-surface-sunken p-3.5 transition-colors hover:bg-muted/50 motion-safe:duration-200 sm:p-4">
               <dt className="text-caption text-muted-foreground sm:text-body-sm">{en ? "Ledger balance" : "Solde comptable"}</dt>
               <dd className="text-amount mt-1 text-foreground sm:text-heading-md">
                 {renderAmount(balance.ledgerBalanceMinor)}
