@@ -75,7 +75,7 @@ export function AdminAccountsTable({ accounts }: { accounts: AdminAccountDto[] }
               <div><dt className="text-caption text-muted-foreground">{en ? "Available" : "Disponible"}</dt><dd className="text-numeric mt-1 text-sm font-semibold">{balance(account.availableBalanceMinor, account.currency, account.minorUnit)}</dd></div>
               <div><dt className="text-caption text-muted-foreground">{en ? "Reserved" : "Réservé"}</dt><dd className="text-numeric mt-1 text-sm">{balance(account.heldBalanceMinor, account.currency, account.minorUnit)}</dd></div>
             </dl>
-            {actionFor(account)}
+            <div className="flex flex-wrap gap-2"><Button className="w-full md:w-auto" size="sm" variant="ghost" onClick={() => setDetails(account)}>{en ? "View account" : "Voir le compte"}</Button>{actionFor(account)}</div>
           </li>
         ))}
       </ul>
@@ -89,7 +89,7 @@ export function AdminAccountsTable({ accounts }: { accounts: AdminAccountDto[] }
             <TableHead>{en ? "Ledger balance" : "Solde comptable"}</TableHead>
             <TableHead>{en ? "Available" : "Disponible"}</TableHead>
             <TableHead>{en ? "Reserved" : "Réservé"}</TableHead>
-            {canManage ? <TableHead>{en ? "Action" : "Action"}</TableHead> : null}
+            <TableHead>{en ? "Action" : "Action"}</TableHead>
           </TableRow></TableHeader>
           <TableBody>
             {accounts.map((account) => (
@@ -100,7 +100,7 @@ export function AdminAccountsTable({ accounts }: { accounts: AdminAccountDto[] }
                 <TableCell>{balance(account.ledgerBalanceMinor, account.currency, account.minorUnit)}</TableCell>
                 <TableCell>{balance(account.availableBalanceMinor, account.currency, account.minorUnit)}</TableCell>
                 <TableCell>{balance(account.heldBalanceMinor, account.currency, account.minorUnit)}</TableCell>
-                {canManage ? <TableCell>{actionFor(account)}</TableCell> : <TableCell><Button size="sm" variant="ghost" onClick={() => setDetails(account)}>{en ? "View" : "Voir"}</Button></TableCell>}
+                <TableCell><div className="flex flex-wrap gap-2"><Button size="sm" variant="ghost" onClick={() => setDetails(account)}>{en ? "View" : "Voir"}</Button>{actionFor(account)}</div></TableCell>
               </TableRow>
             ))}
           </TableBody>
