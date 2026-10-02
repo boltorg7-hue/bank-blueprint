@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowDownToLine, FileText, Send, Wallet } from "lucide-react";
+import { ArrowDownToLine, FileText, Send, Wallet, Clock } from "lucide-react";
 
 import { BankingContentContainer } from "@/components/layout/BankingAppLayout";
 import { PageHeader } from "@/components/layout/PageHeader";
@@ -11,11 +11,7 @@ import { useDashboardSummary } from "@/features/accounts/hooks/useAccounts";
 import { ActionRequiredTransfers } from "@/features/transfers/components/ActionRequiredTransfers";
 import { useCustomerSummary } from "@/features/customer-shell/hooks/useCustomerSummary";
 import { isAllowed } from "@/features/customer-shell/lib/route-access";
-import {
-  accountAllowsTransactions,
-  accountRestrictionMessage,
-} from "@/features/accounts/utils/account-display";
-import { Clock } from "lucide-react";
+import { accountAllowsTransactions, accountRestrictionMessage } from "@/features/accounts/utils/account-display";
 import { useLanguage } from "@/components/providers/LanguageProvider";
 import { cn } from "@/lib/utils";
 
@@ -29,10 +25,6 @@ export const Route = createFileRoute("/app/dashboard")({
   component: DashboardPage,
 });
 
-/**
- * Customer dashboard (§74 – §77): balance first, one compact monthly summary,
- * a short activity preview and the primary actions. Nothing else.
- */
 function DashboardPage() {
   const { language } = useLanguage();
   const en = language === "en";
@@ -52,9 +44,13 @@ function DashboardPage() {
     <BankingContentContainer width="wide">
       <PageHeader
         title={customer ? `${en ? "Hello" : "Bonjour"} ${customer.displayName.split(" ")[0]}` : en ? "Hello" : "Bonjour"}
-         description={en ? "Your account, transactions and next steps in one place." : "Votre compte, vos opérations et vos prochaines actions au même endroit."}
+        description={
+          en
+            ? "Your account, transactions and next steps in one place."
+            : "Votre compte, vos opérations et vos prochaines actions au même endroit."
+        }
       />
-      
+
       {query.isError ? (
         <ErrorState
           title={en ? "Your account information could not be loaded" : "Vos informations bancaires n'ont pas pu être chargées"}
@@ -76,7 +72,7 @@ function DashboardPage() {
           description={en ? "Your bank account will open when your application is fully approved." : "Votre compte bancaire sera ouvert dès la validation complète de votre dossier."}
         />
       ) : (
-        <div className="space-y-5 md:space-y-10">
+        <div className="space-y-6 sm:space-y-7 lg:space-y-10">
           <AccountBalanceCard
             account={account}
             isRefreshing={query.isFetching}
@@ -87,7 +83,7 @@ function DashboardPage() {
           {restriction && (
             <p
               role="status"
-              className="rounded-md border border-warning/40 bg-warning-muted p-4 text-sm text-warning"
+              className="rounded-xl border border-warning/40 bg-warning-muted p-3.5 text-sm leading-relaxed text-warning sm:p-4"
             >
               {restriction}
             </p>
@@ -95,42 +91,34 @@ function DashboardPage() {
 
           <ActionRequiredTransfers />
 
-           <section aria-labelledby="quick-actions-heading" className="space-y-4">
-            <h2 id="quick-actions-heading" className="text-heading-sm font-semibold text-foreground md:text-heading-md">
-              {en ? "Quick actions" : "Actions rapides"}
-            </h2>
+          <section aria-labelledby="quick-actions-heading" className="space-y-3.5 sm:space-y-4">
+            <div className="flex items-end justify-between gap-3">
+              <h2 id="quick-actions-heading" className="text-heading-sm font-semibold text-foreground md:text-heading-md">
+                {en ? "Quick actions" : "Actions rapides"}
+              </h2>
+            </div>
             <ul className="grid grid-cols-2 gap-2.5 sm:gap-3 md:gap-4 lg:grid-cols-4">
-              <QuickAction
-                to="/app/transfers"
-                label={en ? "Send money" : "Envoyer de l'argent"}
-                icon={Send}
-                disabled={!canTransact}
-              />
+              <QuickAction to="/app/transfers" label={en ? "Send money" : "Envoyer de l'argent"} icon={Send} disabled={!canTransact} />
               <QuickAction to="/app/accounts" label={en ? "My accounts" : "Mes comptes"} icon={Wallet} />
               <QuickAction to="/app/statements" label={en ? "Statements" : "Relevés"} icon={FileText} />
-              <QuickAction
-                to="/app/accounts/$accountRef"
-                params={{ accountRef: account.reference }}
-                label={en ? "Receive a payment" : "Recevoir un paiement"}
-                icon={ArrowDownToLine}
-              />
+              <QuickAction to="/app/accounts/$accountRef" params={{ accountRef: account.reference }} label={en ? "Receive a payment" : "Recevoir un paiement"} icon={ArrowDownToLine} />
             </ul>
           </section>
 
           {data?.monthlySummary && <MonthlySummaryCard summary={data.monthlySummary} />}
 
-          <section aria-labelledby="activity-heading" className="space-y-4">
-            <div className="flex items-baseline justify-between gap-3">
+          <section aria-labelledby="activity-heading" className="space-y-3.5 sm:space-y-4">
+            <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
               <h2 id="activity-heading" className="text-heading-sm font-semibold text-foreground md:text-heading-md">
                 {en ? "Recent activity" : "Activité récente"}
               </h2>
-              <Link to="/app/transactions" className="text-caption font-medium text-brand hover:underline">
+              <Link to="/app/transactions" className="shrink-0 text-caption font-medium text-brand hover:underline">
                 {en ? "Full history" : "Tout l'historique"}
               </Link>
             </div>
             <RecentActivityList items={data?.recentActivity ?? []} />
           </section>
-          
+
           <p className="mt-8 text-center text-caption text-muted-foreground md:text-left">
             <Link to="/" className="hover:text-foreground hover:underline transition-colors">
               {en ? "Visit the bank's public site" : "Voir le site public de la banque"}
@@ -157,21 +145,24 @@ function QuickAction({
 }) {
   const content = (
     <>
-      <div className={cn("size-9 flex items-center justify-center rounded-lg transition-colors", !disabled ? "bg-brand/5 text-brand" : "bg-muted/50 text-muted-foreground")}>
+      <div className={cn(
+        "flex size-10 shrink-0 items-center justify-center rounded-xl transition-colors sm:size-9",
+        !disabled ? "bg-brand/5 text-brand" : "bg-muted/50 text-muted-foreground",
+      )}>
         <Icon className="size-5" aria-hidden="true" />
       </div>
-      <div className="mt-3">
-        <span className="block font-semibold leading-tight tracking-tight">{label}</span>
-        {disabled && <span className="text-caption mt-1 block font-medium opacity-70">Indisponible</span>}
+      <div className="mt-3 min-w-0">
+        <span className="block break-words font-semibold leading-tight tracking-tight">{label}</span>
+        {disabled && <span className="mt-1 block text-caption font-medium opacity-70">Indisponible</span>}
       </div>
     </>
   );
 
   const baseClassName =
-     "native-surface flex h-full min-h-28 flex-col justify-between p-3 text-sm transition-all duration-200 sm:p-4";
+    "native-surface flex min-h-28 min-w-0 flex-col justify-between rounded-xl p-3 text-sm transition-all duration-200 sm:p-4";
 
   return (
-    <li>
+    <li className="min-w-0">
       {disabled ? (
         <span aria-disabled="true" className={cn(baseClassName, "text-muted-foreground opacity-60")}>
           {content}
@@ -180,7 +171,10 @@ function QuickAction({
         <Link
           to={to}
           {...(params ? { params } : {})}
-           className={cn(baseClassName, "press-feedback text-foreground hover:border-brand/30 hover:shadow-sm active:press-feedback-active active:scale-[0.98]")}
+          className={cn(
+            baseClassName,
+            "press-feedback text-foreground hover:border-brand/30 hover:shadow-sm active:press-feedback-active active:scale-[0.98]",
+          )}
         >
           {content}
         </Link>

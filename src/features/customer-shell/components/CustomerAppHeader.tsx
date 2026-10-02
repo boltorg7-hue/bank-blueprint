@@ -13,11 +13,6 @@ import { useCustomerSummary } from "@/features/customer-shell/hooks/useCustomerS
 import { contextTitleFor } from "@/features/customer-shell/lib/page-titles";
 import { useNotifications } from "@/features/notifications/hooks/useNotifications";
 
-/**
- * Authenticated header (§17 – §21). It shows page context, privacy control,
- * the notification entry point and the customer menu — never a duplicate of
- * the sidebar navigation, and never a fabricated unread badge.
- */
 export function CustomerAppHeader() {
   const { language } = useLanguage();
   const pathname = useRouterState({ select: (state) => state.location.pathname });
@@ -27,11 +22,11 @@ export function CustomerAppHeader() {
 
   return (
     <header className="safe-pt sticky top-0 z-30 border-b border-border bg-surface/95 backdrop-blur">
-      <div className="grid h-16 grid-cols-[minmax(0,1fr)_auto] items-center gap-2 px-4 sm:px-6">
-        <div className="flex min-w-0 items-center gap-3">
-          <BrandMark to="/app/dashboard" compact className="lg:hidden" />
+      <div className="mx-auto grid h-16 w-full max-w-screen-2xl grid-cols-[minmax(0,1fr)_auto] items-center gap-2 px-3 sm:px-6">
+        <div className="flex min-w-0 items-center gap-2.5 sm:gap-3">
+          <BrandMark to="/app/dashboard" compact className="lg:hidden shrink-0" />
           <div className="min-w-0">
-            <p className="truncate text-sm font-semibold text-foreground">
+            <p className="truncate text-sm font-semibold text-foreground sm:text-base">
               {contextTitleFor(pathname, language)}
             </p>
             <div className="hidden lg:block">
@@ -40,26 +35,31 @@ export function CustomerAppHeader() {
           </div>
         </div>
 
-        <div className="flex shrink-0 items-center gap-0.5 sm:gap-1">
-          <LanguageSwitch />
-          <PrivacyModeToggle className="touch-target" />
-          <ThemeToggle className="touch-target" />
+        <div className="flex min-w-0 shrink-0 items-center gap-0 sm:gap-1">
+          <div className="hidden sm:flex items-center gap-0.5">
+            <LanguageSwitch />
+            <PrivacyModeToggle className="touch-target" />
+            <ThemeToggle className="touch-target" />
+          </div>
+
           <Button variant="ghost" size="icon" className="touch-target relative" asChild>
             <Link
               to="/app/notifications"
               aria-label={
-                 unread && unread > 0 ? (language === "en" ? `Notifications, ${unread} unread` : `Notifications, ${unread} non lues`) : "Notifications"
+                unread && unread > 0
+                  ? language === "en"
+                    ? `Notifications, ${unread} unread`
+                    : `Notifications, ${unread} non lues`
+                  : "Notifications"
               }
             >
               <Bell className="size-5" aria-hidden="true" />
               {unread && unread > 0 ? (
-                <span
-                  aria-hidden="true"
-                  className="absolute right-2 top-2 size-2 rounded-full bg-danger"
-                />
+                <span aria-hidden="true" className="absolute right-2 top-2 size-2 rounded-full bg-danger" />
               ) : null}
             </Link>
           </Button>
+
           <CustomerMenu summary={summary} />
         </div>
       </div>
