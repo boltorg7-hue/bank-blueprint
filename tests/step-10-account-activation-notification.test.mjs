@@ -1,0 +1,12 @@
+import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+const sql=readFileSync("supabase/migrations/20261002130000_step10_account_activation_notification.sql","utf8");
+assert.match(sql,/service_activate_approved_customer/);
+assert.match(sql,/has_permission\(_actor_user_id,'accounts\.manage'\)/);
+assert.match(sql,/customer\.account_activated/);
+assert.match(sql,/emit_customer_notification\(/);
+assert.match(sql,/account\.activated:/);
+assert.match(sql,/Compte bancaire activé/);
+assert.match(sql,/\/app\/accounts/);
+assert.match(sql,/GRANT EXECUTE ON FUNCTION public\.service_activate_approved_customer/);
+console.log("Step 10 account activation notification certification: PASS");
