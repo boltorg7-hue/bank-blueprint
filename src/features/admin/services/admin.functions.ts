@@ -9,6 +9,7 @@ import type {
   StaffContextDto,
   AdminExternalTransferDto,
   AdminOnboardingCaseDto,
+  AdminAuditEventDto,
 } from "@/features/admin/types/admin";
 
 function searchInput(input: { search?: string } | undefined) {
@@ -192,3 +193,8 @@ export const setAccountStatus = createServerFn({ method: "POST" })
 
 export const listAdminExternalTransfers=createServerFn({method:"GET"}).middleware([requireSupabaseAuth]).handler(async({context}):Promise<AdminExternalTransferDto[]>=>{const s=await import("@/features/admin/services/admin.server");return s.loadExternalTransfers(context.supabase);});
 export const advanceAdminExternalTransfer=createServerFn({method:"POST"}).middleware([requireSupabaseAuth]).inputValidator((input:{reference:string;action:"APPROVE"|"QUEUE"|"FINALIZE"})=>{const reference=String(input?.reference??"");if(!/^TRF-\d{4}-\d{8}$/.test(reference)||!["APPROVE","QUEUE","FINALIZE"].includes(input?.action))throw new Error("INVALID_TRANSFER_ACTION");return {reference,action:input.action};}).handler(async({data,context})=>{const s=await import("@/features/admin/services/admin.server");await s.requireAdminPermission(context.supabase,data.action==="APPROVE"?"compliance.review":"transfers.approve");const rpc=data.action==="APPROVE"?"admin_approve_simulated_external":data.action==="QUEUE"?"admin_queue_simulated_external":"admin_finalize_simulated_external";const{error}=await context.supabase.rpc(rpc as any,{_reference:data.reference} as never);if(error)throw new Error(error.message.toLowerCase().includes("four-eyes")?"FOUR_EYES_REQUIRED":"TRANSFER_ACTION_FAILED");return{ok:true};});
+
+export const listAdminAuditEvents = createServerFn({ method: "POST" }).middleware([requireSupabaseAuth]).inputValidator(searchInput).handler(async ({ data, context }): Promise<AdminAuditEventDto[]> => {
+  const service = await import("@/features/admin/services/admin.server");
+  return service.loadAdminAuditEvents(context.supabase, data.search);
+});
