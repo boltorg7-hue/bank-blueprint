@@ -58,7 +58,7 @@ function ProfileStepPage() {
     });
 
     if (!parsed.success) {
-      setErrors(fieldErrorsFrom(parsed.error));
+      setErrors(fieldErrorsFrom(parsed.error, en ? "en" : "fr"));
       return;
     }
 
