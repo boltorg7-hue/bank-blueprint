@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { AdminCustomerOperationalDossier } from "@/features/admin/components/AdminCustomerOperationalDossier";
 import { CheckCircle2, CircleAlert, XCircle } from "lucide-react";
 import { useLanguage } from "@/components/providers/LanguageProvider";
 import { StatusBadge } from "@/components/ui/status-badge";
@@ -27,7 +28,9 @@ export function AdminAccountsTable({ accounts }: { accounts: AdminAccountDto[] }
   const [decision, setDecision] = useState<{ account: AdminAccountDto; status: "ACTIVE" | "FROZEN" } | null>(null);
   const [reason, setReason] = useState("");
   const [details, setDetails] = useState<AdminAccountDto | null>(null);
+  const [dossierCustomer, setDossierCustomer] = useState<import("@/features/admin/types/admin").AdminCustomerDto | null>(null);
   const history = useAdminAccountStatusHistory(details?.reference ?? null);
+  const openDossier = (account: AdminAccountDto) => setDossierCustomer({ id: account.holderId, reference: account.holderReference, fullName: account.holderName, email: null, phone: null, lifecycleState: "ACTIVE", accountCount: 1, createdAt: new Date().toISOString(), attentionCount: 0, attentionReasons: [], oldestAttentionAt: null });
   const reasonValid = reason.trim().length >= 8;
 
   async function confirmChange() {
@@ -76,7 +79,7 @@ export function AdminAccountsTable({ accounts }: { accounts: AdminAccountDto[] }
               <div><dt className="text-caption text-muted-foreground">{en ? "Available" : "Disponible"}</dt><dd className="text-numeric mt-1 text-sm font-semibold">{balance(account.availableBalanceMinor, account.currency, account.minorUnit)}</dd></div>
               <div><dt className="text-caption text-muted-foreground">{en ? "Reserved" : "Réservé"}</dt><dd className="text-numeric mt-1 text-sm">{balance(account.heldBalanceMinor, account.currency, account.minorUnit)}</dd></div>
             </dl>
-            <div className="flex flex-wrap gap-2"><Button size="sm" variant="ghost" onClick={() => setDetails(account)}>{en ? "View account" : "Voir le compte"}</Button>{actionFor(account)}</div>
+            <div className="flex flex-wrap gap-2"><Button size="sm" variant="ghost" onClick={() => setDetails(account)}>{en ? "View account" : "Voir le compte"}</Button><Button size="sm" variant="ghost" onClick={() => openDossier(account)}>{en ? "Open dossier" : "Ouvrir le dossier"}</Button>{actionFor(account)}</div>
           </li>
         ))}
       </ul>
@@ -101,7 +104,7 @@ export function AdminAccountsTable({ accounts }: { accounts: AdminAccountDto[] }
                 <TableCell>{balance(account.ledgerBalanceMinor, account.currency, account.minorUnit)}</TableCell>
                 <TableCell>{balance(account.availableBalanceMinor, account.currency, account.minorUnit)}</TableCell>
                 <TableCell>{balance(account.heldBalanceMinor, account.currency, account.minorUnit)}</TableCell>
-                <TableCell><div className="flex flex-wrap gap-2"><Button size="sm" variant="ghost" onClick={() => setDetails(account)}>{en ? "View" : "Voir"}</Button>{actionFor(account)}</div></TableCell>
+                <TableCell><div className="flex flex-wrap gap-2"><Button size="sm" variant="ghost" onClick={() => openDossier(account)}>{en ? "Dossier" : "Dossier"}</Button><Button size="sm" variant="ghost" onClick={() => setDetails(account)}>{en ? "View" : "Voir"}</Button>{actionFor(account)}</div></TableCell>
               </TableRow>
             ))}
           </TableBody>
@@ -175,6 +178,7 @@ export function AdminAccountsTable({ accounts }: { accounts: AdminAccountDto[] }
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      <AdminCustomerOperationalDossier customer={dossierCustomer} open={Boolean(dossierCustomer)} onOpenChange={(open) => { if (!open) setDossierCustomer(null); }} />
     </>
   );
 }
