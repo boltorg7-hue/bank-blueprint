@@ -54,7 +54,7 @@ export function useAdminOnboardingCases(search: string) {
   const { data: staff } = useAdminContext();
   return useQuery({
     queryKey: [...ADMIN_ONBOARDING_KEY, search],
-    queryFn: () => fn({ data: { search, cursor } }),
+    queryFn: () => fn({ data: { search } }),
     ...QUERY_POLICY.NORMAL,
     enabled: staff?.authorized === true && staff.permissions.includes("customers.read"),
   });
