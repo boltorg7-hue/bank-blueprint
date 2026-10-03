@@ -1,5 +1,5 @@
 import { useLanguage } from "@/components/providers/LanguageProvider";
-import { useState } from "react";
+import { memo, useState } from "react";
 import { toast } from "sonner";
 
 import { EmptyState, ErrorState, LoadingState } from "@/components/feedback";
@@ -47,7 +47,7 @@ export function SupportCenter() {
   </div>;
 }
 
-function CustomerThread({ thread }: { thread: SupportThreadDto }) {
+const CustomerThread = memo(function CustomerThread({ thread }: { thread: SupportThreadDto }) {
   const { language } = useLanguage();
   const en = language === "en";
   const reply = useReplySupportThread(); const [body,setBody] = useState(""); const closed = ["CLOSED","RESOLVED"].includes(thread.status);
