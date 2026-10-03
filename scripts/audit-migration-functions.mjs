@@ -33,7 +33,7 @@ function getEntry(name) {
 for (const file of migrationFiles) {
   const relative = path.relative(root, file).replaceAll(path.sep, "/");
   const sql = fs.readFileSync(file, "utf8");
-  const re = /CREATE\s+(?:OR\s+REPLACE\s+)?FUNCTION\s+([a-zA-Z0-9_]+\.)?([a-zA-Z0-9_]+)\s*\(([^)]*)\)[^;]*/gis;
+  const re = /CREATE\s+(?:OR\s+REPLACE\s+)?FUNCTION\s+([a-zA-Z0-9_]+\.)?([a-zA-Z0-9_]+)\s*\(([^)]*)\)[\s\S]*?\$\$[\s\S]*?\$\$/gi;
   for (const match of sql.matchAll(re)) {
     const entry = getEntry(match[2]);
     if (!entry.createdIn) entry.createdIn = relative;
@@ -41,7 +41,7 @@ for (const file of migrationFiles) {
     entry.signatures.add(match[3].replace(/\s+/g, " ").trim());
     entry.finalDefinition = match[0];
     entry.securityDefiner = /SECURITY\s+DEFINER/i.test(match[0]);
-    entry.searchPath = /search_path\s*=/i.test(match[0]);
+    entry.searchPath = /search_path\s*(?:=|TO)/i.test(match[0]);
   }
   for (const match of sql.matchAll(/GRANT\s+EXECUTE\s+ON\s+FUNCTION\s+[^.]+\.([a-zA-Z0-9_]+)/gi)) {
     getEntry(match[1]).grants.add(relative + ": " + match[0].replace(/\s+/g, " ").trim());
