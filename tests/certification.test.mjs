@@ -734,3 +734,23 @@ test("5.8.8.6 renforce la responsivité des overlays sur petits écrans", () => 
   assert.match(banking, /min-w-0 flex-1 overscroll-x-none/);
   assert.match(admin, /min-w-0 flex-1 overscroll-x-none/);
 });
+
+test("5.8.8.7 ne laisse pas de reliquats de debug ou de maintenance explicite", () => {
+  const feedback = read("src/components/feedback/index.tsx");
+  const state = read("src/components/feedback/StateBlock.tsx");
+  for (const source of [feedback, state]) assert.doesNotMatch(source, /\\\\n/);
+  for (const directory of ["src", "scripts", "supabase"]) {
+    const walk = (path) => {
+      for (const entry of readdirSync(new URL(`${path}/`, root), { withFileTypes: true })) {
+        const child = join(path, entry.name);
+        if (entry.isDirectory()) walk(child);
+        else if (/\.(?:ts|tsx|js|mjs|sql)$/.test(entry.name)) {
+          const source = read(child);
+          assert.doesNotMatch(source, /(^|\s)(TODO|FIXME|debugger)(\s|:|$)/);
+          assert.doesNotMatch(source, /console\.(log|debug|info|warn|error)\s*\(/);
+        }
+      }
+    };
+    walk(directory);
+  }
+});
