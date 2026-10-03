@@ -5,6 +5,7 @@ import { Link } from "@tanstack/react-router";
 import { EmptyState, ErrorState, LoadingState } from "@/components/feedback";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { useMarkAllRead, useNotifications, useUpdateNotification } from "@/features/notifications/hooks/useNotifications";
 import { formatDateTime } from "@/lib/format";
@@ -41,7 +42,7 @@ export function NotificationCenter() {
           </Button>
         ) : undefined}
       />
-      <div className="mb-4 flex flex-wrap gap-2" role="tablist">
+      <div className="action-row mb-4" role="tablist">
         {FILTERS.map((f) => (
           <Button key={f.key} size="sm" role="tab" aria-selected={filter === f.key} variant={filter === f.key ? "default" : "outline"} onClick={() => setFilter(f.key)}>
             {en ? ({ ALL: "All", ACCOUNT: "Accounts", TRANSFER: "Transactions", FUNDING: "Funding", PRICING: "Pricing" } as Record<string,string>)[f.key] : f.label}
@@ -53,7 +54,7 @@ export function NotificationCenter() {
       ) : (
         <div className="space-y-3">
           {items.map((n) => (
-            <article key={n.id} className={`rounded-xl border bg-surface p-4 ${n.readAt ? "" : "border-info/40"}`}>
+            <Card key={n.id} className={n.readAt ? "" : "border-info/40"}><CardContent className="p-4">
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <div className="flex flex-wrap items-center gap-2">
@@ -76,7 +77,7 @@ export function NotificationCenter() {
                   </Button>
                 ) : null}
               </div>
-            </article>
+            </CardContent></Card>
           ))}
         </div>
       )}
