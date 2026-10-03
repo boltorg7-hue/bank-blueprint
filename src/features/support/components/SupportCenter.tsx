@@ -57,3 +57,4 @@ const CustomerThread = memo(function CustomerThread({ thread }: { thread: Suppor
     {!closed && <div className="flex flex-col gap-2 sm:flex-row sm:items-end"><Textarea aria-label={en ? "Reply to customer support" : "Répondre au service client"} maxLength={4000} value={body} onChange={(event) => setBody(event.target.value)} /><Button className="w-full sm:w-auto" loading={reply.isPending} loadingLabel={en ? "Sending…" : "Envoi…"} onClick={() => void send()}>{(en ? "Reply" : "Répondre")}</Button></div>}
   </CardContent></Card>;
 }
+);
