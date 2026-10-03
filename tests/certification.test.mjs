@@ -79,3 +79,10 @@ test("la messagerie est uniquement client vers service client", () => {
   assert.match(migration, /has_permission\(auth\.uid\(\),'support\.reply'\)/);
   assert.doesNotMatch(migration, /recipient_user_id/);
 });
+
+test("les hooks React Query admin utilisent uniquement une politique centralisée", () => {
+  const adminHooks = read("src/features/admin/hooks/useAdmin.ts");
+  assert.doesNotMatch(adminHooks, /ADMIN_OPERATIONAL_STALE_MS/);
+  assert.doesNotMatch(adminHooks, /\bstaleTime\s*:/);
+  assert.match(adminHooks, /\.\.\.QUERY_POLICY\.REALTIME/);
+});
