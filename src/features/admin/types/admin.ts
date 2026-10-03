@@ -45,6 +45,7 @@ export type AdminCustomerDto = {
   createdAt: string;
   attentionCount: number;
   attentionReasons: string[];
+  oldestAttentionAt: string | null;
 };
 
 export type AdminOnboardingDocumentDto = {
