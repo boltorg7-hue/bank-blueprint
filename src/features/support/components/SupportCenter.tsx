@@ -18,7 +18,9 @@ const categoryLabels: Record<SupportCategory, string> = { ACCOUNT: "Compte", TRA
 export function SupportCenter() {
   const { language } = useLanguage();
   const en = language === "en";
-  const query = useCustomerSupport();
+  const [cursor, setCursor] = useState<string | null>(null);
+  const [history, setHistory] = useState<string[]>([]);
+  const query = useCustomerSupport(cursor);
   const create = useCreateSupportThread();
   const [subject, setSubject] = useState("");
   const [category, setCategory] = useState<SupportCategory>("ACCOUNT");
@@ -37,7 +39,10 @@ export function SupportCenter() {
       <div className="grid gap-2"><Label htmlFor="support-body">Message</Label><Textarea id="support-body" rows={5} maxLength={4000} value={body} onChange={(event) => setBody(event.target.value)} placeholder={en ? "Never share your password, PIN or verification code." : "Ne communiquez jamais votre mot de passe, code PIN ou code de vérification."} /></div>
       <Button className="w-fit" disabled={create.isPending} onClick={() => void submit()}>{create.isPending ? (en ? "Sending…" : "Envoi…") : (en ? "Send to support" : "Envoyer au service client")}</Button>
     </CardContent></Card>
-    {query.isPending ? <LoadingState /> : query.isError ? <ErrorState onRetry={() => query.refetch()} /> : !query.data?.length ? <EmptyState title={en ? "No requests" : "Aucune demande"} description={en ? "Your support conversations will appear here." : "Vos échanges avec le service client apparaîtront ici."} /> : query.data.map((thread) => <CustomerThread key={thread.id} thread={thread} />)}
+    {query.isPending ? <LoadingState /> : query.isError ? <ErrorState onRetry={() => query.refetch()} /> : !query.data?.items.length ? <EmptyState title={en ? "No requests" : "Aucune demande"} description={en ? "Your support conversations will appear here." : "Vos échanges avec le service client apparaîtront ici."} /> : <>
+      {query.data.items.map((thread) => <CustomerThread key={thread.id} thread={thread} />)}
+      {(history.length > 0 || query.data.hasNext) ? <div className="flex justify-end gap-2"><Button variant="outline" disabled={!history.length || query.isFetching} onClick={() => setHistory((items) => { const next = [...items]; setCursor(next.pop() || null); return next; })}>{en ? "Previous" : "Précédent"}</Button><Button variant="outline" disabled={!query.data.hasNext || query.isFetching} onClick={() => { if (!query.data.nextCursor) return; setHistory((items) => [...items, cursor ?? ""]); setCursor(query.data.nextCursor); }}>{en ? "Next" : "Suivant"}</Button></div> : null}
+    </>}
   </div>;
 }
 
