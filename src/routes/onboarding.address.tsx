@@ -40,6 +40,7 @@ function AddressStepPage() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [formError, setFormError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
+  const [dirty, setDirty] = useState(false);
   const [country, setCountry] = useState<string | null>(null);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -65,6 +66,7 @@ function AddressStepPage() {
     try {
       await save({ data: parsed.data });
       await invalidate();
+      setDirty(false);
       await navigate({ to: "/onboarding/documents" });
     } catch {
       setFormError((en ? "We could not save your address. Please try again." : "Nous n'avons pas pu enregistrer votre adresse. Réessayez."));
@@ -92,9 +94,10 @@ function AddressStepPage() {
       stepId="address"
       title={en ? "Your residential address" : "Votre adresse de résidence"}
       description={en ? "Enter the address where you usually live. Optional fields may be left blank if not used in your country." : "Renseignez l'adresse où vous résidez habituellement. Les champs facultatifs peuvent rester vides si votre pays ne les utilise pas."}
+      hasUnsavedChanges={dirty}
       why={en ? "Your address determines available services and must match your proof of address." : "Votre adresse détermine les services disponibles et doit correspondre à votre justificatif de domicile."}
     >
-      <form onSubmit={handleSubmit} noValidate className="space-y-5">
+      <form onSubmit={handleSubmit} onChange={() => setDirty(true)} noValidate className="space-y-5">
         <ChoiceField id="address-country" name="country" label={en ? "Country" : "Pays"} options={COUNTRIES} en={en} defaultValue={address?.country ?? context.profile.country_of_residence ?? "Trinidad and Tobago"} error={errors["country"]} onChange={setCountry} />
         <Field name="addressLine1" label={en ? "Address" : "Adresse"} autoComplete="address-line1" defaultValue={address?.address_line1} error={errors["addressLine1"]} />
         <Field name="addressLine2" label={en ? "Address line 2 (optional)" : "Complément d'adresse (optionnel)"} autoComplete="address-line2" defaultValue={address?.address_line2} error={errors["addressLine2"]} />

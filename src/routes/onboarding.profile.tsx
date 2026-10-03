@@ -40,6 +40,7 @@ function ProfileStepPage() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [formError, setFormError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
+  const [dirty, setDirty] = useState(false);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -66,6 +67,7 @@ function ProfileStepPage() {
     try {
       await save({ data: parsed.data });
       await invalidate();
+      setDirty(false);
       await navigate({ to: "/verify-contact" });
     } catch {
       setFormError((en ? "We could not save your details. Please try again." : "Nous n'avons pas pu enregistrer vos informations. Réessayez."));
@@ -92,9 +94,10 @@ function ProfileStepPage() {
       stepId="profile"
       title={en ? "Your personal information" : "Vos informations personnelles"}
       description={en ? "This information appears on your application and must match your identity document." : "Ces informations figurent sur votre dossier bancaire et doivent correspondre à votre pièce d'identité."}
+      hasUnsavedChanges={dirty}
       why={en ? "Banking regulations require us to verify the identity of every account holder." : "La réglementation bancaire nous impose de connaître l'identité de chaque titulaire de compte."}
     >
-      <form onSubmit={handleSubmit} noValidate className="space-y-5">
+      <form onSubmit={handleSubmit} onChange={() => setDirty(true)} noValidate className="space-y-5">
         <Field name="firstName" label={en ? "First name" : "Prénom"} autoComplete="given-name" defaultValue={profile.first_name} error={errors["firstName"]} />
         <Field name="middleName" label={en ? "Middle name (optional)" : "Deuxième prénom (optionnel)"} autoComplete="additional-name" defaultValue={profile.middle_name} error={errors["middleName"]} />
         <Field name="lastName" label={en ? "Last name" : "Nom"} autoComplete="family-name" defaultValue={profile.last_name} error={errors["lastName"]} />

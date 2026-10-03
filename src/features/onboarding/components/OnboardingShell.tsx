@@ -1,4 +1,5 @@
 import { useLanguage } from "@/components/providers/LanguageProvider";
+import { useEffect } from "react";
 import type { ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 
@@ -23,9 +24,21 @@ export function OnboardingShell({
   description?: string;
   why?: string;
   children: ReactNode;
+  hasUnsavedChanges?: boolean;
 }) {
   const { language } = useLanguage();
   const en = language === "en";
+
+  useEffect(() => {
+    if (!hasUnsavedChanges) return;
+    const handler = (event: BeforeUnloadEvent) => { event.preventDefault(); event.returnValue = ""; };
+    window.addEventListener("beforeunload", handler);
+    return () => window.removeEventListener("beforeunload", handler);
+  }, [hasUnsavedChanges]);
+  const confirmExit = (event: React.MouseEvent<HTMLAnchorElement>) => {
+    if (!hasUnsavedChanges) return;
+    if (!window.confirm(en ? "You have unsaved changes. Leave this step?" : "Vous avez des modifications non enregistrées. Quitter cette étape ?")) event.preventDefault();
+  };
   const index = ONBOARDING_FLOW.findIndex((step) => step.id === stepId);
   const progress =
     index >= 0 ? Math.round(((index + 1) / ONBOARDING_FLOW.length) * 100) : 0;
@@ -127,8 +140,8 @@ export function OnboardingShell({
 
       <p className="text-caption mt-10 text-muted-foreground">
         {en
-          ? "You can stop at any time: your progress is saved."
-          : "Vous pouvez interrompre à tout moment : votre progression est conservée."}{" "}
+          ? "Your saved steps stay available if you leave and come back later."
+          : "Vos étapes enregistrées restent disponibles si vous quittez puis revenez plus tard."}{" "}
         <Link
           to="/onboarding"
           className="text-brand underline-offset-4 hover:underline"

@@ -60,6 +60,7 @@ export function DocumentUploader({
   const [error, setError] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [pendingRemoval, setPendingRemoval] = useState<string | null>(null);
+  const [uploadSuccess, setUploadSuccess] = useState<string | null>(null);
   const idDone = hasIdentityDocument(context);
   const proofDone = hasProofOfAddress(context);
   const allDone = idDone && proofDone;
@@ -72,6 +73,7 @@ export function DocumentUploader({
 
   async function handleFile(file: File) {
     setError(null);
+    setUploadSuccess(null);
 
     if (!(ALLOWED_DOCUMENT_MIME_TYPES as readonly string[]).includes(file.type)) {
       setError((en ? "Accepted formats: JPEG, PNG, HEIC, WEBP or PDF." : "Formats acceptés : JPEG, PNG, HEIC, WEBP ou PDF."));
@@ -115,6 +117,7 @@ export function DocumentUploader({
         },
       });
       await invalidate();
+      setUploadSuccess(en ? "Document saved successfully." : "Document enregistré avec succès.");
     } catch {
       await supabase.storage.from("identity-documents").remove([storagePath]);
       setError((en ? "We could not save this document. Please try again." : "Nous n'avons pas pu enregistrer ce document. Réessayez."));
@@ -214,7 +217,11 @@ export function DocumentUploader({
             <p role="alert" className="text-caption text-destructive">
               {error}
             </p>
-          ) : null}
+          ) : null} : uploadSuccess ? (
+            <p role="status" className="text-body-sm rounded-xl border border-success/40 bg-success-muted px-3 py-2 text-foreground">
+              {uploadSuccess}
+            </p>
+          ) : null
         </div>
       ) : null}
 
@@ -234,10 +241,14 @@ export function DocumentUploader({
                   <p className="text-body-sm text-foreground">
                     {en ? DOCUMENT_TYPE_LABELS_EN[document.document_type] : DOCUMENT_TYPE_LABELS[document.document_type]}
                   </p>
-                  <p className="text-caption truncate text-muted-foreground">
-                    {document.original_filename ?? "Document"} ·{" "}
+                  <p className="text-caption truncate text-muted-foreground">{document.original_filename ?? "Document"}</p>
+                  <span className={`mt-1 inline-flex min-h-7 items-center rounded-full px-2.5 text-caption font-medium ${
+                    document.status === "ACCEPTED" ? "bg-success-muted text-success" :
+                    document.status === "ACTION_REQUIRED" || document.status === "REJECTED" || document.status === "EXPIRED" ? "bg-warning-muted text-warning" :
+                    "bg-muted text-muted-foreground"
+                  }`}>
                     {en ? document.status.replaceAll("_", " ").toLowerCase() : DOCUMENT_STATUS_LABELS[document.status]}
-                  </p>
+                  </span>
                   {document.rejection_reason ? (
                     <p className="text-caption mt-1 text-destructive">{document.rejection_reason}</p>
                   ) : null}
