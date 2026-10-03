@@ -35,6 +35,10 @@ export function OnboardingShell({
     window.addEventListener("beforeunload", handler);
     return () => window.removeEventListener("beforeunload", handler);
   }, [hasUnsavedChanges]);
+  const confirmExit = (event: React.MouseEvent<HTMLAnchorElement>) => {
+    if (!hasUnsavedChanges) return;
+    if (!window.confirm(en ? "You have unsaved changes. Leave this step?" : "Vous avez des modifications non enregistrées. Quitter cette étape ?")) event.preventDefault();
+  };
   const index = ONBOARDING_FLOW.findIndex((step) => step.id === stepId);
   const progress =
     index >= 0 ? Math.round(((index + 1) / ONBOARDING_FLOW.length) * 100) : 0;
