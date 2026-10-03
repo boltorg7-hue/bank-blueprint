@@ -574,7 +574,7 @@ export async function loadAdminCustomerDossier(
   const fullName = [profile.first_name, profile.middle_name, profile.last_name].filter(Boolean).join(" ") || "Client sans nom";
   const [kycResult, documentsResult, accountsResult, notificationsResult, supportResult, transferResult] = await Promise.all([
     admin.from("identity_verifications").select("status,submitted_at,decided_at").eq("user_id", customerId).order("submitted_at", { ascending: false }).limit(1),
-    admin.from("verification_documents").select("document_type,status,created_at").eq("user_id", customerId).order("created_at", { ascending: false }).limit(30),
+    admin.from("verification_documents").select("document_type,status,created_at").eq("user_id", customerId).order("created_at", { ascending: false }).limit(12),
     admin.from("bank_accounts").select("public_reference,display_name,currency,currency_minor_unit,status,account_number,id").eq("user_id", customerId).order("created_at", { ascending: true }),
     admin.from("notifications").select("title,severity,read_at,created_at").eq("user_id", customerId).is("archived_at", null).order("created_at", { ascending: false }).limit(20),
     admin.from("support_threads").select("public_reference,subject,category,status,last_message_at").eq("customer_user_id", customerId).order("last_message_at", { ascending: false }).limit(20),
@@ -587,9 +587,9 @@ export async function loadAdminCustomerDossier(
   const accountRefs = accounts.map((a: any) => String(a.public_reference));
   const [{ data: balances }, { data: funding }, { data: transactions }, { data: statusHistory }] = await Promise.all([
     accountIds.length ? admin.from("account_balances").select("account_id,ledger_balance_minor,available_balance_minor,held_balance_minor").in("account_id", accountIds) : Promise.resolve({ data: [] as any[] }),
-    accountIds.length ? admin.from("funding_requests").select("id,account_id,amount_minor,currency,reason,status,created_at").in("account_id", accountIds).order("created_at", { ascending: false }).limit(20) : Promise.resolve({ data: [] as any[] }),
-    accountRefs.length ? admin.from("customer_account_activity").select("reference,account_reference,transaction_type,direction,amount_minor,currency,minor_unit,display_description,counterparty_display,status,occurred_at").in("account_reference", accountRefs).order("occurred_at", { ascending: false }).limit(20) : Promise.resolve({ data: [] as any[] }),
-    accountIds.length ? admin.from("account_status_history").select("id,account_id,previous_status,new_status,reason_category,internal_note,changed_by,created_at").in("account_id", accountIds).order("created_at", { ascending: false }).limit(100) : Promise.resolve({ data: [] as any[] }),
+    accountIds.length ? admin.from("funding_requests").select("id,account_id,amount_minor,currency,reason,status,created_at").in("account_id", accountIds).order("created_at", { ascending: false }).limit(10) : Promise.resolve({ data: [] as any[] }),
+    accountRefs.length ? admin.from("customer_account_activity").select("reference,account_reference,transaction_type,direction,amount_minor,currency,minor_unit,display_description,counterparty_display,status,occurred_at").in("account_reference", accountRefs).order("occurred_at", { ascending: false }).limit(10) : Promise.resolve({ data: [] as any[] }),
+    accountIds.length ? admin.from("account_status_history").select("id,account_id,previous_status,new_status,reason_category,internal_note,changed_by,created_at").in("account_id", accountIds).order("created_at", { ascending: false }).limit(20) : Promise.resolve({ data: [] as any[] }),
   ]);
 
   const balanceByAccount = new Map((balances ?? []).map((row: any) => [String(row.account_id), row]));
@@ -619,7 +619,7 @@ export async function loadAdminCustomerDossier(
   if (auditAllowed) {
     const auditRefs = [reference, ...accountRefs];
     const auditResult = auditRefs.length
-      ? await admin.from("admin_audit_events").select("id,actor_user_id,action,resource_type,resource_reference,permission_checked,result,context,created_at").in("resource_reference", auditRefs).order("created_at", { ascending: false }).limit(50)
+      ? await admin.from("admin_audit_events").select("id,actor_user_id,action,resource_type,resource_reference,permission_checked,result,context,created_at").in("resource_reference", auditRefs).order("created_at", { ascending: false }).limit(20)
       : { data: [] as any[] };
     const actorIds = [...new Set((auditResult.data ?? []).map((row: any) => String(row.actor_user_id)).filter(Boolean))];
     const { data: auditActors } = actorIds.length
