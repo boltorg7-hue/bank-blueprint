@@ -31,31 +31,17 @@ function AdminCustomersPage() {
     return () => window.clearTimeout(timer);
   }, [search]);
 
-  const query = useAdminCustomers(debouncedSearch, page);
+  const query = useAdminCustomers(debouncedSearch, page, lifecycle, accounts, attention);
   const customers = useMemo(() => {
-    const rows = query.data ?? [];
-    return rows
-      .filter((customer) => {
-        const lifecycleMatches = lifecycle === "ALL" || customer.lifecycleState === lifecycle;
-        const accountMatches =
-          accounts === "ALL" ||
-          (accounts === "WITH_ACCOUNTS" && customer.accountCount > 0) ||
-          (accounts === "WITHOUT_ACCOUNTS" && customer.accountCount === 0);
-        const attentionMatches =
-          attention === "ALL" ||
-          (attention === "NEEDS_ATTENTION" && customer.attentionCount > 0) ||
-          (attention === "CLEAR" && customer.attentionCount === 0);
-        return lifecycleMatches && accountMatches && attentionMatches;
-      })
-      .sort((a, b) => {
-        const countDelta = b.attentionCount - a.attentionCount;
-        if (countDelta !== 0) return countDelta;
-        if (a.oldestAttentionAt && b.oldestAttentionAt) return Date.parse(a.oldestAttentionAt) - Date.parse(b.oldestAttentionAt);
-        if (a.oldestAttentionAt) return -1;
-        if (b.oldestAttentionAt) return 1;
-        return Date.parse(b.createdAt) - Date.parse(a.createdAt);
-      });
-  }, [accounts, attention, lifecycle, query.data]);
+    return [...(query.data?.items ?? [])].sort((a, b) => {
+      const countDelta = b.attentionCount - a.attentionCount;
+      if (countDelta !== 0) return countDelta;
+      if (a.oldestAttentionAt && b.oldestAttentionAt) return Date.parse(a.oldestAttentionAt) - Date.parse(b.oldestAttentionAt);
+      if (a.oldestAttentionAt) return -1;
+      if (b.oldestAttentionAt) return 1;
+      return Date.parse(b.createdAt) - Date.parse(a.createdAt);
+    });
+  }, [query.data]);
 
   const hasFilters = Boolean(search.trim()) || lifecycle !== "ALL" || accounts !== "ALL" || attention !== "ALL";
   useEffect(() => { setPage(1); }, [debouncedSearch, lifecycle, accounts, attention]);
@@ -109,9 +95,9 @@ function AdminCustomersPage() {
     <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border pb-3">
       <p className="text-sm text-muted-foreground">
         {customers.length} {en ? (customers.length === 1 ? "customer" : "customers") : (customers.length === 1 ? "client" : "clients")}
-        {hasFilters && query.data ? `${query.data.length} ${en ? "loaded" : "chargés"}` : ""}
+        {hasFilters && query.data ? `${query.data.items.length} ${en ? "loaded" : "chargés"}` : ""}
       </p>
-      <div className="flex items-center gap-2">{page > 1 ? <Button type="button" variant="outline" onClick={() => setPage((value) => value - 1)}>{en ? "Previous" : "Précédent"}</Button> : null}<Button type="button" variant="outline" disabled={(query.data ?? []).length < 50} onClick={() => setPage((value) => value + 1)}>{en ? "Next" : "Suivant"}</Button>{hasFilters ? <Button type="button" variant="ghost" onClick={clearFilters}>{en ? "Clear filters" : "Réinitialiser les filtres"}</Button> : null}</div>
+      <div className="flex items-center gap-2">{page > 1 ? <Button type="button" variant="outline" onClick={() => setPage((value) => value - 1)}>{en ? "Previous" : "Précédent"}</Button> : null}<Button type="button" variant="outline" disabled={!query.data?.hasNext} onClick={() => setPage((value) => value + 1)}>{en ? "Next" : "Suivant"}</Button>{hasFilters ? <Button type="button" variant="ghost" onClick={clearFilters}>{en ? "Clear filters" : "Réinitialiser les filtres"}</Button> : null}</div>
     </div>
     {query.isPending ? <LoadingState /> : query.isError ? <ErrorState onRetry={() => query.refetch()} /> : !customers.length ? <EmptyState title={en ? (hasFilters ? "No customer matches these filters" : "No customers found") : (hasFilters ? "Aucun client ne correspond à ces filtres" : "Aucun client trouvé")} /> : <AdminCustomersTable customers={customers} />}
   </PageSection></AdminGate>;
