@@ -40,7 +40,9 @@ export function NetworkStatusBanner() {
         size="sm"
         variant="outline"
         onClick={() => {
-          if (window.navigator.onLine) void queryClient.refetchQueries();
+          if (window.navigator.onLine) {
+            void queryClient.refetchQueries({ type: "active" });
+          }
         }}
       >
         Réessayer
