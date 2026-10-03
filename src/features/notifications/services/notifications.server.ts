@@ -67,6 +67,11 @@ type NotificationCursor={createdAt:string;id:string};
 function encodeNotificationCursor(v:NotificationCursor){return Buffer.from(JSON.stringify(v),"utf8").toString("base64url");}
 function decodeNotificationCursor(v?:string|null):NotificationCursor|null{if(!v)return null;try{const p=JSON.parse(Buffer.from(v,"base64url").toString("utf8"));return typeof p?.createdAt==="string"&&typeof p?.id==="string"?{createdAt:p.createdAt,id:p.id}:null;}catch{return null;}}
 
+const NOTIFICATION_PAGE_SIZE = 25;
+type NotificationCursor={createdAt:string;id:string};
+function encodeNotificationCursor(v:NotificationCursor){return Buffer.from(JSON.stringify(v),"utf8").toString("base64url");}
+function decodeNotificationCursor(v?:string|null):NotificationCursor|null{if(!v)return null;try{const p=JSON.parse(Buffer.from(v,"base64url").toString("utf8"));return typeof p?.createdAt==="string"&&typeof p?.id==="string"?{createdAt:p.createdAt,id:p.id}:null;}catch{return null;}}
+
 export async function loadNotifications(client: Client,userId:string,options:{category?:string;cursor?:string|null}={}): Promise<NotificationCenterDto> {
   const allowed=["ALL","ACCOUNT","TRANSFER","FUNDING","PRICING","SECURITY","SERVICE"];
   const category=allowed.includes(options.category ?? "ALL") ? options.category ?? "ALL" : "ALL";
