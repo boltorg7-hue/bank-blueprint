@@ -288,6 +288,29 @@ test("les primitives de dialogue conservent une fermeture tactile de 44px minimu
   }
 });
 
+test("la navigation secondaire garde Plus actif sans voler l’état aux parcours primaires", () => {
+  const navigation = read("src/config/navigation.ts");
+  const bottomNav = read("src/components/navigation/CustomerBottomNav.tsx");
+  const more = read("src/routes/app.more.tsx");
+
+  assert.match(navigation, /export function isCustomerMoreRoute/);
+  for (const route of [
+    "/app/more",
+    "/app/beneficiaries",
+    "/app/statements",
+    "/app/documents",
+    "/app/messages",
+    "/app/notifications",
+    "/app/profile",
+    "/app/security",
+    "/app/settings",
+  ]) {
+    assert.match(navigation, new RegExp('"' + route.replace(/[.*+?^$()|[\]\\]/g, "\\test("la navigation mobile client reste limitée à cinq destinations primaires", () => {") + '"'));
+  }
+  assert.match(bottomNav, /isCustomerMoreRoute\(pathname\)/);
+  assert.match(more, /aria-current=\{pathname === item\.to \|\| pathname\.startsWith\(item\.to \+ "\/"\) \? "page" : undefined\}/);
+});
+
 test("la navigation mobile client reste limitée à cinq destinations primaires", () => {
   const navigation = read("src/config/navigation.ts");
   const match = navigation.match(/export const CUSTOMER_PRIMARY_NAV[\s\S]*?\];/);
