@@ -1,5 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { NotificationCenterDto } from "@/features/notifications/types/notification";
+import type { NotificationCenterDto } from "@/domain/notifications/types";
 
 type Client=SupabaseClient<any,any,any>;
 
