@@ -1,6 +1,6 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 
-import { CUSTOMER_PRIMARY_NAV } from "@/config/navigation";
+import { CUSTOMER_PRIMARY_NAV, isCustomerMoreRoute } from "@/config/navigation";
 import { englishNavLabel } from "@/components/navigation/CustomerSidebar";
 import { useLanguage } from "@/components/providers/LanguageProvider";
 import { cn } from "@/lib/utils";
@@ -37,7 +37,7 @@ export function CustomerBottomNav() {
 
           const selected =
             pathname === item.to ||
-            (item.to === "/app/more" && pathname.startsWith("/app/more")) ||
+            (item.to === "/app/more" && isCustomerMoreRoute(pathname)) ||
             (item.to === "/app/transfers/new" && pathname.startsWith("/app/transfers")) ||
             (item.to === "/app/accounts" && pathname.startsWith("/app/accounts")) ||
             (item.to === "/app/activity" &&
