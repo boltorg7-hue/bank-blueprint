@@ -10,7 +10,7 @@ import type {
   AdminOnboardingCaseDto,
   AdminActionResult,
   AdminCustomerPageDto,
-  AdminAccountPageDto,
+  AdminAccountPageDto,\n  FundingRequestPageDto,\n  AdminAuditEventPageDto,\n  AdminExternalTransferPageDto,
 } from "@/features/admin/types/admin";
 import type { CustomerLifecycleState } from "@/types/customer-lifecycle";
 
@@ -590,72 +590,55 @@ export async function loadAdminAccounts(
   });
 }
 
-export async function loadAdminAuditEvents(client: Client, search = ""): Promise<AdminAuditEventDto[]> {
+export async function loadAdminAuditEvents(client: Client, search = "", cursor: string | null = null): Promise<AdminAuditEventPageDto> {
   await requireAdminPermission(client, "audit.read");
   const admin = await adminClient();
   const term = search.trim().replace(/[%,_()]/g, "").slice(0, 80);
-  let query = admin.from("admin_audit_events").select("id, actor_user_id, action, resource_type, resource_reference, permission_checked, result, context, created_at").order("created_at", { ascending: false }).limit(100);
+  const cursorValue = decodeAdminCursor(cursor);
+  let query = admin.from("admin_audit_events").select("id, actor_user_id, action, resource_type, resource_reference, permission_checked, result, context, created_at").order("created_at", { ascending: false }).order("id", { ascending: false });
   if (term) query = query.or(`action.ilike.%${term}%,resource_type.ilike.%${term}%,resource_reference.ilike.%${term}%,permission_checked.ilike.%${term}%`);
-  const { data, error } = await query;
+  if (cursorValue) query = query.or(`created_at.lt.${cursorValue.createdAt},and(created_at.eq.${cursorValue.createdAt},id.lt.${cursorValue.id})`);
+  const { data, error } = await query.limit(ADMIN_PAGE_SIZE + 1);
   if (error) throw new AdminAccessError("AUDIT_UNAVAILABLE");
-  const actorIds = [...new Set((data ?? []).map((row: any) => String(row.actor_user_id)))];
+  const rawRows = data ?? [], hasNext = rawRows.length > ADMIN_PAGE_SIZE, rows = rawRows.slice(0, ADMIN_PAGE_SIZE);
+  const actorIds = [...new Set(rows.map((row: any) => String(row.actor_user_id)))];
   const { data: staff } = actorIds.length ? await admin.from("staff_profiles").select("user_id,display_name,public_reference").in("user_id", actorIds) : { data: [] as any[] };
   const staffById = new Map((staff ?? []).map((row: any) => [String(row.user_id), row]));
-  return (data ?? []).map((row: any) => {
-    const actor = staffById.get(String(row.actor_user_id));
-    return { id: String(row.id), actorName: actor?.display_name ?? "Staff indisponible", actorReference: actor?.public_reference ? String(actor.public_reference) : null, action: String(row.action), resourceType: row.resource_type ? String(row.resource_type) : null, resourceReference: row.resource_reference ? String(row.resource_reference) : null, permissionChecked: row.permission_checked ? String(row.permission_checked) : null, result: row.result === "DENIED" ? "DENIED" : "ALLOWED", context: row.context && typeof row.context === "object" && !Array.isArray(row.context) ? row.context : {}, createdAt: String(row.created_at) };
-  });
+  const items = rows.map((row: any) => { const actor = staffById.get(String(row.actor_user_id)); return { id: String(row.id), actorName: actor?.display_name ?? "Staff indisponible", actorReference: actor?.public_reference ? String(actor.public_reference) : null, action: String(row.action), resourceType: row.resource_type ? String(row.resource_type) : null, resourceReference: row.resource_reference ? String(row.resource_reference) : null, permissionChecked: row.permission_checked ? String(row.permission_checked) : null, result: row.result === "DENIED" ? "DENIED" : "ALLOWED", context: row.context && typeof row.context === "object" && !Array.isArray(row.context) ? row.context : {}, createdAt: String(row.created_at) }; });
+  const last = rows[rows.length - 1];
+  return { items, hasNext, nextCursor: hasNext && last ? encodeAdminCursor({ createdAt: String(last.created_at), id: String(last.id) }) : null };
 }
 
-export async function loadFundingRequests(client: Client): Promise<FundingRequestDto[]> {
+export async function loadFundingRequests(client: Client, cursor: string | null = null): Promise<FundingRequestPageDto> {
   const staff = await requireAdminPermission(client);
   const canRead = staff.permissions.includes("finance.adjustment.create") || staff.permissions.includes("finance.adjustment.approve");
   if (!canRead) throw new AdminAccessError("ADMIN_FORBIDDEN");
   const admin = await adminClient();
-  const { data, error } = await admin
-    .from("funding_requests")
-    .select("id, account_id, amount_minor, currency, reason, status, maker_user_id, checker_user_id, created_at, decision_at")
-    .order("created_at", { ascending: false })
-    .limit(100);
+  const cursorValue = decodeAdminCursor(cursor);
+  let query = admin.from("funding_requests").select("id, account_id, amount_minor, currency, reason, status, maker_user_id, checker_user_id, created_at, decision_at").order("created_at", { ascending: false }).order("id", { ascending: false });
+  if (cursorValue) query = query.or(`created_at.lt.${cursorValue.createdAt},and(created_at.eq.${cursorValue.createdAt},id.lt.${cursorValue.id})`);
+  const { data, error } = await query.limit(ADMIN_PAGE_SIZE + 1);
   if (error) throw new AdminAccessError("FUNDING_UNAVAILABLE");
-  const rows = data ?? [];
+  const rawRows = data ?? [];
+  const hasNext = rawRows.length > ADMIN_PAGE_SIZE;
+  const rows = rawRows.slice(0, ADMIN_PAGE_SIZE);
   const accountIds = [...new Set(rows.map((row: any) => String(row.account_id)))];
   const staffIds = [...new Set(rows.flatMap((row: any) => [row.maker_user_id, row.checker_user_id]).filter(Boolean).map(String))];
   const [{ data: accounts }, { data: staffProfiles }] = await Promise.all([
-    accountIds.length
-      ? admin.from("bank_accounts").select("id, user_id, public_reference").in("id", accountIds)
-      : Promise.resolve({ data: [] as any[] }),
-    staffIds.length
-      ? admin.from("staff_profiles").select("user_id, display_name").in("user_id", staffIds)
-      : Promise.resolve({ data: [] as any[] }),
+    accountIds.length ? admin.from("bank_accounts").select("id, user_id, public_reference").in("id", accountIds) : Promise.resolve({ data: [] as any[] }),
+    staffIds.length ? admin.from("staff_profiles").select("user_id, display_name").in("user_id", staffIds) : Promise.resolve({ data: [] as any[] }),
   ]);
   const accountById = new Map((accounts ?? []).map((row: any) => [row.id, row]));
   const names = new Map((staffProfiles ?? []).map((row: any) => [row.user_id, row.display_name]));
   const customerIds = [...new Set((accounts ?? []).map((row: any) => String(row.user_id)))];
-  const { data: customers } = customerIds.length
-    ? await admin.from("profiles").select("id, first_name, middle_name, last_name").in("id", customerIds)
-    : { data: [] as any[] };
-  const customerNames = new Map((customers ?? []).map((row: any) => [
-    row.id,
-    [row.first_name, row.middle_name, row.last_name].filter(Boolean).join(" ") || "Client sans nom",
-  ]));
-  return rows.map((row: any) => {
+  const { data: customers } = customerIds.length ? await admin.from("profiles").select("id, first_name, middle_name, last_name").in("id", customerIds) : { data: [] as any[] };
+  const customerNames = new Map((customers ?? []).map((row: any) => [row.id, [row.first_name, row.middle_name, row.last_name].filter(Boolean).join(" ") || "Client sans nom"]));
+  const items = rows.map((row: any) => {
     const account: any = accountById.get(row.account_id);
-    return {
-      id: row.id,
-      accountReference: account?.public_reference ?? "—",
-      holderName: account ? customerNames.get(account.user_id) ?? "Client indisponible" : "Client indisponible",
-      amountMinor: Number(row.amount_minor),
-      currency: row.currency,
-      reason: row.reason,
-      status: row.status,
-      makerName: names.get(row.maker_user_id) ?? "Opérateur",
-      checkerName: row.checker_user_id ? names.get(row.checker_user_id) ?? "Superviseur" : null,
-      createdAt: row.created_at,
-      decisionAt: row.decision_at ?? null,
-      canDecide: staff.permissions.includes("finance.adjustment.approve"),
-    };
+    return { id: row.id, accountReference: account?.public_reference ?? "—", holderName: account ? customerNames.get(account.user_id) ?? "Client indisponible" : "Client indisponible", amountMinor: Number(row.amount_minor), currency: row.currency, reason: row.reason, status: row.status, makerName: names.get(row.maker_user_id) ?? "Opérateur", checkerName: row.checker_user_id ? names.get(row.checker_user_id) ?? "Superviseur" : null, createdAt: row.created_at, decisionAt: row.decision_at ?? null, canDecide: staff.permissions.includes("finance.adjustment.approve") };
   });
+  const last = rows[rows.length - 1];
+  return { items, hasNext, nextCursor: hasNext && last ? encodeAdminCursor({ createdAt: String(last.created_at), id: String(last.id) }) : null };
 }
 
 export async function loadAdminDashboard(client: Client): Promise<AdminDashboardDto> {
@@ -679,15 +662,24 @@ export async function loadAdminDashboard(client: Client): Promise<AdminDashboard
   };
 }
 
-export async function loadExternalTransfers(client:Client):Promise<AdminExternalTransferDto[]> {
-  const staff=await requireAdminPermission(client); if(!staff.permissions.includes("compliance.review")&&!staff.permissions.includes("transfers.approve")) throw new AdminAccessError("ADMIN_FORBIDDEN");
-  const admin=await adminClient(); const {data,error}=await admin.from("transfers").select("id,public_reference,sender_user_id,recipient_display_snapshot,amount_minor,currency,status,progress_percent,created_at").eq("transfer_kind","EXTERNAL_TRANSFER").not("status","in","(COMPLETED,FAILED,REJECTED,CANCELLED,REVERSED)").order("created_at",{ascending:false}).limit(100); if(error)throw new AdminAccessError("TRANSFERS_UNAVAILABLE");
-  const ids=(data??[]).map((r:any)=>r.sender_user_id); const transferIds=(data??[]).map((r:any)=>r.id);
-  const [{data:profiles},{data:reqs}]=await Promise.all([admin.from("profiles").select("id,first_name,last_name").in("id",ids),admin.from("transfer_requirements").select("transfer_id,status").in("transfer_id",transferIds)]);
-  const names=new Map((profiles??[]).map((p:any)=>[p.id,[p.first_name,p.last_name].filter(Boolean).join(" ")||"Client"])); const open=new Map<string,number>(); for(const r of reqs??[]){if(["REQUIRED","REPLACEMENT_REQUIRED","UNDER_REVIEW"].includes((r as any).status))open.set((r as any).transfer_id,(open.get((r as any).transfer_id)??0)+1);}
-  return (data??[]).map((r:any)=>({reference:r.public_reference,customerName:names.get(r.sender_user_id)??"Client",recipient:r.recipient_display_snapshot,amountMinor:Number(r.amount_minor),currency:r.currency,status:r.status,progressPercent:Number(r.progress_percent),documentsOpen:open.get(r.id)??0,createdAt:r.created_at}));
+export async function loadExternalTransfers(client: Client, cursor: string | null = null): Promise<AdminExternalTransferPageDto> {
+  const staff = await requireAdminPermission(client);
+  if (!staff.permissions.includes("compliance.review") && !staff.permissions.includes("transfers.approve")) throw new AdminAccessError("ADMIN_FORBIDDEN");
+  const admin = await adminClient();
+  const cursorValue = decodeAdminCursor(cursor);
+  let query = admin.from("transfers").select("id,public_reference,sender_user_id,recipient_display_snapshot,amount_minor,currency,status,progress_percent,created_at").eq("transfer_kind","EXTERNAL_TRANSFER").not("status","in","(COMPLETED,FAILED,REJECTED,CANCELLED,REVERSED)").order("created_at",{ascending:false}).order("id",{ascending:false});
+  if (cursorValue) query = query.or(`created_at.lt.${cursorValue.createdAt},and(created_at.eq.${cursorValue.createdAt},id.lt.${cursorValue.id})`);
+  const { data, error } = await query.limit(ADMIN_PAGE_SIZE + 1);
+  if(error) throw new AdminAccessError("TRANSFERS_UNAVAILABLE");
+  const rawRows=data??[], hasNext=rawRows.length>ADMIN_PAGE_SIZE, rows=rawRows.slice(0,ADMIN_PAGE_SIZE);
+  const ids=rows.map((r:any)=>r.sender_user_id), transferIds=rows.map((r:any)=>r.id);
+  const [{data:profiles},{data:reqs}]=await Promise.all([ids.length?admin.from("profiles").select("id,first_name,last_name").in("id",ids):Promise.resolve({data:[] as any[]}),transferIds.length?admin.from("transfer_requirements").select("transfer_id,status").in("transfer_id",transferIds):Promise.resolve({data:[] as any[]})]);
+  const names=new Map((profiles??[]).map((p:any)=>[p.id,[p.first_name,p.last_name].filter(Boolean).join(" ")||"Client"])); const open=new Map<string,number>();
+  for(const r of reqs??[]) if(["REQUIRED","REPLACEMENT_REQUIRED","UNDER_REVIEW"].includes(String((r as any).status))) open.set(String((r as any).transfer_id),(open.get(String((r as any).transfer_id))??0)+1);
+  const items=rows.map((r:any)=>({reference:r.public_reference,customerName:names.get(r.sender_user_id)??"Client",recipient:r.recipient_display_snapshot,amountMinor:Number(r.amount_minor),currency:r.currency,status:r.status,progressPercent:Number(r.progress_percent),documentsOpen:open.get(r.id)??0,createdAt:r.created_at}));
+  const last=rows[rows.length-1];
+  return {items,hasNext,nextCursor:hasNext&&last?encodeAdminCursor({createdAt:String(last.created_at),id:String(last.id)}):null};
 }
-
 
 export async function loadAdminCustomerDossier(
   client: Client,
