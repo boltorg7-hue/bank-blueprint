@@ -117,7 +117,7 @@ function DossierBody({ dossier, en }: { dossier: import("@/features/admin/types/
     </div>
 
     <Section id="accounts" title={en ? "Accounts & balances" : "Comptes & soldes"}>
-      {!dossier.accounts.length ? <EmptyLine text={en ? "No bank account." : "Aucun compte bancaire."} /> : <div className="grid gap-3 md:grid-cols-2">{dossier.accounts.map((a) => <Card key={a.reference}><CardContent className="space-y-3 p-4"><div className="flex items-start justify-between gap-3"><div><p className="font-semibold">{a.displayName}</p><p className="text-xs text-muted-foreground">{a.reference} · {a.maskedNumber}</p></div><StatusBadge label={a.status} tone={tone(a.status)} /></div><div className="grid grid-cols-1 gap-2 text-sm sm:grid-cols-3"><Metric label={en ? "Available" : "Disponible"} value={money(a.availableBalanceMinor,a.currency,a.minorUnit)} /><Metric label={en ? "Ledger" : "Comptable"} value={money(a.ledgerBalanceMinor,a.currency,a.minorUnit)} /><Metric label={en ? "Held" : "Réservé"} value={money(a.heldBalanceMinor,a.currency,a.minorUnit)} /></div><AccountActionBar account={a} en={en} />{a.statusHistory.length ? <div className="space-y-2 border-t border-border pt-3"><p className="text-xs font-semibold text-muted-foreground">{en ? "Account status history" : "Historique du statut du compte"}</p>{a.statusHistory.slice(0,4).map((h) => <div key={h.id} className="rounded-md bg-muted/40 p-2 text-xs"><div className="flex flex-wrap justify-between gap-2"><span className="font-medium">{h.previousStatus} → {h.newStatus}</span><span className="text-muted-foreground">{formatDateTime(h.changedAt)}</span></div><p className="mt-1 text-muted-foreground">{h.reasonCategory}{h.changedByName ? " · " + h.changedByName : ""}</p>{h.internalNote ? <p className="mt-1 text-muted-foreground">{h.internalNote}</p> : null}</div>)}</div> : null}</CardContent></Card>)}</div>}
+      {!dossier.accounts.length ? <EmptyLine text={en ? "No bank account." : "Aucun compte bancaire."} /> : <div className="grid gap-3 md:grid-cols-2">{dossier.accounts.map((a) => <Card key={a.reference}><CardContent className="space-y-3 p-4"><div className="flex items-start justify-between gap-3"><div><p className="font-semibold">{a.displayName}</p><p className="text-xs text-muted-foreground">{a.reference} · {a.maskedNumber}</p></div><StatusBadge label={a.status} tone={tone(a.status)} /></div><div className="grid grid-cols-1 gap-2 text-sm sm:grid-cols-3"><Metric label={en ? "Available" : "Disponible"} value={money(a.availableBalanceMinor,a.currency,a.minorUnit)} /><Metric label={en ? "Ledger" : "Comptable"} value={money(a.ledgerBalanceMinor,a.currency,a.minorUnit)} /><Metric label={en ? "Held" : "Réservé"} value={money(a.heldBalanceMinor,a.currency,a.minorUnit)} /></div><AccountActionBar account={a} customerId={c.id} en={en} />{a.statusHistory.length ? <div className="space-y-2 border-t border-border pt-3"><p className="text-xs font-semibold text-muted-foreground">{en ? "Account status history" : "Historique du statut du compte"}</p>{a.statusHistory.slice(0,4).map((h) => <div key={h.id} className="rounded-md bg-muted/40 p-2 text-xs"><div className="flex flex-wrap justify-between gap-2"><span className="font-medium">{h.previousStatus} → {h.newStatus}</span><span className="text-muted-foreground">{formatDateTime(h.changedAt)}</span></div><p className="mt-1 text-muted-foreground">{h.reasonCategory}{h.changedByName ? " · " + h.changedByName : ""}</p>{h.internalNote ? <p className="mt-1 text-muted-foreground">{h.internalNote}</p> : null}</div>)}</div> : null}</CardContent></Card>)}</div>}
     </Section>
 
     <Section id="transactions" title={en ? "Transactions" : "Transactions"}>
@@ -204,7 +204,7 @@ function CustomerActionBar({ customer, en }: { customer: AdminCustomerDtoLike; e
   </>;
 }
 
-function AccountActionBar({ account, en }: { account: { reference: string; status: string }; en: boolean }) {
+function AccountActionBar({ account, customerId, en }: { account: { reference: string; status: string }; customerId: string; en: boolean }) {
   const { data: staff } = useAdminContext();
   const mutation = useSetAccountStatus();
   const [status, setStatus] = useState<"ACTIVE" | "RESTRICTED" | "SUSPENDED" | "FROZEN" | null>(null);
@@ -215,7 +215,7 @@ function AccountActionBar({ account, en }: { account: { reference: string; statu
   async function confirm() {
     if (!status || reason.trim().length < 8 || status === account.status) return;
     try {
-      await mutation.mutateAsync({ accountReference: account.reference, status, reason: reason.trim() });
+      await mutation.mutateAsync({ accountReference: account.reference, customerId, status, reason: reason.trim() });
       toast.success(en ? "Account status updated." : "Statut du compte mis à jour.");
       setStatus(null); setReason("");
     } catch {
