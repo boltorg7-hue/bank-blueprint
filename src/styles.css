@@ -454,6 +454,31 @@
   }
 }
 
+/* ---------------------------------------------------------------------------
+ * UI NORMALIZATION PASS
+ * Shared screen grammar used by customer and administrative surfaces.
+ * ------------------------------------------------------------------------- */
+@utility screen-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+@utility section-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+@utility action-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+@utility touch-target-inline {
+  min-height: 2.75rem;
+  min-width: 2.75rem;
+}
+
 /* Print styles (PROMPT 09 §39, §40): only the document is printed, never the
    banking application shell. */
 @media print {
