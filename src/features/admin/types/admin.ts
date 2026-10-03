@@ -109,6 +109,8 @@ export type AdminAccountDto = {
 
 export type FundingRequestStatus = "PENDING" | "APPROVED" | "REJECTED";
 
+export type FundingRequestPageDto = { items: FundingRequestDto[]; hasNext: boolean; nextCursor: string | null };
+
 export type FundingRequestDto = {
   id: string;
   accountReference: string;
@@ -125,6 +127,9 @@ export type FundingRequestDto = {
 };
 
 export type AdminExternalTransferDto = { reference:string; customerName:string; recipient:string; amountMinor:number; currency:string; status:string; progressPercent:number; documentsOpen:number; createdAt:string };
+export type AdminExternalTransferPageDto = { items: AdminExternalTransferDto[]; hasNext: boolean; nextCursor: string | null };
+
+export type AdminAuditEventPageDto = { items: AdminAuditEventDto[]; hasNext: boolean; nextCursor: string | null };
 
 export type AdminAuditEventDto = {
   id: string;
