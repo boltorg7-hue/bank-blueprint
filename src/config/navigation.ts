@@ -55,7 +55,7 @@ export const CUSTOMER_PRIMARY_NAV: NavItem[] = [
 export const CUSTOMER_DESKTOP_NAV: NavItem[] = [
   { label: "Accueil", to: "/app/dashboard", icon: Home },
   { label: "Comptes", to: "/app/accounts", icon: Wallet },
-  { label: "Virement", to: "/app/transfers", icon: Send, transactional: true },
+  { label: "Virements", to: "/app/transfers", icon: Send, transactional: true },
   { label: "Activité", to: "/app/activity", icon: ListOrdered },
   { label: "Bénéficiaires", to: "/app/beneficiaries", icon: Users, transactional: true },
   { label: "Relevés", to: "/app/statements", icon: FileText },
