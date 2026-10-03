@@ -23,7 +23,7 @@ export function PageHeader({
 }) {
   const { language } = useLanguage();
   return (
-    <header className="mb-6 grid min-w-0 grid-cols-1 gap-4 sm:mb-8 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-start">
+    <header className="mb-5 grid min-w-0 grid-cols-1 gap-4 sm:mb-8 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-start">
       <div className="flex min-w-0 items-start gap-2.5 sm:gap-3">
         {backTo ? (
           <Button variant="ghost" size="icon" className="touch-target -ml-2 shrink-0" asChild>
