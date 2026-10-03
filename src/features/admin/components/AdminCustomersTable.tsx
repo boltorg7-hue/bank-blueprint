@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { AdminCustomerOperationalDossier } from "@/features/admin/components/AdminCustomerOperationalDossier";
 
 export function AdminCustomersTable({ customers }: { customers: AdminCustomerDto[] }) {
   const { language } = useLanguage();
@@ -32,7 +33,7 @@ export function AdminCustomersTable({ customers }: { customers: AdminCustomerDto
   };
   return (
     <>
-    <ul className="native-list divide-y divide-border md:hidden">{customers.map((customer) => <li key={customer.id} className="space-y-4 p-4"><div className="grid grid-cols-[minmax(0,1fr)_auto] gap-3"><div className="min-w-0"><p className="truncate font-semibold text-foreground">{customer.fullName}</p><p className="text-caption mt-1 text-muted-foreground">{customer.reference}</p></div><StatusBadge label={LIFECYCLE_LABELS[customer.lifecycleState]} tone={customer.lifecycleState === "ACTIVE" ? "success" : customer.lifecycleState === "SUSPENDED" || customer.lifecycleState === "CLOSED" ? "failed" : "pending"} /></div><div className="space-y-1 text-body-sm"><p className="break-all text-foreground">{customer.email ?? (en ? "No email provided" : "E-mail non renseigné")}</p><p className="text-muted-foreground">{customer.phone ?? (en ? "No phone provided" : "Téléphone non renseigné")}</p></div><dl className="grid grid-cols-2 gap-3 rounded-md bg-surface-sunken p-3"><div><dt className="text-caption text-muted-foreground">{en ? "Accounts" : "Comptes"}</dt><dd className="mt-1 font-semibold">{customer.accountCount}</dd></div><div><dt className="text-caption text-muted-foreground">{en ? "Registered" : "Inscription"}</dt><dd className="mt-1 text-sm">{formatDate(customer.createdAt)}</dd></div></dl><div className="flex flex-wrap gap-2"><Button size="sm" variant="ghost" onClick={() => setDetails(customer)}>{en ? "View" : "Voir"}</Button>{canManage ? actionsFor(customer) : null}</div></li>)}</ul>
+    <ul className="native-list divide-y divide-border md:hidden">{customers.map((customer) => <li key={customer.id} className="space-y-4 p-4"><div className="grid grid-cols-[minmax(0,1fr)_auto] gap-3"><div className="min-w-0"><p className="truncate font-semibold text-foreground">{customer.fullName}</p><p className="text-caption mt-1 text-muted-foreground">{customer.reference}</p></div><StatusBadge label={LIFECYCLE_LABELS[customer.lifecycleState]} tone={customer.lifecycleState === "ACTIVE" ? "success" : customer.lifecycleState === "SUSPENDED" || customer.lifecycleState === "CLOSED" ? "failed" : "pending"} /></div><div className="space-y-1 text-body-sm"><p className="break-all text-foreground">{customer.email ?? (en ? "No email provided" : "E-mail non renseigné")}</p><p className="text-muted-foreground">{customer.phone ?? (en ? "No phone provided" : "Téléphone non renseigné")}</p></div><dl className="grid grid-cols-2 gap-3 rounded-md bg-surface-sunken p-3"><div><dt className="text-caption text-muted-foreground">{en ? "Accounts" : "Comptes"}</dt><dd className="mt-1 font-semibold">{customer.accountCount}</dd></div><div><dt className="text-caption text-muted-foreground">{en ? "Registered" : "Inscription"}</dt><dd className="mt-1 text-sm">{formatDate(customer.createdAt)}</dd></div></dl><div className="flex flex-wrap gap-2"><Button size="sm" variant="ghost" onClick={() => setDetails(customer)}>{en ? "Open dossier" : "Ouvrir le dossier"}</Button>{canManage ? actionsFor(customer) : null}</div></li>)}</ul>
     <div className="hidden overflow-hidden rounded-md border border-border bg-surface md:block">
       <Table>
         <TableHeader><TableRow>
@@ -46,7 +47,7 @@ export function AdminCustomersTable({ customers }: { customers: AdminCustomerDto
               <TableCell><StatusBadge label={LIFECYCLE_LABELS[customer.lifecycleState]} tone={customer.lifecycleState === "ACTIVE" ? "success" : customer.lifecycleState === "SUSPENDED" || customer.lifecycleState === "CLOSED" ? "failed" : "pending"} /></TableCell>
               <TableCell>{customer.accountCount}</TableCell>
               <TableCell>{formatDate(customer.createdAt)}</TableCell>
-              <TableCell><div className="flex flex-wrap gap-2"><Button size="sm" variant="ghost" onClick={() => setDetails(customer)}>{en ? "View" : "Voir"}</Button>{canManage ? actionsFor(customer) : null}</div></TableCell>
+              <TableCell><div className="flex flex-wrap gap-2"><Button size="sm" variant="ghost" onClick={() => setDetails(customer)}>{en ? "Open dossier" : "Ouvrir le dossier"}</Button>{canManage ? actionsFor(customer) : null}</div></TableCell>
             </TableRow>
           ))}
         </TableBody>
@@ -54,20 +55,7 @@ export function AdminCustomersTable({ customers }: { customers: AdminCustomerDto
     </div>
     <Dialog open={Boolean(decision)} onOpenChange={(open) => { if (!open) { setDecision(null); setReason(""); } }}><DialogContent className="w-[calc(100%-2rem)] rounded-md"><DialogHeader><DialogTitle>{en ? "Confirm customer status" : "Confirmer le statut client"}</DialogTitle><DialogDescription>{en ? "Record an auditable reason before confirming this sensitive action." : "Consignez un motif traçable avant de confirmer cette action sensible."}</DialogDescription></DialogHeader><div className="space-y-2"><Label htmlFor="customer-decision-reason">{en ? "Reason" : "Motif"}</Label><Textarea id="customer-decision-reason" value={reason} onChange={(event) => setReason(event.target.value)} minLength={8} autoFocus aria-invalid={reason.length > 0 && reason.trim().length < 8} />
         {reason.length > 0 ? <p className={reason.trim().length >= 8 ? "flex items-center gap-1.5 text-xs text-emerald-600 dark:text-emerald-400" : "flex items-center gap-1.5 text-xs text-destructive"}>{reason.trim().length >= 8 ? <CheckCircle2 className="size-3.5" aria-hidden="true" /> : <XCircle className="size-3.5" aria-hidden="true" />}{reason.trim().length >= 8 ? (en ? "Valid reason." : "Motif valide.") : (en ? "At least 8 characters." : "Au moins 8 caractères.")}</p> : <p className="flex items-center gap-1.5 text-xs text-muted-foreground"><CircleAlert className="size-3.5" aria-hidden="true" />{en ? "Required for audit." : "Requis pour la traçabilité."}</p>}</div><DialogFooter className="gap-2"><Button variant="outline" onClick={() => setDecision(null)}>{en ? "Cancel" : "Annuler"}</Button><Button onClick={() => void confirmChange()} disabled={reason.trim().length < 8 || mutation.isPending} loading={mutation.isPending}>{en ? "Confirm" : "Confirmer"}</Button></DialogFooter></DialogContent></Dialog>
-    <Dialog open={Boolean(details)} onOpenChange={(open) => { if (!open) setDetails(null); }}>
-      <DialogContent className="w-[calc(100%-2rem)] rounded-md">
-        <DialogHeader><DialogTitle>{en ? "Customer details" : "Détails du client"}</DialogTitle><DialogDescription>{details?.reference}</DialogDescription></DialogHeader>
-        {details ? <dl className="grid gap-4 sm:grid-cols-2">
-          <div><dt className="text-caption text-muted-foreground">{en ? "Full name" : "Nom complet"}</dt><dd className="mt-1 font-medium">{details.fullName}</dd></div>
-          <div><dt className="text-caption text-muted-foreground">{en ? "Status" : "Statut"}</dt><dd className="mt-1"><StatusBadge label={LIFECYCLE_LABELS[details.lifecycleState]} tone={details.lifecycleState === "ACTIVE" ? "success" : details.lifecycleState === "SUSPENDED" || details.lifecycleState === "CLOSED" ? "failed" : "pending"} /></dd></div>
-          <div><dt className="text-caption text-muted-foreground">E-mail</dt><dd className="mt-1 break-all">{details.email ?? "—"}</dd></div>
-          <div><dt className="text-caption text-muted-foreground">{en ? "Phone" : "Téléphone"}</dt><dd className="mt-1">{details.phone ?? "—"}</dd></div>
-          <div><dt className="text-caption text-muted-foreground">{en ? "Accounts" : "Comptes"}</dt><dd className="mt-1 font-semibold">{details.accountCount}</dd></div>
-          <div><dt className="text-caption text-muted-foreground">{en ? "Registered" : "Inscription"}</dt><dd className="mt-1">{formatDate(details.createdAt)}</dd></div>
-        </dl> : null}
-        <DialogFooter><Button variant="outline" onClick={() => setDetails(null)}>{en ? "Close" : "Fermer"}</Button></DialogFooter>
-      </DialogContent>
-    </Dialog>
+    <AdminCustomerOperationalDossier customer={details} open={Boolean(details)} onOpenChange={(open) => { if (!open) setDetails(null); }} />
     </>
   );
 }

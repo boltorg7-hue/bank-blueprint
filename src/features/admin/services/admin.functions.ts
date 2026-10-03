@@ -210,3 +210,16 @@ export const listAdminAuditEvents = createServerFn({ method: "POST" }).middlewar
   const service = await import("@/features/admin/services/admin.server");
   return service.loadAdminAuditEvents(context.supabase, data.search);
 });
+
+
+export const getAdminCustomerDossier = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { customerId: string }) => {
+    const customerId = String(input?.customerId ?? "").trim();
+    if (!/^[0-9a-f-]{36}$/i.test(customerId)) throw new Error("INVALID_CUSTOMER_REFERENCE");
+    return { customerId };
+  })
+  .handler(async ({ data, context }) => {
+    const service = await import("@/features/admin/services/admin.server");
+    return service.loadAdminCustomerDossier(context.supabase, data.customerId);
+  });
