@@ -48,6 +48,8 @@ export type AdminCustomerDto = {
   oldestAttentionAt: string | null;
 };
 
+export type AdminCustomerPageDto = { items: AdminCustomerDto[]; hasNext: boolean; };
+
 export type AdminOnboardingDocumentDto = {
   type: string;
   status: string;
