@@ -46,7 +46,14 @@ function AdminCustomersPage() {
           (attention === "CLEAR" && customer.attentionCount === 0);
         return lifecycleMatches && accountMatches && attentionMatches;
       })
-      .sort((a, b) => b.attentionCount - a.attentionCount);
+      .sort((a, b) => {
+        const countDelta = b.attentionCount - a.attentionCount;
+        if (countDelta !== 0) return countDelta;
+        if (a.oldestAttentionAt && b.oldestAttentionAt) return Date.parse(a.oldestAttentionAt) - Date.parse(b.oldestAttentionAt);
+        if (a.oldestAttentionAt) return -1;
+        if (b.oldestAttentionAt) return 1;
+        return Date.parse(b.createdAt) - Date.parse(a.createdAt);
+      });
   }, [accounts, attention, lifecycle, query.data]);
 
   const hasFilters = Boolean(search.trim()) || lifecycle !== "ALL" || accounts !== "ALL" || attention !== "ALL";
