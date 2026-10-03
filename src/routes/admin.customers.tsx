@@ -23,6 +23,7 @@ function AdminCustomersPage() {
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [lifecycle, setLifecycle] = useState<"ALL" | CustomerLifecycleState>("ALL");
   const [accounts, setAccounts] = useState<"ALL" | "WITH_ACCOUNTS" | "WITHOUT_ACCOUNTS">("ALL");
+  const [attention, setAttention] = useState<"ALL" | "NEEDS_ATTENTION" | "CLEAR">("ALL");
 
   useEffect(() => {
     const timer = window.setTimeout(() => setDebouncedSearch(search.trim()), 250);
@@ -39,17 +40,22 @@ function AdminCustomersPage() {
           accounts === "ALL" ||
           (accounts === "WITH_ACCOUNTS" && customer.accountCount > 0) ||
           (accounts === "WITHOUT_ACCOUNTS" && customer.accountCount === 0);
-        return lifecycleMatches && accountMatches;
+        const attentionMatches =
+          attention === "ALL" ||
+          (attention === "NEEDS_ATTENTION" && customer.attentionCount > 0) ||
+          (attention === "CLEAR" && customer.attentionCount === 0);
+        return lifecycleMatches && accountMatches && attentionMatches;
       })
       .sort((a, b) => b.attentionCount - a.attentionCount);
-  }, [accounts, lifecycle, query.data]);
+  }, [accounts, attention, lifecycle, query.data]);
 
-  const hasFilters = Boolean(search.trim()) || lifecycle !== "ALL" || accounts !== "ALL";
+  const hasFilters = Boolean(search.trim()) || lifecycle !== "ALL" || accounts !== "ALL" || attention !== "ALL";
   const clearFilters = () => {
     setSearch("");
     setDebouncedSearch("");
     setLifecycle("ALL");
     setAccounts("ALL");
+    setAttention("ALL");
   };
 
   return <AdminGate permission="customers.read"><PageSection>
@@ -57,7 +63,7 @@ function AdminCustomersPage() {
       title={en ? "Customers" : "Clients"}
       description={en ? "Find a customer, narrow the operational list and open the full dossier." : "Retrouvez un client, affinez la liste opérationnelle et ouvrez son dossier complet."}
       action={
-        <div className="grid w-full gap-2 sm:grid-cols-[minmax(16rem,1fr)_12rem_12rem]">
+        <div className="grid w-full gap-2 sm:grid-cols-[minmax(14rem,1fr)_11rem_11rem_11rem]">
           <Input
             aria-label={en ? "Search customers" : "Rechercher un client"}
             placeholder={en ? "Name, email, phone or reference" : "Nom, e-mail, téléphone ou référence"}
@@ -69,6 +75,14 @@ function AdminCustomersPage() {
             <SelectContent>
               <SelectItem value="ALL">{en ? "All lifecycle states" : "Tous les états"}</SelectItem>
               {CUSTOMER_LIFECYCLE_STATES.map((state) => <SelectItem key={state} value={state}>{en ? state.replaceAll("_", " ") : LIFECYCLE_LABELS[state]}</SelectItem>)}
+            </SelectContent>
+          </Select>
+          <Select value={attention} onValueChange={(value) => setAttention(value as "ALL" | "NEEDS_ATTENTION" | "CLEAR")}>
+            <SelectTrigger aria-label={en ? "Filter by operational attention" : "Filtrer par action requise"}><SelectValue placeholder={en ? "Attention" : "Action requise"} /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="ALL">{en ? "All operational states" : "Tous les états opérationnels"}</SelectItem>
+              <SelectItem value="NEEDS_ATTENTION">{en ? "Needs attention" : "Action requise"}</SelectItem>
+              <SelectItem value="CLEAR">{en ? "No immediate action" : "Aucune action immédiate"}</SelectItem>
             </SelectContent>
           </Select>
           <Select value={accounts} onValueChange={(value) => setAccounts(value as "ALL" | "WITH_ACCOUNTS" | "WITHOUT_ACCOUNTS")}>
