@@ -87,7 +87,7 @@ function DossierBody({ dossier, en }: { dossier: import("@/features/admin/types/
   </>;
 }
 
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
+function Section({ title, children }: { title: string; children: ReactNode }) {
   return <section className="space-y-3"><h2 className="text-base font-semibold text-foreground">{title}</h2>{children}</section>;
 }
 function Info({ label, value, badge }: { label: string; value: string; badge?: boolean }) { return <div><dt className="text-caption text-muted-foreground">{label}</dt><dd className="mt-1">{badge ? <StatusBadge label={value} tone={tone(value)} /> : <span className="font-medium">{value}</span>}</dd></div>; }
