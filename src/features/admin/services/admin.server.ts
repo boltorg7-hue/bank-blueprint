@@ -169,31 +169,12 @@ export async function loadAdminCustomers(
 
   const accountOwnerIds = new Set<string>();
   if (accountsFilter !== "ALL") {
-    const { data: accountRows, error: accountError } = await admin.from("bank_accounts").select("user_id");
+    const { data: accountRows, error: accountError } = await admin
+      .from("bank_accounts")
+      .select("user_id")
+      .limit(5000);
     if (accountError) throw new AdminAccessError("CUSTOMERS_UNAVAILABLE");
     for (const row of accountRows ?? []) accountOwnerIds.add(String((row as any).user_id));
-  }
-
-  const attentionIds = new Set<string>();
-  if (attentionFilter !== "ALL") {
-    const [{ data: nonActive }, { data: kyc }, { data: documents }, { data: notifications }, { data: transfers }, { data: pendingFunding }] = await Promise.all([
-      admin.from("profiles").select("id").neq("lifecycle_state", "ACTIVE"),
-      admin.from("identity_verifications").select("user_id,status").in("status", ["UNDER_REVIEW", "ADDITIONAL_INFORMATION_REQUIRED", "REJECTED"]),
-      admin.from("verification_documents").select("user_id,status").in("status", ["ACTION_REQUIRED", "REJECTED", "EXPIRED"]),
-      admin.from("notifications").select("user_id").is("archived_at", null).is("read_at", null),
-      admin.from("transfers").select("sender_user_id,status").in("status", ["PROCESSING", "COMPLIANCE_REVIEW", "DOCUMENT_REQUIRED", "SETTLEMENT_PENDING"]),
-      admin.from("funding_requests").select("account_id").eq("status", "PENDING"),
-    ]);
-    for (const row of nonActive ?? []) attentionIds.add(String((row as any).id));
-    for (const row of kyc ?? []) attentionIds.add(String((row as any).user_id));
-    for (const row of documents ?? []) attentionIds.add(String((row as any).user_id));
-    for (const row of notifications ?? []) attentionIds.add(String((row as any).user_id));
-    for (const row of transfers ?? []) attentionIds.add(String((row as any).sender_user_id));
-    const fundingAccountIds = [...new Set((pendingFunding ?? []).map((row: any) => String(row.account_id)))];
-    if (fundingAccountIds.length) {
-      const { data: fundingAccounts } = await admin.from("bank_accounts").select("user_id").in("id", fundingAccountIds);
-      for (const row of fundingAccounts ?? []) attentionIds.add(String((row as any).user_id));
-    }
   }
 
   let query = admin.from("profiles")
