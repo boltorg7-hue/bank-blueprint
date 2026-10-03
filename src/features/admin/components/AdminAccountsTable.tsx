@@ -49,7 +49,7 @@ export function AdminAccountsTable({ accounts }: { accounts: AdminAccountDto[] }
     if (!canManage || !["ACTIVE", "FROZEN"].includes(account.status)) return null;
     const status = account.status === "ACTIVE" ? "FROZEN" : "ACTIVE";
     return (
-      <Button className="w-auto" size="sm" variant="outline" onClick={() => setDecision({ account, status })}>
+      <Button className="min-h-10 w-auto" size="sm" variant="outline" onClick={() => setDecision({ account, status })}>
         {status === "FROZEN" ? (en ? "Freeze" : "Geler") : (en ? "Reactivate" : "Réactiver")}
       </Button>
     );
@@ -79,7 +79,7 @@ export function AdminAccountsTable({ accounts }: { accounts: AdminAccountDto[] }
               <div><dt className="text-caption text-muted-foreground">{en ? "Available" : "Disponible"}</dt><dd className="text-numeric mt-1 text-sm font-semibold">{balance(account.availableBalanceMinor, account.currency, account.minorUnit)}</dd></div>
               <div><dt className="text-caption text-muted-foreground">{en ? "Reserved" : "Réservé"}</dt><dd className="text-numeric mt-1 text-sm">{balance(account.heldBalanceMinor, account.currency, account.minorUnit)}</dd></div>
             </dl>
-            <div className="flex flex-wrap gap-2"><Button size="sm" variant="ghost" onClick={() => setDetails(account)}>{en ? "View account" : "Voir le compte"}</Button><Button size="sm" variant="ghost" onClick={() => openDossier(account)}>{en ? "Open dossier" : "Ouvrir le dossier"}</Button>{actionFor(account)}</div>
+            <div className="flex flex-wrap items-center gap-2 border-t border-border pt-3"><Button size="sm" variant="ghost" className="min-h-10" onClick={() => setDetails(account)}>{en ? "View account" : "Voir le compte"}</Button><Button size="sm" variant="ghost" onClick={() => openDossier(account)}>{en ? "Open dossier" : "Ouvrir le dossier"}</Button>{actionFor(account)}</div>
           </li>
         ))}
       </ul>
@@ -104,7 +104,7 @@ export function AdminAccountsTable({ accounts }: { accounts: AdminAccountDto[] }
                 <TableCell>{balance(account.ledgerBalanceMinor, account.currency, account.minorUnit)}</TableCell>
                 <TableCell>{balance(account.availableBalanceMinor, account.currency, account.minorUnit)}</TableCell>
                 <TableCell>{balance(account.heldBalanceMinor, account.currency, account.minorUnit)}</TableCell>
-                <TableCell><div className="flex flex-wrap gap-2"><Button size="sm" variant="ghost" onClick={() => openDossier(account)}>{en ? "Dossier" : "Dossier"}</Button><Button size="sm" variant="ghost" onClick={() => setDetails(account)}>{en ? "View" : "Voir"}</Button>{actionFor(account)}</div></TableCell>
+                <TableCell><div className="flex flex-wrap items-center gap-2"><Button size="sm" variant="ghost" className="min-h-10" onClick={() => openDossier(account)}>{en ? "Dossier" : "Dossier"}</Button><Button size="sm" variant="ghost" onClick={() => setDetails(account)}>{en ? "View" : "Voir"}</Button>{actionFor(account)}</div></TableCell>
               </TableRow>
             ))}
           </TableBody>
