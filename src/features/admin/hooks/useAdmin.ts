@@ -40,10 +40,10 @@ export function useAdminDashboard() {
   return useQuery({ queryKey: ADMIN_DASHBOARD_KEY, queryFn: () => fn(), staleTime: 10_000, retry: 1, enabled: staff?.authorized === true && staff.permissions.includes("admin.access") });
 }
 
-export function useAdminCustomers(search: string) {
+export function useAdminCustomers(search: string, page = 1) {
   const fn = useServerFn(listAdminCustomers);
   const { data: staff } = useAdminContext();
-  return useQuery({ queryKey: ["admin", "customers", search], queryFn: () => fn({ data: { search } }), staleTime: 10_000, enabled: staff?.authorized === true && staff.permissions.includes("customers.read") });
+  return useQuery({ queryKey: ["admin", "customers", search, page], queryFn: () => fn({ data: { search, page } }), staleTime: 10_000, enabled: staff?.authorized === true && staff.permissions.includes("customers.read") });
 }
 
 export function useAdminOnboardingCases(search: string) {
