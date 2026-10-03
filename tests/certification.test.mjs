@@ -638,3 +638,37 @@ test("la plateforme supporte un thème adaptatif 2026 sans décalage entre préf
   assert.match(preferences, /value={form\.theme}/);
   assert.match(preferences, /value="system"/);
 });
+
+test("5.8.8.1 standardise les primitives de contrôle sur une même grammaire visuelle", () => {
+  const button = read("src/components/ui/button.tsx");
+  const input = read("src/components/ui/input.tsx");
+  const textarea = read("src/components/ui/textarea.tsx");
+  const select = read("src/components/ui/select.tsx");
+  const tabs = read("src/components/ui/tabs.tsx");
+
+  for (const source of [button, input, textarea, select, tabs]) {
+    assert.match(source, /focus-visible:ring-2 focus-visible:ring-ring/);
+    assert.match(source, /focus-visible:ring-offset-2/);
+    assert.match(source, /motion-safe:transition-/);
+    assert.match(source, /duration-150/);
+  }
+
+  assert.match(button, /min-h-11/);
+  assert.match(input, /min-h-11/);
+  assert.match(textarea, /min-h-\[60px\]/);
+  assert.match(select, /min-h-11 w-full/);
+  assert.match(select, /focus-visible:outline-none/);
+  assert.match(tabs, /TabsTrigger[\\s\\S]*min-h-11/);
+});
+
+test("5.8.8.1 conserve le reduced-motion sur les primitives animées", () => {
+  const select = read("src/components/ui/select.tsx");
+  const dialog = read("src/components/ui/dialog.tsx");
+  const sheet = read("src/components/ui/sheet.tsx");
+  const styles = read("src/styles.css");
+
+  assert.match(select, /motion-reduce:animate-none/);
+  assert.match(dialog, /motion-reduce:animate-none/);
+  assert.match(sheet, /motion-reduce:animate-none/);
+  assert.match(styles, /prefers-reduced-motion: reduce/);
+});
