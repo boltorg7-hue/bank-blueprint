@@ -134,7 +134,7 @@ export function useSetCustomerState() {
 
 export function useSetAccountStatus() {
   const fn = useServerFn(setAccountStatus); const queryClient = useQueryClient();
-  return useMutation({ mutationFn: (input: { accountReference: string; status: "ACTIVE" | "RESTRICTED" | "SUSPENDED" | "FROZEN"; reason: string }) => fn({ data: input }), onSuccess: async () => { await Promise.all([queryClient.invalidateQueries({ queryKey: ADMIN_ACCOUNTS_KEY }), queryClient.invalidateQueries({ queryKey: ["admin", "customer-dossier"] }), queryClient.invalidateQueries({ queryKey: ADMIN_DASHBOARD_KEY }), queryClient.invalidateQueries({ queryKey: ADMIN_AUDIT_KEY })]); } });
+  return useMutation({ mutationFn: (input: { accountReference: string; customerId?: string; status: "ACTIVE" | "RESTRICTED" | "SUSPENDED" | "FROZEN"; reason: string }) => fn({ data: input }), onSuccess: async (_data, variables) => { await Promise.all([queryClient.invalidateQueries({ queryKey: ADMIN_ACCOUNTS_KEY }), variables.customerId ? queryClient.invalidateQueries({ queryKey: [...ADMIN_DOSSIER_KEY, variables.customerId] }) : Promise.resolve(), queryClient.invalidateQueries({ queryKey: ADMIN_DASHBOARD_KEY }), queryClient.invalidateQueries({ queryKey: ADMIN_AUDIT_KEY })]); } });
 }
 export const ADMIN_EXTERNAL_TRANSFERS_KEY=["admin","external-transfers"] as const;
 export function useAdminExternalTransfers(){const fn=useServerFn(listAdminExternalTransfers);const {data:staff}=useAdminContext();return useQuery({queryKey:ADMIN_EXTERNAL_TRANSFERS_KEY,queryFn:()=>fn(),staleTime:5_000,enabled:staff?.authorized===true&&(staff.permissions.includes("compliance.review")||staff.permissions.includes("transfers.approve"))});}
