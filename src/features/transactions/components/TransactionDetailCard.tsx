@@ -79,8 +79,8 @@ export function TransactionDetailCard({ transaction }: { transaction: Transactio
       <section aria-label={en ? "Transaction details" : "Détail de l'opération"} className="rounded-xl border border-border bg-surface p-5">
         <dl className="divide-y divide-border">
           <DetailRow label={en ? "Reference" : "Référence"} value={<span className="text-numeric">{transaction.reference}</span>} />
-          <DetailRow label="Type" value={transactionTypeLabel(transaction.type, transaction.direction)} />
-          <DetailRow label={en ? "Direction" : "Sens"} value={en ? (transaction.direction === "INCOMING" ? "Incoming" : transaction.direction === "OUTGOING" ? "Outgoing" : "Neutral") : directionLabel(transaction.direction)} />
+          <DetailRow label="Type" value={transactionTypeLabel(transaction.type, transaction.direction, en ? "en" : "fr")} />
+          <DetailRow label={en ? "Direction" : "Sens"} value={en ? (transaction.direction === "INCOMING" ? "Incoming" : transaction.direction === "OUTGOING" ? "Outgoing" : "Neutral") : directionLabel(transaction.direction, en ? "en" : "fr")} />
           <DetailRow label={en ? "Transaction date" : "Date de l'opération"} value={formatDateTime(transaction.occurredAt)} />
           {transaction.completedAt ? (
             <DetailRow label={en ? "Value date" : "Date de valeur"} value={formatDateTime(transaction.completedAt)} />
