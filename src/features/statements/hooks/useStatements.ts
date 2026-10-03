@@ -12,6 +12,7 @@ import type {
   StatementGenerationRequest,
 } from "@/features/statements/types/statement";
 import { DOCUMENTS_KEY } from "@/features/documents/hooks/useDocuments";
+import { QUERY_POLICY } from "@/lib/query-policy";
 
 /**
  * Statement hooks (PROMPT 09 §44 – §54). Generation is a server operation:
@@ -19,7 +20,7 @@ import { DOCUMENTS_KEY } from "@/features/documents/hooks/useDocuments";
  */
 export const STATEMENTS_KEY = ["statements"] as const;
 
-const BEHAVIOUR = { staleTime: 30_000, gcTime: 300_000, retry: 1 } as const;
+const BEHAVIOUR = { ...QUERY_POLICY.NORMAL, retry: 1 } as const;
 
 export function useStatements(limit = 24) {
   const fetchList = useServerFn(listCustomerStatements);
