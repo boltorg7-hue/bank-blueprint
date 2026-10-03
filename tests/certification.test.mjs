@@ -672,3 +672,20 @@ test("5.8.8.1 conserve le reduced-motion sur les primitives animées", () => {
   assert.match(sheet, /motion-reduce:animate-none/);
   assert.match(styles, /prefers-reduced-motion: reduce/);
 });
+
+
+test("5.8.8.3 aligne les écrans client sur les primitives de page et de surface partagées", () => {
+  const header = read("src/components/layout/PageHeader.tsx");
+  const account = read("src/features/accounts/components/AccountListItem.tsx");
+  const more = read("src/routes/app.more.tsx");
+  const featureShell = read("src/features/customer-shell/components/FeatureShellPage.tsx");
+
+  assert.match(header, /text-heading-xl text-balance text-foreground/);
+  assert.doesNotMatch(header, /sm:text-3xl/);
+  assert.match(account, /native-surface press-feedback/);
+  assert.match(account, /motion-safe:transition-\[border-color,box-shadow,transform\]/);
+  assert.match(account, /motion-reduce:transition-none/);
+  assert.match(more, /text-overline text-muted-foreground/);
+  assert.match(featureShell, /BankingContentContainer width={width}/);
+  assert.match(featureShell, /<PageSection>/);
+});
