@@ -46,26 +46,6 @@ BEGIN
   END LOOP;
 END $$;
 
-DO $$
-DECLARE
-  r record;
-BEGIN
-  FOR r IN
-    SELECT n.nspname, p.proname, p.oid::regprocedure AS signature
-    FROM pg_proc p
-    JOIN pg_namespace n ON n.oid = p.pronamespace
-    WHERE n.nspname = 'public'
-      AND p.prosecdef
-  LOOP
-    IF NOT EXISTS (
-      SELECT 1
-      FROM unnest(coalesce(r.oid::oid::regconfig::text[],'{}'::text[]))
-    ) THEN
-      NULL;
-    END IF;
-  END LOOP;
-END $$;
-
 -- SECURITY DEFINER functions must pin search_path to trusted schemas.
 DO $$
 DECLARE
