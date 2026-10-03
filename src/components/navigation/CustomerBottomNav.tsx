@@ -12,7 +12,7 @@ export function CustomerBottomNav() {
   return (
     <nav
       aria-label={language === "en" ? "Customer navigation (mobile)" : "Navigation client (mobile)"}
-      className="safe-pb fixed inset-x-0 bottom-0 z-40 border-t border-border bg-surface/95 shadow-[var(--shadow-elevated)] backdrop-blur-xl lg:hidden"
+      className="safe-px safe-pb fixed inset-x-0 bottom-0 z-40 border-t border-border bg-surface/95 shadow-[var(--shadow-elevated)] backdrop-blur-xl lg:hidden"
     >
       <ul className="mx-auto flex min-h-16 w-full max-w-lg items-stretch px-1.5 sm:px-2">
         {CUSTOMER_PRIMARY_NAV.map((item) => {

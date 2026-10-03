@@ -21,7 +21,7 @@ export function CustomerAppHeader() {
   const unread = notifications.data?.unreadCount ?? null;
 
   return (
-    <header className="safe-pt sticky top-0 z-30 border-b border-border bg-surface/95 backdrop-blur">
+    <header className="safe-px safe-pt sticky top-0 z-30 border-b border-border bg-surface/95 backdrop-blur">
       <div className="mx-auto grid h-16 w-full max-w-screen-2xl grid-cols-[minmax(0,1fr)_auto] items-center gap-2 px-3 sm:px-6">
         <div className="flex min-w-0 items-center gap-2.5 sm:gap-3">
           <BrandMark to="/app/dashboard" compact className="lg:hidden shrink-0" />
