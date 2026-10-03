@@ -1,3 +1,4 @@
+import { QUERY_POLICY } from "@/lib/query-policy";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 
@@ -30,24 +31,22 @@ export const ADMIN_FUNDING_KEY = ["admin", "funding"] as const;
 export const ADMIN_ONBOARDING_KEY = ["admin", "onboarding-cases"] as const;
 export const ADMIN_CUSTOMERS_KEY = ["admin", "customers"] as const;
 export const ADMIN_DOSSIER_KEY = ["admin", "customer-dossier"] as const;
-const ADMIN_LIST_STALE_MS = 15_000;
-const ADMIN_OPERATIONAL_STALE_MS = 5_000;
 
 export function useAdminContext() {
   const fn = useServerFn(getAdminStaffContext);
-  return useQuery({ queryKey: ADMIN_CONTEXT_KEY, queryFn: () => fn(), staleTime: 30_000, retry: false });
+  return useQuery({ queryKey: ADMIN_CONTEXT_KEY, queryFn: () => fn(), ...QUERY_POLICY.NORMAL, retry: false });
 }
 
 export function useAdminDashboard() {
   const fn = useServerFn(getAdminDashboard);
   const { data: staff } = useAdminContext();
-  return useQuery({ queryKey: ADMIN_DASHBOARD_KEY, queryFn: () => fn(), staleTime: ADMIN_LIST_STALE_MS, retry: 1, enabled: staff?.authorized === true && staff.permissions.includes("admin.access") });
+  return useQuery({ queryKey: ADMIN_DASHBOARD_KEY, queryFn: () => fn(), ...QUERY_POLICY.NORMAL, retry: 1, enabled: staff?.authorized === true && staff.permissions.includes("admin.access") });
 }
 
 export function useAdminCustomers(search: string, page = 1, lifecycle = "ALL", accounts = "ALL", attention = "ALL") {
   const fn = useServerFn(listAdminCustomers);
   const { data: staff } = useAdminContext();
-  return useQuery({ queryKey: [...ADMIN_CUSTOMERS_KEY, search, page, lifecycle, accounts, attention], queryFn: () => fn({ data: { search, page, lifecycle, accounts, attention } }), staleTime: ADMIN_LIST_STALE_MS, enabled: staff?.authorized === true && staff.permissions.includes("customers.read") });
+  return useQuery({ queryKey: [...ADMIN_CUSTOMERS_KEY, search, page, lifecycle, accounts, attention], queryFn: () => fn({ data: { search, page, lifecycle, accounts, attention } }), ...QUERY_POLICY.NORMAL, enabled: staff?.authorized === true && staff.permissions.includes("customers.read") });
 }
 
 export function useAdminOnboardingCases(search: string) {
@@ -56,7 +55,7 @@ export function useAdminOnboardingCases(search: string) {
   return useQuery({
     queryKey: [...ADMIN_ONBOARDING_KEY, search],
     queryFn: () => fn({ data: { search } }),
-    staleTime: ADMIN_LIST_STALE_MS,
+    ...QUERY_POLICY.NORMAL,
     enabled: staff?.authorized === true && staff.permissions.includes("customers.read"),
   });
 }
@@ -89,13 +88,13 @@ export function useActivateAdminOnboardingCustomer() {
 export function useAdminAccounts(search = "") {
   const fn = useServerFn(listAdminAccounts);
   const { data: staff } = useAdminContext();
-  return useQuery({ queryKey: [...ADMIN_ACCOUNTS_KEY, search], queryFn: () => fn({ data: { search } }), staleTime: ADMIN_LIST_STALE_MS, enabled: staff?.authorized === true && staff.permissions.includes("accounts.read") });
+  return useQuery({ queryKey: [...ADMIN_ACCOUNTS_KEY, search], queryFn: () => fn({ data: { search } }), ...QUERY_POLICY.NORMAL, enabled: staff?.authorized === true && staff.permissions.includes("accounts.read") });
 }
 
 export function useFundingRequests() {
   const fn = useServerFn(listFundingRequests);
   const { data: staff } = useAdminContext();
-  return useQuery({ queryKey: ADMIN_FUNDING_KEY, queryFn: () => fn(), staleTime: ADMIN_OPERATIONAL_STALE_MS, enabled: staff?.authorized === true && (staff.permissions.includes("finance.adjustment.create") || staff.permissions.includes("finance.adjustment.approve")) });
+  return useQuery({ queryKey: ADMIN_FUNDING_KEY, queryFn: () => fn(), ...QUERY_POLICY.REALTIME, enabled: staff?.authorized === true && (staff.permissions.includes("finance.adjustment.create") || staff.permissions.includes("finance.adjustment.approve")) });
 }
 
 export function useCreateFundingRequest() {
@@ -144,7 +143,7 @@ export const ADMIN_AUDIT_KEY = ["admin", "audit"] as const;
 export function useAdminAudit(search = "") {
   const fn = useServerFn(listAdminAuditEvents);
   const { data: staff } = useAdminContext();
-  return useQuery({ queryKey: [...ADMIN_AUDIT_KEY, search], queryFn: () => fn({ data: { search } }), staleTime: ADMIN_OPERATIONAL_STALE_MS, enabled: staff?.authorized === true && staff.permissions.includes("audit.read") });
+  return useQuery({ queryKey: [...ADMIN_AUDIT_KEY, search], queryFn: () => fn({ data: { search } }), ...QUERY_POLICY.REALTIME, enabled: staff?.authorized === true && staff.permissions.includes("audit.read") });
 }
 
 export function useAdminAccountStatusHistory(accountReference: string | null) {
@@ -153,7 +152,7 @@ export function useAdminAccountStatusHistory(accountReference: string | null) {
   return useQuery({
     queryKey: ["admin", "account-status-history", accountReference],
     queryFn: () => fn({ data: { accountReference: accountReference! } }),
-    staleTime: ADMIN_OPERATIONAL_STALE_MS,
+    ...QUERY_POLICY.REALTIME,
     enabled: Boolean(accountReference) && staff?.authorized === true && staff.permissions.includes("accounts.read"),
   });
 }
@@ -165,7 +164,7 @@ export function useAdminCustomerDossier(customerId: string | null) {
   return useQuery({
     queryKey: [...ADMIN_DOSSIER_KEY, customerId],
     queryFn: () => fn({ data: { customerId: customerId! } }),
-    staleTime: ADMIN_OPERATIONAL_STALE_MS,
+    ...QUERY_POLICY.REALTIME,
     enabled: Boolean(customerId) && staff?.authorized === true && staff.permissions.includes("customers.read"),
   });
 }
