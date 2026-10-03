@@ -420,3 +420,29 @@ test("les listes métier évitent les rerenders inutiles et conservent une hiér
   assert.match(support, /import \{ memo, useState \} from "react"/);
   assert.match(support, /const CustomerThread = memo\(function CustomerThread/);
 });
+
+
+test("les écrans admin lourds chargent leurs tableaux métier à la demande", () => {
+  const routes = [
+    ["src/routes/admin.accounts.tsx", "AdminAccountsTable"],
+    ["src/routes/admin.customers.tsx", "AdminCustomersTable"],
+    ["src/routes/admin.funding.tsx", "FundingConsole"],
+    ["src/routes/admin.onboarding-cases.tsx", "AdminOnboardingCases"],
+  ];
+
+  for (const [path, component] of routes) {
+    const source = read(path);
+    assert.match(source, /import \{ lazy, Suspense \} from "react";/, path);
+    assert.match(source, new RegExp(`const ${component} = lazy\\(\\(\\) => import`), path);
+    assert.doesNotMatch(source, new RegExp(`import \\{ ${component} \\} from "@/features/admin/components/${component}"`), path);
+    assert.match(source, new RegExp(`<Suspense fallback=\\{<LoadingState />\\}>[\\s\\S]*<${component}`), path);
+  }
+});
+
+test("les gros modules restent absents du shell générique quand ils sont inutilisés", () => {
+  const chart = read("src/components/ui/chart.tsx");
+  const documents = read("src/features/documents/services/documents.server.ts");
+  assert.match(chart, /from "recharts"/);
+  assert.match(documents, /await import\("@\/features\/documents\/templates\/receipt-pdf\.server"\)/);
+  assert.doesNotMatch(read("src/router.tsx"), /from "recharts"|from "pdf-lib"/);
+});
