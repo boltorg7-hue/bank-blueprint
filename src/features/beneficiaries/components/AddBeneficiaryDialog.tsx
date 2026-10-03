@@ -93,12 +93,11 @@ export function AddBeneficiaryDialog({
                   setIdentifier(event.target.value);
                   setError(null);
                 }}
-                placeholder="Ex. 0012345678 ou TT00RFC…"
+                placeholder={en ? "e.g. 0012345678 or TT00RFC…" : "Ex. 0012345678 ou TT00RFC…"}
                 aria-invalid={error !== null || undefined}
               />
               <p className="text-caption text-muted-foreground">
-                Nous vérifions le compte avant tout enregistrement. Aucun virement n'est déclenché à
-                cette étape.
+                {en ? "We verify the account before registering it. No transfer is initiated at this stage." : "Nous vérifions le compte avant tout enregistrement. Aucun virement n'est déclenché à cette étape."}
               </p>
             </div>
 
@@ -122,14 +121,14 @@ export function AddBeneficiaryDialog({
                     onSuccess: (result) => {
                       if (!result) {
                         setError(
-                          "Aucun compte actif ne correspond à cet identifiant. Vérifiez la saisie auprès du bénéficiaire.",
+                          en ? "No active account matches this identifier. Check the details with the beneficiary." : "Aucun compte actif ne correspond à cet identifiant.",
                         );
                         return;
                       }
                       setResolved(result);
                     },
                     onError: () =>
-                      setError("La vérification n'a pas abouti. Vous pouvez réessayer."),
+                      setError(en ? "Verification failed. Please try again." : "La vérification n'a pas abouti. Vous pouvez réessayer."),
                   });
                 }}
               >
@@ -144,23 +143,23 @@ export function AddBeneficiaryDialog({
               <p className="text-caption text-muted-foreground">{en ? "Account verified" : "Compte vérifié"}</p>
               <p className="text-sm font-semibold text-foreground">{resolved.displayName}</p>
               <p className="text-caption text-muted-foreground">
-                Compte •••• {resolved.maskedNumber} · {resolved.currency}
+                {en ? "Account" : "Compte"} •••• {resolved.maskedNumber} · {resolved.currency}
               </p>
               {resolved.isOwnAccount ? (
                 <p className="text-caption mt-2 text-info">
-                  Ce compte vous appartient : il apparaîtra comme un virement entre vos comptes.
+                  {en ? "This account belongs to you: it will appear as a transfer between your accounts." : "Ce compte vous appartient : il apparaîtra comme un virement entre vos comptes."}
                 </p>
               ) : null}
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="beneficiary-nickname">Libellé (optionnel)</Label>
+              <Label htmlFor="beneficiary-nickname">{en ? "Label (optional)" : "Libellé (optionnel)"}</Label>
               <Input
                 id="beneficiary-nickname"
                 value={nickname}
                 maxLength={60}
                 onChange={(event) => setNickname(event.target.value)}
-                placeholder="Ex. Loyer, Épargne famille"
+                placeholder={en ? "e.g. Rent, Family savings" : "Ex. Loyer, Épargne famille"}
               />
             </div>
 
@@ -194,7 +193,7 @@ export function AddBeneficiaryDialog({
                       },
                       onError: () =>
                         setError(
-                          "L'enregistrement n'a pas abouti. Vérifiez le statut de votre compte, puis réessayez.",
+                          en ? "The beneficiary could not be saved. Check your account status and try again." : "L'enregistrement n'a pas abouti. Vérifiez le statut de votre compte, puis réessayez.",
                         ),
                     },
                   )
