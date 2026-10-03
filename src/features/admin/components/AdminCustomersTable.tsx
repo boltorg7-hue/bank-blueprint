@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { lazy, Suspense, useState } from "react";
 import { CheckCircle2, CircleAlert, XCircle } from "lucide-react";
 import { useLanguage } from "@/components/providers/LanguageProvider";
 import { StatusBadge } from "@/components/ui/status-badge";
@@ -12,7 +12,7 @@ import { toast } from "sonner";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { AdminCustomerOperationalDossier } from "@/features/admin/components/AdminCustomerOperationalDossier";
+const AdminCustomerOperationalDossier = lazy(() => import("@/features/admin/components/AdminCustomerOperationalDossier").then((module) => ({ default: module.AdminCustomerOperationalDossier })));
 
 export function AdminCustomersTable({ customers }: { customers: AdminCustomerDto[] }) {
   const { language } = useLanguage();
@@ -63,7 +63,7 @@ export function AdminCustomersTable({ customers }: { customers: AdminCustomerDto
     </div>
     <Dialog open={Boolean(decision)} onOpenChange={(open) => { if (!open) { setDecision(null); setReason(""); } }}><DialogContent className="w-[calc(100%-2rem)] rounded-md"><DialogHeader><DialogTitle>{en ? "Confirm customer status" : "Confirmer le statut client"}</DialogTitle><DialogDescription>{en ? "Record an auditable reason before confirming this sensitive action." : "Consignez un motif traçable avant de confirmer cette action sensible."}</DialogDescription></DialogHeader><div className="space-y-2"><Label htmlFor="customer-decision-reason">{en ? "Reason" : "Motif"}</Label><Textarea id="customer-decision-reason" value={reason} onChange={(event) => setReason(event.target.value)} minLength={8} autoFocus aria-invalid={reason.length > 0 && reason.trim().length < 8} />
         {reason.length > 0 ? <p className={reason.trim().length >= 8 ? "flex items-center gap-1.5 text-xs text-emerald-600 dark:text-emerald-400" : "flex items-center gap-1.5 text-xs text-destructive"}>{reason.trim().length >= 8 ? <CheckCircle2 className="size-3.5" aria-hidden="true" /> : <XCircle className="size-3.5" aria-hidden="true" />}{reason.trim().length >= 8 ? (en ? "Valid reason." : "Motif valide.") : (en ? "At least 8 characters." : "Au moins 8 caractères.")}</p> : <p className="flex items-center gap-1.5 text-xs text-muted-foreground"><CircleAlert className="size-3.5" aria-hidden="true" />{en ? "Required for audit." : "Requis pour la traçabilité."}</p>}</div><DialogFooter className="gap-2"><Button variant="outline" onClick={() => setDecision(null)}>{en ? "Cancel" : "Annuler"}</Button><Button onClick={() => void confirmChange()} disabled={reason.trim().length < 8 || mutation.isPending} loading={mutation.isPending}>{en ? "Confirm" : "Confirmer"}</Button></DialogFooter></DialogContent></Dialog>
-    <AdminCustomerOperationalDossier customer={details} open={Boolean(details)} onOpenChange={(open) => { if (!open) setDetails(null); }} />
+    <Suspense fallback={null}><AdminCustomerOperationalDossier customer={details} open={Boolean(details)} onOpenChange={(open) => { if (!open) setDetails(null); }} /></Suspense>
     </>
   );
 }
