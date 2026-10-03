@@ -5,7 +5,7 @@ import type {
   CustomerAccountDetailsDto,
   CustomerAccountSummaryDto,
   DashboardSummaryDto,
-} from "@/features/accounts/types/account";
+} from "@/domain/accounts/types";
 
 /**
  * Account server functions (§167). Thin wrappers only: every runtime helper
