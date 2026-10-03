@@ -10,7 +10,11 @@ import type {
   AdminOnboardingCaseDto,
   AdminActionResult,
   AdminCustomerPageDto,
-  AdminAccountPageDto,\n  FundingRequestPageDto,\n  AdminAuditEventPageDto,\n  AdminExternalTransferPageDto,
+  AdminAccountPageDto,
+  FundingRequestPageDto,
+  FundingAccountOptionDto,
+  AdminAuditEventPageDto,
+  AdminExternalTransferPageDto,
 } from "@/features/admin/types/admin";
 import type { CustomerLifecycleState } from "@/types/customer-lifecycle";
 
@@ -534,15 +538,16 @@ export async function loadAdminAccountStatusHistory(client: Client, accountRefer
 export async function loadAdminAccounts(
   client: Client,
   search = "",
-): Promise<AdminAccountDto[]> {
+  cursor: string | null = null,
+): Promise<AdminAccountPageDto> {
   await requireAdminPermission(client, "accounts.read");
   const admin = await adminClient();
   let query = admin
     .from("bank_accounts")
     .select("id, user_id, public_reference, display_name, currency, currency_minor_unit, status, account_number, created_at")
     .order("created_at", { ascending: false })
-    .limit(100);
-  const term = search.trim().replace(/[%_,()]/g, "");
+    .order("id", { ascending: false });
+  const term = search.trim().replace(/[%_,()]/g, "").slice(0, 80);
   if (term) query = query.or(`public_reference.ilike.%${term}%,account_number.ilike.%${term}%,display_name.ilike.%${term}%`);
   const cursorValue = decodeAdminCursor(cursor);
   if (cursorValue) query = query.or(`created_at.lt.${cursorValue.createdAt},and(created_at.eq.${cursorValue.createdAt},id.lt.${cursorValue.id})`);
@@ -588,6 +593,44 @@ export async function loadAdminAccounts(
       heldBalanceMinor: Number(balance?.held_balance_minor ?? 0),
     };
   });
+  const last = rows[rows.length - 1];
+  return { items, hasNext, nextCursor: hasNext && last ? encodeAdminCursor({ createdAt: String(last.created_at), id: String(last.id) }) : null };
+}
+
+export async function searchFundingAccounts(
+  client: Client,
+  search = "",
+): Promise<FundingAccountOptionDto[]> {
+  const staff = await requireAdminPermission(client);
+  if (!staff.permissions.includes("finance.adjustment.create") && !staff.permissions.includes("finance.adjustment.approve")) {
+    throw new AdminAccessError("ADMIN_FORBIDDEN");
+  }
+  const admin = await adminClient();
+  const term = search.trim().replace(/[%_,()]/g, "").slice(0, 80);
+  let query = admin
+    .from("bank_accounts")
+    .select("id, user_id, public_reference, account_number, display_name, created_at")
+    .eq("status", "ACTIVE")
+    .order("created_at", { ascending: false })
+    .order("id", { ascending: false })
+    .limit(20);
+  if (term) query = query.or(`public_reference.ilike.%${term}%,account_number.ilike.%${term}%,display_name.ilike.%${term}%`);
+  const { data, error } = await query;
+  if (error) throw new AdminAccessError("FUNDING_ACCOUNTS_UNAVAILABLE");
+  const rows = data ?? [];
+  const userIds = [...new Set(rows.map((row: any) => String(row.user_id)))];
+  const { data: profiles } = userIds.length
+    ? await admin.from("profiles").select("id, first_name, middle_name, last_name").in("id", userIds)
+    : { data: [] as any[] };
+  const names = new Map((profiles ?? []).map((row: any) => [
+    String(row.id),
+    [row.first_name, row.middle_name, row.last_name].filter(Boolean).join(" ") || "Client sans nom",
+  ]));
+  return rows.map((row: any) => ({
+    id: String(row.id),
+    reference: String(row.public_reference),
+    holderName: names.get(String(row.user_id)) ?? "Client indisponible",
+  }));
 }
 
 export async function loadAdminAuditEvents(client: Client, search = "", cursor: string | null = null): Promise<AdminAuditEventPageDto> {
