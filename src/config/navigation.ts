@@ -63,6 +63,21 @@ export const CUSTOMER_DESKTOP_NAV: NavItem[] = [
   { label: "Messages", to: "/app/messages", icon: MessagesSquare },
 ];
 
+/** Mobile “Plus” owns secondary account/service destinations, while primary flows keep their own active state. */
+export function isCustomerMoreRoute(pathname: string): boolean {
+  return [
+    "/app/more",
+    "/app/beneficiaries",
+    "/app/statements",
+    "/app/documents",
+    "/app/messages",
+    "/app/notifications",
+    "/app/profile",
+    "/app/security",
+    "/app/settings",
+  ].some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`));
+}
+
 export const CUSTOMER_SECONDARY_NAV: NavItem[] = [
   { label: "Notifications", to: "/app/notifications", icon: Bell },
   { label: "Profil", to: "/app/profile", icon: UserRound },
