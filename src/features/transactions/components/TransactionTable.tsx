@@ -77,6 +77,7 @@ export function TransactionTable({ items }: { items: CustomerTransactionDto[] })
                     item.currency,
                     item.minorUnit,
                     item.direction,
+                    en ? "en" : "fr",
                   )}
                 >
                   {privacyMode
