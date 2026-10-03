@@ -120,3 +120,15 @@ test("les collections admin Funding, Audit et External Transfers utilisent une p
   assert.match(functions, /listAdminExternalTransfers[\\s\\S]*?data\\.cursor/);
   assert.match(functions, /listAdminAuditEvents[\\s\\S]*?data\\.cursor/);
 });
+
+test("le funding ne dépend plus de la collection Accounts paginée", () => {
+  const server = read("src/features/admin/services/admin.server.ts");
+  const functions = read("src/features/admin/services/admin.functions.ts");
+  const hooks = read("src/features/admin/hooks/useAdmin.ts");
+  const ui = read("src/features/admin/components/FundingConsole.tsx");
+  assert.match(server, /searchFundingAccounts[\\s\\S]*?\.eq\("status", "ACTIVE"\)/);
+  assert.match(server, /searchFundingAccounts[\\s\\S]*?\.limit\(20\)/);
+  assert.match(functions, /searchFundingAccounts/);
+  assert.match(hooks, /useFundingAccountSearch/);
+  assert.doesNotMatch(ui, /useAdminAccounts/);
+});
