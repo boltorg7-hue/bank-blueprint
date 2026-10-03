@@ -44,8 +44,8 @@ for (const file of migrationFiles) {
     entry.securityDefiner = /SECURITY\s+DEFINER/i.test(match[0]);
     entry.searchPath = /search_path\s*(?:=|TO)/i.test(match[0]);
   }
-  for (const match of sql.matchAll(/GRANT\\s+EXECUTE\\s+ON\\s+FUNCTION\\s+([a-zA-Z0-9_]+\\.)?([a-zA-Z0-9_]+)\\s*\\(([^)]*)\\)\\s+TO\\s+([^;]+);/gi)) {
-    const grant = match[0].replace(/\\s+/g, " ").trim();
+  for (const match of sql.matchAll(/GRANT\s+EXECUTE\s+ON\s+FUNCTION\s+([a-zA-Z0-9_]+\\.)?([a-zA-Z0-9_]+)\s*\\(([^)]*)\\)\s+TO\s+([^;]+);/gi)) {
+    const grant = match[0].replace(/\s+/g, " ").trim();
     getEntry(match[2]).grants.add(relative + ": " + grant);
   }
 }
