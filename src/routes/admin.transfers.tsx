@@ -5,6 +5,7 @@ import { toast } from "sonner";
 
 import { EmptyState, ErrorState, LoadingState } from "@/components/feedback";
 import { PageHeader } from "@/components/layout/PageHeader";
+import { PageSection } from "@/components/ui/page-section";
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -49,6 +50,7 @@ function AdminTransfersPage() {
         title={en ? "Pending transfers" : "Virements en attente"}
         description={en ? "Track each amount, recipient and processing status." : "Suivez chaque montant, destinataire et statut de traitement."}
       />
+      <PageSection>
       {query.isPending ? (
         <LoadingState />
       ) : query.isError ? (
@@ -58,6 +60,7 @@ function AdminTransfersPage() {
       ) : (
         <ExternalTransfersTable transfers={query.data} />
       )}
+      </PageSection>
     </AdminGate>
   );
 }
