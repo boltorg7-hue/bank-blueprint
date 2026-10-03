@@ -10,6 +10,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { useLanguage } from "@/components/providers/LanguageProvider";
 import { cn } from "@/lib/utils";
 
 /**
@@ -22,8 +23,8 @@ export function ConfirmDialog({
   title,
   description,
   summary,
-  confirmLabel = "Confirmer",
-  cancelLabel = "Annuler",
+  confirmLabel,
+  cancelLabel,
   tone = "default",
   loading = false,
   onConfirm,
@@ -40,6 +41,8 @@ export function ConfirmDialog({
   loading?: boolean;
   onConfirm: () => void;
 }) {
+  const { language } = useLanguage();
+  const en = language === "en";
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent className="safe-pb max-w-md">
@@ -54,7 +57,7 @@ export function ConfirmDialog({
         )}
         <AlertDialogFooter className="flex-col-reverse gap-2 sm:flex-row">
           <AlertDialogCancel disabled={loading} className="mt-0 h-11 w-full sm:w-auto">
-            {cancelLabel}
+            {cancelLabel ?? (en ? "Cancel" : "Annuler")}
           </AlertDialogCancel>
           <AlertDialogAction
             onClick={onConfirm}
@@ -65,7 +68,7 @@ export function ConfirmDialog({
               tone === "danger" && "bg-destructive text-destructive-foreground hover:bg-destructive/90",
             )}
           >
-            {loading ? "Traitement…" : confirmLabel}
+            {loading ? (en ? "Processing…" : "Traitement…") : (confirmLabel ?? (en ? "Confirm" : "Confirmer"))}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
