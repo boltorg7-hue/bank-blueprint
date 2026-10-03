@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import type { CustomerContext } from "@/features/onboarding/types/customer-context";
+import type { CustomerContext } from "@/domain/onboarding/types";
 
 export const getCustomerContext = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
