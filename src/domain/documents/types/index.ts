@@ -1,6 +1,7 @@
 import type {DocumentLifecycleStatus} from "../../statements/types";
 export type CustomerDocumentType="ACCOUNT_STATEMENT"|"TRANSFER_RECEIPT"|"TRANSACTION_RECEIPT"|"BANK_LETTER"|"ACCOUNT_CERTIFICATE";
 export type CustomerDocumentDto={reference:string;documentType:CustomerDocumentType;title:string;status:DocumentLifecycleStatus;sourceType:string;sourceReference:string|null;accountReference:string|null;fileName:string|null;mimeType:string;sizeBytes:number|null;version:number;generatedAt:string|null;createdAt:string};
+export type CustomerDocumentPageDto={items:CustomerDocumentDto[];hasNext:boolean;nextCursor:string|null};
 export type DocumentDownloadDto={url:string;fileName:string;expiresInSeconds:number};
 export type DocumentFilter="ALL"|"STATEMENTS"|"RECEIPTS"|"LETTERS";
 export const DOCUMENT_REFERENCE_PATTERN=/^DOC-\\d{4}-\\d{8}$/;
