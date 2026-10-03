@@ -84,7 +84,7 @@ export function BeneficiaryList({ action }: { action?: React.ReactNode }) {
                     aria-label={`${en ? "Send a transfer to" : "Envoyer un virement à"} ${beneficiaryLabel(beneficiary)}`}
                   >
                     <Send className="size-4" aria-hidden="true" />
-                    <span className="hidden sm:inline">{en ? "Send" : "Envoyer"}</span>
+                    <span className="hidden md:inline">{en ? "Send" : "Envoyer"}</span>
                   </Link>
                 </Button>
                 <DropdownMenu>
