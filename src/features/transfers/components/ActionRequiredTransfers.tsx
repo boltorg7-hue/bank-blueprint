@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import { useLanguage } from "@/components/providers/LanguageProvider";
 import { ChevronRight, ShieldAlert } from "lucide-react";
 
 import { Card } from "@/components/ui/card";
@@ -11,6 +12,8 @@ import { formatMoneyFromMinor } from "@/lib/format/currency";
  * §77). Nothing is shown when there is nothing to do: no invented urgency.
  */
 export function ActionRequiredTransfers() {
+  const { language } = useLanguage();
+  const en = language === "en";
   const { data } = useTransfers(30);
   const pending = (data ?? []).filter((transfer) =>
     ACTION_REQUIRED_TRANSFER_STATUSES.includes(transfer.status),
@@ -21,7 +24,7 @@ export function ActionRequiredTransfers() {
   return (
     <section aria-labelledby="transfers-action-required" className="space-y-3">
       <h2 id="transfers-action-required" className="text-sm font-semibold text-foreground">
-        Action requise
+        {en ? "Action required" : "Action requise"}
       </h2>
       <ul className="space-y-3" role="list">
         {pending.map((transfer) => (
@@ -41,8 +44,8 @@ export function ActionRequiredTransfers() {
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-semibold text-foreground">
                     {transfer.status === "DOCUMENT_REQUIRED"
-                      ? "Un justificatif est nécessaire"
-                      : "Un virement attend votre confirmation"}
+                      ? (en ? "A document is required" : "Un justificatif est nécessaire")
+                      : (en ? "A transfer is waiting for your confirmation" : "Un virement attend votre confirmation")}
                   </p>
                   <p className="text-caption truncate text-muted-foreground">
                     {transfer.recipientDisplay} ·{" "}
