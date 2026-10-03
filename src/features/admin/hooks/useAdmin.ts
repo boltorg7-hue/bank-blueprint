@@ -50,12 +50,12 @@ export function useAdminCustomers(search: string, cursor: string | null = null, 
   return useQuery({ queryKey: [...ADMIN_CUSTOMERS_KEY, search, cursor, lifecycle, accounts, attention], queryFn: () => fn({ data: { search, cursor, lifecycle, accounts, attention } }), ...QUERY_POLICY.NORMAL, enabled: staff?.authorized === true && staff.permissions.includes("customers.read") });
 }
 
-export function useAdminOnboardingCases(search: string) {
+export function useAdminOnboardingCases(search: string, status = "ALL", cursor: string | null = null) {
   const fn = useServerFn(listAdminOnboardingCases);
   const { data: staff } = useAdminContext();
   return useQuery({
-    queryKey: [...ADMIN_ONBOARDING_KEY, search],
-    queryFn: () => fn({ data: { search } }),
+    queryKey: [...ADMIN_ONBOARDING_KEY, search, status, cursor],
+    queryFn: () => fn({ data: { search, status, cursor } }),
     ...QUERY_POLICY.NORMAL,
     enabled: staff?.authorized === true && staff.permissions.includes("customers.read"),
   });
