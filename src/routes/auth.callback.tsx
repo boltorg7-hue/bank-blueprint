@@ -98,21 +98,21 @@ function AuthCallbackPage() {
   if (failed) {
     return (
       <AuthShell
-        title="Connexion incomplète"
-        description="Nous n'avons pas pu finaliser votre connexion. Réessayez depuis la page de connexion."
+        title={language === "en" ? "Incomplete sign-in" : "Connexion incomplète"}
+        description={language === "en" ? "We could not complete your sign-in. Please try again from the sign-in page." : "Nous n'avons pas pu finaliser votre connexion. Réessayez depuis la page de connexion."}
       >
         <Button className="w-full touch-target" onClick={() => void navigate({ to: "/login" })}>
-          Retour à la connexion
+          {language === "en" ? "Back to sign-in" : "Retour à la connexion"}
         </Button>
       </AuthShell>
     );
   }
 
   return (
-    <AuthShell title="Connexion en cours" description="Nous préparons votre espace sécurisé.">
+    <AuthShell title={language === "en" ? "Signing you in" : "Connexion en cours"} description={language === "en" ? "We are preparing your secure banking space." : "Nous préparons votre espace sécurisé."}>
       <div className="flex items-center gap-3 text-muted-foreground">
         <Spinner className="size-5" />
-        <span className="text-body-sm">Un instant…</span>
+        <span className="text-body-sm">{language === "en" ? "One moment…" : "Un instant…"}</span>
       </div>
     </AuthShell>
   );
