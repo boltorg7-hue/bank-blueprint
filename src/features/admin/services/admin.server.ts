@@ -73,8 +73,11 @@ export async function loadAdminCustomers(
     const key = String((account as any).user_id);
     counts.set(key, (counts.get(key) ?? 0) + 1);
   }
-  const { data: authPage } = await admin.auth.admin.listUsers({ page: 1, perPage: 1000 });
-  const emailById = new Map((authPage?.users ?? []).map((user) => [user.id, user.email ?? null]));
+  const authById = new Map<string, string | null>();
+  if (ids.length) {
+    const { data: authPage } = await admin.auth.admin.listUsers({ page: 1, perPage: 1000 });
+    for (const user of authPage?.users ?? []) if (ids.includes(user.id)) authById.set(user.id, user.email ?? null);
+  }
   const customerIds = (data ?? []).map((row: any) => String(row.id));
   const accountIds = (accounts ?? []).map((row: any) => String((row as any).id)).filter(Boolean);
   const [{ data: verifications }, { data: documents }, { data: notifications }, { data: transfers }, { data: funding }] = await Promise.all([
@@ -171,7 +174,7 @@ export async function loadAdminCustomers(
       id: row.id,
       reference: `CUS-${String(row.id).replace(/-/g, "").slice(0, 12).toUpperCase()}`,
       fullName: [row.first_name, row.middle_name, row.last_name].filter(Boolean).join(" ") || "Client sans nom",
-      email: emailById.get(row.id) ?? null,
+      email: authById.get(row.id) ?? null,
       phone: row.phone ?? null,
       lifecycleState: row.lifecycle_state as CustomerLifecycleState,
       accountCount: counts.get(row.id) ?? 0,
