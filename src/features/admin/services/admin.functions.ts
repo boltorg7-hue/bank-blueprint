@@ -10,7 +10,8 @@ import type {
   AdminExternalTransferDto,
   AdminOnboardingCaseDto,
   AdminAuditEventDto,
-  AdminCustomerPageDto,\n  AdminAccountPageDto,
+  AdminCustomerPageDto,
+  AdminAccountPageDto,
 } from "@/features/admin/types/admin";
 
 function customerSearchInput(input: { search?: string; cursor?: string | null; lifecycle?: string; accounts?: string; attention?: string } | undefined) {
