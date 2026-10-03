@@ -238,7 +238,7 @@ test("la matrice des fonctions expose une empreinte de la définition finale et 
   const audit = read("scripts/audit-migration-functions.mjs");
   assert.match(audit, /finalDefinition/);
   assert.match(audit, /sha256/);
-  assert.match(audit, /GRANT\\s\+EXECUTE\\s+ON\\s+FUNCTION/);
+  assert.match(audit, /GRANT\s+EXECUTE\s+ON\s+FUNCTION/);
   assert.match(audit, /entry\.modifiedIn\.at\(-1\)/);
 });
 
