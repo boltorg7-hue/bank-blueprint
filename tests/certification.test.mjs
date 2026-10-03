@@ -79,3 +79,304 @@ test("la messagerie est uniquement client vers service client", () => {
   assert.match(migration, /has_permission\(auth\.uid\(\),'support\.reply'\)/);
   assert.doesNotMatch(migration, /recipient_user_id/);
 });
+
+test("les hooks React Query admin utilisent uniquement une politique centralisée", () => {
+  const adminHooks = read("src/features/admin/hooks/useAdmin.ts");
+  assert.doesNotMatch(adminHooks, /ADMIN_OPERATIONAL_STALE_MS/);
+  assert.doesNotMatch(adminHooks, /\bstaleTime\s*:/);
+  assert.match(adminHooks, /\.\.\.QUERY_POLICY\.REALTIME/);
+});
+
+
+test("les collections admin Customers et Accounts utilisent un curseur serveur stable", () => {
+  const server = read("src/features/admin/services/admin.server.ts");
+  const functions = read("src/features/admin/services/admin.functions.ts");
+  const hooks = read("src/features/admin/hooks/useAdmin.ts");
+  assert.match(server, /loadAdminCustomers[\\s\\S]*?decodeAdminCursor\\(cursor\\)/);
+  assert.match(server, /loadAdminAccounts[\\s\\S]*?decodeAdminCursor\\(cursor\\)/);
+  assert.doesNotMatch(server, /loadAdminCustomers[\\s\\S]*?\\.range\\(/);
+  assert.doesNotMatch(server, /loadAdminAccounts[\\s\\S]*?\\.limit\\(100\\)/);
+  assert.match(functions, /listAdminCustomers[\\s\\S]*?data\\.cursor/);
+  assert.match(functions, /listAdminAccounts[\\s\\S]*?data\\.cursor/);
+  assert.match(hooks, /useAdminCustomers\\(search: string, cursor/);
+  assert.match(hooks, /useAdminAccounts\\(search = \\"\\", cursor/);
+});
+
+
+test("les collections admin Funding, Audit et External Transfers utilisent une pagination curseur", () => {
+  const server = read("src/features/admin/services/admin.server.ts");
+  const functions = read("src/features/admin/services/admin.functions.ts");
+  assert.match(server, /loadFundingRequests[\\s\\S]*?decodeAdminCursor\\(cursor\\)/);
+  assert.match(server, /loadAdminAuditEvents[\\s\\S]*?decodeAdminCursor\\(cursor\\)/);
+  assert.match(server, /loadExternalTransfers[\\s\\S]*?decodeAdminCursor\\(cursor\\)/);
+  for (const name of ["loadFundingRequests", "loadAdminAuditEvents", "loadExternalTransfers"]) {
+    const start = server.indexOf(`export async function ${name}`);
+    const end = server.indexOf("export async function ", start + 20);
+    const body = server.slice(start, end < 0 ? server.length : end);
+    assert.doesNotMatch(body, /\\.limit\\(100\\)/, name);
+    assert.match(body, /limit\\(ADMIN_PAGE_SIZE \\+ 1\\)/, name);
+  }
+  assert.match(functions, /listFundingRequests[\\s\\S]*?data\\.cursor/);
+  assert.match(functions, /listAdminExternalTransfers[\\s\\S]*?data\\.cursor/);
+  assert.match(functions, /listAdminAuditEvents[\\s\\S]*?data\\.cursor/);
+});
+
+test("le funding ne dépend plus de la collection Accounts paginée", () => {
+  const server = read("src/features/admin/services/admin.server.ts");
+  const functions = read("src/features/admin/services/admin.functions.ts");
+  const hooks = read("src/features/admin/hooks/useAdmin.ts");
+  const ui = read("src/features/admin/components/FundingConsole.tsx");
+  assert.match(server, /searchFundingAccounts[\\s\\S]*?\.eq\("status", "ACTIVE"\)/);
+  assert.match(server, /searchFundingAccounts[\\s\\S]*?\.limit\(20\)/);
+  assert.match(functions, /searchFundingAccounts/);
+  assert.match(hooks, /useFundingAccountSearch/);
+  assert.doesNotMatch(ui, /useAdminAccounts/);
+});
+
+test("Onboarding utilise recherche, statut et pagination serveur", () => {
+  const server = read("src/features/admin/services/admin.server.ts");
+  const functions = read("src/features/admin/services/admin.functions.ts");
+  const hooks = read("src/features/admin/hooks/useAdmin.ts");
+  const route = read("src/routes/admin.onboarding-cases.tsx");
+  assert.match(server, /loadAdminOnboardingCases[\\s\\S]*?decodeAdminCursor\\(cursor\\)/);
+  assert.match(server, /loadAdminOnboardingCases[\\s\\S]*?limit\\(ADMIN_PAGE_SIZE \\+ 1\\)/);
+  assert.doesNotMatch(server, /loadAdminOnboardingCases[\\s\\S]*?\\.limit\\(100\\)/);
+  assert.match(functions, /onboardingSearchInput/);
+  assert.match(functions, /listAdminOnboardingCases[\\s\\S]*?data\\.cursor/);
+  assert.match(hooks, /useAdminOnboardingCases\\(search: string, status = "ALL", cursor/);
+  assert.doesNotMatch(route, /useMemo|\\.filter\\(\\(item\\) => item\\.verificationStatus/);
+  assert.match(route, /query\\.data\\.hasNext/);
+});
+
+test("l'historique transactions utilise un curseur serveur", () => {
+  const server = read("src/features/transactions/services/transactions.server.ts");
+  const types = read("src/features/transactions/types/transaction.ts");
+  const ui = read("src/features/transactions/components/TransactionHistory.tsx");
+  assert.match(server, /decodeTransactionCursor\\(request.cursor\\)/);
+  assert.match(server, /limit\\(pageSize \\+ 1\\)/);
+  assert.doesNotMatch(server, /getTransactions[\\s\\S]*?\\.range\\(/);
+  assert.doesNotMatch(server, /getTransactions[\\s\\S]*?count: "exact"/);
+  assert.match(types, /cursor\\?: string \\| null/);
+  assert.match(ui, /cursorHistory/);
+  assert.doesNotMatch(ui, /totalCount|totalPages/);
+});
+
+test("documents et support utilisent la pagination serveur", () => {
+  const documents = read("src/features/documents/services/documents.server.ts");
+  const documentUi = read("src/features/documents/components/DocumentList.tsx");
+  const support = read("src/features/support/services/support.server.ts");
+  const supportUi = read("src/features/support/components/SupportCenter.tsx");
+  const adminSupportUi = read("src/features/support/components/AdminSupportConsole.tsx");
+  assert.match(documents, /decodeDocumentCursor\\(options.cursor\\)/);
+  assert.match(documents, /limit\\(DOCUMENT_PAGE_SIZE \\+ 1\\)/);
+  assert.doesNotMatch(documents, /listDocuments[\\s\\S]*?\\.limit\\(40\\)/);
+  assert.match(documentUi, /hasNext/);
+  assert.match(support, /decodeSupportCursor\\(cursor\\)/);
+  assert.match(support, /SUPPORT_PAGE_SIZE \\+ 1/);
+  assert.doesNotMatch(support, /loadAdminSupport[\\s\\S]*?\\.limit\\(100\\)/);
+  assert.match(support, /messagesByThread/);
+  assert.doesNotMatch(support, /messages.*\\.filter\\(.*thread_id/);
+  assert.match(supportUi, /useCustomerSupport\\(cursor\\)/);
+  assert.match(adminSupportUi, /useAdminSupport\\(cursor\\)/);
+});
+
+test("notifications utilise pagination et filtre serveur", () => {
+  const server = read("src/features/notifications/services/notifications.server.ts");
+  const ui = read("src/features/notifications/components/NotificationCenter.tsx");
+  assert.match(server, /decodeNotificationCursor\\(options.cursor\\)/);
+  assert.match(server, /NOTIFICATION_PAGE_SIZE\\+1/);
+  assert.match(server, /category!=="ALL"/);
+  assert.match(ui, /useNotifications\\(filter, cursor\\)/);
+  assert.doesNotMatch(ui, /q\\.data\\?\\.items \\?\\? \\[\\]\\)\\.filter/);
+});
+
+test("la matrice DB certifie la version finale des fonctions", () => {
+  const audit = read("scripts/audit-migration-functions.mjs");
+  assert.match(audit, /entry\.finalDefinition = match\[0\]/);
+  assert.match(audit, /entry\.securityDefiner = \/SECURITY\\s\+DEFINER/);
+  assert.match(audit, /entry\.searchPath = \/search_path/);
+  assert.doesNotMatch(audit, /securityDefiner \\|\\|=/);
+  assert.doesNotMatch(audit, /searchPath \\|\\|=/);
+});
+
+
+test("les policies sensibles ne peuvent pas ouvrir une surface anon/public et les lectures authenticated sont bornées", () => {
+  const sql = read("supabase/tests/full_security_certification.sql");
+  assert.match(sql, /SENSITIVE_POLICY_EXPOSES_ANON_OR_PUBLIC/);
+  assert.match(sql, /AUTHENTICATED_POLICY_NOT_SCOPED/);
+  assert.match(sql, /auth\\\\\.uid/);
+  assert.match(sql, /has_permission/);
+  assert.match(sql, /is_staff/);
+});
+
+
+test("la matrice des migrations trie par timestamp même dans les sous-dossiers", () => {
+  const audit = read("scripts/audit-migration-functions.mjs");
+  assert.match(audit, /path\.basename\(a\)/);
+  assert.match(audit, /path\.basename\(b\)/);
+  assert.match(audit, /aName\.localeCompare\(bName\)/);
+  assert.match(audit, /\\$\\$\[\\s\\S\]\*\?\\\\\$\\$/);
+});
+
+
+test("les migrations Supabase restent toutes dans le répertoire racine des migrations", () => {
+  const migrationsDir = new URL("../supabase/migrations/", import.meta.url);
+  const walk = (url, prefix = "") => {
+    return readdirSync(url, { withFileTypes: true }).flatMap((entry) => {
+      const relative = prefix ? `${prefix}/${entry.name}` : entry.name;
+      if (entry.isDirectory()) return walk(new URL(`${entry.name}/`, url), relative);
+      return [relative];
+    });
+  };
+  const paths = walk(migrationsDir);
+  assert.ok(paths.includes("20260930210000_step01_customer_onboarding_hardening.sql"));
+  assert.ok(paths.every((path) => !path.includes("/")));
+});
+
+
+test("la matrice des fonctions expose une empreinte de la définition finale et les grants signés", () => {
+  const audit = read("scripts/audit-migration-functions.mjs");
+  assert.match(audit, /finalDefinition/);
+  assert.match(audit, /sha256/);
+  assert.match(audit, /GRANT\s+EXECUTE\s+ON\s+FUNCTION/);
+  assert.match(audit, /entry\.modifiedIn\.at\(-1\)/);
+});
+
+test("les index de production couvrent les parcours de pagination et recherche principaux", () => {
+  const sql = read("supabase/migrations/20261003080000_performance_search_indexes.sql");
+  for (const index of [
+    "idx_profiles_created_at_id",
+    "idx_profiles_lifecycle_created_at",
+    "idx_bank_accounts_user_created",
+    "idx_bank_accounts_created_at_id",
+    "idx_transfers_sender_status_created",
+    "idx_transfers_status_created",
+    "idx_funding_requests_account_status_created",
+    "idx_funding_requests_created_at_id",
+    "idx_customer_documents_user_created",
+    "idx_support_threads_last_message",
+    "idx_notifications_user_unread",
+    "idx_admin_audit_events_created",
+    "idx_account_status_history_account_created"
+  ]) {
+    assert.match(sql, new RegExp(`create index if not exists ${index}`, "i"), index);
+  }
+  assert.match(sql, /using gin \(first_name extensions\.gin_trgm_ops\)/i);
+  assert.match(sql, /using gin \(last_name extensions\.gin_trgm_ops\)/i);
+});
+
+
+test("le shell mobile respecte le contrat tactile et les safe areas", () => {
+  const styles = read("src/styles.css");
+  const bottomNav = read("src/components/navigation/CustomerBottomNav.tsx");
+  const bankingLayout = read("src/components/layout/BankingAppLayout.tsx");
+  assert.match(styles, /touch-action:\s*manipulation/);
+  assert.match(styles, /-webkit-tap-highlight-color:\s*transparent/);
+  assert.match(styles, /overflow-x:\s*hidden/);
+  assert.match(bottomNav, /safe-pb/);
+  assert.match(bottomNav, /min-h-16/);
+  assert.match(bottomNav, /touch-target/);
+  assert.match(bankingLayout, /pb-mobile-nav/);
+  assert.match(bankingLayout, /min-h-dvh-safe/);
+});
+
+test("les primitives de dialogue conservent une fermeture tactile de 44px minimum", () => {
+  for (const file of ["src/components/ui/dialog.tsx", "src/components/ui/sheet.tsx"]) {
+    const source = read(file);
+    assert.match(source, /flex size-11 items-center justify-center/);
+    assert.match(source, /touch-target/);
+  }
+});
+
+test("la navigation mobile client reste limitée à cinq destinations primaires", () => {
+  const navigation = read("src/config/navigation.ts");
+  const match = navigation.match(/export const CUSTOMER_PRIMARY_NAV[\s\S]*?\];/);
+  assert.ok(match);
+  const entries = match[0].match(/\{ label:/g) ?? [];
+  assert.ok(entries.length <= 5);
+
+  const bottomNav = read("src/components/navigation/CustomerBottomNav.tsx");
+  assert.match(bottomNav, /item\.to === "\/app\/more"/);
+  assert.match(bottomNav, /pathname\.startsWith\("\/app\/transactions"\)/);
+});
+
+
+test("les primitives UI partagent une grammaire visuelle et tactile cohérente", () => {
+  const input = read("src/components/ui/input.tsx");
+  const textarea = read("src/components/ui/textarea.tsx");
+  const select = read("src/components/ui/select.tsx");
+  const tabs = read("src/components/ui/tabs.tsx");
+  const badge = read("src/components/ui/badge.tsx");
+  const form = read("src/components/ui/form.tsx");
+
+  for (const source of [input, textarea]) {
+    assert.match(source, /bg-surface/);
+    assert.match(source, /focus-visible:ring-2 focus-visible:ring-ring/);
+  }
+  assert.match(select, /min-h-11/);
+  assert.match(select, /focus:ring-2 focus:ring-ring/);
+  assert.match(select, /min-h-11 w-full cursor-default/);
+  assert.match(tabs, /min-h-11 items-center/);
+  assert.match(tabs, /min-h-9 items-center/);
+  for (const tone of ["success", "warning", "info", "danger"]) {
+    assert.match(badge, new RegExp(tone + ":"));
+  }
+  assert.match(form, /text-body-sm text-muted-foreground/);
+  assert.match(form, /text-body-sm font-medium text-destructive/);
+});
+
+
+test("les écrans métier principaux conservent une composition mobile-first", () => {
+  const dashboard = read("src/routes/app.dashboard.tsx");
+  const history = read("src/features/transactions/components/TransactionHistory.tsx");
+  const transfer = read("src/features/transfers/components/TransferWizard.tsx");
+  const profile = read("src/features/profile/components/ProfilePage.tsx");
+  const security = read("src/features/security/components/SecurityCenter.tsx");
+  const support = read("src/features/support/components/SupportCenter.tsx");
+  const stepper = read("src/components/ui/stepper.tsx");
+
+  assert.match(dashboard, /grid gap-3 sm:grid-cols-\[minmax\(0,1fr\)_auto\]/);
+  assert.match(dashboard, /grid gap-3 md:grid-cols-2/);
+  assert.match(history, /lg:hidden/);
+  assert.match(history, /hidden lg:block/);
+  assert.match(transfer, /w-full sm:w-auto/);
+  assert.match(profile, /w-full sm:w-auto/);
+  assert.match(security, /flex-col items-start gap-2 sm:flex-row/);
+  assert.match(support, /flex flex-col gap-2 sm:flex-row/);
+  assert.match(support, /SelectTrigger/);
+  assert.match(stepper, /sm:hidden/);
+  assert.match(stepper, /text-caption/);
+});
+
+test("le tableau financier bascule vers une liste mobile au lieu de forcer un tableau étroit", () => {
+  const history = read("src/features/transactions/components/TransactionHistory.tsx");
+  const list = read("src/features/transactions/components/TransactionList.tsx");
+  const table = read("src/features/transactions/components/TransactionTable.tsx");
+  assert.match(history, /<TransactionList/);
+  assert.match(history, /<TransactionTable/);
+  assert.match(list, /native-list/);
+  assert.match(table, /overflow-hidden rounded-xl border/);
+});
+
+
+test("le socle tactile 5.5 conserve des zones d'action d'au moins 44px", () => {
+  const dropdown = read("src/components/ui/dropdown-menu.tsx");
+  const command = read("src/components/ui/command.tsx");
+  const sheet = read("src/components/ui/sheet.tsx");
+  const dialog = read("src/components/ui/dialog.tsx");
+  assert.match(dropdown, /min-h-11/);
+  assert.match(command, /min-h-11/);
+  assert.match(command, /h-12 w-full/);
+  assert.match(sheet, /safe-pb/);
+  assert.match(dialog, /size-11/);
+});
+
+test("les actions financières critiques ont un verrou local contre le double-submit", () => {
+  const transfer = read("src/features/transfers/components/TransferWizard.tsx");
+  assert.match(transfer, /initiateLock = useRef\(false\)/);
+  assert.match(transfer, /confirmLock = useRef\(false\)/);
+  assert.match(transfer, /loading=\{initiate\.isPending\}/);
+  assert.match(transfer, /loading=\{confirm\.isPending\}/);
+  assert.match(transfer, /onSettled: \(\) => \{\s*initiateLock\.current = false;/);
+  assert.match(transfer, /onSettled: \(\) => \{\s*confirmLock\.current = false;/);
+});

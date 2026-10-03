@@ -37,9 +37,11 @@ export function CustomerBottomNav() {
 
           const selected =
             pathname === item.to ||
+            (item.to === "/app/more" && pathname.startsWith("/app/more")) ||
             (item.to === "/app/transfers/new" && pathname.startsWith("/app/transfers")) ||
             (item.to === "/app/accounts" && pathname.startsWith("/app/accounts")) ||
-            (item.to === "/app/activity" && pathname.startsWith("/app/transactions"));
+            (item.to === "/app/activity" &&
+              (pathname.startsWith("/app/activity") || pathname.startsWith("/app/transactions")));
 
           return (
             <li key={item.label} className="min-w-0 flex-1">

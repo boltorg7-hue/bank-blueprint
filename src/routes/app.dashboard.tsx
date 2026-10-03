@@ -114,17 +114,6 @@ function DashboardPage() {
           </div>
 
           <section aria-labelledby="activity-heading" className="space-y-3.5 sm:space-y-4">
-            <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
-              <h2 id="activity-heading" className="text-heading-sm font-semibold text-foreground md:text-heading-md">
-                {en ? "Recent activity" : "Activité récente"}
-              </h2>
-              <Link to="/app/transactions" className="shrink-0 text-caption font-medium text-brand hover:underline">
-                {en ? "Full history" : "Tout l'historique"}
-              </Link>
-            </div>
-            <RecentActivityList items={data?.recentActivity ?? []} />
-          </section>
-
           <section aria-labelledby="accounts-heading" className="space-y-3.5 sm:space-y-4">
             <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
               <h2 id="accounts-heading" className="text-heading-sm font-semibold text-foreground md:text-heading-md">

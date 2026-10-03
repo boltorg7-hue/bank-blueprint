@@ -30,6 +30,23 @@ const COLUMNS =
 export const DEFAULT_PAGE_SIZE = 25;
 const MAX_PAGE_SIZE = 50;
 
+type TransactionCursor = { occurredAt: string; entryId: string };
+
+function encodeTransactionCursor(value: TransactionCursor): string {
+  return Buffer.from(JSON.stringify(value), "utf8").toString("base64url");
+}
+
+function decodeTransactionCursor(value?: string | null): TransactionCursor | null {
+  if (!value) return null;
+  try {
+    const parsed = JSON.parse(Buffer.from(value, "base64url").toString("utf8"));
+    if (typeof parsed?.occurredAt !== "string" || typeof parsed?.entryId !== "string") return null;
+    return { occurredAt: parsed.occurredAt, entryId: parsed.entryId };
+  } catch {
+    return null;
+  }
+}
+
 type ActivityRow = {
   reference: string;
   account_reference: string;
@@ -132,27 +149,32 @@ export async function getTransactions(
   request: TransactionPageRequest,
 ): Promise<TransactionPageDto> {
   const pageSize = Math.min(Math.max(request.pageSize ?? DEFAULT_PAGE_SIZE, 5), MAX_PAGE_SIZE);
-  const page = Math.max(request.page ?? 1, 1);
-  const offset = (page - 1) * pageSize;
+  const cursor = decodeTransactionCursor(request.cursor);
 
-  let query = client.from(VIEW).select(COLUMNS, { count: "exact" });
+  let query = client.from(VIEW).select(COLUMNS);
   query = applyFilters(query, request);
   query = query
     .order("occurred_at", { ascending: false })
-    .order("entry_id", { ascending: false })
-    .range(offset, offset + pageSize - 1);
+    .order("entry_id", { ascending: false });
 
-  const { data, error, count } = await query;
+  if (cursor) {
+    query = query.or(`occurred_at.lt.${cursor.occurredAt},and(occurred_at.eq.${cursor.occurredAt},entry_id.lt.${cursor.entryId})`);
+  }
+
+  const { data, error } = await query.limit(pageSize + 1);
   if (error) throw new TransactionAccessError("ACTIVITY_UNAVAILABLE");
 
-  const items = ((data ?? []) as unknown as ActivityRow[]).map(toDto);
-  const totalCount = count ?? items.length;
+  const rawRows = (data ?? []) as unknown as ActivityRow[];
+  const hasMore = rawRows.length > pageSize;
+  const rows = rawRows.slice(0, pageSize);
+  const items = rows.map(toDto);
+  const last = rows[rows.length - 1];
+
   return {
     items,
-    page,
     pageSize,
-    totalCount,
-    hasMore: offset + items.length < totalCount,
+    hasMore,
+    nextCursor: hasMore && last ? encodeTransactionCursor({ occurredAt: last.occurred_at, entryId: last.entry_id }) : null,
   };
 }
 

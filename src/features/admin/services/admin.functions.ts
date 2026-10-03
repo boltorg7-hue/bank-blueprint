@@ -6,28 +6,44 @@ import type {
   AdminCustomerDto,
   AdminDashboardDto,
   FundingRequestDto,
+  FundingAccountOptionDto,
   StaffContextDto,
   AdminExternalTransferDto,
   AdminOnboardingCaseDto,
+  AdminOnboardingCasePageDto,
   AdminAuditEventDto,
   AdminCustomerPageDto,
+  AdminAccountPageDto,
+  FundingRequestPageDto,
+  AdminAuditEventPageDto,
+  AdminExternalTransferPageDto,
 } from "@/features/admin/types/admin";
 
-function customerSearchInput(input: { search?: string; page?: number; lifecycle?: string; accounts?: string; attention?: string } | undefined) {
+function customerSearchInput(input: { search?: string; cursor?: string | null; lifecycle?: string; accounts?: string; attention?: string } | undefined) {
   const lifecycle = String(input?.lifecycle ?? "ALL");
   const accounts = String(input?.accounts ?? "ALL");
   const attention = String(input?.attention ?? "ALL");
   if (!["ALL", "WITH_ACCOUNTS", "WITHOUT_ACCOUNTS"].includes(accounts) || !["ALL", "NEEDS_ATTENTION", "CLEAR"].includes(attention)) throw new Error("INVALID_CUSTOMER_FILTER");
   return {
     search: String(input?.search ?? "").trim().slice(0, 80),
-    page: Math.max(1, Math.floor(Number(input?.page ?? 1))),
+    cursor: input?.cursor ? String(input.cursor).slice(0, 512) : null,
     lifecycle,
     accounts,
     attention,
   };
 }
-function searchInput(input: { search?: string; page?: number } | undefined) {
-  return { search: String(input?.search ?? "").trim().slice(0, 80), page: Math.max(1, Math.floor(Number(input?.page ?? 1))) };
+function searchInput(input: { search?: string; cursor?: string | null } | undefined) {
+  return { search: String(input?.search ?? "").trim().slice(0, 80), cursor: input?.cursor ? String(input.cursor).slice(0, 512) : null };
+}
+function onboardingSearchInput(input: { search?: string; cursor?: string | null; status?: string } | undefined) {
+  const status = String(input?.status ?? "ALL");
+  const allowed = ["ALL", "NOT_STARTED", "IN_PROGRESS", "SUBMITTED", "UNDER_REVIEW", "ADDITIONAL_INFORMATION_REQUIRED", "VERIFIED", "REJECTED"];
+  if (!allowed.includes(status)) throw new Error("INVALID_ONBOARDING_FILTER");
+  return {
+    search: String(input?.search ?? "").trim().slice(0, 80),
+    cursor: input?.cursor ? String(input.cursor).slice(0, 512) : null,
+    status,
+  };
 }
 
 export const getAdminStaffContext = createServerFn({ method: "GET" })
@@ -49,15 +65,15 @@ export const listAdminCustomers = createServerFn({ method: "POST" })
   .inputValidator(customerSearchInput)
   .handler(async ({ data, context }): Promise<AdminCustomerPageDto> => {
     const service = await import("@/features/admin/services/admin.server");
-    return service.loadAdminCustomers(context.supabase, data.search, data.page, data.lifecycle as any, data.accounts as any, data.attention as any);
+    return service.loadAdminCustomers(context.supabase, data.search, data.cursor, data.lifecycle as any, data.accounts as any, data.attention as any);
   });
 
 export const listAdminOnboardingCases = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(searchInput)
-  .handler(async ({ data, context }): Promise<AdminOnboardingCaseDto[]> => {
+   .inputValidator(onboardingSearchInput)
+  .handler(async ({ data, context }): Promise<AdminOnboardingCasePageDto> => {
     const service = await import("@/features/admin/services/admin.server");
-    return service.loadAdminOnboardingCases(context.supabase, data.search);
+    return service.loadAdminOnboardingCases(context.supabase, data.search, data.cursor ?? null, String((data as any).status ?? "ALL"));
   });
 
 export const inviteAdminCustomer = createServerFn({ method: "POST" })
@@ -116,16 +132,27 @@ export const activateAdminOnboardingCustomer = createServerFn({ method: "POST" }
 export const listAdminAccounts = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator(searchInput)
-  .handler(async ({ data, context }): Promise<AdminAccountDto[]> => {
+  .handler(async ({ data, context }): Promise<AdminAccountPageDto> => {
     const service = await import("@/features/admin/services/admin.server");
-    return service.loadAdminAccounts(context.supabase, data.search);
+    return service.loadAdminAccounts(context.supabase, data.search, data.cursor ?? null);
   });
 
-export const listFundingRequests = createServerFn({ method: "GET" })
+export const listFundingRequests = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }): Promise<FundingRequestDto[]> => {
+  .inputValidator(searchInput)
+  .handler(async ({ data, context }): Promise<FundingRequestPageDto> => {
     const service = await import("@/features/admin/services/admin.server");
-    return service.loadFundingRequests(context.supabase);
+    return service.loadFundingRequests(context.supabase, data.cursor ?? null);
+  });
+
+export const searchFundingAccounts = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { search?: string } | undefined) => ({
+    search: String(input?.search ?? "").trim().slice(0, 80),
+  }))
+  .handler(async ({ data, context }): Promise<FundingAccountOptionDto[]> => {
+    const service = await import("@/features/admin/services/admin.server");
+    return service.searchFundingAccounts(context.supabase, data.search);
   });
 
 export const createFundingRequest = createServerFn({ method: "POST" })
@@ -217,12 +244,12 @@ export const listAdminAccountStatusHistory = createServerFn({ method: "GET" })
     return service.loadAdminAccountStatusHistory(context.supabase, data.accountReference);
   });
 
-export const listAdminExternalTransfers=createServerFn({method:"GET"}).middleware([requireSupabaseAuth]).handler(async({context}):Promise<AdminExternalTransferDto[]>=>{const s=await import("@/features/admin/services/admin.server");return s.loadExternalTransfers(context.supabase);});
+export const listAdminExternalTransfers=createServerFn({method:"POST"}).middleware([requireSupabaseAuth]).inputValidator(searchInput).handler(async({data,context}):Promise<AdminExternalTransferPageDto>=>{const s=await import("@/features/admin/services/admin.server");return s.loadExternalTransfers(context.supabase,data.cursor??null);});
 export const advanceAdminExternalTransfer=createServerFn({method:"POST"}).middleware([requireSupabaseAuth]).inputValidator((input:{reference:string;action:"APPROVE"|"QUEUE"|"FINALIZE"})=>{const reference=String(input?.reference??"");if(!/^TRF-\d{4}-\d{8}$/.test(reference)||!["APPROVE","QUEUE","FINALIZE"].includes(input?.action))throw new Error("INVALID_TRANSFER_ACTION");return {reference,action:input.action};}).handler(async({data,context})=>{const s=await import("@/features/admin/services/admin.server");await s.requireAdminPermission(context.supabase,data.action==="APPROVE"?"compliance.review":"transfers.approve");const rpc=data.action==="APPROVE"?"admin_approve_simulated_external":data.action==="QUEUE"?"admin_queue_simulated_external":"admin_finalize_simulated_external";const{error}=await context.supabase.rpc(rpc as any,{_reference:data.reference} as never);if(error)throw new Error(error.message.toLowerCase().includes("four-eyes")?"FOUR_EYES_REQUIRED":"TRANSFER_ACTION_FAILED");return{ok:true};});
 
-export const listAdminAuditEvents = createServerFn({ method: "POST" }).middleware([requireSupabaseAuth]).inputValidator(searchInput).handler(async ({ data, context }): Promise<AdminAuditEventDto[]> => {
+export const listAdminAuditEvents = createServerFn({ method: "POST" }).middleware([requireSupabaseAuth]).inputValidator(searchInput).handler(async ({ data, context }): Promise<AdminAuditEventPageDto> => {
   const service = await import("@/features/admin/services/admin.server");
-  return service.loadAdminAuditEvents(context.supabase, data.search);
+  return service.loadAdminAuditEvents(context.supabase, data.search, data.cursor ?? null);
 });
 
 

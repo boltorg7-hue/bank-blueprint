@@ -12,7 +12,8 @@
     "test:certification": "node --test tests/certification.test.mjs",
     "test:db": "supabase test db",
     "format": "prettier --write .",
-    "audit:migrations": "node scripts/audit-migration-functions.mjs"
+    "audit:migrations": "node scripts/audit-migration-functions.mjs",
+    "audit:rls": "node scripts/audit-rls-matrix.mjs"
   },
   "overrides": {
     "rolldown": "1.2.1"

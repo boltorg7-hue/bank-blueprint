@@ -6,6 +6,7 @@ import {
   type CustomerDocumentDto,
   type CustomerDocumentType,
   type DocumentDownloadDto,
+  type CustomerDocumentPageDto,
 } from "@/domain/documents/types";
 
 /**
@@ -19,7 +20,7 @@ const TRANSACTION_PATTERN = /^TXN-\d{4}-\d{8}$/;
 
 export const listCustomerDocuments = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { types?: string[]; limit?: number } | undefined) => {
+  .inputValidator((input: { types?: string[]; cursor?: string | null } | undefined) => {
     const allowed: CustomerDocumentType[] = [
       "ACCOUNT_STATEMENT",
       "TRANSFER_RECEIPT",
@@ -32,14 +33,14 @@ export const listCustomerDocuments = createServerFn({ method: "POST" })
     );
     return {
       types,
-      limit: Number.isFinite(input?.limit) ? Math.min(Math.max(Number(input?.limit), 1), 80) : 40,
+      cursor: input?.cursor ? String(input.cursor).slice(0, 512) : null,
     };
   })
-  .handler(async ({ data, context }): Promise<CustomerDocumentDto[]> => {
+   .handler(async ({ data, context }): Promise<CustomerDocumentPageDto> => {
     const service = await import("@/features/documents/services/documents.server");
     return service.listDocuments(context.supabase, context.userId, {
       types: data.types.length > 0 ? data.types : null,
-      limit: data.limit,
+      cursor: data.cursor,
     });
   });
 

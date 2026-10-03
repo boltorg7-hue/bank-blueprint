@@ -40,7 +40,7 @@ export function AdminLayout({ children }: { children: ReactNode }) {
         <Button
           variant="ghost"
           size="icon"
-          className="fixed inset-0 z-[35] h-full w-full rounded-none bg-foreground/40 md:hidden"
+          className="fixed inset-0 z-[35] h-full w-full rounded-none bg-foreground/40 lg:hidden"
           aria-label={en ? "Close navigation" : "Fermer la navigation"}
           onClick={() => setMobileOpen(false)}
         />
@@ -53,7 +53,7 @@ export function AdminLayout({ children }: { children: ReactNode }) {
               <Button
                 variant="ghost"
                 size="icon"
-                className="touch-target md:hidden"
+                className="touch-target lg:hidden"
                 aria-label={en ? "Open admin navigation" : "Ouvrir la navigation administration"}
                 onClick={() => setMobileOpen((open) => !open)}
               >

@@ -29,19 +29,21 @@ export function TransactionHistory({
   const [filters, setFilters] = useState<Filters>({ ...EMPTY_FILTERS });
   const { language } = useLanguage();
   const en = language === "en";
-  const [page, setPage] = useState(1);
+  const [cursor, setCursor] = useState<string | null>(null);
+  const [cursorHistory, setCursorHistory] = useState<string[]>([]);
 
   const request = {
     direction: filters.direction, status: filters.status, datePreset: filters.datePreset,
     type: filters.type, search: filters.search, from: filters.from, to: filters.to,
     minAmountMinor: amountToMinor(filters.minAmount), maxAmountMinor: amountToMinor(filters.maxAmount),
-    accountReference, page, pageSize,
+    accountReference, cursor, pageSize,
   };
   const { data, isPending, isFetching, isError, refetch } = useTransactionsPage(request);
 
   const updateFilters = (next: Filters) => {
     setFilters(next);
-    setPage(1);
+    setCursor(null);
+    setCursorHistory([]);
   };
 
   if (isError) {
@@ -55,7 +57,20 @@ export function TransactionHistory({
   }
 
   const items = data?.items ?? [];
-  const totalPages = data ? Math.max(Math.ceil(data.totalCount / data.pageSize), 1) : 1;
+
+  const goNext = () => {
+    if (!data?.nextCursor) return;
+    setCursorHistory((history) => [...history, cursor ?? ""]);
+    setCursor(data.nextCursor);
+  };
+
+  const goPrevious = () => {
+    setCursorHistory((history) => {
+      const next = [...history];
+      setCursor(next.pop() || null);
+      return next;
+    });
+  };
 
   return (
     <div className="space-y-4">
@@ -84,7 +99,7 @@ export function TransactionHistory({
             )}
           </div>
 
-          {data && data.totalCount > data.pageSize ? (
+          {data && (cursorHistory.length > 0 || data.hasMore) ? (
             <nav
               aria-label={en ? "History pages" : "Pagination de l'historique"}
               className="flex items-center justify-between gap-3"
@@ -92,19 +107,19 @@ export function TransactionHistory({
               <Button
                 variant="outline"
                 className="touch-target"
-                disabled={page <= 1 || isFetching}
-                onClick={() => setPage((current) => Math.max(current - 1, 1))}
+                disabled={!cursorHistory.length || isFetching}
+                onClick={goPrevious}
               >
                 {en ? "Previous" : "Précédent"}
               </Button>
               <p aria-live="polite" className="text-caption text-muted-foreground">
-                {en ? `Page ${data.page} of ${totalPages}` : `Page ${data.page} sur ${totalPages}`}
+                {en ? "Showing the latest transactions" : "Affichage des opérations les plus récentes"}
               </p>
               <Button
                 variant="outline"
                 className="touch-target"
                 disabled={!data.hasMore || isFetching}
-                onClick={() => setPage((current) => current + 1)}
+                onClick={goNext}
               >
                 {en ? "Next" : "Suivant"}
               </Button>

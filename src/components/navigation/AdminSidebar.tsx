@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 export function AdminSidebar({ mobileOpen = false, onNavigate }: { mobileOpen?: boolean; onNavigate?: () => void }) {
   const { language } = useLanguage();
   return (
-    <aside className={cn("fixed inset-y-0 left-0 z-40 hidden w-72 max-w-[85vw] shrink-0 overflow-y-auto border-r border-border bg-surface md:static md:flex md:w-64 md:max-w-none md:flex-col", mobileOpen && "flex flex-col")}>
+    <aside className={cn("fixed inset-y-0 left-0 z-40 hidden w-72 max-w-[85vw] shrink-0 overflow-y-auto border-r border-border bg-surface lg:static lg:flex lg:w-64 lg:max-w-none lg:flex-col", mobileOpen && "flex flex-col")}>
       <div className="flex h-14 items-center gap-2 border-b border-border px-4">
         <span
           className="flex size-7 items-center justify-center rounded-md bg-foreground text-[0.625rem] font-bold text-background"

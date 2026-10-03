@@ -48,7 +48,10 @@ export type AdminCustomerDto = {
   oldestAttentionAt: string | null;
 };
 
-export type AdminCustomerPageDto = { items: AdminCustomerDto[]; hasNext: boolean; };
+export type AdminCursorPage = { cursor: string | null; hasNext: boolean; };
+
+export type AdminCustomerPageDto = { items: AdminCustomerDto[]; hasNext: boolean; nextCursor: string | null; };
+export type AdminAccountPageDto = { items: AdminAccountDto[]; hasNext: boolean; nextCursor: string | null; };
 
 export type AdminOnboardingDocumentDto = {
   type: string;
@@ -67,6 +70,8 @@ export type AdminOnboardingApprovalDto = {
   checkerNote: string | null;
   decidedAt: string | null;
 };
+
+export type AdminOnboardingCasePageDto = { items: AdminOnboardingCaseDto[]; hasNext: boolean; nextCursor: string | null };
 
 export type AdminOnboardingCaseDto = {
   customerId: string;
@@ -106,6 +111,14 @@ export type AdminAccountDto = {
 
 export type FundingRequestStatus = "PENDING" | "APPROVED" | "REJECTED";
 
+export type FundingRequestPageDto = { items: FundingRequestDto[]; hasNext: boolean; nextCursor: string | null };
+
+export type FundingAccountOptionDto = {
+  id: string;
+  reference: string;
+  holderName: string;
+};
+
 export type FundingRequestDto = {
   id: string;
   accountReference: string;
@@ -122,6 +135,9 @@ export type FundingRequestDto = {
 };
 
 export type AdminExternalTransferDto = { reference:string; customerName:string; recipient:string; amountMinor:number; currency:string; status:string; progressPercent:number; documentsOpen:number; createdAt:string };
+export type AdminExternalTransferPageDto = { items: AdminExternalTransferDto[]; hasNext: boolean; nextCursor: string | null };
+
+export type AdminAuditEventPageDto = { items: AdminAuditEventDto[]; hasNext: boolean; nextCursor: string | null };
 
 export type AdminAuditEventDto = {
   id: string;

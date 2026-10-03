@@ -20,7 +20,7 @@ export function BrandMark({
       aria-label={APP_CONFIG.fullName}
       title={APP_CONFIG.fullName}
       className={cn(
-        "flex items-center gap-2 rounded-md text-foreground transition-colors hover:text-brand",
+        "touch-target flex items-center gap-2 rounded-md text-foreground transition-colors hover:text-brand",
         className,
       )}
     >

@@ -30,7 +30,7 @@ export function NotificationCenter() {
   const [filter, setFilter] = useState<string>("ALL");
   if (q.isPending) return <LoadingState label={en ? "Loading notifications…" : "Chargement des notifications…"} />;
   if (q.isError) return <ErrorState onRetry={() => q.refetch()} />;
-  const items = (q.data?.items ?? []).filter((n) => filter === "ALL" || n.category === filter);
+  const items = q.data?.items ?? [];
   return (
     <div>
       <PageHeader
@@ -44,7 +44,7 @@ export function NotificationCenter() {
       />
       <div className="action-row mb-4" role="tablist">
         {FILTERS.map((f) => (
-          <Button key={f.key} size="sm" role="tab" aria-selected={filter === f.key} variant={filter === f.key ? "default" : "outline"} onClick={() => setFilter(f.key)}>
+          <Button key={f.key} size="sm" role="tab" aria-selected={filter === f.key} variant={filter === f.key ? "default" : "outline"} onClick={() => { setFilter(f.key); setCursor(null); setHistory([]); }}>
             {en ? ({ ALL: "All", ACCOUNT: "Accounts", TRANSFER: "Transactions", FUNDING: "Funding", PRICING: "Pricing" } as Record<string,string>)[f.key] : f.label}
           </Button>
         ))}
@@ -81,6 +81,12 @@ export function NotificationCenter() {
           ))}
         </div>
       )}
+      {(q.data?.hasNext || history.length > 0) ? (
+        <div className="mt-4 flex justify-end gap-2">
+          <Button variant="outline" disabled={!history.length || q.isFetching} onClick={() => setHistory((items) => { const next = [...items]; setCursor(next.pop() || null); return next; })}>{en ? "Previous" : "Précédent"}</Button>
+          <Button variant="outline" disabled={!q.data?.hasNext || q.isFetching} onClick={() => { if (!q.data?.nextCursor) return; setHistory((items) => [...items, cursor ?? ""]); setCursor(q.data.nextCursor); }}>{en ? "Next" : "Suivant"}</Button>
+        </div>
+      ) : null}
     </div>
   );
 }

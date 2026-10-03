@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 
-import type { SupportCategory, SupportStatus, SupportThreadDto } from "@/features/support/types/support";
+import type { SupportCategory, SupportStatus, SupportThreadPageDto } from "@/features/support/types/support";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 const categories: SupportCategory[] = ["ACCOUNT", "TRANSFER", "DOCUMENT", "SECURITY", "OTHER"];
@@ -9,15 +9,25 @@ const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-
 
 function bodyValue(value: unknown) { const body = String(value ?? "").trim(); if (body.length < 1 || body.length > 4000) throw new Error("INVALID_MESSAGE"); return body; }
 
-export const getCustomerSupport = createServerFn({ method: "GET" }).middleware([requireSupabaseAuth]).handler(async ({ context }): Promise<SupportThreadDto[]> => {
-  const service = await import("@/features/support/services/support.server");
-  return service.loadCustomerSupport(context.supabase, context.userId);
+const supportListInput = (input: { cursor?: string | null } | undefined) => ({
+  cursor: input?.cursor ? String(input.cursor).slice(0, 512) : null,
 });
 
-export const getAdminSupport = createServerFn({ method: "GET" }).middleware([requireSupabaseAuth]).handler(async ({ context }): Promise<SupportThreadDto[]> => {
-  const service = await import("@/features/support/services/support.server");
-  return service.loadAdminSupport(context.supabase);
-});
+export const getCustomerSupport = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator(supportListInput)
+  .handler(async ({ data, context }): Promise<SupportThreadPageDto> => {
+    const service = await import("@/features/support/services/support.server");
+    return service.loadCustomerSupport(context.supabase, context.userId, data.cursor);
+  });
+
+export const getAdminSupport = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator(supportListInput)
+  .handler(async ({ data, context }): Promise<SupportThreadPageDto> => {
+    const service = await import("@/features/support/services/support.server");
+    return service.loadAdminSupport(context.supabase, data.cursor);
+  });
 
 export const createSupportThread = createServerFn({ method: "POST" }).middleware([requireSupabaseAuth]).inputValidator((input: { subject: string; category: SupportCategory; body: string }) => {
   const subject = String(input?.subject ?? "").trim(); if (subject.length < 5 || subject.length > 120 || !categories.includes(input?.category)) throw new Error("INVALID_THREAD");

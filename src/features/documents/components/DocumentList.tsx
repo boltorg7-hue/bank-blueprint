@@ -71,7 +71,9 @@ function DocumentRow({ document }: { document: CustomerDocumentDto }) {
 
 export function DocumentList() {
   const [filter, setFilter] = useState<DocumentFilter>("ALL");
-  const { data, isPending, isError, refetch } = useDocuments(filter);
+  const [cursor, setCursor] = useState<string | null>(null);
+  const [history, setHistory] = useState<string[]>([]);
+  const { data, isPending, isError, refetch } = useDocuments(filter, cursor);
 
   return (
     <div className="space-y-4">
@@ -84,7 +86,7 @@ export function DocumentList() {
             aria-selected={filter === entry.value}
             size="sm"
             variant={filter === entry.value ? "default" : "outline"}
-            onClick={() => setFilter(entry.value)}
+            onClick={() => { setFilter(entry.value); setCursor(null); setHistory([]); }}
           >
             {entry.label}
           </Button>
@@ -95,13 +97,21 @@ export function DocumentList() {
         <SkeletonBlock lines={5} />
       ) : isError ? (
         <ErrorState onRetry={() => void refetch()} />
-      ) : !data || data.length === 0 ? (
+      ) : !data || data.items.length === 0 ? (
         <EmptyState
           title="Aucun document"
           description="Vos relevés et reçus apparaîtront ici dès qu'ils seront édités."
         />
       ) : (
-        data.map((document) => <DocumentRow key={document.reference} document={document} />)
+        <>
+          {data.items.map((document) => <DocumentRow key={document.reference} document={document} />)}
+          {(history.length > 0 || data.hasNext) ? (
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" disabled={!history.length} onClick={() => setHistory((items) => { const next = [...items]; setCursor(next.pop() || null); return next; })}>Précédent</Button>
+              <Button variant="outline" disabled={!data.hasNext} onClick={() => { if (!data.nextCursor) return; setHistory((items) => [...items, cursor ?? ""]); setCursor(data.nextCursor); }}>Suivant</Button>
+            </div>
+          ) : null}
+        </>
       )}
     </div>
   );

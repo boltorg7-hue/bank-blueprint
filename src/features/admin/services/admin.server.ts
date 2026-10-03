@@ -8,14 +8,37 @@ import type {
   StaffContextDto,
   AdminExternalTransferDto,
   AdminOnboardingCaseDto,
+  AdminOnboardingCasePageDto,
   AdminActionResult,
   AdminCustomerPageDto,
+  AdminAccountPageDto,
+  FundingRequestPageDto,
+  FundingAccountOptionDto,
+  AdminAuditEventPageDto,
+  AdminExternalTransferPageDto,
 } from "@/features/admin/types/admin";
 import type { CustomerLifecycleState } from "@/types/customer-lifecycle";
 
 type Client = SupabaseClient<any, any, any>;
 
 export class AdminAccessError extends Error {}
+
+type AdminCursor = { createdAt: string; id: string };
+const ADMIN_PAGE_SIZE = 50;
+
+function encodeAdminCursor(value: AdminCursor): string {
+  return Buffer.from(JSON.stringify(value), "utf8").toString("base64url");
+}
+
+function decodeAdminCursor(value?: string | null): AdminCursor | null {
+  if (!value) return null;
+  try {
+    const parsed = JSON.parse(Buffer.from(value, "base64url").toString("utf8"));
+    if (typeof parsed?.createdAt !== "string" || typeof parsed?.id !== "string") return null;
+    return { createdAt: parsed.createdAt, id: parsed.id };
+  } catch { return null; }
+}
+
 
 const ADMIN_AUTH_EMAIL_CACHE_TTL_MS = 60_000;
 const adminAuthEmailCache = new Map<string, { email: string | null; expiresAt: number }>();
@@ -51,6 +74,25 @@ async function loadAdminAuthEmails(admin: Client, ids: string[]) {
   for (const entry of responses) {
     result.set(entry.id, entry.email);
     adminAuthEmailCache.set(entry.id, { email: entry.email, expiresAt });
+  }
+  return result;
+}
+
+async function loadAdminEmailVerificationStatus(admin: Client, ids: string[]) {
+  const result = new Map<string, boolean>();
+  for (let offset = 0; offset < ids.length; offset += 8) {
+    const batch = ids.slice(offset, offset + 8);
+    const batchResults = await Promise.all(
+      batch.map(async (id) => {
+        try {
+          const { data } = await admin.auth.admin.getUserById(id);
+          return { id, verified: Boolean(data.user?.email_confirmed_at) };
+        } catch {
+          return { id, verified: false };
+        }
+      }),
+    );
+    for (const entry of batchResults) result.set(entry.id, entry.verified);
   }
   return result;
 }
@@ -92,15 +134,14 @@ async function adminClient() {
 export async function loadAdminCustomers(
   client: Client,
   search = "",
-  page = 1,
+  cursor: string | null = null,
   lifecycle: CustomerLifecycleState | "ALL" = "ALL",
   accountsFilter: "ALL" | "WITH_ACCOUNTS" | "WITHOUT_ACCOUNTS" = "ALL",
   attentionFilter: "ALL" | "NEEDS_ATTENTION" | "CLEAR" = "ALL",
 ): Promise<AdminCustomerPageDto> {
   await requireAdminPermission(client, "customers.read");
   const admin = await adminClient();
-  const pageSize = 50;
-  const safePage = Math.max(1, Math.floor(page));
+  const cursorValue = decodeAdminCursor(cursor);
   const term = search.trim().replace(/[%_,().*]/g, "");
   const normalizedTerm = term.toLocaleLowerCase("fr");
 
@@ -139,7 +180,7 @@ export async function loadAdminCustomers(
 
   if (lifecycle !== "ALL") query = query.eq("lifecycle_state", lifecycle);
   if (accountsFilter === "WITH_ACCOUNTS") {
-    if (!accountOwnerIds.size) return { items: [], hasNext: false };
+    if (!accountOwnerIds.size) return { items: [], hasNext: false, nextCursor: null };
     query = query.in("id", [...accountOwnerIds]);
   } else if (accountsFilter === "WITHOUT_ACCOUNTS" && accountOwnerIds.size) {
     query = query.not("id", "in", \`(\${[...accountOwnerIds].join(",")})\`);
@@ -176,11 +217,14 @@ export async function loadAdminCustomers(
     }
   }
 
-  const { data, error } = await query.range((safePage - 1) * pageSize, safePage * pageSize);
+  if (cursorValue) {
+    query = query.or(`created_at.lt.${cursorValue.createdAt},and(created_at.eq.${cursorValue.createdAt},id.lt.${cursorValue.id})`);
+  }
+  const { data, error } = await query.limit(ADMIN_PAGE_SIZE + 1);
   if (error) throw new AdminAccessError("CUSTOMERS_UNAVAILABLE");
   const rows = data ?? [];
-  const hasNext = rows.length > pageSize;
-  const pageRows = rows.slice(0, pageSize);
+  const hasNext = rows.length > ADMIN_PAGE_SIZE;
+  const pageRows = rows.slice(0, ADMIN_PAGE_SIZE);
   const ids = pageRows.map((row: any) => String(row.id));
 
   const { data: accounts } = ids.length ? await admin.from("bank_accounts").select("id,user_id").in("user_id", ids) : { data: [] as any[] };
@@ -279,25 +323,63 @@ export async function loadAdminCustomers(
       oldestAttentionAt,
     };
   });
-  return { items: mapped, hasNext };
+  const last = pageRows[pageRows.length - 1];
+  return { items: mapped, hasNext, nextCursor: hasNext && last ? encodeAdminCursor({ createdAt: String(last.created_at), id: String(last.id) }) : null };
 }
 
 export async function loadAdminOnboardingCases(
   client: Client,
   search = "",
-): Promise<AdminOnboardingCaseDto[]> {
+  cursor: string | null = null,
+  status = "ALL",
+): Promise<AdminOnboardingCasePageDto> {
   const staff = await requireAdminPermission(client, "customers.read");
   const canReadKycDecisions = staff.permissions.includes("kyc.review") || staff.permissions.includes("kyc.approve");
   const admin = await adminClient();
-  const { data: profiles, error } = await admin
+  const cursorValue = decodeAdminCursor(cursor);
+  const term = search.trim().replace(/[%_,()]/g, "").slice(0, 80).toLocaleLowerCase("fr");
+  const allowedStatuses = ["ALL", "NOT_STARTED", "IN_PROGRESS", "SUBMITTED", "UNDER_REVIEW", "ADDITIONAL_INFORMATION_REQUIRED", "VERIFIED", "REJECTED"];
+  const normalizedStatus = allowedStatuses.includes(status) ? status : "ALL";
+
+  let query = admin
     .from("profiles")
     .select("id, first_name, middle_name, last_name, lifecycle_state, onboarding_step, created_at")
     .order("created_at", { ascending: false })
-    .limit(100);
+    .order("id", { ascending: false });
+
+  if (term) {
+    const nameFilter = `first_name.ilike.%${term}%,middle_name.ilike.%${term}%,last_name.ilike.%${term}%`;
+    query = query.or(nameFilter);
+    if (/^[0-9a-f]{36}$/i.test(term)) query = query.eq("id", term);
+  }
+
+  if (normalizedStatus === "NOT_STARTED" || normalizedStatus === "IN_PROGRESS") {
+    query = query.eq("onboarding_step", normalizedStatus);
+  }
+
+  if (cursorValue) {
+    query = query.or(`created_at.lt.${cursorValue.createdAt},and(created_at.eq.${cursorValue.createdAt},id.lt.${cursorValue.id})`);
+  }
+
+  const { data: profiles, error } = await query.limit(ADMIN_PAGE_SIZE + 1);
   if (error) throw new AdminAccessError("ONBOARDING_CASES_UNAVAILABLE");
 
-  const rows = profiles ?? [];
+  let rows = profiles ?? [];
+
+  if (normalizedStatus !== "ALL" && normalizedStatus !== "NOT_STARTED" && normalizedStatus !== "IN_PROGRESS") {
+    const { data: matchingVerifications, error: verificationError } = await admin
+      .from("identity_verifications")
+      .select("user_id")
+      .eq("status", normalizedStatus);
+    if (verificationError) throw new AdminAccessError("ONBOARDING_CASES_UNAVAILABLE");
+    const matchingIds = new Set((matchingVerifications ?? []).map((row: any) => String(row.user_id)));
+    rows = rows.filter((row: any) => matchingIds.has(String(row.id)));
+  }
+
+  const hasNext = rows.length > ADMIN_PAGE_SIZE;
+  rows = rows.slice(0, ADMIN_PAGE_SIZE);
   const customerIds = rows.map((row: any) => String(row.id));
+
   const [{ data: verifications }, { data: documents }, { data: approvals }, { data: accounts }] = await Promise.all([
     customerIds.length
       ? admin.from("identity_verifications").select("user_id,status,submitted_at,decided_at").in("user_id", customerIds)
@@ -312,7 +394,11 @@ export async function loadAdminOnboardingCases(
       ? admin.from("bank_accounts").select("user_id,public_reference,status").in("user_id", customerIds).eq("is_primary", true)
       : Promise.resolve({ data: [] as any[] }),
   ]);
-  const authById = customerIds.length ? await loadAdminAuthEmails(admin, customerIds) : new Map<string, string | null>();
+
+  const [authById, emailVerifiedById] = customerIds.length
+    ? await Promise.all([loadAdminAuthEmails(admin, customerIds), loadAdminEmailVerificationStatus(admin, customerIds)])
+    : [new Map<string, string | null>(), new Map<string, boolean>()];
+
   const verificationByUser = new Map((verifications ?? []).map((row: any) => [String(row.user_id), row]));
   const documentsByUser = new Map<string, AdminOnboardingCaseDto["documents"]>();
   for (const document of documents ?? []) {
@@ -333,7 +419,8 @@ export async function loadAdminOnboardingCases(
   const staffNames = new Map((staffProfiles ?? []).map((row: any) => [String(row.user_id), String(row.display_name)]));
   const approvalByUser = new Map<string, any>();
   for (const approval of approvals ?? []) if (!approvalByUser.has(String((approval as any).customer_id))) approvalByUser.set(String((approval as any).customer_id), approval);
-  const cases: AdminOnboardingCaseDto[] = rows.map((row: any) => {
+
+  const items: AdminOnboardingCaseDto[] = rows.map((row: any) => {
     const verification: any = verificationByUser.get(String(row.id));
     const approval: any = approvalByUser.get(String(row.id));
     const account: any = accountByUser.get(String(row.id));
@@ -349,7 +436,7 @@ export async function loadAdminOnboardingCases(
       submittedAt: verification?.submitted_at ? String(verification.submitted_at) : null,
       decidedAt: verification?.decided_at ? String(verification.decided_at) : null,
       createdAt: String(row.created_at),
-      emailVerified: Boolean(authUser?.email_confirmed_at),
+      emailVerified: emailVerifiedById.get(String(row.id)) ?? false,
       accountReference: account?.public_reference ? String(account.public_reference) : null,
       accountStatus: account?.status ? String(account.status) : null,
       approval: approval ? {
@@ -366,15 +453,24 @@ export async function loadAdminOnboardingCases(
       documents: documentsByUser.get(String(row.id)) ?? [],
     };
   });
-  const term = search.trim().replace(/[%_,()]/g, "").toLocaleLowerCase("fr");
-  if (!term) return cases;
-  return cases.filter((item) =>
-    [item.reference, item.fullName, item.email]
-      .filter(Boolean)
-      .some((value) => String(value).toLocaleLowerCase("fr").includes(term)),
-  );
-}
 
+  if (term.includes("@")) {
+    const { data: exactEmailId } = await admin.rpc("auth_user_for_email" as never, { _email: term } as never);
+    const emailId = exactEmailId ? String(exactEmailId) : null;
+    if (emailId) {
+      const emailMatch = items.find((item) => item.customerId === emailId);
+      return emailMatch ? { items: [emailMatch], hasNext: false, nextCursor: null } : { items: [], hasNext: false, nextCursor: null };
+    }
+    return { items: [], hasNext: false, nextCursor: null };
+  }
+
+  const last = rows[rows.length - 1];
+  return {
+    items,
+    hasNext,
+    nextCursor: hasNext && last ? encodeAdminCursor({ createdAt: String(last.created_at), id: String(last.id) }) : null,
+  };
+}
 export async function inviteCustomer(
   client: Client,
   actorUserId: string,
@@ -492,19 +588,25 @@ export async function loadAdminAccountStatusHistory(client: Client, accountRefer
 export async function loadAdminAccounts(
   client: Client,
   search = "",
-): Promise<AdminAccountDto[]> {
+  cursor: string | null = null,
+): Promise<AdminAccountPageDto> {
   await requireAdminPermission(client, "accounts.read");
   const admin = await adminClient();
   let query = admin
     .from("bank_accounts")
     .select("id, user_id, public_reference, display_name, currency, currency_minor_unit, status, account_number, created_at")
     .order("created_at", { ascending: false })
-    .limit(100);
-  const term = search.trim().replace(/[%_,()]/g, "");
+    .order("id", { ascending: false });
+  const term = search.trim().replace(/[%_,()]/g, "").slice(0, 80);
   if (term) query = query.or(`public_reference.ilike.%${term}%,account_number.ilike.%${term}%,display_name.ilike.%${term}%`);
+  const cursorValue = decodeAdminCursor(cursor);
+  if (cursorValue) query = query.or(`created_at.lt.${cursorValue.createdAt},and(created_at.eq.${cursorValue.createdAt},id.lt.${cursorValue.id})`);
+  query = query.limit(ADMIN_PAGE_SIZE + 1);
   const { data, error } = await query;
   if (error) throw new AdminAccessError("ACCOUNTS_UNAVAILABLE");
-  const rows = data ?? [];
+  const rawRows = data ?? [];
+  const hasNext = rawRows.length > ADMIN_PAGE_SIZE;
+  const rows = rawRows.slice(0, ADMIN_PAGE_SIZE);
   const userIds = [...new Set(rows.map((row: any) => String(row.user_id)))];
   const accountIds = rows.map((row: any) => String(row.id));
   const [{ data: profiles }, { data: balances }] = await Promise.all([
@@ -517,7 +619,7 @@ export async function loadAdminAccounts(
   ]);
   const profileById = new Map((profiles ?? []).map((row: any) => [row.id, row]));
   const balanceById = new Map((balances ?? []).map((row: any) => [row.account_id, row]));
-  return rows.map((row: any) => {
+  const items = rows.map((row: any) => {
     const profile: any = profileById.get(row.user_id);
     const balance: any = balanceById.get(row.id);
     if (!balance) throw new AdminAccessError("ACCOUNT_BALANCE_UNAVAILABLE");
@@ -541,74 +643,95 @@ export async function loadAdminAccounts(
       heldBalanceMinor: Number(balance?.held_balance_minor ?? 0),
     };
   });
+  const last = rows[rows.length - 1];
+  return { items, hasNext, nextCursor: hasNext && last ? encodeAdminCursor({ createdAt: String(last.created_at), id: String(last.id) }) : null };
 }
 
-export async function loadAdminAuditEvents(client: Client, search = ""): Promise<AdminAuditEventDto[]> {
+export async function searchFundingAccounts(
+  client: Client,
+  search = "",
+): Promise<FundingAccountOptionDto[]> {
+  const staff = await requireAdminPermission(client);
+  if (!staff.permissions.includes("finance.adjustment.create") && !staff.permissions.includes("finance.adjustment.approve")) {
+    throw new AdminAccessError("ADMIN_FORBIDDEN");
+  }
+  const admin = await adminClient();
+  const term = search.trim().replace(/[%_,()]/g, "").slice(0, 80);
+  let query = admin
+    .from("bank_accounts")
+    .select("id, user_id, public_reference, account_number, display_name, created_at")
+    .eq("status", "ACTIVE")
+    .order("created_at", { ascending: false })
+    .order("id", { ascending: false })
+    .limit(20);
+  if (term) query = query.or(`public_reference.ilike.%${term}%,account_number.ilike.%${term}%,display_name.ilike.%${term}%`);
+  const { data, error } = await query;
+  if (error) throw new AdminAccessError("FUNDING_ACCOUNTS_UNAVAILABLE");
+  const rows = data ?? [];
+  const userIds = [...new Set(rows.map((row: any) => String(row.user_id)))];
+  const { data: profiles } = userIds.length
+    ? await admin.from("profiles").select("id, first_name, middle_name, last_name").in("id", userIds)
+    : { data: [] as any[] };
+  const names = new Map((profiles ?? []).map((row: any) => [
+    String(row.id),
+    [row.first_name, row.middle_name, row.last_name].filter(Boolean).join(" ") || "Client sans nom",
+  ]));
+  return rows.map((row: any) => ({
+    id: String(row.id),
+    reference: String(row.public_reference),
+    holderName: names.get(String(row.user_id)) ?? "Client indisponible",
+  }));
+}
+
+export async function loadAdminAuditEvents(client: Client, search = "", cursor: string | null = null): Promise<AdminAuditEventPageDto> {
   await requireAdminPermission(client, "audit.read");
   const admin = await adminClient();
   const term = search.trim().replace(/[%,_()]/g, "").slice(0, 80);
-  let query = admin.from("admin_audit_events").select("id, actor_user_id, action, resource_type, resource_reference, permission_checked, result, context, created_at").order("created_at", { ascending: false }).limit(100);
+  const cursorValue = decodeAdminCursor(cursor);
+  let query = admin.from("admin_audit_events").select("id, actor_user_id, action, resource_type, resource_reference, permission_checked, result, context, created_at").order("created_at", { ascending: false }).order("id", { ascending: false });
   if (term) query = query.or(`action.ilike.%${term}%,resource_type.ilike.%${term}%,resource_reference.ilike.%${term}%,permission_checked.ilike.%${term}%`);
-  const { data, error } = await query;
+  if (cursorValue) query = query.or(`created_at.lt.${cursorValue.createdAt},and(created_at.eq.${cursorValue.createdAt},id.lt.${cursorValue.id})`);
+  const { data, error } = await query.limit(ADMIN_PAGE_SIZE + 1);
   if (error) throw new AdminAccessError("AUDIT_UNAVAILABLE");
-  const actorIds = [...new Set((data ?? []).map((row: any) => String(row.actor_user_id)))];
+  const rawRows = data ?? [], hasNext = rawRows.length > ADMIN_PAGE_SIZE, rows = rawRows.slice(0, ADMIN_PAGE_SIZE);
+  const actorIds = [...new Set(rows.map((row: any) => String(row.actor_user_id)))];
   const { data: staff } = actorIds.length ? await admin.from("staff_profiles").select("user_id,display_name,public_reference").in("user_id", actorIds) : { data: [] as any[] };
   const staffById = new Map((staff ?? []).map((row: any) => [String(row.user_id), row]));
-  return (data ?? []).map((row: any) => {
-    const actor = staffById.get(String(row.actor_user_id));
-    return { id: String(row.id), actorName: actor?.display_name ?? "Staff indisponible", actorReference: actor?.public_reference ? String(actor.public_reference) : null, action: String(row.action), resourceType: row.resource_type ? String(row.resource_type) : null, resourceReference: row.resource_reference ? String(row.resource_reference) : null, permissionChecked: row.permission_checked ? String(row.permission_checked) : null, result: row.result === "DENIED" ? "DENIED" : "ALLOWED", context: row.context && typeof row.context === "object" && !Array.isArray(row.context) ? row.context : {}, createdAt: String(row.created_at) };
-  });
+  const items = rows.map((row: any) => { const actor = staffById.get(String(row.actor_user_id)); return { id: String(row.id), actorName: actor?.display_name ?? "Staff indisponible", actorReference: actor?.public_reference ? String(actor.public_reference) : null, action: String(row.action), resourceType: row.resource_type ? String(row.resource_type) : null, resourceReference: row.resource_reference ? String(row.resource_reference) : null, permissionChecked: row.permission_checked ? String(row.permission_checked) : null, result: row.result === "DENIED" ? "DENIED" : "ALLOWED", context: row.context && typeof row.context === "object" && !Array.isArray(row.context) ? row.context : {}, createdAt: String(row.created_at) }; });
+  const last = rows[rows.length - 1];
+  return { items, hasNext, nextCursor: hasNext && last ? encodeAdminCursor({ createdAt: String(last.created_at), id: String(last.id) }) : null };
 }
 
-export async function loadFundingRequests(client: Client): Promise<FundingRequestDto[]> {
+export async function loadFundingRequests(client: Client, cursor: string | null = null): Promise<FundingRequestPageDto> {
   const staff = await requireAdminPermission(client);
   const canRead = staff.permissions.includes("finance.adjustment.create") || staff.permissions.includes("finance.adjustment.approve");
   if (!canRead) throw new AdminAccessError("ADMIN_FORBIDDEN");
   const admin = await adminClient();
-  const { data, error } = await admin
-    .from("funding_requests")
-    .select("id, account_id, amount_minor, currency, reason, status, maker_user_id, checker_user_id, created_at, decision_at")
-    .order("created_at", { ascending: false })
-    .limit(100);
+  const cursorValue = decodeAdminCursor(cursor);
+  let query = admin.from("funding_requests").select("id, account_id, amount_minor, currency, reason, status, maker_user_id, checker_user_id, created_at, decision_at").order("created_at", { ascending: false }).order("id", { ascending: false });
+  if (cursorValue) query = query.or(`created_at.lt.${cursorValue.createdAt},and(created_at.eq.${cursorValue.createdAt},id.lt.${cursorValue.id})`);
+  const { data, error } = await query.limit(ADMIN_PAGE_SIZE + 1);
   if (error) throw new AdminAccessError("FUNDING_UNAVAILABLE");
-  const rows = data ?? [];
+  const rawRows = data ?? [];
+  const hasNext = rawRows.length > ADMIN_PAGE_SIZE;
+  const rows = rawRows.slice(0, ADMIN_PAGE_SIZE);
   const accountIds = [...new Set(rows.map((row: any) => String(row.account_id)))];
   const staffIds = [...new Set(rows.flatMap((row: any) => [row.maker_user_id, row.checker_user_id]).filter(Boolean).map(String))];
   const [{ data: accounts }, { data: staffProfiles }] = await Promise.all([
-    accountIds.length
-      ? admin.from("bank_accounts").select("id, user_id, public_reference").in("id", accountIds)
-      : Promise.resolve({ data: [] as any[] }),
-    staffIds.length
-      ? admin.from("staff_profiles").select("user_id, display_name").in("user_id", staffIds)
-      : Promise.resolve({ data: [] as any[] }),
+    accountIds.length ? admin.from("bank_accounts").select("id, user_id, public_reference").in("id", accountIds) : Promise.resolve({ data: [] as any[] }),
+    staffIds.length ? admin.from("staff_profiles").select("user_id, display_name").in("user_id", staffIds) : Promise.resolve({ data: [] as any[] }),
   ]);
   const accountById = new Map((accounts ?? []).map((row: any) => [row.id, row]));
   const names = new Map((staffProfiles ?? []).map((row: any) => [row.user_id, row.display_name]));
   const customerIds = [...new Set((accounts ?? []).map((row: any) => String(row.user_id)))];
-  const { data: customers } = customerIds.length
-    ? await admin.from("profiles").select("id, first_name, middle_name, last_name").in("id", customerIds)
-    : { data: [] as any[] };
-  const customerNames = new Map((customers ?? []).map((row: any) => [
-    row.id,
-    [row.first_name, row.middle_name, row.last_name].filter(Boolean).join(" ") || "Client sans nom",
-  ]));
-  return rows.map((row: any) => {
+  const { data: customers } = customerIds.length ? await admin.from("profiles").select("id, first_name, middle_name, last_name").in("id", customerIds) : { data: [] as any[] };
+  const customerNames = new Map((customers ?? []).map((row: any) => [row.id, [row.first_name, row.middle_name, row.last_name].filter(Boolean).join(" ") || "Client sans nom"]));
+  const items = rows.map((row: any) => {
     const account: any = accountById.get(row.account_id);
-    return {
-      id: row.id,
-      accountReference: account?.public_reference ?? "—",
-      holderName: account ? customerNames.get(account.user_id) ?? "Client indisponible" : "Client indisponible",
-      amountMinor: Number(row.amount_minor),
-      currency: row.currency,
-      reason: row.reason,
-      status: row.status,
-      makerName: names.get(row.maker_user_id) ?? "Opérateur",
-      checkerName: row.checker_user_id ? names.get(row.checker_user_id) ?? "Superviseur" : null,
-      createdAt: row.created_at,
-      decisionAt: row.decision_at ?? null,
-      canDecide: staff.permissions.includes("finance.adjustment.approve"),
-    };
+    return { id: row.id, accountReference: account?.public_reference ?? "—", holderName: account ? customerNames.get(account.user_id) ?? "Client indisponible" : "Client indisponible", amountMinor: Number(row.amount_minor), currency: row.currency, reason: row.reason, status: row.status, makerName: names.get(row.maker_user_id) ?? "Opérateur", checkerName: row.checker_user_id ? names.get(row.checker_user_id) ?? "Superviseur" : null, createdAt: row.created_at, decisionAt: row.decision_at ?? null, canDecide: staff.permissions.includes("finance.adjustment.approve") };
   });
+  const last = rows[rows.length - 1];
+  return { items, hasNext, nextCursor: hasNext && last ? encodeAdminCursor({ createdAt: String(last.created_at), id: String(last.id) }) : null };
 }
 
 export async function loadAdminDashboard(client: Client): Promise<AdminDashboardDto> {
@@ -632,15 +755,24 @@ export async function loadAdminDashboard(client: Client): Promise<AdminDashboard
   };
 }
 
-export async function loadExternalTransfers(client:Client):Promise<AdminExternalTransferDto[]> {
-  const staff=await requireAdminPermission(client); if(!staff.permissions.includes("compliance.review")&&!staff.permissions.includes("transfers.approve")) throw new AdminAccessError("ADMIN_FORBIDDEN");
-  const admin=await adminClient(); const {data,error}=await admin.from("transfers").select("id,public_reference,sender_user_id,recipient_display_snapshot,amount_minor,currency,status,progress_percent,created_at").eq("transfer_kind","EXTERNAL_TRANSFER").not("status","in","(COMPLETED,FAILED,REJECTED,CANCELLED,REVERSED)").order("created_at",{ascending:false}).limit(100); if(error)throw new AdminAccessError("TRANSFERS_UNAVAILABLE");
-  const ids=(data??[]).map((r:any)=>r.sender_user_id); const transferIds=(data??[]).map((r:any)=>r.id);
-  const [{data:profiles},{data:reqs}]=await Promise.all([admin.from("profiles").select("id,first_name,last_name").in("id",ids),admin.from("transfer_requirements").select("transfer_id,status").in("transfer_id",transferIds)]);
-  const names=new Map((profiles??[]).map((p:any)=>[p.id,[p.first_name,p.last_name].filter(Boolean).join(" ")||"Client"])); const open=new Map<string,number>(); for(const r of reqs??[]){if(["REQUIRED","REPLACEMENT_REQUIRED","UNDER_REVIEW"].includes((r as any).status))open.set((r as any).transfer_id,(open.get((r as any).transfer_id)??0)+1);}
-  return (data??[]).map((r:any)=>({reference:r.public_reference,customerName:names.get(r.sender_user_id)??"Client",recipient:r.recipient_display_snapshot,amountMinor:Number(r.amount_minor),currency:r.currency,status:r.status,progressPercent:Number(r.progress_percent),documentsOpen:open.get(r.id)??0,createdAt:r.created_at}));
+export async function loadExternalTransfers(client: Client, cursor: string | null = null): Promise<AdminExternalTransferPageDto> {
+  const staff = await requireAdminPermission(client);
+  if (!staff.permissions.includes("compliance.review") && !staff.permissions.includes("transfers.approve")) throw new AdminAccessError("ADMIN_FORBIDDEN");
+  const admin = await adminClient();
+  const cursorValue = decodeAdminCursor(cursor);
+  let query = admin.from("transfers").select("id,public_reference,sender_user_id,recipient_display_snapshot,amount_minor,currency,status,progress_percent,created_at").eq("transfer_kind","EXTERNAL_TRANSFER").not("status","in","(COMPLETED,FAILED,REJECTED,CANCELLED,REVERSED)").order("created_at",{ascending:false}).order("id",{ascending:false});
+  if (cursorValue) query = query.or(`created_at.lt.${cursorValue.createdAt},and(created_at.eq.${cursorValue.createdAt},id.lt.${cursorValue.id})`);
+  const { data, error } = await query.limit(ADMIN_PAGE_SIZE + 1);
+  if(error) throw new AdminAccessError("TRANSFERS_UNAVAILABLE");
+  const rawRows=data??[], hasNext=rawRows.length>ADMIN_PAGE_SIZE, rows=rawRows.slice(0,ADMIN_PAGE_SIZE);
+  const ids=rows.map((r:any)=>r.sender_user_id), transferIds=rows.map((r:any)=>r.id);
+  const [{data:profiles},{data:reqs}]=await Promise.all([ids.length?admin.from("profiles").select("id,first_name,last_name").in("id",ids):Promise.resolve({data:[] as any[]}),transferIds.length?admin.from("transfer_requirements").select("transfer_id,status").in("transfer_id",transferIds):Promise.resolve({data:[] as any[]})]);
+  const names=new Map((profiles??[]).map((p:any)=>[p.id,[p.first_name,p.last_name].filter(Boolean).join(" ")||"Client"])); const open=new Map<string,number>();
+  for(const r of reqs??[]) if(["REQUIRED","REPLACEMENT_REQUIRED","UNDER_REVIEW"].includes(String((r as any).status))) open.set(String((r as any).transfer_id),(open.get(String((r as any).transfer_id))??0)+1);
+  const items=rows.map((r:any)=>({reference:r.public_reference,customerName:names.get(r.sender_user_id)??"Client",recipient:r.recipient_display_snapshot,amountMinor:Number(r.amount_minor),currency:r.currency,status:r.status,progressPercent:Number(r.progress_percent),documentsOpen:open.get(r.id)??0,createdAt:r.created_at}));
+  const last=rows[rows.length-1];
+  return {items,hasNext,nextCursor:hasNext&&last?encodeAdminCursor({createdAt:String(last.created_at),id:String(last.id)}):null};
 }
-
 
 export async function loadAdminCustomerDossier(
   client: Client,

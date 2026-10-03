@@ -8,6 +8,8 @@ export type SupportMessageDto = {
   createdAt: string;
 };
 
+export type SupportThreadPageDto = { items: SupportThreadDto[]; hasNext: boolean; nextCursor: string | null };
+
 export type SupportThreadDto = {
   id: string;
   reference: string;

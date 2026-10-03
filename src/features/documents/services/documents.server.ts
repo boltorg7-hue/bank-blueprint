@@ -14,6 +14,7 @@ import type {
   CustomerDocumentDto,
   CustomerDocumentType,
   DocumentDownloadDto,
+  CustomerDocumentPageDto,
 } from "@/domain/documents/types";
 import type {
   TransactionReceiptSnapshot,
@@ -64,25 +65,62 @@ function toDto(row: DocumentRow): CustomerDocumentDto {
   };
 }
 
+const DOCUMENT_PAGE_SIZE = 25;
+
+type DocumentCursor = { createdAt: string; reference: string };
+
+function encodeDocumentCursor(value: DocumentCursor): string {
+  return Buffer.from(JSON.stringify(value), "utf8").toString("base64url");
+}
+
+function decodeDocumentCursor(value?: string | null): DocumentCursor | null {
+  if (!value) return null;
+  try {
+    const parsed = JSON.parse(Buffer.from(value, "base64url").toString("utf8"));
+    if (typeof parsed?.createdAt !== "string" || typeof parsed?.reference !== "string") return null;
+    return { createdAt: parsed.createdAt, reference: parsed.reference };
+  } catch {
+    return null;
+  }
+}
+
 export async function listDocuments(
   client: Client,
   userId: string,
-  options: { types?: CustomerDocumentType[] | null; limit?: number } = {},
-): Promise<CustomerDocumentDto[]> {
+  options: { types?: CustomerDocumentType[] | null; cursor?: string | null } = {},
+): Promise<CustomerDocumentPageDto> {
+  const cursor = decodeDocumentCursor(options.cursor);
   let query = client
     .from("customer_documents")
     .select(SELECT)
     .eq("user_id", userId)
     .order("created_at", { ascending: false })
-    .limit(options.limit ?? 40);
+    .order("public_reference", { ascending: false })
+    .limit(DOCUMENT_PAGE_SIZE + 1);
 
   if (options.types && options.types.length > 0) {
     query = query.in("document_type", options.types as never);
   }
 
+  if (cursor) {
+    query = query.or(`created_at.lt.${cursor.createdAt},and(created_at.eq.${cursor.createdAt},public_reference.lt.${cursor.reference})`);
+  }
+
   const { data, error } = await query;
   if (error) throw new Error("DOCUMENT_UNAVAILABLE");
-  return ((data ?? []) as unknown as DocumentRow[]).map(toDto);
+
+  const rawRows = (data ?? []) as unknown as DocumentRow[];
+  const hasNext = rawRows.length > DOCUMENT_PAGE_SIZE;
+  const rows = rawRows.slice(0, DOCUMENT_PAGE_SIZE);
+  const last = rows[rows.length - 1];
+
+  return {
+    items: rows.map(toDto),
+    hasNext,
+    nextCursor: hasNext && last
+      ? encodeDocumentCursor({ createdAt: last.created_at, reference: last.public_reference })
+      : null,
+  };
 }
 
 export async function getDocument(

@@ -62,12 +62,28 @@ export async function simulatePendingSms(userId:string) {
   }
 }
 
-export async function loadNotifications(client:Client,userId:string):Promise<NotificationCenterDto> {
+const NOTIFICATION_PAGE_SIZE = 25;
+type NotificationCursor={createdAt:string;id:string};
+function encodeNotificationCursor(v:NotificationCursor){return Buffer.from(JSON.stringify(v),"utf8").toString("base64url");}
+function decodeNotificationCursor(v?:string|null):NotificationCursor|null{if(!v)return null;try{const p=JSON.parse(Buffer.from(v,"base64url").toString("utf8"));return typeof p?.createdAt==="string"&&typeof p?.id==="string"?{createdAt:p.createdAt,id:p.id}:null;}catch{return null;}}
 
-  const { data,error }=await client.from("notifications" as any).select("id,category,severity,title,body,resource_path,read_at,created_at").eq("user_id",userId).is("archived_at",null).order("created_at",{ascending:false}).limit(100);
-  if(error) throw new Error("NOTIFICATIONS_UNAVAILABLE");
-  const items=(data??[]).map((row:any)=>({id:row.id,category:row.category,severity:row.severity,title:row.title,body:row.body,resourcePath:row.resource_path??null,readAt:row.read_at??null,createdAt:row.created_at}));
-  return {items,unreadCount:items.filter((item:any)=>!item.readAt).length};
+export async function loadNotifications(client: Client,userId:string,options:{category?:string;cursor?:string|null}={}): Promise<NotificationCenterDto> {
+  const allowed=["ALL","ACCOUNT","TRANSFER","FUNDING","PRICING","SECURITY","SERVICE"];
+  const category=allowed.includes(options.category ?? "ALL") ? options.category ?? "ALL" : "ALL";
+  const cursor=decodeNotificationCursor(options.cursor);
+  let query=client.from("notifications" as any).select("id,category,severity,title,body,resource_path,read_at,created_at").eq("user_id",userId).is("archived_at",null).order("created_at",{ascending:false}).order("id",{ascending:false}).limit(NOTIFICATION_PAGE_SIZE+1);
+  if(category!=="ALL") query=query.eq("category",category);
+  if(cursor) query=query.or(`created_at.lt.${cursor.createdAt},and(created_at.eq.${cursor.createdAt},id.lt.${cursor.id})`);
+  const [{data,error},{count:unreadCount,error:countError}]=await Promise.all([
+    query,
+    client.from("notifications" as any).select("id",{count:"exact",head:true}).eq("user_id",userId).is("archived_at",null).is("read_at",null),
+  ]);
+  if(error||countError) throw new Error("NOTIFICATIONS_UNAVAILABLE");
+  const rows=data??[];
+  const hasNext=rows.length>NOTIFICATION_PAGE_SIZE;
+  const items=rows.slice(0,NOTIFICATION_PAGE_SIZE).map((item:any)=>({id:String(item.id),category:String(item.category),severity:item.severity,title:String(item.title),body:String(item.body),resourcePath:item.resource_path?String(item.resource_path):null,readAt:item.read_at?String(item.read_at):null,createdAt:String(item.created_at)}));
+  const last=rows[NOTIFICATION_PAGE_SIZE-1];
+  return {items,unreadCount:unreadCount??0,hasNext,nextCursor:hasNext&&last?encodeNotificationCursor({createdAt:String(last.created_at),id:String(last.id)}):null};
 }
 export async function markNotification(client:Client,userId:string,id:string,action:"READ"|"ARCHIVE") {
   const values=action==="READ"?{read_at:new Date().toISOString()}:{archived_at:new Date().toISOString(),read_at:new Date().toISOString()};
