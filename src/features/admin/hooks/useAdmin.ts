@@ -209,7 +209,7 @@ export function useAdminAudit(search = "", cursor: string | null = null) {
   return useQuery({
     queryKey: [...ADMIN_AUDIT_KEY, search, cursor],
     queryFn: () => fn({ data: { search, cursor } }),
-    ...QUERY_POLICY.REALTIME,
+    ...QUERY_POLICY.NORMAL,
     enabled: staff?.authorized === true && staff.permissions.includes("audit.read"),
   });
 }
@@ -220,7 +220,7 @@ export function useAdminAccountStatusHistory(accountReference: string | null) {
   return useQuery({
     queryKey: ["admin", "account-status-history", accountReference],
     queryFn: () => fn({ data: { accountReference: accountReference! } }),
-    ...QUERY_POLICY.REALTIME,
+    ...QUERY_POLICY.NORMAL,
     enabled: Boolean(accountReference) && staff?.authorized === true && staff.permissions.includes("accounts.read"),
   });
 }
@@ -231,7 +231,7 @@ export function useAdminCustomerDossier(customerId: string | null) {
   return useQuery({
     queryKey: [...ADMIN_DOSSIER_KEY, customerId],
     queryFn: () => fn({ data: { customerId: customerId! } }),
-    ...QUERY_POLICY.REALTIME,
+    ...QUERY_POLICY.NORMAL,
     enabled: Boolean(customerId) && staff?.authorized === true && staff.permissions.includes("customers.read"),
   });
 }
