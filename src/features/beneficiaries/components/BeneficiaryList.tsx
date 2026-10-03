@@ -56,7 +56,7 @@ export function BeneficiaryList({ action }: { action?: React.ReactNode }) {
       <ul className="space-y-3" role="list">
         {beneficiaries.map((beneficiary) => (
           <li key={beneficiary.reference}>
-            <Card className="flex items-center gap-3 p-4">
+            <Card className="flex items-center gap-3 p-4 motion-safe:transition-[box-shadow,border-color,transform] motion-safe:duration-200 hover:shadow-sm">
               <span
                 aria-hidden="true"
                 className="flex size-10 shrink-0 items-center justify-center rounded-full bg-surface-sunken text-muted-foreground"
@@ -121,7 +121,7 @@ export function BeneficiaryList({ action }: { action?: React.ReactNode }) {
           if (!target) return;
           removeBeneficiary.mutate(target.reference, {
             onSuccess: () => {
-              toast.success("Bénéficiaire supprimé");
+              toast.success(en ? "Beneficiary deleted" : "Bénéficiaire supprimé");
               setPendingRemoval(null);
             },
             onError: () => toast.error("La suppression n'a pas abouti"),
