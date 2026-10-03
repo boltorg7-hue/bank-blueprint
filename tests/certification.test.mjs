@@ -217,3 +217,20 @@ test("la matrice des migrations trie par timestamp même dans les sous-dossiers"
   assert.match(audit, /aName\.localeCompare\(bName\)/);
   assert.match(audit, /\\$\\$\[\\s\\S\]\*\?\\\\\$\\$/);
 });
+
+
+test("les migrations Supabase restent toutes dans le répertoire racine des migrations", () => {
+  const migrationsDir = new URL("../supabase/migrations/", import.meta.url);
+  const walk = (url) => {
+    return readdirSync(url, { withFileTypes: true }).flatMap((entry) => {
+      if (entry.isDirectory()) return walk(new URL(`${entry.name}/`, url));
+      return [entry.name];
+    });
+  };
+  const nested = walk(migrationsDir);
+  assert.equal(
+    nested.some((name) => name === "20260930210000_step01_customer_onboarding_hardening.sql"),
+    true
+  );
+  assert.doesNotMatch(nested.join("\n"), /supabase\/migrations\/supabase\/migrations/);
+});
