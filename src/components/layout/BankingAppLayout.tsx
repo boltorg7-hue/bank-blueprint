@@ -16,7 +16,7 @@ export function BankingAppLayout({ children }: { children: ReactNode }) {
           <CustomerAppHeader />
           <NetworkStatusBanner />
 
-          <main id="main" className="min-w-0 flex-1 pb-mobile-nav lg:pb-10">
+          <main id="main" className="min-w-0 flex-1 overscroll-x-none pb-mobile-nav lg:pb-10">
             {children}
           </main>
         </div>
