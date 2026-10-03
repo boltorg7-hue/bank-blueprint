@@ -36,11 +36,11 @@ export function TransactionTable({ items }: { items: CustomerTransactionDto[] })
           <TableRow>
             <TableHead scope="col">Date</TableHead>
             <TableHead scope="col">Libellé</TableHead>
-            <TableHead scope="col">Type</TableHead>
-            <TableHead scope="col" className="text-right">
+            <TableHead scope="col" className="whitespace-nowrap">Type</TableHead>
+            <TableHead scope="col" className="text-right whitespace-nowrap">
               Montant
             </TableHead>
-            <TableHead scope="col">Statut</TableHead>
+            <TableHead scope="col" className="whitespace-nowrap">Statut</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -63,10 +63,10 @@ export function TransactionTable({ items }: { items: CustomerTransactionDto[] })
                   </span>
                 ) : null}
               </TableCell>
-              <TableCell className="text-muted-foreground">
+              <TableCell className="whitespace-nowrap text-muted-foreground">
                 {transactionTypeLabel(item.type, item.direction)}
               </TableCell>
-              <TableCell className="text-right">
+              <TableCell className="text-right whitespace-nowrap">
                 <span
                   className="text-numeric tabular-nums"
                   aria-label={transactionAmountAriaLabel(
@@ -86,7 +86,7 @@ export function TransactionTable({ items }: { items: CustomerTransactionDto[] })
                       )}
                 </span>
               </TableCell>
-              <TableCell>
+              <TableCell className="whitespace-nowrap">
                 <StatusBadge
                   label={transactionStatusLabel(item.status)}
                   tone={transactionStatusTone(item.status)}
