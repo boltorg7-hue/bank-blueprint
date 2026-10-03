@@ -3,7 +3,7 @@ import { useLanguage } from "@/components/providers/LanguageProvider";
 import { Link } from "@tanstack/react-router";
 import { ArrowUpRight, CircleAlert } from "lucide-react";
 import { ErrorState, LoadingState } from "@/components/feedback";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -81,8 +81,8 @@ function DossierBody({ dossier, en }: { dossier: import("@/features/admin/types/
         <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
           <QuickLink href="#identity" label={en ? "Identity & KYC" : "Identité & KYC"} />
           <QuickLink href="#accounts" label={en ? "Accounts & balances" : "Comptes & soldes"} />
-          <QuickLink href="#operations" label={en ? "Transactions & transfers" : "Transactions & virements"} />
-          <QuickLink href="#communication" label={en ? "Messages & notifications" : "Messages & notifications"} />
+          <QuickLink href="#transactions" label={en ? "Transactions & transfers" : "Transactions & virements"} />
+          <QuickLink href="#messages" label={en ? "Messages & notifications" : "Messages & notifications"} />
           <QuickLink href="#security" label={en ? "Security" : "Sécurité"} />
           <QuickLink href="#audit" label={en ? "Audit" : "Audit"} />
         </div>
@@ -236,7 +236,7 @@ function AccountActionBar({ account, en }: { account: { reference: string; statu
         </DialogHeader>
         <div className="space-y-2">
           <Label htmlFor="dossier-account-status-reason">{en ? "Reason" : "Motif"}</Label>
-          <Textarea id="dossier-account-status-reason" value={reason} onChange={(event) => setReason(event.target.value)} minLength={8} autoFocus aria-invalid={reason.length > 0 && reason.trim().length < 8} />
+          <Textarea id={`dossier-account-status-reason-${account.reference}`} value={reason} onChange={(event) => setReason(event.target.value)} minLength={8} autoFocus aria-invalid={reason.length > 0 && reason.trim().length < 8} />
           <p className="text-xs text-muted-foreground">{en ? "Minimum 8 characters." : "Minimum 8 caractères."}</p>
         </div>
         <DialogFooter className="gap-2">
