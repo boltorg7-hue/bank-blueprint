@@ -71,7 +71,7 @@ export function AdminLayout({ children }: { children: ReactNode }) {
 
             <div className="flex shrink-0 items-center gap-2">
               {staff.data?.authorized && primaryRole && (
-                <span className="hidden items-center gap-1.5 rounded-full border border-border bg-muted/40 px-2.5 py-1 text-xs font-medium sm:inline-flex">
+                <span className="hidden items-center gap-1.5 rounded-full border border-border bg-muted/40 px-2.5 py-1 text-caption font-medium sm:inline-flex">
                   <ShieldCheck className="size-3.5" aria-hidden="true" />
                   {roleLabel(primaryRole, en)}
                 </span>
