@@ -47,7 +47,7 @@ export function AdminSidebar({ mobileOpen = false, onNavigate }: { mobileOpen?: 
           const showGroup = item.group && item.group !== previous;
           const [fr, labelEn] = item.group ? GROUP_LABELS[item.group] : ["", ""];
           const groupLabel = showGroup ? (
-            <p className="px-3 pb-2 pt-5 text-[0.6875rem] font-semibold uppercase tracking-[0.08em] text-muted-foreground first:pt-0">
+            <p className="px-3 pb-2 pt-5 text-overline text-muted-foreground first:pt-0">
               {en ? labelEn : fr}
             </p>
           ) : null;
@@ -89,7 +89,7 @@ export function AdminSidebar({ mobileOpen = false, onNavigate }: { mobileOpen?: 
       </nav>
 
       <div className="border-t border-border px-3 py-3">
-        <p className="px-3 text-[0.6875rem] leading-5 text-muted-foreground">
+        <p className="px-3 text-caption leading-5 text-muted-foreground">
           {en ? "Sensitive actions are permission-controlled and audited." : "Les actions sensibles sont contrôlées par permission et auditées."}
         </p>
       </div>
