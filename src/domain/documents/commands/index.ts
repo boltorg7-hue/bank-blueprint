@@ -1,1 +1,4 @@
-import type {CommandContext,CommandResult} from "../../_shared/commands";import type {Document} from "../types";export type RegisterDocumentCommand={customerId:string;type:string;storageKey:string};export type RegisterDocumentHandler=(command:RegisterDocumentCommand,context:CommandContext)=>Promise<CommandResult<Document>>;
+import type {CommandContext,CommandResult} from "../../_shared/commands";import type {CustomerDocumentDto,DocumentDownloadDto} from "../types";
+export type ListCustomerDocumentsCommand={types?:string[];limit?:number};export type ListCustomerDocumentsHandler=(command:ListCustomerDocumentsCommand,context:CommandContext)=>Promise<CommandResult<CustomerDocumentDto[]>>;
+export type GetCustomerDocumentCommand={reference:string};export type GetCustomerDocumentHandler=(command:GetCustomerDocumentCommand,context:CommandContext)=>Promise<CommandResult<CustomerDocumentDto|null>>;
+export type CreateDocumentDownloadCommand={reference:string;intent:"download"|"preview"};export type CreateDocumentDownloadHandler=(command:CreateDocumentDownloadCommand,context:CommandContext)=>Promise<CommandResult<DocumentDownloadDto>>;
