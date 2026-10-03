@@ -19,12 +19,7 @@ import type {
  */
 export const TRANSACTIONS_KEY = ["transactions"] as const;
 
-const QUERY_BEHAVIOUR = {
-  staleTime: 10_000,
-  gcTime: 60_000,
-  refetchOnWindowFocus: true,
-  retry: 1,
-} as const;
+const QUERY_BEHAVIOUR = QUERY_POLICY.FINANCIAL;
 
 export function useTransactionsPage(request: TransactionPageRequest) {
   const fetchPage = useServerFn(listTransactions);
