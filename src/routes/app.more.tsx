@@ -41,7 +41,7 @@ function MoreRoute() {
           <section key={group.title} aria-labelledby={`group-${group.title}`} className="min-w-0 space-y-2">
             <h2
               id={`group-${group.title}`}
-              className="text-xs font-medium uppercase tracking-wide text-muted-foreground"
+              className="text-overline text-muted-foreground"
             >
               {en ? ({ Banque: "Banking", Documents: "Documents", Échanges: "Communication", "Mon compte": "My account" } as Record<string, string>)[group.title] ?? group.title : group.title}
             </h2>
