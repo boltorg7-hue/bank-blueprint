@@ -1,0 +1,1 @@
+import {z} from "zod";export const documentStatusSchema=z.enum(["pending","verified","rejected"]);export const documentSchema=z.object({customerId:z.string().min(1),type:z.string().min(1),storageKey:z.string().min(1)});
