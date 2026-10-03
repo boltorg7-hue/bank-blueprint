@@ -1,1 +1,4 @@
-import type {CommandContext,CommandResult} from "../../_shared/commands";import type {SecurityAuditEntry} from "../types";export type RecordSecurityEventCommand={customerId:string;action:"login"|"password_change"|"mfa_change"|"session_revoke"|"sensitive_action";occurredAt:string;ipAddress?:string};export type RecordSecurityEventHandler=(command:RecordSecurityEventCommand,context:CommandContext)=>Promise<CommandResult<SecurityAuditEntry>>;
+import type {CommandContext,CommandResult} from "../../_shared/commands";import type {SecurityOverviewDto} from "../types";
+export type GetSecurityOverviewCommand={};export type GetSecurityOverviewHandler=(command:GetSecurityOverviewCommand,context:CommandContext)=>Promise<CommandResult<SecurityOverviewDto>>;
+export type RegisterSecuritySessionCommand={deviceLabel:string};export type RegisterSecuritySessionHandler=(command:RegisterSecuritySessionCommand,context:CommandContext)=>Promise<CommandResult<{ok:true}>>;
+export type CloseOtherSecuritySessionsCommand={};export type RecordPasswordChangedCommand={};
