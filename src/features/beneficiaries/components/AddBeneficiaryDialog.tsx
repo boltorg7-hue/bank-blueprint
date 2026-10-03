@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useLanguage } from "@/components/providers/LanguageProvider";
 import { AlertTriangle, UserPlus } from "lucide-react";
 import { toast } from "sonner";
 
@@ -34,6 +35,8 @@ export function AddBeneficiaryDialog({
   trigger?: React.ReactNode;
   onAdded?: (reference: string) => void;
 }) {
+  const { language } = useLanguage();
+  const en = language === "en";
   const [open, setOpen] = useState(false);
   const [identifier, setIdentifier] = useState("");
   const [nickname, setNickname] = useState("");
@@ -65,7 +68,7 @@ export function AddBeneficiaryDialog({
         {trigger ?? (
           <Button>
             <UserPlus className="size-4" aria-hidden="true" />
-            Ajouter un bénéficiaire
+            {en ? "Add beneficiary" : "Ajouter un bénéficiaire"}
           </Button>
         )}
       </DialogTrigger>
@@ -73,14 +76,14 @@ export function AddBeneficiaryDialog({
         <DialogHeader>
           <DialogTitle>Ajouter un bénéficiaire</DialogTitle>
           <DialogDescription>
-            Enregistrez un compte détenu chez nous à partir de son numéro de compte ou de son IBAN.
+            {en ? "Register an account held with us using its account number or IBAN." : "Enregistrez un compte détenu chez nous à partir de son numéro de compte ou de son IBAN."}
           </DialogDescription>
         </DialogHeader>
 
         {resolved === null ? (
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="beneficiary-identifier">Numéro de compte ou IBAN</Label>
+              <Label htmlFor="beneficiary-identifier">{en ? "Account number or IBAN" : "Numéro de compte ou IBAN"}</Label>
               <Input
                 id="beneficiary-identifier"
                 autoComplete="off"
@@ -108,7 +111,7 @@ export function AddBeneficiaryDialog({
 
             <DialogFooter className="flex-col-reverse gap-2 sm:flex-row">
               <Button variant="outline" onClick={() => setOpen(false)} className="w-full sm:w-auto">
-                Annuler
+                {en ? "Cancel" : "Annuler"}
               </Button>
               <Button
                 className="w-full sm:w-auto"
@@ -131,14 +134,14 @@ export function AddBeneficiaryDialog({
                 }}
               >
                 {resolve.isPending ? <Spinner className="size-4" /> : null}
-                Vérifier le compte
+                {en ? "Verify account" : "Vérifier le compte"}
               </Button>
             </DialogFooter>
           </div>
         ) : (
           <div className="space-y-4">
             <div className="rounded-lg border border-border bg-surface-sunken p-3">
-              <p className="text-caption text-muted-foreground">Compte vérifié</p>
+              <p className="text-caption text-muted-foreground">{en ? "Account verified" : "Compte vérifié"}</p>
               <p className="text-sm font-semibold text-foreground">{resolved.displayName}</p>
               <p className="text-caption text-muted-foreground">
                 Compte •••• {resolved.maskedNumber} · {resolved.currency}
@@ -174,7 +177,7 @@ export function AddBeneficiaryDialog({
                 className="w-full sm:w-auto"
                 onClick={() => setResolved(null)}
               >
-                Modifier la saisie
+                {en ? "Edit details" : "Modifier la saisie"}
               </Button>
               <Button
                 className="w-full sm:w-auto"
@@ -184,7 +187,7 @@ export function AddBeneficiaryDialog({
                     { identifier: normalized, nickname: nickname.trim() || null },
                     {
                       onSuccess: (created) => {
-                        toast.success("Bénéficiaire enregistré");
+                        toast.success(en ? "Beneficiary saved" : "Bénéficiaire enregistré");
                         setOpen(false);
                         reset();
                         onAdded?.(created.reference);
@@ -198,7 +201,7 @@ export function AddBeneficiaryDialog({
                 }
               >
                 {add.isPending ? <Spinner className="size-4" /> : null}
-                Enregistrer le bénéficiaire
+                {en ? "Save beneficiary" : "Enregistrer le bénéficiaire"}
               </Button>
             </DialogFooter>
           </div>
