@@ -686,6 +686,6 @@ test("5.8.8.3 aligne les écrans client sur les primitives de page et de surface
   assert.match(account, /motion-safe:transition-\[border-color,box-shadow,transform\]/);
   assert.match(account, /motion-reduce:transition-none/);
   assert.match(more, /text-overline text-muted-foreground/);
-  assert.match(featureShell, /BankingContentContainer width={width}/);
+  assert.match(featureShell, /BankingContentContainer width=\{width\}/);
   assert.match(featureShell, /<PageSection>/);
 });
