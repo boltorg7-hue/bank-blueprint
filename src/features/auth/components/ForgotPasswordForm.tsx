@@ -41,7 +41,7 @@ export function ForgotPasswordForm() {
     const formData = new FormData(event.currentTarget);
     const parsed = forgotPasswordSchema.safeParse({ email: String(formData.get("email") ?? "") });
     if (!parsed.success) {
-      setErrors(fieldErrorsFrom(parsed.error));
+      setErrors(fieldErrorsFrom(parsed.error, en ? "en" : "fr"));
       return;
     }
     setErrors({});
