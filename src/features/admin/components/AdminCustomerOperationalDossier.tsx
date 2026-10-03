@@ -5,8 +5,14 @@ import { ArrowUpRight, CircleAlert } from "lucide-react";
 import { ErrorState, LoadingState } from "@/components/feedback";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { StatusBadge } from "@/components/ui/status-badge";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { useAdminCustomerDossier } from "@/features/admin/hooks/useAdmin";
+import { useAdminContext, useAdminCustomerDossier, useSetCustomerState } from "@/features/admin/hooks/useAdmin";
+import { toast } from "sonner";
+import { useState } from "react";
 import type { AdminCustomerDto } from "@/features/admin/types/admin";
 import { formatDate, formatDateTime } from "@/lib/format";
 
@@ -83,6 +89,7 @@ function DossierBody({ dossier, en }: { dossier: import("@/features/admin/types/
       </CardContent>
     </Card>
 
+    <CustomerActionBar customer={c} en={en} />
     <div className="flex flex-wrap gap-2">
       <ContextLink to="/admin/onboarding-cases" label={en ? "Open onboarding" : "Ouvrir l'onboarding"} />
       <ContextLink to="/admin/accounts" label={en ? "Open accounts" : "Ouvrir les comptes"} />
@@ -133,6 +140,71 @@ function DossierBody({ dossier, en }: { dossier: import("@/features/admin/types/
     </div>
   </>;
 }
+
+
+function CustomerActionBar({ customer, en }: { customer: AdminCustomerDtoLike; en: boolean }) {
+  const { data: staff } = useAdminContext();
+  const mutation = useSetCustomerState();
+  const [state, setState] = useState<"ACTIVE" | "RESTRICTED" | "SUSPENDED" | null>(null);
+  const [reason, setReason] = useState("");
+  const canManage = staff?.permissions.includes("customers.write") ?? false;
+  if (!canManage || !["ACTIVE", "RESTRICTED", "SUSPENDED"].includes(customer.lifecycleState)) return null;
+
+  const label = state === "ACTIVE" ? (en ? "Reactivate" : "Réactiver") : state === "RESTRICTED" ? (en ? "Restrict" : "Restreindre") : (en ? "Suspend" : "Suspendre");
+
+  async function confirm() {
+    if (!state || reason.trim().length < 8 || state === customer.lifecycleState) return;
+    try {
+      await mutation.mutateAsync({ customerId: customer.id, state, reason: reason.trim() });
+      toast.success(en ? "Customer status updated." : "Statut client mis à jour.");
+      setState(null);
+      setReason("");
+    } catch {
+      toast.error(en ? "Customer status could not be changed." : "Le statut client n’a pas pu être modifié.");
+    }
+  }
+
+  return <>
+    <Card>
+      <CardContent className="flex flex-wrap items-center justify-between gap-3 p-4">
+        <div>
+          <p className="text-sm font-semibold">{en ? "Operational actions" : "Actions opérationnelles"}</p>
+          <p className="text-xs text-muted-foreground">{en ? "Sensitive changes require an auditable reason." : "Les changements sensibles exigent un motif traçable."}</p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {customer.lifecycleState === "ACTIVE" ? (
+            <Button size="sm" variant="outline" onClick={() => setState("RESTRICTED")}>{en ? "Restrict" : "Restreindre"}</Button>
+          ) : (
+            <Button size="sm" variant="outline" onClick={() => setState("ACTIVE")}>{en ? "Reactivate" : "Réactiver"}</Button>
+          )}
+          <Button size="sm" variant="ghost" disabled={customer.lifecycleState === "SUSPENDED"} onClick={() => setState("SUSPENDED")}>{en ? "Suspend" : "Suspendre"}</Button>
+        </div>
+      </CardContent>
+    </Card>
+    <Dialog open={Boolean(state)} onOpenChange={(open) => { if (!open) { setState(null); setReason(""); } }}>
+      <DialogContent className="w-[calc(100%-2rem)] rounded-md">
+        <DialogHeader>
+          <DialogTitle>{en ? "Confirm customer status" : "Confirmer le statut client"}</DialogTitle>
+          <DialogDescription>{en ? `Confirm: ${label}. Record an auditable reason before applying the change.` : `Confirmer : ${label}. Consignez un motif traçable avant d'appliquer le changement.`}</DialogDescription>
+        </DialogHeader>
+        <div className="space-y-2">
+          <Label htmlFor="dossier-customer-status-reason">{en ? "Reason" : "Motif"}</Label>
+          <Textarea id="dossier-customer-status-reason" value={reason} onChange={(event) => setReason(event.target.value)} minLength={8} autoFocus aria-invalid={reason.length > 0 && reason.trim().length < 8} />
+          <p className="text-xs text-muted-foreground">{en ? "Minimum 8 characters." : "Minimum 8 caractères."}</p>
+        </div>
+        <DialogFooter className="gap-2">
+          <Button variant="outline" onClick={() => setState(null)}>{en ? "Cancel" : "Annuler"}</Button>
+          <Button onClick={() => void confirm()} disabled={reason.trim().length < 8 || mutation.isPending} loading={mutation.isPending}>{en ? "Confirm" : "Confirmer"}</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  </>;
+}
+
+type AdminCustomerDtoLike = {
+  id: string;
+  lifecycleState: string;
+};
 
 function Section({ id, title, children }: { id?: string; title: string; children: ReactNode }) {
   return <section id={id} className="scroll-mt-24 space-y-3"><h2 className="text-base font-semibold text-foreground">{title}</h2>{children}</section>;
