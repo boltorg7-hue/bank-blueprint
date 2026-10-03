@@ -182,14 +182,17 @@ export async function loadAccountDetails(
   if (!data) return null;
 
   const row = data as unknown as AccountRow;
-  const balances = await fetchBalances(client, [row.public_reference]);
+  const [balances, profileResult] = await Promise.all([
+    fetchBalances(client, [row.public_reference]),
+    client
+      .from("profiles")
+      .select("first_name, middle_name, last_name")
+      .eq("id", userId)
+      .maybeSingle(),
+  ]);
   const summary = toSummary(row, balances.get(row.public_reference) ?? null);
 
-  const { data: profile } = await client
-    .from("profiles")
-    .select("first_name, middle_name, last_name")
-    .eq("id", userId)
-    .maybeSingle();
+  const { data: profile } = profileResult;
 
   const holderName =
     [profile?.first_name, profile?.middle_name, profile?.last_name]
