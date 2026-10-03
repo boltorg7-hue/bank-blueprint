@@ -18,8 +18,13 @@ function AdminAuditPage() {
   const [search, setSearch] = useState("");
   const query = useAdminAudit(search);
   return <AdminGate permission="audit.read">
-    <PageHeader title={en ? "Audit trail" : "Journal d’audit"} description={en ? "Trace of sensitive back-office actions and authorization checks." : "Traçabilité des actions sensibles du back-office et des contrôles d’autorisation."} action={<Input aria-label={en ? "Search audit events" : "Rechercher dans l’audit"} placeholder={en ? "Action, resource or permission" : "Action, ressource ou permission"} value={search} onChange={(e) => setSearch(e.target.value)} className="w-full sm:w-80" />} />
+    <PageSection>
+    <PageHeader title={en ? "Audit trail" : "Journal d’audit"} description={en ? "Trace of sensitive back-office actions and authorization checks." : "Traçabilité des actions sensibles du back-office et des contrôles d’autorisation."} action={<Input aria-label={en ? "Search audit events" : "Rechercher dans l’audit"} placeholder={en ? "Action, resource or permission" : "Action, ressource ou permission"} value={search} onChange={(e) => setSearch(e.target.value)} className="w-full sm:w-80" />}
+    />
+    </PageSection>
+    <PageSection>
     {query.isPending ? <LoadingState /> : query.isError ? <ErrorState onRetry={() => query.refetch()} /> : !query.data?.length ? <EmptyState title={en ? "No audit events found" : "Aucun événement d’audit"} /> : <AuditList events={query.data} en={en} />}
+    </PageSection>
   </AdminGate>;
 }
 
