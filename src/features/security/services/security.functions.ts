@@ -1,5 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
-import type { SecurityOverviewDto } from "@/features/security/types/security";
+import type { SecurityOverviewDto } from "@/domain/security/types";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 export const getSecurityOverview=createServerFn({method:"GET"}).middleware([requireSupabaseAuth]).handler(async({context}):Promise<SecurityOverviewDto>=>{const service=await import("@/features/security/services/security.server");const sessionId=typeof context.claims["session_id"]==="string"?context.claims["session_id"]:null;return service.loadSecurityOverview(context.supabase,context.userId,sessionId);});
