@@ -1,4 +1,5 @@
-import { z } from "zod";
-export const accountIdSchema = z.string().min(1);
-export const accountStatusSchema = z.enum(["pending", "active", "frozen", "closed"]);
-export const createAccountSchema = z.object({ customerId: z.string().min(1), currency: z.string().length(3) });
+import {z} from "zod";
+export const accountReferenceSchema=z.string().regex(/^ACC-\\d{4}-\\d{6}$/);
+export const accountStatusSchema=z.enum(["PENDING","ACTIVE","RESTRICTED","SUSPENDED","FROZEN","CLOSING","CLOSED"]);
+export const accountTypeSchema=z.enum(["CURRENT","SAVINGS"]);
+export const accountDetailsInputSchema=z.object({reference:accountReferenceSchema});
