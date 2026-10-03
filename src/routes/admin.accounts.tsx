@@ -5,6 +5,7 @@ import { useState } from "react";
 
 import { EmptyState, ErrorState, LoadingState } from "@/components/feedback";
 import { PageHeader } from "@/components/layout/PageHeader";
+import { PageSection } from "@/components/ui/page-section";
 import { Input } from "@/components/ui/input";
 import { AdminAccountsTable } from "@/features/admin/components/AdminAccountsTable";
 import { AdminGate } from "@/features/admin/components/AdminGate";
