@@ -4,6 +4,7 @@ import { useLanguage } from "@/components/providers/LanguageProvider";
 import { BankingContentContainer } from "@/components/layout/BankingAppLayout";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { PermissionDeniedState } from "@/components/feedback";
+import { PageSection } from "@/components/ui/page-section";
 import { useCustomerSummary } from "@/features/customer-shell/hooks/useCustomerSummary";
 import { isAllowed } from "@/features/customer-shell/lib/route-access";
 import { TransferDetail } from "@/features/transfers/components/TransferDetail";
@@ -37,7 +38,9 @@ function AppTransferDetailRoute() {
         backTo="/app/transfers"
       />
       {allowed ? (
+        <PageSection>
         <TransferDetail reference={transferRef} />
+        </PageSection>
       ) : (
         <PermissionDeniedState description={en ? "Transfer details will be available when your account is activated." : "Le détail de vos virements sera disponible dès l'activation de votre compte."} />
       )}
