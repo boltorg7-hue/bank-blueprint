@@ -295,17 +295,15 @@ export async function createTransfer(
     beneficiaryReference: string;
     amountMinor: number;
     customerReference: string | null;
-    idempotencyKey: string;
   },
 ): Promise<TransferDetailDto> {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  const { data, error } = await supabaseAdmin.rpc("create_customer_transfer_idempotent", {
+  const { data, error } = await supabaseAdmin.rpc("create_customer_transfer", {
     _user_id: userId,
     _source_account_reference: input.sourceAccountReference,
     _beneficiary_reference: input.beneficiaryReference,
     _amount_minor: input.amountMinor,
     _customer_reference: input.customerReference,
-    _idempotency_key: input.idempotencyKey,
   } as never);
   if (error) throw toDomainError(error);
 
