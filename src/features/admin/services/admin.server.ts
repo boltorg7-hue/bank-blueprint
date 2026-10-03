@@ -75,7 +75,63 @@ export async function loadAdminCustomers(
   }
   const { data: authPage } = await admin.auth.admin.listUsers({ page: 1, perPage: 1000 });
   const emailById = new Map((authPage?.users ?? []).map((user) => [user.id, user.email ?? null]));
-  const mapped: AdminCustomerDto[] = (data ?? []).map((row: any) => ({
+  const customerIds = (data ?? []).map((row: any) => String(row.id));
+  const accountIds = (accounts ?? []).map((row: any) => String((row as any).id)).filter(Boolean);
+  const [{ data: verifications }, { data: documents }, { data: notifications }, { data: transfers }, { data: funding }] = await Promise.all([
+    customerIds.length ? admin.from("identity_verifications").select("user_id,status").in("user_id", customerIds) : Promise.resolve({ data: [] as any[] }),
+    customerIds.length ? admin.from("verification_documents").select("user_id,status").in("user_id", customerIds) : Promise.resolve({ data: [] as any[] }),
+    customerIds.length ? admin.from("notifications").select("user_id,read_at").in("user_id", customerIds).is("archived_at", null) : Promise.resolve({ data: [] as any[] }),
+    customerIds.length ? admin.from("transfers").select("sender_user_id,status").in("sender_user_id", customerIds) : Promise.resolve({ data: [] as any[] }),
+    accountIds.length ? admin.from("funding_requests").select("account_id,status").in("account_id", accountIds) : Promise.resolve({ data: [] as any[] }),
+  ]);
+  const accountOwnerById = new Map((accounts ?? []).map((row: any) => [String(row.id), String(row.user_id)]));
+  const verificationByUser = new Map<string, Set<string>>();
+  for (const row of verifications ?? []) {
+    const id = String((row as any).user_id);
+    const set = verificationByUser.get(id) ?? new Set<string>();
+    set.add(String((row as any).status));
+    verificationByUser.set(id, set);
+  }
+  const documentByUser = new Map<string, Set<string>>();
+  for (const row of documents ?? []) {
+    const id = String((row as any).user_id);
+    const set = documentByUser.get(id) ?? new Set<string>();
+    set.add(String((row as any).status));
+    documentByUser.set(id, set);
+  }
+  const unreadByUser = new Map<string, number>();
+  for (const row of notifications ?? []) {
+    if (!row.read_at) {
+      const id = String((row as any).user_id);
+      unreadByUser.set(id, (unreadByUser.get(id) ?? 0) + 1);
+    }
+  }
+  const openTransfersByUser = new Map<string, number>();
+  for (const row of transfers ?? []) {
+    if (["PROCESSING", "COMPLIANCE_REVIEW", "DOCUMENT_REQUIRED", "SETTLEMENT_PENDING"].includes(String((row as any).status))) {
+      const id = String((row as any).sender_user_id);
+      openTransfersByUser.set(id, (openTransfersByUser.get(id) ?? 0) + 1);
+    }
+  }
+  const pendingFundingByUser = new Map<string, number>();
+  for (const row of funding ?? []) {
+    if (String((row as any).status) === "PENDING") {
+      const owner = accountOwnerById.get(String((row as any).account_id));
+      if (owner) pendingFundingByUser.set(owner, (pendingFundingByUser.get(owner) ?? 0) + 1);
+    }
+  }
+  const mapped: AdminCustomerDto[] = (data ?? []).map((row: any) => {
+    const id = String(row.id);
+    const attentionReasons: string[] = [];
+    if (row.lifecycle_state !== "ACTIVE") attentionReasons.push("LIFECYCLE");
+    const verificationStatuses = verificationByUser.get(id) ?? new Set<string>();
+    if ([...verificationStatuses].some((status) => ["UNDER_REVIEW", "ADDITIONAL_INFORMATION_REQUIRED", "REJECTED"].includes(status))) attentionReasons.push("KYC");
+    const documentStatuses = documentByUser.get(id) ?? new Set<string>();
+    if ([...documentStatuses].some((status) => ["ACTION_REQUIRED", "REJECTED", "EXPIRED"].includes(status))) attentionReasons.push("DOCUMENTS");
+    if ((unreadByUser.get(id) ?? 0) > 0) attentionReasons.push("NOTIFICATIONS");
+    if ((openTransfersByUser.get(id) ?? 0) > 0) attentionReasons.push("TRANSFERS");
+    if ((pendingFundingByUser.get(id) ?? 0) > 0) attentionReasons.push("FUNDING");
+    return {
       id: row.id,
       reference: `CUS-${String(row.id).replace(/-/g, "").slice(0, 12).toUpperCase()}`,
       fullName: [row.first_name, row.middle_name, row.last_name].filter(Boolean).join(" ") || "Client sans nom",
@@ -84,7 +140,10 @@ export async function loadAdminCustomers(
       lifecycleState: row.lifecycle_state as CustomerLifecycleState,
       accountCount: counts.get(row.id) ?? 0,
       createdAt: row.created_at,
-    }));
+      attentionCount: attentionReasons.length,
+      attentionReasons,
+    };
+  });
   if (!term) return mapped;
   const needle = term.toLocaleLowerCase("fr");
   return mapped.filter((customer) =>
