@@ -25,7 +25,7 @@ export function AccountListItem({ account }: { account: CustomerAccountSummaryDt
       <Link
         to="/app/accounts/$accountRef"
         params={{ accountRef: account.reference }}
-        className="press-feedback flex w-full items-center gap-3 rounded-xl border border-border bg-surface p-4 text-left transition-colors hover:border-border-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+        className="native-surface press-feedback flex w-full items-center gap-3 p-4 text-left motion-safe:transition-[border-color,box-shadow,transform] motion-safe:duration-150 hover:border-brand/30 hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background motion-reduce:transition-none"
       >
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
