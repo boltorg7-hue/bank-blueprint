@@ -47,7 +47,7 @@ export function AdminLayout({ children }: { children: ReactNode }) {
       )}
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="safe-pt sticky top-0 z-30 border-b border-border bg-surface/95 backdrop-blur">
+        <header className="safe-pt sticky top-0 z-30 border-b border-border bg-surface/95 backdrop-blur supports-[backdrop-filter]:bg-surface/80">
           <div className="flex min-h-14 flex-wrap items-center justify-between gap-2 px-4 py-2 sm:px-6">
             <div className="flex min-w-0 items-center gap-2">
               <Button
@@ -55,6 +55,8 @@ export function AdminLayout({ children }: { children: ReactNode }) {
                 size="icon"
                 className="touch-target lg:hidden"
                 aria-label={en ? "Open admin navigation" : "Ouvrir la navigation administration"}
+                aria-expanded={mobileOpen}
+                aria-controls="admin-navigation"
                 onClick={() => setMobileOpen((open) => !open)}
               >
                 <Menu className="size-5" aria-hidden="true" />
@@ -75,14 +77,14 @@ export function AdminLayout({ children }: { children: ReactNode }) {
                 </span>
               )}
               <LanguageSwitch />
-              <span className="hidden rounded-full border border-border px-2 py-0.5 text-xs text-muted-foreground lg:inline-flex">
+              <span className="hidden rounded-full border border-border bg-surface-sunken px-2.5 py-0.5 text-xs text-muted-foreground lg:inline-flex">
                 {en ? "Restricted access" : "Accès restreint"}
               </span>
             </div>
           </div>
         </header>
 
-        <main id="main" className="flex-1 px-4 py-5 sm:px-6 sm:py-7">
+        <main id="main" className="min-w-0 flex-1 overscroll-x-none px-4 py-5 sm:px-6 sm:py-7 lg:px-8">
           {children}
         </main>
       </div>
