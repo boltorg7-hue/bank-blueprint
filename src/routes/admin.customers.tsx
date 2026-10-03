@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useLanguage } from "@/components/providers/LanguageProvider";
 
@@ -10,7 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { AdminGate } from "@/features/admin/components/AdminGate";
-import { AdminCustomersTable } from "@/features/admin/components/AdminCustomersTable";
+const AdminCustomersTable = lazy(() => import("@/features/admin/components/AdminCustomersTable").then((module) => ({ default: module.AdminCustomersTable })));
 import { useAdminCustomers } from "@/features/admin/hooks/useAdmin";
 import { CUSTOMER_LIFECYCLE_STATES, LIFECYCLE_LABELS, type CustomerLifecycleState } from "@/types/customer-lifecycle";
 
@@ -100,6 +101,6 @@ function AdminCustomersPage() {
       </p>
       <div className="flex items-center gap-2">{cursor ? <Button type="button" variant="outline" onClick={() => { const previous = cursorHistory.at(-1) ?? null; setCursorHistory((items) => items.slice(0, -1)); setCursor(previous); }}>{en ? "Previous" : "Précédent"}</Button> : null}<Button type="button" variant="outline" disabled={!query.data?.hasNext || !query.data?.nextCursor} onClick={() => { if (!query.data?.nextCursor) return; setCursorHistory((items) => [...items, cursor ?? ""]); setCursor(query.data.nextCursor); }}>{en ? "Next" : "Suivant"}</Button>{hasFilters ? <Button type="button" variant="ghost" onClick={clearFilters}>{en ? "Clear filters" : "Réinitialiser les filtres"}</Button> : null}</div>
     </div>
-    {query.isPending ? <LoadingState /> : query.isError ? <ErrorState onRetry={() => query.refetch()} /> : !customers.length ? <EmptyState title={en ? (hasFilters ? "No customer matches these filters" : "No customers found") : (hasFilters ? "Aucun client ne correspond à ces filtres" : "Aucun client trouvé")} /> : <AdminCustomersTable customers={customers} />}
+    {query.isPending ? <LoadingState /> : query.isError ? <ErrorState onRetry={() => query.refetch()} /> : !customers.length ? <EmptyState title={en ? (hasFilters ? "No customer matches these filters" : "No customers found") : (hasFilters ? "Aucun client ne correspond à ces filtres" : "Aucun client trouvé")} /> : <Suspense fallback={<LoadingState />}><AdminCustomersTable customers={customers} /></Suspense>}
   </PageSection></AdminGate>;
 }

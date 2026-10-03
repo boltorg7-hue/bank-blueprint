@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { lazy, Suspense } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 
 import { EmptyState, ErrorState, LoadingState } from "@/components/feedback";
@@ -9,7 +10,7 @@ import { useLanguage } from "@/components/providers/LanguageProvider";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { AdminGate } from "@/features/admin/components/AdminGate";
-import { AdminOnboardingCases } from "@/features/admin/components/AdminOnboardingCases";
+const AdminOnboardingCases = lazy(() => import("@/features/admin/components/AdminOnboardingCases").then((module) => ({ default: module.AdminOnboardingCases })));
 import { InviteCustomerDialog } from "@/features/admin/components/InviteCustomerDialog";
 import { useAdminContext, useAdminOnboardingCases } from "@/features/admin/hooks/useAdmin";
 
@@ -73,7 +74,7 @@ function AdminOnboardingCasesPage() {
           </div>
         ) : (
           <div className="space-y-4">
-            <AdminOnboardingCases cases={query.data.items} />
+            <Suspense fallback={<LoadingState />}><AdminOnboardingCases cases={query.data.items} /></Suspense>
             <div className="flex justify-end gap-2">
               <Button variant="outline" disabled={!history.length || query.isFetching} onClick={goPrevious}>{en ? "Previous" : "Précédent"}</Button>
               <Button variant="outline" disabled={!query.data.hasNext || query.isFetching} onClick={goNext}>{en ? "Next" : "Suivant"}</Button>

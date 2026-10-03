@@ -89,7 +89,20 @@ function HomeResponsiveImage({
 }
 
 export const Route = createFileRoute("/")({
-  head: () => ({ ...meta, ...jsonLd }),
+  head: () => ({
+    ...meta,
+    ...jsonLd,
+    links: [
+      {
+        rel: "preload",
+        as: "image",
+        href: "/images/home/woodbrook-1280w.avif",
+        type: "image/avif",
+        imageSrcSet: HOME_IMAGE_VARIANTS.woodbrook.avif,
+        imageSizes: "(max-width: 1279px) 100vw, 1280px",
+      },
+    ],
+  }),
   component: HomePage,
 });
 
@@ -156,7 +169,7 @@ function HomePage() {
       </section>
 
       {/* Heritage facts */}
-      <PublicSection tone="sunken" className="border-y border-border py-10 sm:py-14">
+      <PublicSection tone="sunken" deferRender className="border-y border-border py-10 sm:py-14">
         <div className="grid gap-7 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16">
           <div>
              <p className="text-overline text-brand">{copy("Notre histoire en bref", HOME_EN.historyEyebrow)}</p>
@@ -176,7 +189,7 @@ function HomePage() {
       </PublicSection>
 
       {/* Local news */}
-      <PublicSection className="bg-primary py-12 sm:py-20">
+      <PublicSection deferRender className="bg-primary py-12 sm:py-20">
         <div className="grid gap-8 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16">
           <div>
              <p className="text-overline text-warning-muted">{copy("Regards sur la région", HOME_EN.regional)}</p>
@@ -206,7 +219,7 @@ function HomePage() {
       </PublicSection>
 
       {/* Places */}
-      <PublicSection>
+      <PublicSection deferRender>
         <SectionHeader
            eyebrow={copy("Chez nous", HOME_EN.placesEyebrow)}
            title={copy("Ancrée à Trinidad-et-Tobago", HOME_EN.placesTitle)}
@@ -234,7 +247,7 @@ function HomePage() {
       </PublicSection>
 
       {/* Benefits */}
-      <PublicSection tone="sunken">
+      <PublicSection tone="sunken" deferRender>
          <SectionHeader eyebrow={copy("Au quotidien", HOME_EN.daily)} title={copy("Votre compte, simplement", HOME_EN.accountTitle)} />
         <div className="mt-8 grid grid-cols-[minmax(0,1fr)] gap-4 sm:grid-cols-2 lg:grid-cols-4">
            {CORE_BENEFITS.map((benefit, index) => {
@@ -251,7 +264,7 @@ function HomePage() {
       </PublicSection>
 
       {/* Security */}
-      <PublicSection>
+      <PublicSection deferRender>
         <SectionHeader
            eyebrow={copy("Sécurité", HOME_EN.security)}
            title={copy("Votre compte est protégé à chaque étape", HOME_EN.securityTitle)}
@@ -278,7 +291,7 @@ function HomePage() {
       </PublicSection>
 
       {/* Onboarding */}
-      <PublicSection tone="sunken">
+      <PublicSection tone="sunken" deferRender>
          <SectionHeader eyebrow={copy("Ouverture de compte", HOME_EN.onboarding)} title={copy("Cinq étapes, entièrement en ligne", HOME_EN.onboardingTitle)} />
         <ol className="mt-8 grid grid-cols-[minmax(0,1fr)] gap-4 sm:grid-cols-2 lg:grid-cols-5">
           {ONBOARDING_STEPS.map((step, index) => (
@@ -294,7 +307,7 @@ function HomePage() {
       </PublicSection>
 
       {/* FAQ */}
-      <PublicSection>
+      <PublicSection deferRender>
         <div className="grid grid-cols-[minmax(0,1fr)] gap-8 lg:grid-cols-[0.8fr_1.2fr]">
           <SectionHeader
              eyebrow={copy("Questions fréquentes", HOME_EN.faq)}

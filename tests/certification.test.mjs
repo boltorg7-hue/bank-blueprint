@@ -380,3 +380,166 @@ test("les actions financières critiques ont un verrou local contre le double-su
   assert.match(transfer, /onSettled: \(\) => \{\s*initiateLock\.current = false;/);
   assert.match(transfer, /onSettled: \(\) => \{\s*confirmLock\.current = false;/);
 });
+
+
+test("la performance frontend réserve le realtime aux données opérationnelles", () => {
+  const admin = read("src/features/admin/hooks/useAdmin.ts");
+  const notifications = read("src/features/notifications/hooks/useNotifications.ts");
+  const router = read("src/router.tsx");
+
+  const auditStart = admin.indexOf("export function useAdminAudit");
+  const auditEnd = admin.indexOf("export function useAdminAccountStatusHistory", auditStart);
+  const auditHook = admin.slice(auditStart, auditEnd);
+
+  const historyStart = admin.indexOf("export function useAdminAccountStatusHistory");
+  const dossierStart = admin.indexOf("export function useAdminCustomerDossier", historyStart);
+  const historyHook = admin.slice(historyStart, dossierStart);
+
+  const dossierHook = admin.slice(dossierStart);
+
+  assert.match(auditHook, /\.\.\.QUERY_POLICY\.NORMAL/);
+  assert.match(historyHook, /\.\.\.QUERY_POLICY\.NORMAL/);
+  assert.match(dossierHook, /\.\.\.QUERY_POLICY\.NORMAL/);
+  assert.match(admin, /useFundingRequests[\s\S]*?\.\.\.QUERY_POLICY\.REALTIME/);
+  assert.match(admin, /useAdminExternalTransfers[\s\S]*?\.\.\.QUERY_POLICY\.REALTIME/);
+  assert.match(notifications, /\.\.\.QUERY_POLICY\.REALTIME/);
+  assert.doesNotMatch(notifications, /refetchInterval\s*:/);
+  assert.match(router, /defaultPreloadStaleTime:\s*30_000/);
+});
+
+
+test("les listes métier évitent les rerenders inutiles et conservent une hiérarchie DOM cohérente", () => {
+  const dashboard = read("src/routes/app.dashboard.tsx");
+  const documents = read("src/features/documents/components/DocumentList.tsx");
+  const support = read("src/features/support/components/SupportCenter.tsx");
+
+  assert.equal((dashboard.match(/aria-labelledby="accounts-heading"/g) ?? []).length, 1);
+  assert.equal((dashboard.match(/aria-labelledby="activity-heading"/g) ?? []).length, 1);
+  assert.match(documents, /import \{ memo, useState \} from "react"/);
+  assert.match(documents, /const DocumentRow = memo\(function DocumentRow/);
+  assert.match(support, /import \{ memo, useState \} from "react"/);
+  assert.match(support, /const CustomerThread = memo\(function CustomerThread/);
+});
+
+
+test("les écrans admin lourds chargent leurs tableaux métier à la demande", () => {
+  const routes = [
+    ["src/routes/admin.accounts.tsx", "AdminAccountsTable"],
+    ["src/routes/admin.customers.tsx", "AdminCustomersTable"],
+    ["src/routes/admin.funding.tsx", "FundingConsole"],
+    ["src/routes/admin.onboarding-cases.tsx", "AdminOnboardingCases"],
+  ];
+
+  for (const [path, component] of routes) {
+    const source = read(path);
+    assert.match(source, /import \{ lazy, Suspense \} from "react";/, path);
+    assert.match(source, new RegExp(`const ${component} = lazy\\(\\(\\) => import`), path);
+    assert.doesNotMatch(source, new RegExp(`import \\{ ${component} \\} from "@/features/admin/components/${component}"`), path);
+    assert.match(source, new RegExp(`<Suspense fallback=\\{<LoadingState />\\}>[\\s\\S]*<${component}`), path);
+  }
+});
+
+test("les gros modules restent absents du shell générique quand ils sont inutilisés", () => {
+  const chart = read("src/components/ui/chart.tsx");
+  const documents = read("src/features/documents/services/documents.server.ts");
+  assert.match(chart, /from "recharts"/);
+  assert.match(documents, /await import\("@\/features\/documents\/templates\/receipt-pdf\.server"\)/);
+  assert.doesNotMatch(read("src/router.tsx"), /from "recharts"|from "pdf-lib"/);
+});
+
+
+test("les assets critiques du premier écran sont optimisés et le hero est prioritaire", () => {
+  const root = read("src/routes/__root.tsx");
+  const home = read("src/routes/index.tsx");
+  const optimizer = read("scripts/optimize-home-images.mjs");
+
+  assert.match(root, /@fontsource\/sora\/500\.css/);
+  assert.match(root, /@fontsource\/manrope\/400\.css/);
+  assert.match(root, /@fontsource\/ibm-plex-mono\/400\.css/);
+  assert.doesNotMatch(root, /fonts\.googleapis\.com|fonts\.gstatic\.com/);
+
+  assert.match(home, /rel: "preload"/);
+  assert.match(home, /as: "image"/);
+  assert.match(home, /imageSrcSet: HOME_IMAGE_VARIANTS\.woodbrook\.avif/);
+  assert.match(home, /fetchPriority=\{priority \? "high" : "low"\}/);
+  assert.match(home, /loading=\{priority \? "eager" : "lazy"\}/);
+
+  assert.match(optimizer, /avif/);
+  assert.match(optimizer, /webp/);
+  assert.match(optimizer, /withoutEnlargement: true/);
+});
+
+
+test("le budget statique du shell protège LCP/CLS et évite les gros modules au premier chargement", () => {
+  const root = read("src/routes/__root.tsx");
+  const router = read("src/router.tsx");
+  const home = read("src/routes/index.tsx");
+  const section = read("src/features/public/components/SectionHeader.tsx");
+  const styles = read("src/styles.css");
+
+  assert.doesNotMatch(root, /from ["']recharts["']|from ["']pdf-lib["']|from ["']react-day-picker["']/);
+  assert.doesNotMatch(router, /from ["']recharts["']|from ["']pdf-lib["']/);
+  assert.match(home, /width=\{1280\}[\\s\\S]*?height=\{960\}/);
+  assert.match(home, /priority/);
+  assert.match(section, /content-auto/);
+  assert.match(styles, /content-visibility:\\s*auto/);
+});
+
+
+test("le chargement sur réseau mobile reste borné et ne refetch pas tout le cache hors écran", () => {
+  const policy = read("src/lib/query-policy.ts");
+  const banner = read("src/features/customer-shell/components/NetworkStatusBanner.tsx");
+  const router = read("src/router.tsx");
+
+  assert.equal((policy.match(/networkMode: "online"/g) ?? []).length, 5);
+  assert.match(router, /defaultPreloadStaleTime: 30_000/);
+  assert.match(banner, /refetchQueries\(\{ type: "active" \}\)/);
+  assert.match(banner, /navigator\.onLine/);
+});
+
+test("aucune API de préchargement réseau manuel n'est ajoutée au shell critique", () => {
+  const root = read("src/routes/__root.tsx");
+  const router = read("src/router.tsx");
+  assert.doesNotMatch(root, /navigator\.connection|effectiveType|requestIdleCallback/);
+  assert.doesNotMatch(router, /prefetchQuery|prefetchInfiniteQuery/);
+});
+
+
+test("les dépendances frontend lourdes restent isolées des shells critiques", () => {
+  const root = read("src/routes/__root.tsx");
+  const router = read("src/router.tsx");
+  const publicLayout = read("src/components/layout/PublicLayout.tsx");
+  const bankingLayout = read("src/components/layout/BankingAppLayout.tsx");
+  const adminLayout = read("src/components/layout/AdminLayout.tsx");
+  const chart = read("src/components/ui/chart.tsx");
+  const calendar = read("src/components/ui/calendar.tsx");
+  const carousel = read("src/components/ui/carousel.tsx");
+  const resizable = read("src/components/ui/resizable.tsx");
+  const documents = read("src/features/documents/services/documents.server.ts");
+
+  for (const source of [root, router, publicLayout, bankingLayout, adminLayout]) {
+    assert.doesNotMatch(
+      source,
+      /(?:from\s+["'](?:recharts|pdf-lib|react-day-picker|embla-carousel-react|react-resizable-panels)["']|import\(\s*["'](?:recharts|pdf-lib|react-day-picker|embla-carousel-react|react-resizable-panels)["'])/,
+    );
+  }
+
+  assert.match(chart, /from "recharts"/);
+  assert.match(calendar, /from "react-day-picker"/);
+  assert.match(carousel, /from "embla-carousel-react"/);
+  assert.match(resizable, /from "react-resizable-panels"/);
+  assert.match(documents, /await import\("@\/features\/documents\/templates\/receipt-pdf\.server"\)/);
+});
+
+test("les cinq dépendances lourdes restent documentées comme modules ciblés du bundle", () => {
+  const packageJson = read("package.json");
+  for (const dependency of [
+    "recharts",
+    "pdf-lib",
+    "react-day-picker",
+    "embla-carousel-react",
+    "react-resizable-panels",
+  ]) {
+    assert.match(packageJson, new RegExp('"' + dependency.replace(/[.*+?^$()|[\]\\]/g, "\\$&") + '"\\s*:'));
+  }
+});

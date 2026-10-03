@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { memo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -37,7 +37,7 @@ function fileSize(bytes: number | null): string | null {
   return `${(bytes / (1024 * 1024)).toFixed(1)} Mo`;
 }
 
-function DocumentRow({ document }: { document: CustomerDocumentDto }) {
+const DocumentRow = memo(function DocumentRow({ document }: { document: CustomerDocumentDto }) {
   const size = fileSize(document.sizeBytes);
   return (
     <Card className="space-y-3 p-4 sm:p-5">
@@ -67,7 +67,7 @@ function DocumentRow({ document }: { document: CustomerDocumentDto }) {
       {document.status === "READY" ? <DocumentActions reference={document.reference} /> : null}
     </Card>
   );
-}
+});
 
 export function DocumentList() {
   const [filter, setFilter] = useState<DocumentFilter>("ALL");
