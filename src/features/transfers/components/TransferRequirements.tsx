@@ -42,12 +42,10 @@ export function TransferRequirements({
   reference,
   requirements,
   documents,
-  en,
 }: {
   reference: string;
   requirements: TransferRequirementDto[];
   documents: TransferDocumentDto[];
-  en: boolean;
 }) {
   const { language } = useLanguage();
   const en = language === "en";
@@ -82,10 +80,12 @@ function RequirementRow({
   reference,
   requirement,
   documents,
+  en,
 }: {
   reference: string;
   requirement: TransferRequirementDto;
   documents: TransferDocumentDto[];
+  en: boolean;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [error, setError] = useState<string | null>(null);
