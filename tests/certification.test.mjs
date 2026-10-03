@@ -707,3 +707,15 @@ test("5.8.8.4 aligne les surfaces et la motion de la console administrative", ()
   assert.match(funding, /<PageSection>[\\s\\S]*<PageHeader/);
   assert.match(onboarding, /native-surface mb-5/);
 });
+
+
+test("5.8.8.5 standardise les états globaux de feedback", () => {
+  const feedback = read("src/components/feedback/index.tsx");
+  const state = read("src/components/feedback/StateBlock.tsx");
+  const skeleton = read("src/components/ui/skeleton.tsx");
+  assert.match(feedback, /min-h-24 items-center justify-center gap-2 rounded-xl border border-border bg-surface/);
+  assert.match(feedback, /motion-reduce:transition-none/);
+  assert.match(state, /min-h-44 flex flex-col items-center justify-center/);
+  assert.match(state, /motion-reduce:transition-none/);
+  assert.match(skeleton, /animate-pulse/);
+});
