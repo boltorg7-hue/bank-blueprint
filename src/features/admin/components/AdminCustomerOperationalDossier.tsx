@@ -78,7 +78,7 @@ function DossierBody({ dossier, en }: { dossier: import("@/features/admin/types/
             <StatusBadge label={en ? "No immediate action" : "Aucune action immédiate"} tone="success" />
           )}
         </div>
-        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="scrollbar-none -mx-5 flex snap-x gap-2 overflow-x-auto px-5 pb-1 sm:mx-0 sm:grid sm:grid-cols-2 sm:overflow-visible sm:px-0 lg:grid-cols-3">
           <QuickLink href="#identity" label={en ? "Identity & KYC" : "Identité & KYC"} />
           <QuickLink href="#accounts" label={en ? "Accounts & balances" : "Comptes & soldes"} />
           <QuickLink href="#transactions" label={en ? "Transactions & transfers" : "Transactions & virements"} />
@@ -117,7 +117,7 @@ function DossierBody({ dossier, en }: { dossier: import("@/features/admin/types/
     </div>
 
     <Section id="accounts" title={en ? "Accounts & balances" : "Comptes & soldes"}>
-      {!dossier.accounts.length ? <EmptyLine text={en ? "No bank account." : "Aucun compte bancaire."} /> : <div className="grid gap-3 md:grid-cols-2">{dossier.accounts.map((a) => <Card key={a.reference}><CardContent className="space-y-3 p-4"><div className="flex items-start justify-between gap-3"><div><p className="font-semibold">{a.displayName}</p><p className="text-xs text-muted-foreground">{a.reference} · {a.maskedNumber}</p></div><StatusBadge label={a.status} tone={tone(a.status)} /></div><div className="grid grid-cols-3 gap-2 text-sm"><Metric label={en ? "Available" : "Disponible"} value={money(a.availableBalanceMinor,a.currency,a.minorUnit)} /><Metric label={en ? "Ledger" : "Comptable"} value={money(a.ledgerBalanceMinor,a.currency,a.minorUnit)} /><Metric label={en ? "Held" : "Réservé"} value={money(a.heldBalanceMinor,a.currency,a.minorUnit)} /></div><AccountActionBar account={a} en={en} />{a.statusHistory.length ? <div className="space-y-2 border-t border-border pt-3"><p className="text-xs font-semibold text-muted-foreground">{en ? "Account status history" : "Historique du statut du compte"}</p>{a.statusHistory.slice(0,4).map((h) => <div key={h.id} className="rounded-md bg-muted/40 p-2 text-xs"><div className="flex flex-wrap justify-between gap-2"><span className="font-medium">{h.previousStatus} → {h.newStatus}</span><span className="text-muted-foreground">{formatDateTime(h.changedAt)}</span></div><p className="mt-1 text-muted-foreground">{h.reasonCategory}{h.changedByName ? " · " + h.changedByName : ""}</p>{h.internalNote ? <p className="mt-1 text-muted-foreground">{h.internalNote}</p> : null}</div>)}</div> : null}</CardContent></Card>)}</div>}
+      {!dossier.accounts.length ? <EmptyLine text={en ? "No bank account." : "Aucun compte bancaire."} /> : <div className="grid gap-3 md:grid-cols-2">{dossier.accounts.map((a) => <Card key={a.reference}><CardContent className="space-y-3 p-4"><div className="flex items-start justify-between gap-3"><div><p className="font-semibold">{a.displayName}</p><p className="text-xs text-muted-foreground">{a.reference} · {a.maskedNumber}</p></div><StatusBadge label={a.status} tone={tone(a.status)} /></div><div className="grid grid-cols-1 gap-2 text-sm sm:grid-cols-3"><Metric label={en ? "Available" : "Disponible"} value={money(a.availableBalanceMinor,a.currency,a.minorUnit)} /><Metric label={en ? "Ledger" : "Comptable"} value={money(a.ledgerBalanceMinor,a.currency,a.minorUnit)} /><Metric label={en ? "Held" : "Réservé"} value={money(a.heldBalanceMinor,a.currency,a.minorUnit)} /></div><AccountActionBar account={a} en={en} />{a.statusHistory.length ? <div className="space-y-2 border-t border-border pt-3"><p className="text-xs font-semibold text-muted-foreground">{en ? "Account status history" : "Historique du statut du compte"}</p>{a.statusHistory.slice(0,4).map((h) => <div key={h.id} className="rounded-md bg-muted/40 p-2 text-xs"><div className="flex flex-wrap justify-between gap-2"><span className="font-medium">{h.previousStatus} → {h.newStatus}</span><span className="text-muted-foreground">{formatDateTime(h.changedAt)}</span></div><p className="mt-1 text-muted-foreground">{h.reasonCategory}{h.changedByName ? " · " + h.changedByName : ""}</p>{h.internalNote ? <p className="mt-1 text-muted-foreground">{h.internalNote}</p> : null}</div>)}</div> : null}</CardContent></Card>)}</div>}
     </Section>
 
     <Section id="transactions" title={en ? "Transactions" : "Transactions"}>
@@ -261,7 +261,7 @@ function Section({ id, title, children }: { id?: string; title: string; children
 }
 
 function QuickLink({ href, label }: { href: string; label: string }) {
-  return <a href={href} className="rounded-md border border-border px-3 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">{label}</a>;
+  return <a href={href} className="min-w-max shrink-0 snap-start rounded-md border border-border px-3 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">{label}</a>;
 }
 
 function ContextLink({ to, label }: { to: string; label: string }) {
