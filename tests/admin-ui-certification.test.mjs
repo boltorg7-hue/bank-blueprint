@@ -43,3 +43,15 @@ test("les écrans admin lourds conservent le chargement différé", () => {
     assert.match(source, new RegExp(`<Suspense fallback=\\{<LoadingState />\\}>[\\s\\S]*<${component}`), path);
   }
 });
+
+test("les actions opérationnelles admin ont un feedback tactile et de chargement", () => {
+  const accounts = read("src/features/admin/components/AdminAccountsTable.tsx");
+  const customers = read("src/features/admin/components/AdminCustomersTable.tsx");
+  const funding = read("src/features/admin/components/FundingConsole.tsx");
+
+  assert.match(accounts, /min-h-10/);
+  assert.match(customers, /border-t border-border pt-3/);
+  assert.match(funding, /min-h-11/);
+  assert.match(funding, /loading=\{decide\.isPending\}/);
+  assert.match(funding, /focus-visible:ring-2/);
+});
