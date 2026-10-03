@@ -568,6 +568,23 @@ test("les cinq dépendances lourdes restent documentées comme modules ciblés d
 });
 
 
+test("le motion design reste court, coherent et compatible reduced motion", () => {
+  const button = read("src/components/ui/button.tsx");
+  const dialog = read("src/components/ui/dialog.tsx");
+  const sheet = read("src/components/ui/sheet.tsx");
+  const select = read("src/components/ui/select.tsx");
+  const styles = read("src/styles.css");
+
+  assert.match(button, /motion-safe:transition-/);
+  assert.match(dialog, /motion-reduce:animate-none/);
+  assert.match(sheet, /motion-safe:transition-transform/);
+  assert.match(sheet, /motion-reduce:animate-none/);
+  assert.match(select, /motion-reduce:animate-none/);
+  assert.match(styles, /@utility motion-micro/);
+  assert.match(styles, /@utility motion-reveal/);
+  assert.match(styles, /prefers-reduced-motion: reduce/);
+});
+
 test("lexperience mobile native conserve navigation, safe area et feuilles tactiles", () => {
   const nav = read("src/components/navigation/CustomerBottomNav.tsx");
   const layout = read("src/components/layout/BankingAppLayout.tsx");
