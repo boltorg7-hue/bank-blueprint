@@ -1,0 +1,1 @@
+import type {DomainId} from "../../_shared/types";export type DocumentStatus="pending"|"verified"|"rejected";export type Document={id:DomainId;customerId:DomainId;type:string;status:DocumentStatus;storageKey:string};
