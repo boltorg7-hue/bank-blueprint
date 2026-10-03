@@ -5,6 +5,7 @@ import { useLanguage } from "@/components/providers/LanguageProvider";
 
 import { PageHeader } from "@/components/layout/PageHeader";
 import { PageSection } from "@/components/ui/page-section";
+import { LoadingState } from "@/components/feedback";
 import { AdminGate } from "@/features/admin/components/AdminGate";
 const FundingConsole = lazy(() => import("@/features/admin/components/FundingConsole").then((module) => ({ default: module.FundingConsole })));
 
