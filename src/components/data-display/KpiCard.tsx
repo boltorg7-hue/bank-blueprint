@@ -1,6 +1,7 @@
 import type { ComponentType, ReactNode } from "react";
 import { TrendingDown, TrendingUp } from "lucide-react";
 
+import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -34,27 +35,29 @@ export function KpiCard({
         : "text-success";
 
   return (
-    <div className={cn("rounded-xl border border-border bg-surface p-4 sm:p-5 shadow-sm transition-all hover:shadow-md", className)}>
-      <div className="flex items-center justify-between gap-2">
-        <p className="text-overline text-muted-foreground tracking-wider">{label}</p>
-        {Icon && <Icon className="size-4 text-muted-foreground/60" aria-hidden="true" />}
-      </div>
-      {loading ? (
-        <Skeleton className="mt-3 h-8 w-24" />
-      ) : (
-        <p className="text-heading-md mt-2 text-foreground sm:text-heading-lg">{value}</p>
-      )}
-      {(trend || hint) && (
-        <div className="mt-3 flex flex-wrap items-center gap-x-2.5 gap-y-1">
-          {trend && (
-            <span className={cn("text-caption inline-flex items-center gap-1 font-bold", trendTone)}>
-              <TrendIcon className="size-3" aria-hidden="true" />
-              {trend.label}
-            </span>
-          )}
-          {hint && <span className="text-caption font-medium text-muted-foreground">{hint}</span>}
+    <Card className={cn("motion-safe:transition-[box-shadow,border-color] motion-safe:duration-200 hover:shadow-elevated", className)}>
+      <CardContent className="p-4 sm:p-5">
+        <div className="flex items-center justify-between gap-2">
+          <p className="text-overline tracking-wider text-muted-foreground">{label}</p>
+          {Icon && <Icon className="size-4 text-muted-foreground/60" aria-hidden="true" />}
         </div>
-      )}
-    </div>
+        {loading ? (
+          <Skeleton className="mt-3 h-8 w-24" />
+        ) : (
+          <p className="text-heading-md mt-2 text-foreground sm:text-heading-lg">{value}</p>
+        )}
+        {(trend || hint) && (
+          <div className="mt-3 flex flex-wrap items-center gap-x-2.5 gap-y-1">
+            {trend && (
+              <span className={cn("text-caption inline-flex items-center gap-1 font-bold", trendTone)}>
+                <TrendIcon className="size-3" aria-hidden="true" />
+                {trend.label}
+              </span>
+            )}
+            {hint && <span className="text-caption font-medium text-muted-foreground">{hint}</span>}
+          </div>
+        )}
+      </CardContent>
+    </Card>
   );
 }
