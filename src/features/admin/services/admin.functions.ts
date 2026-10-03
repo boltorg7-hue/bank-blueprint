@@ -27,8 +27,8 @@ function customerSearchInput(input: { search?: string; cursor?: string | null; l
     attention,
   };
 }
-function searchInput(input: { search?: string; page?: number } | undefined) {
-  return { search: String(input?.search ?? "").trim().slice(0, 80), page: Math.max(1, Math.floor(Number(input?.page ?? 1))) };
+function searchInput(input: { search?: string; cursor?: string | null } | undefined) {
+  return { search: String(input?.search ?? "").trim().slice(0, 80), cursor: input?.cursor ? String(input.cursor).slice(0, 512) : null };
 }
 
 export const getAdminStaffContext = createServerFn({ method: "GET" })
