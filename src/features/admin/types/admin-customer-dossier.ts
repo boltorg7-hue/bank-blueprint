@@ -28,6 +28,16 @@ export type AdminCustomerDossierDto = {
     ledgerBalanceMinor: number;
     availableBalanceMinor: number;
     heldBalanceMinor: number;
+    statusHistory: Array<{
+      id: string;
+      previousStatus: string;
+      newStatus: string;
+      reasonCategory: string;
+      internalNote: string | null;
+      changedByName: string;
+      changedByReference: string | null;
+      changedAt: string;
+    }>;
   }>;
   transactions: Array<{
     reference: string;
@@ -78,10 +88,15 @@ export type AdminCustomerDossierDto = {
     restricted: boolean;
   };
   audit: Array<{
+    id: string;
     action: string;
+    actorName: string;
+    actorReference: string | null;
     resourceType: string | null;
     resourceReference: string | null;
+    permissionChecked: string | null;
     result: "ALLOWED" | "DENIED";
+    context: Record<string, unknown>;
     createdAt: string;
   }>;
 };
