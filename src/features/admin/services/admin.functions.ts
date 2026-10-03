@@ -10,6 +10,7 @@ import type {
   StaffContextDto,
   AdminExternalTransferDto,
   AdminOnboardingCaseDto,
+  AdminOnboardingCasePageDto,
   AdminAuditEventDto,
   AdminCustomerPageDto,
   AdminAccountPageDto,
@@ -33,6 +34,16 @@ function customerSearchInput(input: { search?: string; cursor?: string | null; l
 }
 function searchInput(input: { search?: string; cursor?: string | null } | undefined) {
   return { search: String(input?.search ?? "").trim().slice(0, 80), cursor: input?.cursor ? String(input.cursor).slice(0, 512) : null };
+}
+function onboardingSearchInput(input: { search?: string; cursor?: string | null; status?: string } | undefined) {
+  const status = String(input?.status ?? "ALL");
+  const allowed = ["ALL", "NOT_STARTED", "IN_PROGRESS", "SUBMITTED", "UNDER_REVIEW", "ADDITIONAL_INFORMATION_REQUIRED", "VERIFIED", "REJECTED"];
+  if (!allowed.includes(status)) throw new Error("INVALID_ONBOARDING_FILTER");
+  return {
+    search: String(input?.search ?? "").trim().slice(0, 80),
+    cursor: input?.cursor ? String(input.cursor).slice(0, 512) : null,
+    status,
+  };
 }
 
 export const getAdminStaffContext = createServerFn({ method: "GET" })
@@ -59,10 +70,10 @@ export const listAdminCustomers = createServerFn({ method: "POST" })
 
 export const listAdminOnboardingCases = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(searchInput)
-  .handler(async ({ data, context }): Promise<AdminOnboardingCaseDto[]> => {
+   .inputValidator(onboardingSearchInput)
+  .handler(async ({ data, context }): Promise<AdminOnboardingCasePageDto> => {
     const service = await import("@/features/admin/services/admin.server");
-    return service.loadAdminOnboardingCases(context.supabase, data.search);
+    return service.loadAdminOnboardingCases(context.supabase, data.search, data.cursor ?? null, String((data as any).status ?? "ALL"));
   });
 
 export const inviteAdminCustomer = createServerFn({ method: "POST" })
