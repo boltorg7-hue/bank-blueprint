@@ -380,3 +380,35 @@ test("les actions financières critiques ont un verrou local contre le double-su
   assert.match(transfer, /onSettled: \(\) => \{\s*initiateLock\.current = false;/);
   assert.match(transfer, /onSettled: \(\) => \{\s*confirmLock\.current = false;/);
 });
+
+
+test("le socle accessibilité expose des annonces et des états de focus clavier", () => {
+  const button = read("src/components/ui/button.tsx");
+  const form = read("src/components/ui/form.tsx");
+  const customerSidebar = read("src/components/navigation/CustomerSidebar.tsx");
+  const adminSidebar = read("src/components/navigation/AdminSidebar.tsx");
+  const select = read("src/components/ui/select.tsx");
+
+  assert.match(button, /aria-busy=\{loading \|\| undefined\}/);
+  assert.match(button, /role="status" aria-live="polite"/);
+  assert.match(form, /aria-invalid=\{!!error\}/);
+  assert.match(form, /aria-describedby=/);
+  assert.match(form, /role="alert"/);
+  assert.match(form, /aria-live="polite"/);
+  assert.match(customerSidebar, /min-h-11/);
+  assert.match(customerSidebar, /focus-visible:ring-2/);
+  assert.match(adminSidebar, /min-h-11/);
+  assert.match(adminSidebar, /focus-visible:ring-2/);
+  assert.match(select, /focus-visible:ring-2 focus-visible:ring-ring/);
+});
+
+test("la navigation mobile et les contrôles iconographiques restent lisibles par les technologies d'assistance", () => {
+  const bottomNav = read("src/components/navigation/CustomerBottomNav.tsx");
+  const dialog = read("src/components/ui/dialog.tsx");
+  const sheet = read("src/components/ui/sheet.tsx");
+  assert.match(bottomNav, /aria-label=/);
+  assert.match(bottomNav, /aria-current=\{selected \? "page" : undefined\}/);
+  assert.match(bottomNav, /aria-hidden="true"/);
+  assert.match(dialog, /<span className="sr-only">Close<\/span>/);
+  assert.match(sheet, /<span className="sr-only">Close<\/span>/);
+});
