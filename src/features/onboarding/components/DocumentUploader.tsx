@@ -217,7 +217,7 @@ export function DocumentUploader({
             <p role="alert" className="text-caption text-destructive">
               {error}
             </p>
-          ) : null} : uploadSuccess ? (
+          ) : uploadSuccess ? (
             <p role="status" className="text-body-sm rounded-xl border border-success/40 bg-success-muted px-3 py-2 text-foreground">
               {uploadSuccess}
             </p>
