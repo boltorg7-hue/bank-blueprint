@@ -101,3 +101,22 @@ test("les collections admin Customers et Accounts utilisent un curseur serveur s
   assert.match(hooks, /useAdminCustomers\\(search: string, cursor/);
   assert.match(hooks, /useAdminAccounts\\(search = \\"\\", cursor/);
 });
+
+
+test("les collections admin Funding, Audit et External Transfers utilisent une pagination curseur", () => {
+  const server = read("src/features/admin/services/admin.server.ts");
+  const functions = read("src/features/admin/services/admin.functions.ts");
+  assert.match(server, /loadFundingRequests[\\s\\S]*?decodeAdminCursor\\(cursor\\)/);
+  assert.match(server, /loadAdminAuditEvents[\\s\\S]*?decodeAdminCursor\\(cursor\\)/);
+  assert.match(server, /loadExternalTransfers[\\s\\S]*?decodeAdminCursor\\(cursor\\)/);
+  for (const name of ["loadFundingRequests", "loadAdminAuditEvents", "loadExternalTransfers"]) {
+    const start = server.indexOf(`export async function ${name}`);
+    const end = server.indexOf("export async function ", start + 20);
+    const body = server.slice(start, end < 0 ? server.length : end);
+    assert.doesNotMatch(body, /\\.limit\\(100\\)/, name);
+    assert.match(body, /limit\\(ADMIN_PAGE_SIZE \\+ 1\\)/, name);
+  }
+  assert.match(functions, /listFundingRequests[\\s\\S]*?data\\.cursor/);
+  assert.match(functions, /listAdminExternalTransfers[\\s\\S]*?data\\.cursor/);
+  assert.match(functions, /listAdminAuditEvents[\\s\\S]*?data\\.cursor/);
+});
