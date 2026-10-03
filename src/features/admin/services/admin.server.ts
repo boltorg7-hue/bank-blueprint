@@ -31,16 +31,21 @@ async function loadAdminAuthEmails(admin: Client, ids: string[]) {
   }
   if (!missing.length) return result;
 
-  const responses = await Promise.all(
-    missing.map(async (id) => {
-      try {
-        const { data } = await admin.auth.admin.getUserById(id);
-        return { id, email: data.user?.email ?? null };
-      } catch {
-        return { id, email: null };
-      }
-    }),
-  );
+  const responses: Array<{ id: string; email: string | null }> = [];
+  for (let offset = 0; offset < missing.length; offset += 8) {
+    const batch = missing.slice(offset, offset + 8);
+    const batchResults = await Promise.all(
+      batch.map(async (id) => {
+        try {
+          const { data } = await admin.auth.admin.getUserById(id);
+          return { id, email: data.user?.email ?? null };
+        } catch {
+          return { id, email: null };
+        }
+      }),
+    );
+    responses.push(...batchResults);
+  }
 
   const expiresAt = now + ADMIN_AUTH_EMAIL_CACHE_TTL_MS;
   for (const entry of responses) {
