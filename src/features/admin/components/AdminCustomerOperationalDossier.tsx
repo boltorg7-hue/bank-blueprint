@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { useAdminContext, useAdminCustomerDossier, useSetCustomerState } from "@/features/admin/hooks/useAdmin";
+import { useAdminContext, useAdminCustomerDossier, useSetAccountStatus, useSetCustomerState } from "@/features/admin/hooks/useAdmin";
 import { toast } from "sonner";
 import { useState } from "react";
 import type { AdminCustomerDto } from "@/features/admin/types/admin";
@@ -117,7 +117,7 @@ function DossierBody({ dossier, en }: { dossier: import("@/features/admin/types/
     </div>
 
     <Section id="accounts" title={en ? "Accounts & balances" : "Comptes & soldes"}>
-      {!dossier.accounts.length ? <EmptyLine text={en ? "No bank account." : "Aucun compte bancaire."} /> : <div className="grid gap-3 md:grid-cols-2">{dossier.accounts.map((a) => <Card key={a.reference}><CardContent className="space-y-3 p-4"><div className="flex items-start justify-between gap-3"><div><p className="font-semibold">{a.displayName}</p><p className="text-xs text-muted-foreground">{a.reference} · {a.maskedNumber}</p></div><StatusBadge label={a.status} tone={tone(a.status)} /></div><div className="grid grid-cols-3 gap-2 text-sm"><Metric label={en ? "Available" : "Disponible"} value={money(a.availableBalanceMinor,a.currency,a.minorUnit)} /><Metric label={en ? "Ledger" : "Comptable"} value={money(a.ledgerBalanceMinor,a.currency,a.minorUnit)} /><Metric label={en ? "Held" : "Réservé"} value={money(a.heldBalanceMinor,a.currency,a.minorUnit)} /></div></CardContent></Card>)}</div>}
+      {!dossier.accounts.length ? <EmptyLine text={en ? "No bank account." : "Aucun compte bancaire."} /> : <div className="grid gap-3 md:grid-cols-2">{dossier.accounts.map((a) => <Card key={a.reference}><CardContent className="space-y-3 p-4"><div className="flex items-start justify-between gap-3"><div><p className="font-semibold">{a.displayName}</p><p className="text-xs text-muted-foreground">{a.reference} · {a.maskedNumber}</p></div><StatusBadge label={a.status} tone={tone(a.status)} /></div><div className="grid grid-cols-3 gap-2 text-sm"><Metric label={en ? "Available" : "Disponible"} value={money(a.availableBalanceMinor,a.currency,a.minorUnit)} /><Metric label={en ? "Ledger" : "Comptable"} value={money(a.ledgerBalanceMinor,a.currency,a.minorUnit)} /><Metric label={en ? "Held" : "Réservé"} value={money(a.heldBalanceMinor,a.currency,a.minorUnit)} /></div><AccountActionBar account={a} en={en} /></CardContent></Card>)}</div>}
     </Section>
 
     <Section id="transactions" title={en ? "Transactions" : "Transactions"}>
@@ -194,6 +194,53 @@ function CustomerActionBar({ customer, en }: { customer: AdminCustomerDtoLike; e
         </div>
         <DialogFooter className="gap-2">
           <Button variant="outline" onClick={() => setState(null)}>{en ? "Cancel" : "Annuler"}</Button>
+          <Button onClick={() => void confirm()} disabled={reason.trim().length < 8 || mutation.isPending} loading={mutation.isPending}>{en ? "Confirm" : "Confirmer"}</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  </>;
+}
+
+function AccountActionBar({ account, en }: { account: { reference: string; status: string }; en: boolean }) {
+  const { data: staff } = useAdminContext();
+  const mutation = useSetAccountStatus();
+  const [status, setStatus] = useState<"ACTIVE" | "RESTRICTED" | "SUSPENDED" | "FROZEN" | null>(null);
+  const [reason, setReason] = useState("");
+  const canManage = staff?.permissions.includes("accounts.manage") ?? false;
+  if (!canManage || !["ACTIVE", "RESTRICTED", "SUSPENDED", "FROZEN"].includes(account.status)) return null;
+  const label = status === "ACTIVE" ? (en ? "Reactivate" : "Réactiver") : status === "RESTRICTED" ? (en ? "Restrict" : "Restreindre") : status === "FROZEN" ? (en ? "Freeze" : "Geler") : (en ? "Suspend" : "Suspendre");
+  async function confirm() {
+    if (!status || reason.trim().length < 8 || status === account.status) return;
+    try {
+      await mutation.mutateAsync({ accountReference: account.reference, status, reason: reason.trim() });
+      toast.success(en ? "Account status updated." : "Statut du compte mis à jour.");
+      setStatus(null); setReason("");
+    } catch {
+      toast.error(en ? "Account status could not be changed." : "Le statut du compte n’a pas pu être modifié.");
+    }
+  }
+  return <>
+    <div className="flex flex-wrap items-center justify-between gap-2 border-t border-border pt-3">
+      <p className="text-xs text-muted-foreground">{en ? "Account actions" : "Actions du compte"}</p>
+      <div className="flex flex-wrap gap-2">
+        {account.status === "ACTIVE" ? <Button size="sm" variant="outline" onClick={() => setStatus("RESTRICTED")}>{en ? "Restrict" : "Restreindre"}</Button> : <Button size="sm" variant="outline" onClick={() => setStatus("ACTIVE")}>{en ? "Reactivate" : "Réactiver"}</Button>}
+        <Button size="sm" variant="ghost" disabled={account.status === "SUSPENDED"} onClick={() => setStatus("SUSPENDED")}>{en ? "Suspend" : "Suspendre"}</Button>
+        <Button size="sm" variant="ghost" disabled={account.status === "FROZEN"} onClick={() => setStatus("FROZEN")}>{en ? "Freeze" : "Geler"}</Button>
+      </div>
+    </div>
+    <Dialog open={Boolean(status)} onOpenChange={(open) => { if (!open) { setStatus(null); setReason(""); } }}>
+      <DialogContent className="w-[calc(100%-2rem)] rounded-md">
+        <DialogHeader>
+          <DialogTitle>{en ? "Confirm account status" : "Confirmer le statut du compte"}</DialogTitle>
+          <DialogDescription>{en ? "Record an auditable reason before applying the change." : "Consignez un motif traçable avant d'appliquer le changement."}</DialogDescription>
+        </DialogHeader>
+        <div className="space-y-2">
+          <Label htmlFor="dossier-account-status-reason">{en ? "Reason" : "Motif"}</Label>
+          <Textarea id="dossier-account-status-reason" value={reason} onChange={(event) => setReason(event.target.value)} minLength={8} autoFocus aria-invalid={reason.length > 0 && reason.trim().length < 8} />
+          <p className="text-xs text-muted-foreground">{en ? "Minimum 8 characters." : "Minimum 8 caractères."}</p>
+        </div>
+        <DialogFooter className="gap-2">
+          <Button variant="outline" onClick={() => setStatus(null)}>{en ? "Cancel" : "Annuler"}</Button>
           <Button onClick={() => void confirm()} disabled={reason.trim().length < 8 || mutation.isPending} loading={mutation.isPending}>{en ? "Confirm" : "Confirmer"}</Button>
         </DialogFooter>
       </DialogContent>
