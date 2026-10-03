@@ -9,13 +9,13 @@ import type {
   AdminExternalTransferDto,
   AdminOnboardingCaseDto,
   AdminActionResult,
-  AdminCustomerPageDto,
+  AdminCustomerPageDto,\n  AdminAccountPageDto,
 } from "@/features/admin/types/admin";
 import type { CustomerLifecycleState } from "@/types/customer-lifecycle";
 
 type Client = SupabaseClient<any, any, any>;
 
-export class AdminAccessError extends Error {}
+export class AdminAccessError extends Error {}\n\ntype AdminCursor = { createdAt: string; id: string };\nconst ADMIN_PAGE_SIZE = 50;\n\nfunction encodeAdminCursor(value: AdminCursor): string {\n  return Buffer.from(JSON.stringify(value), "utf8").toString("base64url");\n}\n\nfunction decodeAdminCursor(value?: string | null): AdminCursor | null {\n  if (!value) return null;\n  try {\n    const parsed = JSON.parse(Buffer.from(value, "base64url").toString("utf8"));\n    if (typeof parsed?.createdAt !== "string" || typeof parsed?.id !== "string") return null;\n    return { createdAt: parsed.createdAt, id: parsed.id };\n  } catch { return null; }\n}\n
 
 const ADMIN_AUTH_EMAIL_CACHE_TTL_MS = 60_000;
 const adminAuthEmailCache = new Map<string, { email: string | null; expiresAt: number }>();
@@ -195,7 +195,7 @@ export async function loadAdminCustomers(
     }
   }
 
-  const { data, error } = await query.range((safePage - 1) * pageSize, safePage * pageSize);
+  if (cursorValue) {\n    query = query.or(`created_at.lt.${cursorValue.createdAt},and(created_at.eq.${cursorValue.createdAt},id.lt.${cursorValue.id})`);\n  }\n  const { data, error } = await query.limit(ADMIN_PAGE_SIZE + 1);
   if (error) throw new AdminAccessError("CUSTOMERS_UNAVAILABLE");
   const rows = data ?? [];
   const hasNext = rows.length > pageSize;
@@ -522,10 +522,10 @@ export async function loadAdminAccounts(
     .order("created_at", { ascending: false })
     .limit(100);
   const term = search.trim().replace(/[%_,()]/g, "");
-  if (term) query = query.or(`public_reference.ilike.%${term}%,account_number.ilike.%${term}%,display_name.ilike.%${term}%`);
+  if (term) query = query.or(`public_reference.ilike.%${term}%,account_number.ilike.%${term}%,display_name.ilike.%${term}%`);\n  const cursorValue = decodeAdminCursor(cursor);\n  if (cursorValue) query = query.or(`created_at.lt.${cursorValue.createdAt},and(created_at.eq.${cursorValue.createdAt},id.lt.${cursorValue.id})`);\n  query = query.limit(ADMIN_PAGE_SIZE + 1);
   const { data, error } = await query;
   if (error) throw new AdminAccessError("ACCOUNTS_UNAVAILABLE");
-  const rows = data ?? [];
+  const rawRows = data ?? [];\n  const hasNext = rawRows.length > ADMIN_PAGE_SIZE;\n  const rows = rawRows.slice(0, ADMIN_PAGE_SIZE);
   const userIds = [...new Set(rows.map((row: any) => String(row.user_id)))];
   const accountIds = rows.map((row: any) => String(row.id));
   const [{ data: profiles }, { data: balances }] = await Promise.all([
@@ -538,7 +538,7 @@ export async function loadAdminAccounts(
   ]);
   const profileById = new Map((profiles ?? []).map((row: any) => [row.id, row]));
   const balanceById = new Map((balances ?? []).map((row: any) => [row.account_id, row]));
-  return rows.map((row: any) => {
+  const items = rows.map((row: any) => {
     const profile: any = profileById.get(row.user_id);
     const balance: any = balanceById.get(row.id);
     if (!balance) throw new AdminAccessError("ACCOUNT_BALANCE_UNAVAILABLE");
