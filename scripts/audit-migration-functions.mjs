@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import crypto from "node:crypto";
 
 const root = process.cwd();
 const migrationsDir = path.join(root, "supabase", "migrations");
@@ -43,8 +44,9 @@ for (const file of migrationFiles) {
     entry.securityDefiner = /SECURITY\s+DEFINER/i.test(match[0]);
     entry.searchPath = /search_path\s*(?:=|TO)/i.test(match[0]);
   }
-  for (const match of sql.matchAll(/GRANT\s+EXECUTE\s+ON\s+FUNCTION\s+[^.]+\.([a-zA-Z0-9_]+)/gi)) {
-    getEntry(match[1]).grants.add(relative + ": " + match[0].replace(/\s+/g, " ").trim());
+  for (const match of sql.matchAll(/GRANT\\s+EXECUTE\\s+ON\\s+FUNCTION\\s+([a-zA-Z0-9_]+\\.)?([a-zA-Z0-9_]+)\\s*\\(([^)]*)\\)\\s+TO\\s+([^;]+);/gi)) {
+    const grant = match[0].replace(/\\s+/g, " ").trim();
+    getEntry(match[2]).grants.add(relative + ": " + grant);
   }
 }
 
@@ -63,5 +65,8 @@ for (const entry of [...functions.values()].sort(function (a, b) { return a.name
   const grants = [...entry.grants].join("<br>") || "—";
   const callers = [...entry.callers].join("<br>") || "—";
   const signatures = [...entry.signatures].join(" / ") || "—";
-  console.log("| " + entry.name + "(" + signatures + ") | " + (entry.createdIn || "—") + " | " + modified + " | " + (entry.modifiedIn.at(-1) || "—") + " | " + grants + " | " + callers + " | " + (entry.securityDefiner ? "oui" : "non") + " | " + (entry.securityDefiner ? (entry.searchPath ? "présent" : "ABSENT") : "n/a") + " |");
+  const finalHash = entry.finalDefinition
+    ? crypto.createHash("sha256").update(entry.finalDefinition).digest("hex").slice(0, 12)
+    : "—";
+  console.log("| " + entry.name + "(" + signatures + ") | " + (entry.createdIn || "—") + " | " + modified + " | " + (entry.modifiedIn.at(-1) || "—") + " / sha256:" + finalHash + " | " + grants + " | " + callers + " | " + (entry.securityDefiner ? "oui" : "non") + " | " + (entry.securityDefiner ? (entry.searchPath ? "présent" : "ABSENT") : "n/a") + " |");
 }
