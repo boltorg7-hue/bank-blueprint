@@ -139,13 +139,14 @@ async function fetchBalances(
   // Balances are joined through the owned accounts only (RLS enforces this too).
   const { data, error } = await client
     .from("account_balances")
-    .select(`${BALANCE_COLUMNS}, bank_accounts!inner(public_reference)`);
+    .select(`${BALANCE_COLUMNS}, bank_accounts!inner(public_reference)`)
+    .in("bank_accounts.public_reference", references);
   if (error) throw new AccountAccessError("BALANCES_UNAVAILABLE");
 
   const map = new Map<string, BalanceRow>();
   for (const row of (data ?? []) as any[]) {
     const reference = row.bank_accounts?.public_reference as string | undefined;
-    if (reference && references.includes(reference)) map.set(reference, row as BalanceRow);
+    if (reference) map.set(reference, row as BalanceRow);
   }
   return map;
 }
