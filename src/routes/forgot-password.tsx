@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useLanguage } from "@/components/providers/LanguageProvider";
 
 import { AuthShell } from "@/features/auth/components/AuthShell";
 import { ForgotPasswordForm } from "@/features/auth/components/ForgotPasswordForm";
@@ -19,14 +20,16 @@ export const Route = createFileRoute("/forgot-password")({
 });
 
 function ForgotPasswordPage() {
+  const { language } = useLanguage();
+  const en = language === "en";
   return (
     <AuthShell
-      title="Mot de passe oublié"
-      description="Indiquez votre adresse e-mail : nous vous enverrons un lien pour définir un nouveau mot de passe."
+      title={en ? "Forgot password" : "Mot de passe oublié"}
+      description={en ? "Enter your email address and we will send you a link to set a new password." : "Indiquez votre adresse e-mail : nous vous enverrons un lien pour définir un nouveau mot de passe."}
       footer={
         <p className="text-body-sm text-muted-foreground">
           <Link to="/login" className="text-brand underline-offset-4 hover:underline">
-            Retour à la connexion
+            {en ? "Back to sign in" : "Retour à la connexion"}
           </Link>
         </p>
       }
