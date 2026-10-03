@@ -19,7 +19,7 @@ const functions = new Map();
 
 function getEntry(name) {
   if (!functions.has(name)) {
-    functions.set(name, { name: name, createdIn: null, modifiedIn: [], signatures: new Set(), securityDefiner: false, searchPath: false, grants: new Set(), callers: new Set() });
+    functions.set(name, { name: name, createdIn: null, modifiedIn: [], signatures: new Set(), securityDefiner: false, searchPath: false, finalDefinition: null, grants: new Set(), callers: new Set() });
   }
   return functions.get(name);
 }
@@ -33,8 +33,9 @@ for (const file of migrationFiles) {
     if (!entry.createdIn) entry.createdIn = relative;
     entry.modifiedIn.push(relative);
     entry.signatures.add(match[3].replace(/\s+/g, " ").trim());
-    entry.securityDefiner ||= /SECURITY\s+DEFINER/i.test(match[0]);
-    entry.searchPath ||= /search_path\s*=/i.test(match[0]);
+    entry.finalDefinition = match[0];
+    entry.securityDefiner = /SECURITY\s+DEFINER/i.test(match[0]);
+    entry.searchPath = /search_path\s*=/i.test(match[0]);
   }
   for (const match of sql.matchAll(/GRANT\s+EXECUTE\s+ON\s+FUNCTION\s+[^.]+\.([a-zA-Z0-9_]+)/gi)) {
     getEntry(match[1]).grants.add(relative + ": " + match[0].replace(/\s+/g, " ").trim());
