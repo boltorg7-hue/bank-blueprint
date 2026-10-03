@@ -7,6 +7,7 @@ import { RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 
 import { PageHeader } from "@/components/layout/PageHeader";
+import { PageSection } from "@/components/ui/page-section";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { AdminGate } from "@/features/admin/components/AdminGate";
@@ -45,6 +46,7 @@ function AdminSettingsPage() {
   return (
     <AdminGate>
       <PageHeader title={en ? "Exchange rate & fees" : "Parité & tarifs"} description={en ? "Audited, versioned values. Every change creates a new version without deleting history." : "Valeurs versionnées et auditées. Chaque modification crée une nouvelle version, sans effacer l’historique."} />
+      <PageSection>
       <div className="mb-4 flex justify-end">
         <Button variant="outline" size="sm" onClick={() => q.refetch()} disabled={q.isFetching}>
           <RefreshCw className={`mr-2 size-4 ${q.isFetching ? "animate-spin" : ""}`} /> {en ? "Reload" : "Recharger"}
@@ -54,6 +56,7 @@ function AdminSettingsPage() {
       <div className="grid gap-4 md:grid-cols-2">
         {ITEMS.map((item) => <SettingCard key={item.key} item={item} rows={(q.data ?? []).filter((r) => r.key === item.key)} />)}
       </div>
+      </PageSection>
     </AdminGate>
   );
 }

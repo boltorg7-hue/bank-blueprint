@@ -3,6 +3,7 @@ import { useLanguage } from "@/components/providers/LanguageProvider";
 import { CircleDollarSign, ShieldCheck, UserRoundCheck, Users, Wallet } from "lucide-react";
 
 import { PageHeader } from "@/components/layout/PageHeader";
+import { PageSection } from "@/components/ui/page-section";
 import { ErrorState, LoadingState } from "@/components/feedback";
 import { KpiCard } from "@/components/data-display/KpiCard";
 import { AdminGate } from "@/features/admin/components/AdminGate";
@@ -41,7 +42,7 @@ function AdminDashboardShell() {
 
   return (
     <AdminGate permission="admin.access">
-      <div className="mx-auto w-full max-w-6xl space-y-6">
+      <div className="mx-auto w-full max-w-6xl"><PageSection>
         <PageHeader
           title={en ? "Operations overview" : "Console opérationnelle"}
           description={
@@ -89,7 +90,7 @@ function AdminDashboardShell() {
             <KpiCard label={en ? "Controls" : "Contrôle"} value="Maker-checker" hint={en ? "Dual approval" : "Double validation"} icon={UserRoundCheck} />
           </div>
         )}
-      </div>
+      </PageSection></div>
     </AdminGate>
   );
 }

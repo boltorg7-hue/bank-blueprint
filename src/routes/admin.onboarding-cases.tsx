@@ -3,6 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 
 import { EmptyState, ErrorState, LoadingState } from "@/components/feedback";
 import { PageHeader } from "@/components/layout/PageHeader";
+import { PageSection } from "@/components/ui/page-section";
 import { useLanguage } from "@/components/providers/LanguageProvider";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -42,6 +43,7 @@ function AdminOnboardingCasesPage() {
         <Select value={status} onValueChange={setStatus}><SelectTrigger className="min-h-11" aria-label={en ? "Filter by status" : "Filtrer par statut"}><SelectValue /></SelectTrigger><SelectContent><SelectItem value="ALL">{en ? "All statuses" : "Tous les statuts"}</SelectItem><SelectItem value="NOT_STARTED">{en ? "Not started" : "Non commencé"}</SelectItem><SelectItem value="IN_PROGRESS">{en ? "In progress" : "En cours"}</SelectItem><SelectItem value="SUBMITTED">{en ? "Submitted" : "Dossier transmis"}</SelectItem><SelectItem value="UNDER_REVIEW">{en ? "Awaiting supervisor" : "Validation superviseur"}</SelectItem><SelectItem value="ADDITIONAL_INFORMATION_REQUIRED">{en ? "More information required" : "Complément requis"}</SelectItem><SelectItem value="VERIFIED">{en ? "Limited account opened" : "Compte limité ouvert"}</SelectItem><SelectItem value="REJECTED">{en ? "Rejected" : "Refusé"}</SelectItem></SelectContent></Select>
       </div>
       {query.isPending ? <LoadingState /> : query.isError ? <ErrorState onRetry={() => query.refetch()} /> : !filtered.length ? <EmptyState title={en ? "No application found" : "Aucun dossier trouvé"} /> : <AdminOnboardingCases cases={filtered} />}
+      </PageSection>
     </AdminGate>
   );
 }
