@@ -1,4 +1,5 @@
 import { useLanguage } from "@/components/providers/LanguageProvider";
+import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { ArrowRight, CalendarDays, FileCheck2, Send } from "lucide-react";
 import { toast } from "sonner";
@@ -42,7 +43,9 @@ function statusTone(status: string): "success" | "failed" | "pending" | "info" {
 function AdminTransfersPage() {
   const { language } = useLanguage();
   const en = language === "en";
-  const query = useAdminExternalTransfers();
+  const [cursor, setCursor] = useState<string | null>(null);
+  const [cursorHistory, setCursorHistory] = useState<string[]>([]);
+  const query = useAdminExternalTransfers(cursor);
 
   return (
     <AdminGate>
@@ -55,10 +58,10 @@ function AdminTransfersPage() {
         <LoadingState />
       ) : query.isError ? (
         <ErrorState onRetry={() => query.refetch()} />
-      ) : !query.data?.length ? (
+      ) : !query.data?.items?.length ? (
         <EmptyState title={en ? "No pending transfers" : "Aucun virement en attente"} />
       ) : (
-        <ExternalTransfersTable transfers={query.data} />
+        <><ExternalTransfersTable transfers={query.data.items} /><div className="mt-4 flex justify-center gap-2">{cursor ? <Button variant="outline" onClick={() => { const previous = cursorHistory.at(-1) ?? null; setCursorHistory((items) => items.slice(0, -1)); setCursor(previous); }}>{en ? "Previous" : "Précédent"}</Button> : null}<Button variant="outline" disabled={!query.data.hasNext || !query.data.nextCursor} onClick={() => { if (!query.data.nextCursor) return; setCursorHistory((items) => [...items, cursor ?? ""]); setCursor(query.data.nextCursor); }}>{en ? "Next" : "Suivant"}</Button></div></>
       )}
       </PageSection>
     </AdminGate>
