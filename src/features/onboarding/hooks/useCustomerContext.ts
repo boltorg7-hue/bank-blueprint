@@ -3,6 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 
 import { getCustomerContext } from "@/features/onboarding/services/onboarding.functions";
 import type { CustomerContext } from "@/features/onboarding/types/customer-context";
+import { QUERY_POLICY } from "@/lib/query-policy";
 
 export const CUSTOMER_CONTEXT_KEY = ["customer-context"] as const;
 
@@ -12,7 +13,7 @@ export function useCustomerContext(options: { enabled?: boolean } = {}) {
   return useQuery<CustomerContext>({
     queryKey: CUSTOMER_CONTEXT_KEY,
     queryFn: () => fetchContext(),
-    staleTime: 15_000,
+    ...QUERY_POLICY.NORMAL,
     enabled: options.enabled ?? true,
     retry: false,
   });
