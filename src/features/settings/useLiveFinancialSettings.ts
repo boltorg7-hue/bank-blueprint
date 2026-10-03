@@ -1,3 +1,4 @@
+import { QUERY_POLICY } from "@/lib/query-policy";
 import { useQuery } from "@tanstack/react-query";
 
 import { setUsdPerUsdt } from "@/config/currency";
@@ -28,8 +29,7 @@ export function useLiveFinancialSettings() {
       applyLiveFees(fees);
       return (data ?? []).map((r) => `${r.setting_key}:${r.version}`).join("|");
     },
-    staleTime: 15_000,
-    refetchInterval: 30_000,
-    refetchOnWindowFocus: true,
+    ...QUERY_POLICY.FINANCIAL,
+    refetchInterval: 10_000,
   });
 }
