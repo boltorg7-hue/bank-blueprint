@@ -8,6 +8,7 @@ import type {
   StaffContextDto,
   AdminExternalTransferDto,
   AdminOnboardingCaseDto,
+  AdminOnboardingCasePageDto,
   AdminActionResult,
   AdminCustomerPageDto,
   AdminAccountPageDto,
@@ -329,19 +330,56 @@ export async function loadAdminCustomers(
 export async function loadAdminOnboardingCases(
   client: Client,
   search = "",
-): Promise<AdminOnboardingCaseDto[]> {
+  cursor: string | null = null,
+  status = "ALL",
+): Promise<AdminOnboardingCasePageDto> {
   const staff = await requireAdminPermission(client, "customers.read");
   const canReadKycDecisions = staff.permissions.includes("kyc.review") || staff.permissions.includes("kyc.approve");
   const admin = await adminClient();
-  const { data: profiles, error } = await admin
+  const cursorValue = decodeAdminCursor(cursor);
+  const term = search.trim().replace(/[%_,()]/g, "").slice(0, 80).toLocaleLowerCase("fr");
+  const allowedStatuses = ["ALL", "NOT_STARTED", "IN_PROGRESS", "SUBMITTED", "UNDER_REVIEW", "ADDITIONAL_INFORMATION_REQUIRED", "VERIFIED", "REJECTED"];
+  const normalizedStatus = allowedStatuses.includes(status) ? status : "ALL";
+
+  let query = admin
     .from("profiles")
     .select("id, first_name, middle_name, last_name, lifecycle_state, onboarding_step, created_at")
     .order("created_at", { ascending: false })
-    .limit(100);
+    .order("id", { ascending: false });
+
+  if (term) {
+    const nameFilter = `first_name.ilike.%${term}%,middle_name.ilike.%${term}%,last_name.ilike.%${term}%`;
+    query = query.or(nameFilter);
+    if (/^[0-9a-f]{36}$/i.test(term)) query = query.eq("id", term);
+  }
+
+  if (normalizedStatus === "NOT_STARTED" || normalizedStatus === "IN_PROGRESS") {
+    query = query.eq("onboarding_step", normalizedStatus);
+  }
+
+  if (cursorValue) {
+    query = query.or(`created_at.lt.${cursorValue.createdAt},and(created_at.eq.${cursorValue.createdAt},id.lt.${cursorValue.id})`);
+  }
+
+  const { data: profiles, error } = await query.limit(ADMIN_PAGE_SIZE + 1);
   if (error) throw new AdminAccessError("ONBOARDING_CASES_UNAVAILABLE");
 
-  const rows = profiles ?? [];
+  let rows = profiles ?? [];
+
+  if (normalizedStatus !== "ALL" && normalizedStatus !== "NOT_STARTED" && normalizedStatus !== "IN_PROGRESS") {
+    const { data: matchingVerifications, error: verificationError } = await admin
+      .from("identity_verifications")
+      .select("user_id")
+      .eq("status", normalizedStatus);
+    if (verificationError) throw new AdminAccessError("ONBOARDING_CASES_UNAVAILABLE");
+    const matchingIds = new Set((matchingVerifications ?? []).map((row: any) => String(row.user_id)));
+    rows = rows.filter((row: any) => matchingIds.has(String(row.id)));
+  }
+
+  const hasNext = rows.length > ADMIN_PAGE_SIZE;
+  rows = rows.slice(0, ADMIN_PAGE_SIZE);
   const customerIds = rows.map((row: any) => String(row.id));
+
   const [{ data: verifications }, { data: documents }, { data: approvals }, { data: accounts }] = await Promise.all([
     customerIds.length
       ? admin.from("identity_verifications").select("user_id,status,submitted_at,decided_at").in("user_id", customerIds)
@@ -356,9 +394,11 @@ export async function loadAdminOnboardingCases(
       ? admin.from("bank_accounts").select("user_id,public_reference,status").in("user_id", customerIds).eq("is_primary", true)
       : Promise.resolve({ data: [] as any[] }),
   ]);
+
   const [authById, emailVerifiedById] = customerIds.length
     ? await Promise.all([loadAdminAuthEmails(admin, customerIds), loadAdminEmailVerificationStatus(admin, customerIds)])
     : [new Map<string, string | null>(), new Map<string, boolean>()];
+
   const verificationByUser = new Map((verifications ?? []).map((row: any) => [String(row.user_id), row]));
   const documentsByUser = new Map<string, AdminOnboardingCaseDto["documents"]>();
   for (const document of documents ?? []) {
@@ -379,7 +419,8 @@ export async function loadAdminOnboardingCases(
   const staffNames = new Map((staffProfiles ?? []).map((row: any) => [String(row.user_id), String(row.display_name)]));
   const approvalByUser = new Map<string, any>();
   for (const approval of approvals ?? []) if (!approvalByUser.has(String((approval as any).customer_id))) approvalByUser.set(String((approval as any).customer_id), approval);
-  const cases: AdminOnboardingCaseDto[] = rows.map((row: any) => {
+
+  const items: AdminOnboardingCaseDto[] = rows.map((row: any) => {
     const verification: any = verificationByUser.get(String(row.id));
     const approval: any = approvalByUser.get(String(row.id));
     const account: any = accountByUser.get(String(row.id));
@@ -412,15 +453,24 @@ export async function loadAdminOnboardingCases(
       documents: documentsByUser.get(String(row.id)) ?? [],
     };
   });
-  const term = search.trim().replace(/[%_,()]/g, "").toLocaleLowerCase("fr");
-  if (!term) return cases;
-  return cases.filter((item) =>
-    [item.reference, item.fullName, item.email]
-      .filter(Boolean)
-      .some((value) => String(value).toLocaleLowerCase("fr").includes(term)),
-  );
-}
 
+  if (term.includes("@")) {
+    const { data: exactEmailId } = await admin.rpc("auth_user_for_email" as never, { _email: term } as never);
+    const emailId = exactEmailId ? String(exactEmailId) : null;
+    if (emailId) {
+      const emailMatch = items.find((item) => item.customerId === emailId);
+      return emailMatch ? { items: [emailMatch], hasNext: false, nextCursor: null } : { items: [], hasNext: false, nextCursor: null };
+    }
+    return { items: [], hasNext: false, nextCursor: null };
+  }
+
+  const last = rows[rows.length - 1];
+  return {
+    items,
+    hasNext,
+    nextCursor: hasNext && last ? encodeAdminCursor({ createdAt: String(last.created_at), id: String(last.id) }) : null,
+  };
+}
 export async function inviteCustomer(
   client: Client,
   actorUserId: string,
