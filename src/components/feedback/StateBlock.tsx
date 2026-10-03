@@ -1,6 +1,5 @@
 import type { ReactNode } from "react";
 import type { LucideIcon } from "lucide-react";
-
 import { cn } from "@/lib/utils";
 
 export type StateTone = "neutral" | "info" | "success" | "warning" | "danger";
@@ -21,23 +20,22 @@ export function StateBlock({
 }) {
   const styles = toneStyles[tone];
   return (
-    <div className={cn(
-      "flex flex-col items-center gap-4 rounded-xl border px-5 py-8 text-center",
-      "motion-safe:transition-[opacity,transform] motion-safe:duration-200",
-      styles.wrap, className,
-    )}>
-      <span className={cn(
-        "flex size-11 items-center justify-center rounded-full",
-        "motion-safe:transition-transform motion-safe:duration-200",
-        styles.icon,
-      )} aria-hidden="true">
+    <div
+      role={tone === "danger" ? "alert" : undefined}
+      className={cn(
+        "flex min-h-44 flex-col items-center justify-center gap-4 rounded-xl border px-5 py-8 text-center shadow-subtle",
+        "motion-safe:transition-[opacity,transform] motion-safe:duration-200",
+        styles.wrap, className,
+      )}
+    >
+      <span className={cn("flex size-11 items-center justify-center rounded-full", styles.icon)} aria-hidden="true">
         <Icon className="size-5" />
       </span>
       <div className="space-y-1.5">
-        <p className="text-base font-semibold text-foreground">{title}</p>
-        {description ? <p className="mx-auto max-w-prose text-sm leading-relaxed text-muted-foreground">{description}</p> : null}
+        <p className="text-heading-sm text-foreground">{title}</p>
+        {description ? <p className="mx-auto max-w-prose text-body-sm text-muted-foreground">{description}</p> : null}
       </div>
-      {actions ? <div className="flex flex-wrap justify-center gap-2 motion-safe:transition-opacity motion-safe:duration-200">{actions}</div> : null}
+      {actions ? <div className="flex flex-wrap justify-center gap-2">{actions}</div> : null}
     </div>
   );
 }
