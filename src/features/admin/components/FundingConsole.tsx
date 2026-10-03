@@ -250,8 +250,8 @@ export function FundingConsole() {
                 </div>
                 {request.status === "PENDING" && canApprove ? (
                   <div className="grid grid-cols-2 gap-3">
-                    <Button onClick={() => void makeDecision(request.id, true)} disabled={decide.isPending}>{en ? "Approve" : "Approuver"}</Button>
-                    <Button variant="outline" onClick={() => void makeDecision(request.id, false)} disabled={decide.isPending}>{en ? "Reject" : "Refuser"}</Button>
+                    <Button onClick={() => void makeDecision(request.id, true)} disabled={decide.isPending} loading={decide.isPending}>{en ? "Approve" : "Approuver"}</Button>
+                    <Button variant="outline" onClick={() => void makeDecision(request.id, false)} disabled={decide.isPending} loading={decide.isPending}>{en ? "Reject" : "Refuser"}</Button>
                   </div>
                 ) : request.checkerName ? (
                   <p className="text-caption text-muted-foreground">Checker · {request.checkerName}</p>
@@ -288,8 +288,8 @@ export function FundingConsole() {
                     <TableCell>
                       {request.status === "PENDING" && canApprove ? (
                         <div className="flex gap-2">
-                          <Button size="sm" onClick={() => void makeDecision(request.id, true)} disabled={decide.isPending}>{en ? "Approve" : "Approuver"}</Button>
-                          <Button size="sm" variant="outline" onClick={() => void makeDecision(request.id, false)} disabled={decide.isPending}>{en ? "Reject" : "Refuser"}</Button>
+                          <Button size="sm" onClick={() => void makeDecision(request.id, true)} disabled={decide.isPending} loading={decide.isPending}>{en ? "Approve" : "Approuver"}</Button>
+                          <Button size="sm" variant="outline" onClick={() => void makeDecision(request.id, false)} disabled={decide.isPending} loading={decide.isPending}>{en ? "Reject" : "Refuser"}</Button>
                         </div>
                       ) : request.checkerName ?? "—"}
                     </TableCell>
