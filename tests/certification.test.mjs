@@ -719,3 +719,18 @@ test("5.8.8.5 standardise les états globaux de feedback", () => {
   assert.match(state, /motion-reduce:transition-none/);
   assert.match(skeleton, /animate-pulse/);
 });
+
+
+test("5.8.8.6 renforce la responsivité des overlays sur petits écrans", () => {
+  const dialog = read("src/components/ui/dialog.tsx");
+  const sheet = read("src/components/ui/sheet.tsx");
+  const banking = read("src/components/layout/BankingAppLayout.tsx");
+  const admin = read("src/components/layout/AdminLayout.tsx");
+  assert.match(dialog, /w-\\[calc\\(100vw-2rem\\)\\]/);
+  assert.match(dialog, /max-h-\\[calc\\(100dvh-2rem\\)\\]/);
+  assert.match(dialog, /overflow-y-auto/);
+  assert.match(sheet, /max-w-full overflow-y-auto overscroll-contain/);
+  assert.match(sheet, /bottom:.*max-h-\\\[92dvh\\\]/s);
+  assert.match(banking, /min-w-0 flex-1 overscroll-x-none/);
+  assert.match(admin, /min-w-0 flex-1 overscroll-x-none/);
+});
