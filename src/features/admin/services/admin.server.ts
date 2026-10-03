@@ -175,7 +175,7 @@ export async function loadAdminCustomers(
 
   if (lifecycle !== "ALL") query = query.eq("lifecycle_state", lifecycle);
   if (accountsFilter === "WITH_ACCOUNTS") {
-    if (!accountOwnerIds.size) return { items: [], hasNext: false };
+    if (!accountOwnerIds.size) return { items: [], hasNext: false, nextCursor: null };
     query = query.in("id", [...accountOwnerIds]);
   } else if (accountsFilter === "WITHOUT_ACCOUNTS" && accountOwnerIds.size) {
     query = query.not("id", "in", \`(\${[...accountOwnerIds].join(",")})\`);
