@@ -3,6 +3,7 @@ import { useLanguage } from "@/components/providers/LanguageProvider";
 
 
 import { PageHeader } from "@/components/layout/PageHeader";
+import { PageSection } from "@/components/ui/page-section";
 import { AdminGate } from "@/features/admin/components/AdminGate";
 import { AdminSupportConsole } from "@/features/support/components/AdminSupportConsole";
 
