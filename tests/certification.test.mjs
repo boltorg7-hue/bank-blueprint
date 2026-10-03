@@ -232,3 +232,23 @@ test("les migrations Supabase restent toutes dans le répertoire racine des migr
   assert.ok(paths.includes("20260930210000_step01_customer_onboarding_hardening.sql"));
   assert.ok(paths.every((path) => !path.includes("/")));
 });
+
+
+test("les index de production couvrent les parcours de pagination et recherche principaux", () => {
+  const sql = read("supabase/migrations/20261003080000_performance_search_indexes.sql");
+  for (const index of [
+    "idx_profiles_created_at_id",
+    "idx_profiles_lifecycle_created_at",
+    "idx_bank_accounts_user_created",
+    "idx_transfers_sender_status_created",
+    "idx_transfers_status_created",
+    "idx_funding_requests_account_status_created",
+    "idx_customer_documents_user_created",
+    "idx_admin_audit_events_created",
+    "idx_account_status_history_account_created"
+  ]) {
+    assert.match(sql, new RegExp(`create index if not exists ${index}`, "i"), index);
+  }
+  assert.match(sql, /using gin \(first_name extensions\.gin_trgm_ops\)/i);
+  assert.match(sql, /using gin \(last_name extensions\.gin_trgm_ops\)/i);
+});
