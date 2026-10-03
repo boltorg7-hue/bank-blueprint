@@ -35,6 +35,12 @@ function ReviewStepPage() {
   const submit = useServerFn(submitVerification);
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
+  const submitted = context ? isSubmitted(context) : false;
+
+  useEffect(() => {
+    if (!submitted) return;
+    void navigate({ to: "/onboarding/status", replace: true });
+  }, [navigate, submitted]);
 
   if (isPending || !context) {
     return (
@@ -46,12 +52,6 @@ function ReviewStepPage() {
       </OnboardingShell>
     );
   }
-
-  const submitted = isSubmitted(context);
-
-  useEffect(() => {
-    if (submitted) void navigate({ to: "/onboarding/status", replace: true });
-  }, [navigate, submitted]);
 
   const profile = context.profile;
   const address = context.address;
