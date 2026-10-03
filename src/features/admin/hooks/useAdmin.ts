@@ -125,7 +125,7 @@ export function useDecideFundingRequest() {
 
 export function useSetCustomerState() {
   const fn = useServerFn(setCustomerState); const queryClient = useQueryClient();
-  return useMutation({ mutationFn: (input: { customerId: string; state: "ACTIVE" | "RESTRICTED" | "SUSPENDED"; reason: string }) => fn({ data: input }), onSuccess: async () => { await Promise.all([queryClient.invalidateQueries({ queryKey: ["admin", "customers"] }), queryClient.invalidateQueries({ queryKey: ADMIN_ACCOUNTS_KEY }), queryClient.invalidateQueries({ queryKey: ADMIN_DASHBOARD_KEY }), queryClient.invalidateQueries({ queryKey: ADMIN_AUDIT_KEY })]); } });
+  return useMutation({ mutationFn: (input: { customerId: string; state: "ACTIVE" | "RESTRICTED" | "SUSPENDED"; reason: string }) => fn({ data: input }), onSuccess: async () => { await Promise.all([queryClient.invalidateQueries({ queryKey: ["admin", "customers"] }), queryClient.invalidateQueries({ queryKey: ["admin", "customer-dossier"] }), queryClient.invalidateQueries({ queryKey: ADMIN_ACCOUNTS_KEY }), queryClient.invalidateQueries({ queryKey: ADMIN_DASHBOARD_KEY }), queryClient.invalidateQueries({ queryKey: ADMIN_AUDIT_KEY })]); } });
 }
 
 export function useSetAccountStatus() {
