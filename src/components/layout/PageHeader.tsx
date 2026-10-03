@@ -25,7 +25,7 @@ export function PageHeader({
       <div className="flex min-w-0 items-start gap-2.5 sm:gap-3">
         {backTo ? (
           <Button variant="ghost" size="icon" className="touch-target -ml-2 shrink-0" asChild>
-            <Link to={backTo} aria-label="Retour">
+            <Link to={backTo} aria-label="Back">
               <ArrowLeft className="size-5" aria-hidden="true" />
             </Link>
           </Button>
