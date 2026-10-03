@@ -3,6 +3,7 @@ import { useLanguage } from "@/components/providers/LanguageProvider";
 
 import { BankingContentContainer } from "@/components/layout/BankingAppLayout";
 import { PageHeader } from "@/components/layout/PageHeader";
+import { PageSection } from "@/components/ui/page-section";
 import { EmptyState, ErrorState, SkeletonBlock } from "@/components/feedback";
 import { TransactionDetailCard } from "@/features/transactions/components/TransactionDetailCard";
 import { useTransactionDetail } from "@/features/transactions/hooks/useTransactions";
@@ -35,6 +36,7 @@ function TransactionDetailRoute() {
         backTo="/app/transactions"
       />
 
+      <PageSection>
       {isPending ? (
         <SkeletonBlock lines={6} />
       ) : isError ? (
@@ -51,6 +53,7 @@ function TransactionDetailRoute() {
       ) : (
         <TransactionDetailCard transaction={data} />
       )}
+      </PageSection>
     </BankingContentContainer>
   );
 }

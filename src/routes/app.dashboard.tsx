@@ -3,6 +3,7 @@ import { ArrowDownToLine, FileText, Send, Wallet, Clock } from "lucide-react";
 
 import { BankingContentContainer } from "@/components/layout/BankingAppLayout";
 import { PageHeader } from "@/components/layout/PageHeader";
+import { PageSection } from "@/components/ui/page-section";
 import { EmptyState, ErrorState, LoadingState, StateBlock } from "@/components/feedback";
 import { AccountBalanceCard } from "@/features/accounts/components/AccountBalanceCard";
 import { MonthlySummaryCard } from "@/features/accounts/components/MonthlySummaryCard";
@@ -51,6 +52,7 @@ function DashboardPage() {
         }
       />
 
+      <PageSection>
       {query.isError ? (
         <ErrorState
           title={en ? "Your account information could not be loaded" : "Vos informations bancaires n'ont pas pu être chargées"}
@@ -126,6 +128,7 @@ function DashboardPage() {
           </p>
         </div>
       )}
+      </PageSection>
     </BankingContentContainer>
   );
 }

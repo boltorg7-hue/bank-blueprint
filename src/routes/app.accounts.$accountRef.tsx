@@ -3,6 +3,7 @@ import { useLanguage } from "@/components/providers/LanguageProvider";
 
 import { BankingContentContainer } from "@/components/layout/BankingAppLayout";
 import { PageHeader } from "@/components/layout/PageHeader";
+import { PageSection } from "@/components/ui/page-section";
 import { EmptyState, ErrorState, LoadingState } from "@/components/feedback";
 import { AccountBalanceCard } from "@/features/accounts/components/AccountBalanceCard";
 import { AccountCoordinatesPanel } from "@/features/accounts/components/AccountCoordinatesPanel";
@@ -48,6 +49,7 @@ function AccountDetailsPage() {
         backTo="/app/accounts"
       />
 
+      <PageSection>
       {query.isError ? (
         <ErrorState
           title={en ? "This account could not be loaded" : "Ce compte n'a pas pu être chargé"}
@@ -119,6 +121,7 @@ function AccountDetailsPage() {
           </dl>
         </div>
       )}
+      </PageSection>
     </BankingContentContainer>
   );
 }
