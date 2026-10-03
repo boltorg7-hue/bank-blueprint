@@ -1,1 +1,3 @@
-import type {DomainId} from "../../_shared/types";export type SecurityAction="login"|"password_change"|"mfa_change"|"session_revoke"|"sensitive_action";export type SecurityAuditEntry={id:DomainId;customerId:DomainId;action:SecurityAction;occurredAt:string;ipAddress?:string};
+export type SecuritySessionDto={id:string;deviceLabel:string;firstSeenAt:string;lastSeenAt:string;revokedAt:string|null;current:boolean};
+export type SecurityEventDto={id:string;type:string;title:string;detail:string;createdAt:string};
+export type SecurityOverviewDto={sessions:SecuritySessionDto[];events:SecurityEventDto[]};
