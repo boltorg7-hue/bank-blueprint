@@ -14,7 +14,7 @@ function SidebarItem({ item }: { item: NavItem }) {
       <span
         aria-disabled="true"
         title={language === "en" ? "Coming soon" : "Bientôt disponible"}
-        className="flex min-h-10 items-center gap-3 rounded-lg px-3 py-2 text-sm text-muted-foreground/60"
+        className="flex min-h-11 items-center gap-3 rounded-lg px-3 py-2 text-sm text-muted-foreground/60"
       >
         <Icon className="size-4 shrink-0" aria-hidden="true" />
         <span className="min-w-0 truncate">{language === "en" ? englishNavLabel(item.label) : item.label}</span>
