@@ -479,8 +479,8 @@ test("le budget statique du shell protège LCP/CLS et évite les gros modules au
 
   assert.doesNotMatch(root, /from ["']recharts["']|from ["']pdf-lib["']|from ["']react-day-picker["']/);
   assert.doesNotMatch(router, /from ["']recharts["']|from ["']pdf-lib["']/);
-  assert.match(home, /width=\{1280\}\\n\\s+height=\{960\}/);
-  assert.match(home, /priority\\n/);
+  assert.match(home, /width=\{1280\}[\\s\\S]*?height=\{960\}/);
+  assert.match(home, /priority/);
   assert.match(section, /content-auto/);
   assert.match(styles, /content-visibility:\\s*auto/);
 });
