@@ -86,3 +86,30 @@ BEGIN
     RAISE EXCEPTION 'ANON_CAN_EXECUTE_SECURITY_DEFINER:%', r.signature;
   END LOOP;
 END $$;
+
+-- Financial/admin state changes must remain behind server-side functions/RPCs.
+DO $$
+DECLARE
+  _table text;
+BEGIN
+  FOREACH _table IN ARRAY ARRAY[
+    'bank_accounts','ledger_accounts','ledger_transactions','ledger_entries',
+    'transfers','transfer_requirements','funding_requests','admin_audit_events'
+  ] LOOP
+    IF has_table_privilege('authenticated', format('public.%I', _table), 'INSERT')
+       OR has_table_privilege('authenticated', format('public.%I', _table), 'UPDATE')
+       OR has_table_privilege('authenticated', format('public.%I', _table), 'DELETE')
+    THEN
+      RAISE EXCEPTION 'AUTHENTICATED_DIRECT_WRITE:%', _table;
+    END IF;
+
+    IF has_table_privilege('anon', format('public.%I', _table), 'SELECT')
+       OR has_table_privilege('anon', format('public.%I', _table), 'INSERT')
+       OR has_table_privilege('anon', format('public.%I', _table), 'UPDATE')
+       OR has_table_privilege('anon', format('public.%I', _table), 'DELETE')
+    THEN
+      RAISE EXCEPTION 'ANON_TABLE_PRIVILEGE:%', _table;
+    END IF;
+  END LOOP;
+END $$;
+
