@@ -377,7 +377,6 @@ export function TransferWizard({ initialBeneficiary }: { initialBeneficiary?: st
                 );
               }}
             >
-              {initiate.isPending ? <Loader2 className="size-4 animate-spin" /> : null}
               {en ? "Review transfer" : "Vérifier le virement"}
             </Button>
           </div>
@@ -435,7 +434,6 @@ export function TransferWizard({ initialBeneficiary }: { initialBeneficiary?: st
             </Button>
             <Button
               className="w-full sm:w-auto"
-              disabled={false}
               loading={confirm.isPending}
               loadingLabel={en ? "Processing transfer…" : "Exécution du virement…"}
               onClick={() => {
@@ -467,8 +465,7 @@ export function TransferWizard({ initialBeneficiary }: { initialBeneficiary?: st
                 });
               }}
             >
-              {confirm.isPending ? <Loader2 className="size-4 animate-spin" /> : null}
-              {confirm.isPending ? (en ? "Processing transfer…" : "Exécution du virement…") : (en ? "Confirm and send" : "Confirmer et envoyer")}
+              {en ? "Confirm and send" : "Confirmer et envoyer"}
             </Button>
           </div>
 
