@@ -4,6 +4,7 @@ import { useLanguage } from "@/components/providers/LanguageProvider";
 
 import { BankingContentContainer } from "@/components/layout/BankingAppLayout";
 import { PageHeader } from "@/components/layout/PageHeader";
+import { PageSection } from "@/components/ui/page-section";
 import { PermissionDeniedState } from "@/components/feedback";
 import { useCustomerSummary } from "@/features/customer-shell/hooks/useCustomerSummary";
 import { isAllowed } from "@/features/customer-shell/lib/route-access";
@@ -40,7 +41,9 @@ function TransactionsIndexRoute() {
         description={en ? "Your complete transaction history, newest first." : "L'historique complet de vos opérations, du plus récent au plus ancien."}
       />
       {allowed ? (
-        <TransactionHistory />
+        <PageSection>
+          <TransactionHistory />
+        </PageSection>
       ) : (
         <PermissionDeniedState description={en ? "Your transaction history will be available once your account is activated." : "L'historique de vos opérations sera disponible dès l'activation de votre compte."} />
       )}
