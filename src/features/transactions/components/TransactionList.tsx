@@ -34,7 +34,7 @@ export function TransactionList({
           <Link
             to="/app/transactions/$transactionRef"
             params={{ transactionRef: item.reference }}
-            className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="block rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             aria-label={`${item.displayTitle}. ${transactionAmountAriaLabel(
               item.amountMinor,
               item.currency,
