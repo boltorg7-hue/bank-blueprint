@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { useLanguage } from "@/components/providers/LanguageProvider";
 import { Link } from "@tanstack/react-router";
 import { ArrowLeft } from "lucide-react";
 
@@ -21,11 +22,13 @@ export function AppTaskLayout({
   children: ReactNode;
   actions?: ReactNode;
 }) {
+  const { language } = useLanguage();
+  const en = language === "en";
   return (
     <div className="flex min-h-[70vh] flex-col">
       <div className="flex items-center gap-2 border-b border-border px-4 py-3 sm:px-6">
         <Button variant="ghost" size="icon" className="touch-target" asChild>
-          <Link to={backTo} aria-label="Retour">
+          <Link to={backTo} aria-label={en ? "Back" : "Retour"}>
             <ArrowLeft className="size-5" aria-hidden="true" />
           </Link>
         </Button>
