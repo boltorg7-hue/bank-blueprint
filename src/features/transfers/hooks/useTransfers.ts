@@ -84,7 +84,6 @@ export function useInitiateTransfer() {
       beneficiaryReference: string;
       amountMinor: number;
       customerReference: string;
-      idempotencyKey: string;
     }
   >({
     mutationFn: (input) => initiate({ data: input }),
