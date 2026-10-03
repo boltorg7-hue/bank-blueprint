@@ -55,3 +55,18 @@ test("les actions opérationnelles admin ont un feedback tactile et de chargemen
   assert.match(funding, /loading=\{decide\.isPending\}/);
   assert.match(funding, /focus-visible:ring-2/);
 });
+
+test("les données admin restent lisibles et denses sans perdre les identifiants ni les montants", () => {
+  const accounts = read("src/features/admin/components/AdminAccountsTable.tsx");
+  const customers = read("src/features/admin/components/AdminCustomersTable.tsx");
+  const funding = read("src/features/admin/components/FundingConsole.tsx");
+
+  assert.match(accounts, /text-right text-numeric/);
+  assert.match(accounts, /whitespace-nowrap text-right text-numeric/);
+  assert.match(accounts, /truncate font-medium/);
+  assert.match(customers, /text-right text-numeric/);
+  assert.match(customers, /truncate font-medium/);
+  assert.match(funding, /min-h-11 w-full/);
+  assert.match(funding, /line-clamp-2/);
+  assert.match(funding, /whitespace-nowrap text-right text-numeric/);
+});
