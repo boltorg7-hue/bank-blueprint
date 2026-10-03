@@ -10,7 +10,7 @@ import {
   documentUploadSchema,
   profileStepSchema,
 } from "@/features/onboarding/schemas/onboarding.schemas";
-import type { CustomerContext } from "@/features/onboarding/types/customer-context";
+import type { CustomerContext } from "@/domain/onboarding/types";
 
 const PROFILE_COLUMNS =
   "id, first_name, middle_name, last_name, date_of_birth, nationality, country_of_residence, occupation, phone, phone_verified_at, lifecycle_state, onboarding_step";
