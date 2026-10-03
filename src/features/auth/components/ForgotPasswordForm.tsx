@@ -1,5 +1,6 @@
 import { useState } from "react";
 
+import { useLanguage } from "@/components/providers/LanguageProvider";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -8,11 +9,9 @@ import { supabase } from "@/integrations/supabase/client";
 
 const RESEND_COOLDOWN_SECONDS = 60;
 
-/**
- * Password recovery request (§21). The confirmation message is identical
- * whether or not an account exists, so account existence never leaks.
- */
 export function ForgotPasswordForm() {
+  const { language } = useLanguage();
+  const en = language === "en";
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [sent, setSent] = useState(false);
   const [cooldown, setCooldown] = useState(0);
@@ -52,7 +51,7 @@ export function ForgotPasswordForm() {
   return (
     <form onSubmit={handleSubmit} noValidate className="space-y-5">
       <div className="space-y-2">
-        <Label htmlFor="recovery-email">Adresse e-mail</Label>
+        <Label htmlFor="recovery-email">{en ? "Email address" : "Adresse e-mail"}</Label>
         <Input
           id="recovery-email"
           name="email"
@@ -66,8 +65,9 @@ export function ForgotPasswordForm() {
 
       {sent ? (
         <p role="status" className="text-body-sm rounded-lg border border-border bg-surface px-3 py-3 text-foreground">
-          Si un compte correspond à cette adresse, un lien de réinitialisation vient d'être envoyé.
-          Vérifiez également votre dossier de courriers indésirables.
+          {en
+            ? "If an account matches this address, a reset link has been sent. Also check your spam folder."
+            : "Si un compte correspond à cette adresse, un lien de réinitialisation vient d'être envoyé. Vérifiez également votre dossier de courriers indésirables."}
         </p>
       ) : null}
 
@@ -78,10 +78,16 @@ export function ForgotPasswordForm() {
         disabled={cooldown > 0}
       >
         {cooldown > 0
-          ? `Nouvel envoi possible dans ${cooldown} s`
+          ? en
+            ? `You can resend in ${cooldown} s`
+            : `Nouvel envoi possible dans ${cooldown} s`
           : sent
-            ? "Envoyer à nouveau"
-            : "Envoyer le lien de réinitialisation"}
+            ? en
+              ? "Send again"
+              : "Envoyer à nouveau"
+            : en
+              ? "Send reset link"
+              : "Envoyer le lien de réinitialisation"}
       </Button>
     </form>
   );
