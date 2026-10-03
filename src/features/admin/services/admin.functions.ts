@@ -10,8 +10,22 @@ import type {
   AdminExternalTransferDto,
   AdminOnboardingCaseDto,
   AdminAuditEventDto,
+  AdminCustomerPageDto,
 } from "@/features/admin/types/admin";
 
+function customerSearchInput(input: { search?: string; page?: number; lifecycle?: string; accounts?: string; attention?: string } | undefined) {
+  const lifecycle = String(input?.lifecycle ?? "ALL");
+  const accounts = String(input?.accounts ?? "ALL");
+  const attention = String(input?.attention ?? "ALL");
+  if (!["ALL", "WITH_ACCOUNTS", "WITHOUT_ACCOUNTS"].includes(accounts) || !["ALL", "NEEDS_ATTENTION", "CLEAR"].includes(attention)) throw new Error("INVALID_CUSTOMER_FILTER");
+  return {
+    search: String(input?.search ?? "").trim().slice(0, 80),
+    page: Math.max(1, Math.floor(Number(input?.page ?? 1))),
+    lifecycle,
+    accounts,
+    attention,
+  };
+}
 function searchInput(input: { search?: string; page?: number } | undefined) {
   return { search: String(input?.search ?? "").trim().slice(0, 80), page: Math.max(1, Math.floor(Number(input?.page ?? 1))) };
 }
@@ -32,10 +46,10 @@ export const getAdminDashboard = createServerFn({ method: "GET" })
 
 export const listAdminCustomers = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(searchInput)
-  .handler(async ({ data, context }): Promise<AdminCustomerDto[]> => {
+  .inputValidator(customerSearchInput)
+  .handler(async ({ data, context }): Promise<AdminCustomerPageDto> => {
     const service = await import("@/features/admin/services/admin.server");
-    return service.loadAdminCustomers(context.supabase, data.search, data.page);
+    return service.loadAdminCustomers(context.supabase, data.search, data.page, data.lifecycle as any, data.accounts as any, data.attention as any);
   });
 
 export const listAdminOnboardingCases = createServerFn({ method: "POST" })
