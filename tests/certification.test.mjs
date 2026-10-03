@@ -294,4 +294,8 @@ test("la navigation mobile client reste limitée à cinq destinations primaires"
   assert.ok(match);
   const entries = match[0].match(/\{ label:/g) ?? [];
   assert.ok(entries.length <= 5);
+
+  const bottomNav = read("src/components/navigation/CustomerBottomNav.tsx");
+  assert.match(bottomNav, /item\.to === "\/app\/more"/);
+  assert.match(bottomNav, /pathname\.startsWith\("\/app\/transactions"\)/);
 });
