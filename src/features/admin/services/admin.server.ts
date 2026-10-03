@@ -83,9 +83,9 @@ export async function loadAdminCustomers(
   const [{ data: verifications }, { data: documents }, { data: notifications }, { data: transfers }, { data: funding }] = await Promise.all([
     customerIds.length ? admin.from("identity_verifications").select("user_id,status,submitted_at,decided_at").in("user_id", customerIds) : Promise.resolve({ data: [] as any[] }),
     customerIds.length ? admin.from("verification_documents").select("user_id,status,created_at").in("user_id", customerIds) : Promise.resolve({ data: [] as any[] }),
-    customerIds.length ? admin.from("notifications").select("user_id,read_at,created_at").in("user_id", customerIds).is("archived_at", null) : Promise.resolve({ data: [] as any[] }),
+    customerIds.length ? admin.from("notifications").select("user_id,read_at,created_at").in("user_id", customerIds).is("archived_at", null).is("read_at", null) : Promise.resolve({ data: [] as any[] }),
     customerIds.length ? admin.from("transfers").select("sender_user_id,status,created_at").in("sender_user_id", customerIds) : Promise.resolve({ data: [] as any[] }),
-    accountIds.length ? admin.from("funding_requests").select("account_id,status,created_at").in("account_id", accountIds) : Promise.resolve({ data: [] as any[] }),
+    accountIds.length ? admin.from("funding_requests").select("account_id,status,created_at").in("account_id", accountIds).eq("status", "PENDING") : Promise.resolve({ data: [] as any[] }),
   ]);
   const accountOwnerById = new Map((accounts ?? []).map((row: any) => [String(row.id), String(row.user_id)]));
   const verificationByUser = new Map<string, { statuses: Set<string>; attentionAt: string[] }>();
