@@ -6,7 +6,7 @@ import {
   type CustomerDocumentDto,
   type CustomerDocumentType,
   type DocumentDownloadDto,
-} from "@/features/documents/types/document";
+} from "@/domain/documents/types";
 
 /**
  * Document centre server functions (PROMPT 09 §55 – §90).
