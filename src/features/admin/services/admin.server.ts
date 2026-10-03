@@ -85,25 +85,9 @@ type AdminAuthUser = {
 
 async function loadAdminAuthUsers(admin: Client, ids: string[]) {
   const result = new Map<string, AdminAuthUser>();
-  const now = Date.now();
-  const missing: string[] = [];
 
-  for (const id of ids) {
-    const cached = adminAuthEmailCache.get(id);
-    if (cached && cached.expiresAt > now) {
-      result.set(id, {
-        email: cached.email,
-        verified: false,
-      });
-    } else {
-      missing.push(id);
-    }
-  }
-
-  if (!missing.length) return result;
-
-  for (let offset = 0; offset < missing.length; offset += 8) {
-    const batch = missing.slice(offset, offset + 8);
+  for (let offset = 0; offset < ids.length; offset += 8) {
+    const batch = ids.slice(offset, offset + 8);
     const batchResults = await Promise.all(
       batch.map(async (id) => {
         try {
@@ -119,15 +103,10 @@ async function loadAdminAuthUsers(admin: Client, ids: string[]) {
       }),
     );
 
-    const expiresAt = now + ADMIN_AUTH_EMAIL_CACHE_TTL_MS;
     for (const entry of batchResults) {
       result.set(entry.id, {
         email: entry.email,
         verified: entry.verified,
-      });
-      adminAuthEmailCache.set(entry.id, {
-        email: entry.email,
-        expiresAt,
       });
     }
   }
