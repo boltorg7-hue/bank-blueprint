@@ -484,3 +484,22 @@ test("le budget statique du shell protège LCP/CLS et évite les gros modules au
   assert.match(section, /content-auto/);
   assert.match(styles, /content-visibility:\\s*auto/);
 });
+
+
+test("le chargement sur réseau mobile reste borné et ne refetch pas tout le cache hors écran", () => {
+  const policy = read("src/lib/query-policy.ts");
+  const banner = read("src/features/customer-shell/components/NetworkStatusBanner.tsx");
+  const router = read("src/router.tsx");
+
+  assert.equal((policy.match(/networkMode: "online"/g) ?? []).length, 5);
+  assert.match(router, /defaultPreloadStaleTime: 30_000/);
+  assert.match(banner, /refetchQueries\(\{ type: "active" \}\)/);
+  assert.match(banner, /navigator\.onLine/);
+});
+
+test("aucune API de préchargement réseau manuel n'est ajoutée au shell critique", () => {
+  const root = read("src/routes/__root.tsx");
+  const router = read("src/router.tsx");
+  assert.doesNotMatch(root, /navigator\.connection|effectiveType|requestIdleCallback/);
+  assert.doesNotMatch(router, /prefetchQuery|prefetchInfiniteQuery/);
+});
