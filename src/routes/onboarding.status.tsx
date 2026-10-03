@@ -1,11 +1,15 @@
 import { useLanguage } from "@/components/providers/LanguageProvider";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { CheckCircle2, Clock3, FileWarning, LockKeyhole, ShieldCheck } from "lucide-react";
+import { useState } from "react";
+import { CheckCircle2, Clock3, FileWarning, LockKeyhole, RefreshCw, ShieldCheck } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { OnboardingShell } from "@/features/onboarding/components/OnboardingShell";
-import { useCustomerContext } from "@/features/onboarding/hooks/useCustomerContext";
+import {
+  useCustomerContext,
+  useInvalidateCustomerContext,
+} from "@/features/onboarding/hooks/useCustomerContext";
 import { VERIFICATION_STATUS_LABELS } from "@/features/onboarding/types/customer-context";
 import { LIFECYCLE_LABELS, type CustomerLifecycleState } from "@/types/customer-lifecycle";
 import { formatDateTime } from "@/lib/format/date";
@@ -145,14 +149,65 @@ function lifecycleStage(state: CustomerLifecycleState): number {
 function OnboardingStatusPage() {
   const { language } = useLanguage();
   const en = language === "en";
-  const { data: context, isPending } = useCustomerContext();
+  const { data: context, isPending, isError } = useCustomerContext();
+  const invalidate = useInvalidateCustomerContext();
+  const [refreshing, setRefreshing] = useState(false);
 
-  if (isPending || !context) {
+  async function refreshStatus() {
+    setRefreshing(true);
+    try {
+      await invalidate();
+    } finally {
+      setRefreshing(false);
+    }
+  }
+
+  if (isPending) {
     return (
       <OnboardingShell title={en ? "Track your application" : "Suivi de votre dossier"}>
         <div className="flex items-center gap-3 text-muted-foreground" role="status">
           <Spinner className="size-5" />
           <span className="text-body-sm">{en ? "Loading…" : "Chargement…"}</span>
+        </div>
+      </OnboardingShell>
+    );
+  }
+
+  if (isError || !context) {
+    return (
+      <OnboardingShell
+        title={en ? "Track your application" : "Suivi de votre dossier"}
+        description={
+          en
+            ? "We could not load the latest server status."
+            : "Nous n’avons pas pu charger le dernier statut du serveur."
+        }
+      >
+        <div className="space-y-4">
+          <div
+            role="alert"
+            className="rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-4"
+          >
+            <p className="text-body-sm text-destructive">
+              {en
+                ? "Your application status could not be refreshed."
+                : "Le statut de votre dossier n’a pas pu être actualisé."}
+            </p>
+          </div>
+          <Button
+            type="button"
+            className="w-full touch-target"
+            loading={refreshing}
+            onClick={() => void refreshStatus()}
+          >
+            <RefreshCw className="size-4" aria-hidden="true" />
+            {en ? "Refresh status" : "Actualiser le statut"}
+          </Button>
+          <Button asChild variant="outline" className="w-full touch-target">
+            <Link to="/help">
+              {en ? "Visit the help centre" : "Consulter le centre d'aide"}
+            </Link>
+          </Button>
         </div>
       </OnboardingShell>
     );
@@ -184,9 +239,19 @@ function OnboardingStatusPage() {
               <p className="text-label text-foreground">{copy.title}</p>
               <p className="text-body-sm mt-1 text-muted-foreground">{en ? LIFECYCLE_LABELS[state].replaceAll("_", " ") : LIFECYCLE_LABELS[state]}</p>
               {verification?.submitted_at ? (
-                <p className="text-caption mt-2 text-muted-foreground">
-                  {en ? "Submitted on" : "Dossier transmis le"} {formatDateTime(verification.submitted_at)}.
-                </p>
+                <div className="mt-2 flex flex-wrap items-center gap-2">
+                <span className="inline-flex min-h-7 items-center rounded-full bg-muted px-2.5 text-caption font-medium text-muted-foreground">
+                  {en
+                    ? verification.status.replaceAll("_", " ").toLowerCase()
+                    : VERIFICATION_STATUS_LABELS[verification.status]}
+                </span>
+                {verification?.submitted_at ? (
+                  <span className="text-caption text-muted-foreground">
+                    {en ? "Submitted on" : "Dossier transmis le"}{" "}
+                    {formatDateTime(verification.submitted_at)}.
+                  </span>
+                ) : null}
+              </div>
               ) : null}
             </div>
           </div>
@@ -232,7 +297,17 @@ function OnboardingStatusPage() {
           <Button asChild className="w-full touch-target sm:flex-1">
             <Link to={copy.primaryRoute}>{copy.primaryLabel}</Link>
           </Button>
-          <Button asChild variant="outline" className="w-full touch-target sm:flex-1">
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full touch-target sm:flex-1"
+            loading={refreshing}
+            onClick={() => void refreshStatus()}
+          >
+            <RefreshCw className="size-4" aria-hidden="true" />
+            {en ? "Refresh status" : "Actualiser le statut"}
+          </Button>
+          <Button asChild variant="ghost" className="w-full touch-target sm:flex-1">
             <Link to="/help">{copy.secondaryLabel}</Link>
           </Button>
         </div>
