@@ -1,0 +1,1 @@
+import type {DomainEvent} from "../../_shared/types";export type NotificationSentEvent=DomainEvent<"notifications.notification.sent",{customerId:string;channel:"email"|"sms"|"push"|"in_app";template:string}>;
