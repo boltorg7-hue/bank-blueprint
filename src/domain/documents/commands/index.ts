@@ -1,0 +1,1 @@
+import type {CommandContext,CommandResult} from "../../_shared/commands";import type {Document} from "../types";export type RegisterDocumentCommand={customerId:string;type:string;storageKey:string};export type RegisterDocumentHandler=(command:RegisterDocumentCommand,context:CommandContext)=>Promise<CommandResult<Document>>;
