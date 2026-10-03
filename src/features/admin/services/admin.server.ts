@@ -450,3 +450,139 @@ export async function loadExternalTransfers(client:Client):Promise<AdminExternal
   const names=new Map((profiles??[]).map((p:any)=>[p.id,[p.first_name,p.last_name].filter(Boolean).join(" ")||"Client"])); const open=new Map<string,number>(); for(const r of reqs??[]){if(["REQUIRED","REPLACEMENT_REQUIRED","UNDER_REVIEW"].includes((r as any).status))open.set((r as any).transfer_id,(open.get((r as any).transfer_id)??0)+1);}
   return (data??[]).map((r:any)=>({reference:r.public_reference,customerName:names.get(r.sender_user_id)??"Client",recipient:r.recipient_display_snapshot,amountMinor:Number(r.amount_minor),currency:r.currency,status:r.status,progressPercent:Number(r.progress_percent),documentsOpen:open.get(r.id)??0,createdAt:r.created_at}));
 }
+
+
+export async function loadAdminCustomerDossier(
+  client: Client,
+  customerId: string,
+): Promise<import("@/features/admin/types/admin-customer-dossier").AdminCustomerDossierDto> {
+  const staff = await requireAdminPermission(client, "customers.read");
+  const admin = await adminClient();
+
+  const [{ data: profile, error: profileError }, authResult] = await Promise.all([
+    admin.from("profiles").select("id,first_name,middle_name,last_name,phone,lifecycle_state,onboarding_step,created_at").eq("id", customerId).maybeSingle(),
+    admin.auth.admin.getUserById(customerId),
+  ]);
+  if (profileError || !profile) throw new AdminAccessError("CUSTOMER_DOSSIER_UNAVAILABLE");
+
+  const reference = `CUS-${customerId.replace(/-/g, "").slice(0, 12).toUpperCase()}`;
+  const fullName = [profile.first_name, profile.middle_name, profile.last_name].filter(Boolean).join(" ") || "Client sans nom";
+  const [kycResult, documentsResult, accountsResult, notificationsResult, supportResult, transferResult] = await Promise.all([
+    admin.from("identity_verifications").select("status,submitted_at,decided_at").eq("user_id", customerId).order("submitted_at", { ascending: false }).limit(1),
+    admin.from("verification_documents").select("document_type,status,created_at").eq("user_id", customerId).order("created_at", { ascending: false }).limit(30),
+    admin.from("bank_accounts").select("public_reference,display_name,currency,currency_minor_unit,status,account_number,id").eq("user_id", customerId).order("created_at", { ascending: true }),
+    admin.from("notifications").select("title,severity,read_at,created_at").eq("user_id", customerId).is("archived_at", null).order("created_at", { ascending: false }).limit(20),
+    admin.from("support_threads").select("public_reference,subject,category,status,last_message_at").eq("customer_user_id", customerId).order("last_message_at", { ascending: false }).limit(20),
+    admin.from("transfers").select("public_reference,recipient_display_snapshot,amount_minor,currency,status,progress_percent,created_at").eq("sender_user_id", customerId).order("created_at", { ascending: false }).limit(20),
+  ]);
+
+  const accounts = accountsResult.data ?? [];
+  const accountIds = accounts.map((a: any) => String(a.id));
+  const accountRefs = accounts.map((a: any) => String(a.public_reference));
+  const [{ data: balances }, { data: funding }, { data: transactions }] = await Promise.all([
+    accountIds.length ? admin.from("account_balances").select("account_id,ledger_balance_minor,available_balance_minor,held_balance_minor").in("account_id", accountIds) : Promise.resolve({ data: [] as any[] }),
+    accountIds.length ? admin.from("funding_requests").select("id,account_id,amount_minor,currency,reason,status,created_at").in("account_id", accountIds).order("created_at", { ascending: false }).limit(20) : Promise.resolve({ data: [] as any[] }),
+    accountRefs.length ? admin.from("customer_account_activity").select("reference,account_reference,transaction_type,direction,amount_minor,currency,minor_unit,display_description,counterparty_display,status,occurred_at").in("account_reference", accountRefs).order("occurred_at", { ascending: false }).limit(20) : Promise.resolve({ data: [] as any[] }),
+  ]);
+
+  const balanceByAccount = new Map((balances ?? []).map((row: any) => [String(row.account_id), row]));
+  const accountById = new Map(accounts.map((row: any) => [String(row.id), row]));
+  const securityAllowed = staff.permissions.includes("security.read") || staff.permissions.includes("admin.access");
+  const auditAllowed = staff.permissions.includes("audit.read") || staff.permissions.includes("admin.access");
+  const [{ data: sessions }, { data: securityEvents }] = securityAllowed
+    ? await Promise.all([
+        admin.from("customer_security_sessions").select("device_label,first_seen_at,last_seen_at,revoked_at").eq("user_id", customerId).order("last_seen_at", { ascending: false }).limit(20),
+        admin.from("customer_security_events").select("event_type,title,created_at").eq("user_id", customerId).order("created_at", { ascending: false }).limit(20),
+      ])
+    : [{ data: [] as any[] }, { data: [] as any[] }];
+
+  let audit: any[] = [];
+  if (auditAllowed) {
+    const auditResult = await admin.from("admin_audit_events").select("action,resource_type,resource_reference,result,created_at").eq("resource_reference", reference).order("created_at", { ascending: false }).limit(30);
+    audit = auditResult.data ?? [];
+  }
+
+  const kyc = (kycResult.data ?? [])[0] as any;
+  const notifications = notificationsResult.data ?? [];
+  return {
+    customer: {
+      id: customerId,
+      reference,
+      fullName,
+      email: authResult.data.user?.email ?? null,
+      phone: profile.phone ?? null,
+      lifecycleState: profile.lifecycle_state as CustomerLifecycleState,
+      createdAt: String(profile.created_at),
+      onboardingStep: profile.onboarding_step ? String(profile.onboarding_step) : null,
+      emailVerified: Boolean(authResult.data.user?.email_confirmed_at),
+    },
+    kyc: {
+      status: String(kyc?.status ?? "NOT_STARTED"),
+      submittedAt: kyc?.submitted_at ? String(kyc.submitted_at) : null,
+      decidedAt: kyc?.decided_at ? String(kyc.decided_at) : null,
+    },
+    documents: (documentsResult.data ?? []).map((row: any) => ({ type: String(row.document_type), status: String(row.status), createdAt: String(row.created_at) })),
+    accounts: accounts.map((row: any) => {
+      const balance: any = balanceByAccount.get(String(row.id)) ?? {};
+      return {
+        reference: String(row.public_reference),
+        displayName: String(row.display_name),
+        currency: String(row.currency),
+        minorUnit: Number(row.currency_minor_unit),
+        status: String(row.status),
+        maskedNumber: `•••• ${String(row.account_number).slice(-4)}`,
+        ledgerBalanceMinor: Number(balance.ledger_balance_minor ?? 0),
+        availableBalanceMinor: Number(balance.available_balance_minor ?? 0),
+        heldBalanceMinor: Number(balance.held_balance_minor ?? 0),
+      };
+    }),
+    transactions: (transactions ?? []).map((row: any) => ({
+      reference: String(row.reference),
+      accountReference: String(row.account_reference),
+      transactionType: String(row.transaction_type),
+      direction: String(row.direction),
+      amountMinor: Number(row.amount_minor),
+      currency: String(row.currency),
+      minorUnit: Number(row.minor_unit),
+      description: row.display_description ? String(row.display_description) : null,
+      counterparty: row.counterparty_display ? String(row.counterparty_display) : null,
+      status: String(row.status),
+      occurredAt: String(row.occurred_at),
+    })),
+    transfers: (transferResult.data ?? []).map((row: any) => ({
+      reference: String(row.public_reference),
+      amountMinor: Number(row.amount_minor),
+      currency: String(row.currency),
+      status: String(row.status),
+      recipient: String(row.recipient_display_snapshot ?? "—"),
+      progressPercent: Number(row.progress_percent ?? 0),
+      createdAt: String(row.created_at),
+    })),
+    funding: (funding ?? []).map((row: any) => ({
+      id: String(row.id),
+      accountReference: accountById.get(String(row.account_id))?.public_reference ? String(accountById.get(String(row.account_id)).public_reference) : "—",
+      amountMinor: Number(row.amount_minor),
+      currency: String(row.currency),
+      reason: String(row.reason),
+      status: String(row.status),
+      createdAt: String(row.created_at),
+    })),
+    messages: (supportResult.data ?? []).map((row: any) => ({
+      reference: String(row.public_reference),
+      subject: String(row.subject),
+      category: String(row.category),
+      status: String(row.status),
+      lastMessageAt: String(row.last_message_at),
+    })),
+    notifications: {
+      unreadCount: notifications.filter((row: any) => !row.read_at).length,
+      items: notifications.map((row: any) => ({ title: String(row.title), severity: String(row.severity), readAt: row.read_at ? String(row.read_at) : null, createdAt: String(row.created_at) })),
+    },
+    security: {
+      sessions: (sessions ?? []).map((row: any) => ({ deviceLabel: String(row.device_label), firstSeenAt: String(row.first_seen_at), lastSeenAt: String(row.last_seen_at), revokedAt: row.revoked_at ? String(row.revoked_at) : null })),
+      events: (securityEvents ?? []).map((row: any) => ({ type: String(row.event_type), title: String(row.title), createdAt: String(row.created_at) })),
+      restricted: !securityAllowed,
+    },
+    audit: audit.map((row: any) => ({ action: String(row.action), resourceType: row.resource_type ? String(row.resource_type) : null, resourceReference: row.resource_reference ? String(row.resource_reference) : null, result: row.result === "DENIED" ? "DENIED" : "ALLOWED", createdAt: String(row.created_at) })),
+  };
+}
