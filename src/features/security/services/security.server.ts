@@ -1,5 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { SecurityOverviewDto } from "@/features/security/types/security";
+import type { SecurityOverviewDto } from "@/domain/security/types";
 type Client=SupabaseClient<any,any,any>;
 export async function loadSecurityOverview(client:Client,userId:string,currentSessionId:string|null):Promise<SecurityOverviewDto>{
   const [{data:sessions,error:sessionError},{data:events,error:eventError}]=await Promise.all([
