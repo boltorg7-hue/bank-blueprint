@@ -5,6 +5,7 @@ import { useLanguage } from "@/components/providers/LanguageProvider";
 import { BankingContentContainer } from "@/components/layout/BankingAppLayout";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { PermissionDeniedState } from "@/components/feedback";
+import { PageSection } from "@/components/ui/page-section";
 import { useCustomerSummary } from "@/features/customer-shell/hooks/useCustomerSummary";
 import {
   isAllowed,
@@ -49,7 +50,9 @@ function AppTransfersNewRoute() {
         backTo="/app/transfers"
       />
       {allowed ? (
+        <PageSection>
         <TransferWizard initialBeneficiary={beneficiary} />
+        </PageSection>
       ) : (
         <PermissionDeniedState description={blockedReason ?? undefined} />
       )}

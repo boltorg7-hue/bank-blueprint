@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { ErrorState, LoadingState } from "@/components/feedback";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
+import { PageSection } from "@/components/ui/page-section";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -26,7 +27,7 @@ export function ProfilePage() {
   async function submitAddress(e: React.FormEvent) { e.preventDefault(); try { await saveAddress.mutateAsync(address); toast.success((en ? "Address saved." : "Adresse enregistrée.")); } catch { toast.error((en ? "Your address could not be saved." : "L’adresse n’a pas pu être enregistrée.")); } }
   return <div className="mx-auto w-full max-w-4xl">
     <PageHeader title={en ? "My profile" : "Mon profil"} description={en ? "Your personal details, verification and bank information." : "Vos informations personnelles, votre vérification et vos coordonnées bancaires."} status={<StatusBadge label={LIFECYCLE_LABELS[data.lifecycleState]} tone={data.lifecycleState === "ACTIVE" ? "success" : "pending"} />} />
-    <div className="space-y-6">
+    <PageSection className="space-y-6">
       <Card><CardHeader><CardTitle>{en ? "Identity and contact details" : "Identité et coordonnées"}</CardTitle><CardDescription>{data.identityLocked ? (en ? "Verified identity details are locked. Contact customer support to correct them." : "Les informations d’identité vérifiées sont verrouillées. Contactez le service client pour les corriger.") : (en ? "These details must match your identity documents." : "Ces informations doivent correspondre à vos documents d’identité.")}</CardDescription></CardHeader><CardContent><form onSubmit={submitProfile} className="grid gap-4 sm:grid-cols-2">
         {field("firstName",(en ? "First name" : "Prénom"),"text",data.identityLocked)}{field("middleName",(en ? "Middle names" : "Autres prénoms"),"text",data.identityLocked)}{field("lastName",(en ? "Last name" : "Nom"),"text",data.identityLocked)}{field("dateOfBirth",(en ? "Date of birth" : "Date de naissance"),"date",data.identityLocked)}{field("nationality",(en ? "Nationality" : "Nationalité"),"text",data.identityLocked)}{field("countryOfResidence",(en ? "Country of residence" : "Pays de résidence"))}{field("occupation",(en ? "Occupation" : "Profession"))}{field("phone",(en ? "Phone" : "Téléphone"),"tel")}
         <div className="space-y-2"><Label>{en ? "Email" : "E-mail"}</Label><Input value={data.email ?? ""} disabled /><p className="text-xs text-muted-foreground">{data.emailVerified ? (en ? "Email verified" : "Adresse vérifiée") : (en ? "Email not verified" : "Adresse non vérifiée")}</p></div>
@@ -38,6 +39,6 @@ export function ProfilePage() {
       </form></CardContent></Card>
       <Card><CardHeader><CardTitle>{en ? "Verification" : "Vérification"}</CardTitle><CardDescription>{en ? "This is separate from your bank account status." : "État distinct du statut de votre compte bancaire."}</CardDescription></CardHeader><CardContent><StatusBadge label={data.identityStatus} tone={data.identityStatus === "VERIFIED" ? "success" : "pending"} /></CardContent></Card>
       <Card><CardHeader><CardTitle>{en ? "My bank details" : "Mes coordonnées bancaires"}</CardTitle><CardDescription>{en ? "Read-only. Balances are available under Accounts." : "Lecture seule. Les soldes restent disponibles dans la section Comptes."}</CardDescription></CardHeader><CardContent className="space-y-3">{data.accounts.length ? data.accounts.map((account) => <div key={account.reference} className="rounded-lg border p-4"><div className="flex justify-between gap-3"><div><p className="font-medium">{account.displayName}</p><p className="text-sm text-muted-foreground">{account.reference} · {account.maskedNumber}</p></div><StatusBadge label={account.status} tone={account.status === "ACTIVE" ? "success" : "pending"} /></div>{account.iban ? <p className="mt-2 text-xs text-muted-foreground">IBAN : {account.iban}</p> : null}{account.bic ? <p className="text-xs text-muted-foreground">BIC : {account.bic}</p> : null}</div>) : <p className="text-sm text-muted-foreground">{en ? "No bank account opened yet." : "Aucun compte bancaire ouvert."}</p>}</CardContent></Card>
-    </div>
+    </PageSection>
   </div>;
 }

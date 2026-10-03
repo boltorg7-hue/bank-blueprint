@@ -5,6 +5,7 @@ import {
   type ContentWidth,
 } from "@/components/layout/BankingAppLayout";
 import { PageHeader } from "@/components/layout/PageHeader";
+import { PageSection } from "@/components/ui/page-section";
 import { EmptyState, PermissionDeniedState } from "@/components/feedback";
 import { useCustomerSummary } from "@/features/customer-shell/hooks/useCustomerSummary";
 import { isAllowed, type AccessCategory } from "@/features/customer-shell/lib/route-access";
@@ -50,7 +51,8 @@ export function FeatureShellPage({
       {!allowed ? (
         <PermissionDeniedState description="Cette section n'est pas disponible avec le statut actuel de votre compte." />
       ) : (
-        (children ?? (
+        <PageSection>
+          {children ?? (
           <EmptyState
             title={placeholderTitle ?? "Service en cours de mise en service"}
             description={
@@ -58,7 +60,8 @@ export function FeatureShellPage({
               "Cette section sera alimentée dès que le service bancaire correspondant sera connecté."
             }
           />
-        ))
+          )}
+        </PageSection>
       )}
     </BankingContentContainer>
   );
