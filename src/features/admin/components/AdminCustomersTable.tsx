@@ -1,4 +1,4 @@
-import { lazy, Suspense, useState } from "react";
+import { lazy, memo, Suspense, useState } from "react";
 import { CheckCircle2, CircleAlert, XCircle } from "lucide-react";
 import { useLanguage } from "@/components/providers/LanguageProvider";
 import { StatusBadge } from "@/components/ui/status-badge";
@@ -14,7 +14,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 const AdminCustomerOperationalDossier = lazy(() => import("@/features/admin/components/AdminCustomerOperationalDossier").then((module) => ({ default: module.AdminCustomerOperationalDossier })));
 
-export function AdminCustomersTable({ customers }: { customers: AdminCustomerDto[] }) {
+export const AdminCustomersTable = memo(function AdminCustomersTable({ customers }: { customers: AdminCustomerDto[] }) {
   const { language } = useLanguage();
   const en = language === "en";
   const context = useAdminContext(); const mutation = useSetCustomerState();
@@ -66,4 +66,4 @@ export function AdminCustomersTable({ customers }: { customers: AdminCustomerDto
     <Suspense fallback={null}><AdminCustomerOperationalDossier customer={details} open={Boolean(details)} onOpenChange={(open) => { if (!open) setDetails(null); }} /></Suspense>
     </>
   );
-}
+});
