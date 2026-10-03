@@ -1,4 +1,5 @@
 import { FileText } from "lucide-react";
+import { useLanguage } from "@/components/providers/LanguageProvider";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -26,6 +27,8 @@ export function OperationReceiptButton({
   available: boolean;
   unavailableHint?: string;
 }) {
+  const { language } = useLanguage();
+  const en = language === "en";
   const existing = useOperationReceipt(documentType, sourceReference, available);
   const generate = useGenerateReceipt();
 
@@ -33,7 +36,7 @@ export function OperationReceiptButton({
     return (
       <p className="text-caption text-muted-foreground">
         {unavailableHint ??
-          "Le reçu définitif sera disponible dès la confirmation complète de l'opération."}
+          en ? "The final receipt will be available once the operation is fully confirmed." : "Le reçu définitif sera disponible dès la confirmation complète de l'opération."}
       </p>
     );
   }
@@ -53,14 +56,14 @@ export function OperationReceiptButton({
         generate.mutate(
           { documentType, sourceReference },
           {
-            onSuccess: () => toast.success("Reçu disponible dans vos documents"),
+            onSuccess: () => toast.success(en ? "Receipt available in your documents" : "Reçu disponible dans vos documents"),
             onError: (error) => toast.error(documentErrorMessage(error.message)),
           },
         )
       }
     >
       <FileText aria-hidden className="mr-2 size-4" />
-      {generate.isPending ? "Génération du reçu…" : "Obtenir le reçu"}
+      {generate.isPending ? (en ? "Generating receipt…" : "Génération du reçu…") : (en ? "Get receipt" : "Obtenir le reçu")}
     </Button>
   );
 }
