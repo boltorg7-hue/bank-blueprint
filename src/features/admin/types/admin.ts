@@ -43,6 +43,8 @@ export type AdminCustomerDto = {
   lifecycleState: CustomerLifecycleState;
   accountCount: number;
   createdAt: string;
+  attentionCount: number;
+  attentionReasons: string[];
 };
 
 export type AdminOnboardingDocumentDto = {
