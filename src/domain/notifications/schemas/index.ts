@@ -1,0 +1,1 @@
+import {z} from "zod";export const notificationChannelSchema=z.enum(["email","sms","push","in_app"]);export const notificationSchema=z.object({customerId:z.string().min(1),channel:notificationChannelSchema,template:z.string().min(1)});
