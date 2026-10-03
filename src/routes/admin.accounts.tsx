@@ -17,7 +17,8 @@ function AdminAccountsPage() {
   const en = language === "en";
   const [search, setSearch] = useState("");
   const query = useAdminAccounts(search);
-  return <AdminGate permission="accounts.read"><PageHeader title={en ? "Bank accounts" : "Comptes bancaires"} description={en ? "Ledger balances, available funds and reserved amounts." : "Soldes comptables, disponibles et réservés issus du ledger."} action={<Input aria-label={en ? "Search accounts" : "Rechercher un compte"} placeholder={en ? "Reference or number" : "Référence ou numéro"} value={search} onChange={(event) => setSearch(event.target.value)} className="w-full sm:w-72" />} />
+  return <AdminGate permission="accounts.read"><PageSection><PageHeader title={en ? "Bank accounts" : "Comptes bancaires"} description={en ? "Ledger balances, available funds and reserved amounts." : "Soldes comptables, disponibles et réservés issus du ledger."} action={<Input aria-label={en ? "Search accounts" : "Rechercher un compte"} placeholder={en ? "Reference or number" : "Référence ou numéro"} value={search} onChange={(event) => setSearch(event.target.value)} className="w-full sm:w-72" />} />
     {query.isPending ? <LoadingState /> : query.isError ? <ErrorState onRetry={() => query.refetch()} /> : !query.data?.length ? <EmptyState title={en ? "No accounts found" : "Aucun compte trouvé"} /> : <AdminAccountsTable accounts={query.data} />}
+    </PageSection>
   </AdminGate>;
 }
