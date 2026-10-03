@@ -88,7 +88,7 @@ export function useActivateAdminOnboardingCustomer() {
 export function useAdminAccounts(search = "", cursor: string | null = null) {
   const fn = useServerFn(listAdminAccounts);
   const { data: staff } = useAdminContext();
-  return useQuery({ queryKey: [...ADMIN_ACCOUNTS_KEY, search, cursor], queryFn: () => fn({ data: { search, cursor } }), ...QUERY_POLICY.NORMAL, enabled: staff?.authorized === true && staff.permissions.includes("accounts.read") });
+  return useQuery({ queryKey: [...ADMIN_ACCOUNTS_KEY, search, cursor], queryFn: () => fn({ data: { search } }), ...QUERY_POLICY.NORMAL, enabled: staff?.authorized === true && staff.permissions.includes("accounts.read") });
 }
 
 export function useFundingRequests() {
