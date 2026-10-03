@@ -32,6 +32,8 @@ export type NavItem = {
   upcoming?: boolean;
   /** Requires transactional capability (banking status ACTIVE). */
   transactional?: boolean;
+  /** Optional navigation group used by the administrative shell. */
+  group?: "overview" | "operations" | "management";
 };
 
 /** Public marketing navigation (pages are built in PROMPT 02). */
@@ -123,13 +125,13 @@ export const CUSTOMER_MORE_GROUPS: { title: string; items: NavItem[] }[] = [
 
 /** Administration console navigation (built out in PROMPT 12+). */
 export const ADMIN_NAV: NavItem[] = [
-  { label: "Tableau de bord", to: "/admin/dashboard", icon: Gauge },
-  { label: "Clients", to: "/admin/customers" as AppPath, icon: Users },
-  { label: "Dossiers d’ouverture", to: "/admin/onboarding-cases" as AppPath, icon: BadgeCheck },
-  { label: "Comptes", to: "/admin/accounts" as AppPath, icon: Wallet },
-  { label: "Approvisionnements", to: "/admin/funding" as AppPath, icon: CircleDollarSign },
-  { label: "Transferts externes", to: "/admin/transfers" as AppPath, icon: Banknote },
-  { label: "Service client", to: "/admin/support" as AppPath, icon: MessagesSquare },
-  { label: "Audit", to: "/admin/audit" as AppPath, icon: FileText },
-  { label: "Parité & tarifs", to: "/admin/settings" as AppPath, icon: Settings },
+  { label: "Tableau de bord", to: "/admin/dashboard", icon: Gauge, group: "overview" },
+  { label: "Clients", to: "/admin/customers" as AppPath, icon: Users, group: "operations" },
+  { label: "Dossiers d’ouverture", to: "/admin/onboarding-cases" as AppPath, icon: BadgeCheck, group: "operations" },
+  { label: "Comptes", to: "/admin/accounts" as AppPath, icon: Wallet, group: "operations" },
+  { label: "Approvisionnements", to: "/admin/funding" as AppPath, icon: CircleDollarSign, group: "operations" },
+  { label: "Transferts externes", to: "/admin/transfers" as AppPath, icon: Banknote, group: "operations" },
+  { label: "Service client", to: "/admin/support" as AppPath, icon: MessagesSquare, group: "operations" },
+  { label: "Audit", to: "/admin/audit" as AppPath, icon: FileText, group: "management" },
+  { label: "Parité & tarifs", to: "/admin/settings" as AppPath, icon: Settings, group: "management" },
 ];
