@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 import { BankingContentContainer } from "@/components/layout/BankingAppLayout";
+import { PageSection } from "@/components/ui/page-section";
 import { NotificationCenter } from "@/features/notifications/components/NotificationCenter";
 
 export const Route = createFileRoute("/app/notifications")({
@@ -15,5 +16,5 @@ export const Route = createFileRoute("/app/notifications")({
 });
 
 function AppNotificationsRoute() {
-  return <BankingContentContainer width="default"><NotificationCenter /></BankingContentContainer>;
+  return <BankingContentContainer width="default"><PageSection><NotificationCenter /></PageSection></BankingContentContainer>;
 }
