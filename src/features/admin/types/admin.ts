@@ -89,6 +89,8 @@ export type AdminAccountDto = {
   reference: string;
   holderName: string;
   holderId: string;
+  holderLifecycleState: CustomerLifecycleState;
+  holderCreatedAt: string;
   holderReference: string;
   displayName: string;
   currency: string;
