@@ -1,0 +1,1 @@
+import type {DomainEvent} from "../../_shared/types";export type StatementGeneratedEvent=DomainEvent<"statements.statement.generated",{customerId:string;accountId:string;documentId:string;periodStart:string;periodEnd:string}>;
