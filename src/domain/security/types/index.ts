@@ -1,0 +1,1 @@
+import type {DomainId} from "../../_shared/types";export type SecurityAction="login"|"password_change"|"mfa_change"|"session_revoke"|"sensitive_action";export type SecurityAuditEntry={id:DomainId;customerId:DomainId;action:SecurityAction;occurredAt:string;ipAddress?:string};
