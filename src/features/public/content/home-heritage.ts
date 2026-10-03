@@ -7,10 +7,6 @@
  * Photographs are freely licensed Wikimedia Commons images, credited below;
  * none depicts bank staff or customers.
  */
-import woodbrook from "@/assets/home/woodbrook.jpg";
-import savannah from "@/assets/home/savannah.jpg";
-import maracas from "@/assets/home/maracas.jpg";
-
 export type HomePhoto = {
   src: string;
   alt: string;
@@ -21,7 +17,7 @@ export type HomePhoto = {
 };
 
 export const HERO_PHOTO: HomePhoto = {
-  src: woodbrook,
+  src: "/images/home/woodbrook-1280w.jpg",
   alt: "Immeuble One Woodbrook Place dans le quartier de Woodbrook, à Port of Spain",
   caption: "Woodbrook, Port of Spain — le quartier de notre siège",
   credit: "Silverkid3",
@@ -31,7 +27,7 @@ export const HERO_PHOTO: HomePhoto = {
 
 export const PLACE_PHOTOS: HomePhoto[] = [
   {
-    src: savannah,
+    src: "/images/home/savannah-960w.jpg",
     alt: "Pelouse du Queen's Park Savannah à Port of Spain",
     caption: "Queen's Park Savannah, Port of Spain",
     credit: "Grueslayer",
@@ -39,7 +35,7 @@ export const PLACE_PHOTOS: HomePhoto[] = [
     sourceUrl: "https://commons.wikimedia.org/wiki/File:TnT_PoS_Queen%27s_Park_Savannah.jpg",
   },
   {
-    src: maracas,
+    src: "/images/home/maracas-960w.jpg",
     alt: "Baie de Maracas sur la côte nord de Trinidad",
     caption: "Maracas Bay, côte nord de Trinidad",
     credit: "Kalamazadkhan",
