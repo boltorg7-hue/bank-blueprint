@@ -33,6 +33,61 @@ const meta = publicMeta({
 
 const jsonLd = faqJsonLd(HOME_FAQ);
 
+const HOME_IMAGE_VARIANTS = {
+  woodbrook: {
+    avif: "/images/home/woodbrook-480w.avif 480w, /images/home/woodbrook-768w.avif 768w, /images/home/woodbrook-1024w.avif 1024w, /images/home/woodbrook-1280w.avif 1280w",
+    webp: "/images/home/woodbrook-480w.webp 480w, /images/home/woodbrook-768w.webp 768w, /images/home/woodbrook-1024w.webp 1024w, /images/home/woodbrook-1280w.webp 1280w",
+  },
+  savannah: {
+    avif: "/images/home/savannah-320w.avif 320w, /images/home/savannah-480w.avif 480w, /images/home/savannah-640w.avif 640w, /images/home/savannah-960w.avif 960w",
+    webp: "/images/home/savannah-320w.webp 320w, /images/home/savannah-480w.webp 480w, /images/home/savannah-640w.webp 640w, /images/home/savannah-960w.webp 960w",
+  },
+  maracas: {
+    avif: "/images/home/maracas-320w.avif 320w, /images/home/maracas-480w.avif 480w, /images/home/maracas-640w.avif 640w, /images/home/maracas-960w.avif 960w",
+    webp: "/images/home/maracas-320w.webp 320w, /images/home/maracas-480w.webp 480w, /images/home/maracas-640w.webp 640w, /images/home/maracas-960w.webp 960w",
+  },
+} as const;
+
+function HomeResponsiveImage({
+  name,
+  src,
+  alt,
+  width,
+  height,
+  sizes,
+  priority = false,
+  className,
+}: {
+  name: keyof typeof HOME_IMAGE_VARIANTS;
+  src: string;
+  alt: string;
+  width: number;
+  height: number;
+  sizes: string;
+  priority?: boolean;
+  className?: string;
+}) {
+  const variants = HOME_IMAGE_VARIANTS[name];
+
+  return (
+    <picture>
+      <source srcSet={variants.avif} sizes={sizes} type="image/avif" />
+      <source srcSet={variants.webp} sizes={sizes} type="image/webp" />
+      <img
+        src={src}
+        alt={alt}
+        width={width}
+        height={height}
+        sizes={sizes}
+        loading={priority ? "eager" : "lazy"}
+        fetchPriority={priority ? "high" : "low"}
+        decoding="async"
+        className={className}
+      />
+    </picture>
+  );
+}
+
 export const Route = createFileRoute("/")({
   head: () => ({ ...meta, ...jsonLd }),
   component: HomePage,
@@ -62,13 +117,15 @@ function HomePage() {
       <section className="bg-surface">
         <div className="mx-auto max-w-7xl sm:px-6 sm:pt-8">
           <figure className="relative sm:overflow-hidden sm:rounded-md">
-            <img
+            <HomeResponsiveImage
+              name="woodbrook"
               src={HERO_PHOTO.src}
               alt={HERO_PHOTO.alt}
-              width={1920}
-              height={1440}
+              width={1280}
+              height={960}
+              sizes="(max-width: 1279px) 100vw, 1280px"
+              priority
               className="h-[48svh] min-h-[320px] max-h-[520px] w-full object-cover object-center sm:h-[48vh]"
-              fetchPriority="high"
             />
             <div aria-hidden="true" className="absolute inset-0 bg-gradient-to-t from-primary/90 via-primary/15 to-transparent" />
             <div className="absolute inset-x-0 bottom-0 z-10 px-5 pb-6 text-primary-foreground sm:px-8 sm:pb-8">
@@ -158,11 +215,14 @@ function HomePage() {
         <div className="mt-8 grid grid-cols-[minmax(0,1fr)] gap-6 md:grid-cols-2">
           {PLACE_PHOTOS.map((photo) => (
             <figure key={photo.src} className="min-w-0">
-              <img
+              <HomeResponsiveImage
+                name={photo === PLACE_PHOTOS[0] ? "savannah" : "maracas"}
                 src={photo.src}
-                 alt={en ? (photo === PLACE_PHOTOS[0] ? "Queen's Park Savannah in Port of Spain" : "Maracas Bay on Trinidad's north coast") : photo.alt}
-                loading="lazy"
-               className="aspect-[3/2] w-full object-cover transition-transform duration-500 motion-safe:hover:scale-[1.01]"
+                alt={en ? (photo === PLACE_PHOTOS[0] ? "Queen's Park Savannah in Port of Spain" : "Maracas Bay on Trinidad's north coast") : photo.alt}
+                width={960}
+                height={640}
+                sizes="(max-width: 639px) 100vw, 50vw"
+                className="aspect-[3/2] w-full object-cover transition-transform duration-500 motion-safe:hover:scale-[1.01]"
               />
               <figcaption className="mt-2 flex flex-wrap justify-between gap-2">
                  <span className="text-caption text-foreground">{en ? photo.caption.replace("côte nord de Trinidad", "Trinidad's north coast") : photo.caption}</span>
