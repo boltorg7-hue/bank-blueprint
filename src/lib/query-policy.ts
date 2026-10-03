@@ -21,11 +21,13 @@ export const QUERY_POLICY = {
     gcTime: 60_000,
     refetchOnWindowFocus: true,
     retry: 1,
+    networkMode: "online",
   },
   SECURITY: {
     staleTime: 0,
     gcTime: 0,
     refetchOnWindowFocus: true,
     retry: 0,
+    networkMode: "online",
   },
 } as const;
