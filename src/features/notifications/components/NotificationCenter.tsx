@@ -26,8 +26,10 @@ const CATEGORY_LABEL: Record<string, string> = {
 export function NotificationCenter() {
   const { language } = useLanguage();
   const en = language === "en";
-  const q = useNotifications(), update = useUpdateNotification(), all = useMarkAllRead();
   const [filter, setFilter] = useState<string>("ALL");
+  const [cursor, setCursor] = useState<string | null>(null);
+  const [history, setHistory] = useState<string[]>([]);
+  const q = useNotifications(filter, cursor), update = useUpdateNotification(), all = useMarkAllRead();
   if (q.isPending) return <LoadingState label={en ? "Loading notifications…" : "Chargement des notifications…"} />;
   if (q.isError) return <ErrorState onRetry={() => q.refetch()} />;
   const items = q.data?.items ?? [];
