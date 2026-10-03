@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useLanguage } from "@/components/providers/LanguageProvider";
 
 import { AuthShell } from "@/features/auth/components/AuthShell";
 import { ResetPasswordForm } from "@/features/auth/components/ResetPasswordForm";
@@ -20,10 +21,12 @@ export const Route = createFileRoute("/reset-password")({
 });
 
 function ResetPasswordPage() {
+  const { language } = useLanguage();
+  const en = language === "en";
   return (
     <AuthShell
-      title="Nouveau mot de passe"
-      description="Choisissez un mot de passe que vous n'utilisez sur aucun autre service."
+      title={en ? "New password" : "Nouveau mot de passe"}
+      description={en ? "Choose a password you do not use on any other service." : "Choisissez un mot de passe que vous n'utilisez sur aucun autre service."}
     >
       <ResetPasswordForm />
     </AuthShell>

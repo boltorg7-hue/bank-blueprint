@@ -2,17 +2,16 @@ import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { CheckCircle2 } from "lucide-react";
 
+import { useLanguage } from "@/components/providers/LanguageProvider";
 import { Button } from "@/components/ui/button";
 import { PasswordField } from "@/features/auth/components/PasswordField";
 import { fieldErrorsFrom, resetPasswordSchema } from "@/features/auth/schemas/auth.schemas";
 import { genericErrorMessage } from "@/features/auth/lib/auth-errors";
 import { supabase } from "@/integrations/supabase/client";
 
-/**
- * Reset password screen (§22). The recovery session comes from the e-mail link;
- * success is confirmed explicitly instead of silently redirecting.
- */
 export function ResetPasswordForm() {
+  const { language } = useLanguage();
+  const en = language === "en";
   const [ready, setReady] = useState<"checking" | "ready" | "invalid">("checking");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [formError, setFormError] = useState<string | null>(null);
@@ -42,7 +41,7 @@ export function ResetPasswordForm() {
       confirmPassword: String(formData.get("confirmPassword") ?? ""),
     });
     if (!parsed.success) {
-      setErrors(fieldErrorsFrom(parsed.error));
+      setErrors(fieldErrorsFrom(parsed.error, en ? "en" : "fr"));
       return;
     }
     setErrors({});
@@ -50,7 +49,7 @@ export function ResetPasswordForm() {
     const { error } = await supabase.auth.updateUser({ password: parsed.data.password });
     setPending(false);
     if (error) {
-      setFormError(genericErrorMessage());
+      setFormError(genericErrorMessage(en ? "en" : "fr"));
       return;
     }
     setDone(true);
@@ -59,15 +58,12 @@ export function ResetPasswordForm() {
   if (done) {
     return (
       <div className="space-y-5">
-        <p
-          role="status"
-          className="text-body-sm flex items-start gap-2 rounded-xl border border-success/30 bg-success-muted px-4 py-3 text-foreground"
-        >
+        <p role="status" className="text-body-sm flex items-start gap-2 rounded-xl border border-success/30 bg-success-muted px-4 py-3 text-foreground">
           <CheckCircle2 className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
-          Votre mot de passe a été mis à jour.
+          {en ? "Your password has been updated." : "Votre mot de passe a été mis à jour."}
         </p>
         <Button asChild className="w-full touch-target">
-          <Link to="/onboarding">Continuer</Link>
+          <Link to="/onboarding">{en ? "Continue" : "Continuer"}</Link>
         </Button>
       </div>
     );
@@ -77,11 +73,12 @@ export function ResetPasswordForm() {
     return (
       <div className="space-y-5">
         <p className="text-body-sm rounded-xl border border-warning/30 bg-warning-muted px-4 py-3 text-foreground">
-          Ce lien de réinitialisation est invalide ou a expiré. Demandez un nouveau lien pour
-          continuer.
+          {en
+            ? "This reset link is invalid or has expired. Request a new link to continue."
+            : "Ce lien de réinitialisation est invalide ou a expiré. Demandez un nouveau lien pour continuer."}
         </p>
         <Button asChild variant="outline" className="w-full touch-target">
-          <Link to="/forgot-password">Demander un nouveau lien</Link>
+          <Link to="/forgot-password">{en ? "Request a new link" : "Demander un nouveau lien"}</Link>
         </Button>
       </div>
     );
@@ -91,14 +88,14 @@ export function ResetPasswordForm() {
     <form onSubmit={handleSubmit} noValidate className="space-y-5">
       <PasswordField
         name="password"
-        label="Nouveau mot de passe"
+        label={en ? "New password" : "Nouveau mot de passe"}
         autoComplete="new-password"
         error={errors["password"]}
         showRules
       />
       <PasswordField
         name="confirmPassword"
-        label="Confirmer le nouveau mot de passe"
+        label={en ? "Confirm new password" : "Confirmer le nouveau mot de passe"}
         autoComplete="new-password"
         error={errors["confirmPassword"]}
       />
@@ -112,7 +109,7 @@ export function ResetPasswordForm() {
         className="w-full touch-target"
         loading={pending || ready === "checking"}
       >
-        Mettre à jour mon mot de passe
+        {en ? "Update my password" : "Mettre à jour mon mot de passe"}
       </Button>
     </form>
   );

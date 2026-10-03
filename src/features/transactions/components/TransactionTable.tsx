@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 
 import { usePrivacyMode } from "@/components/providers/PrivacyModeProvider";
+import { useLanguage } from "@/components/providers/LanguageProvider";
 import { PRIVACY_PLACEHOLDER } from "@/lib/format/mask";
 import { StatusBadge } from "@/components/ui/status-badge";
 import {
@@ -27,20 +28,22 @@ import {
  */
 export function TransactionTable({ items }: { items: CustomerTransactionDto[] }) {
   const { privacyMode } = usePrivacyMode();
+  const { language } = useLanguage();
+  const en = language === "en";
 
   return (
     <div className="overflow-hidden rounded-xl border border-border bg-surface">
       <Table>
-        <caption className="sr-only">Historique de vos opérations, du plus récent au plus ancien</caption>
+        <caption className="sr-only">{en ? "Your transaction history, newest first" : "Historique de vos opérations, du plus récent au plus ancien"}</caption>
         <TableHeader>
           <TableRow>
-            <TableHead scope="col">Date</TableHead>
-            <TableHead scope="col">Libellé</TableHead>
-            <TableHead scope="col" className="whitespace-nowrap">Type</TableHead>
+            <TableHead scope="col">{en ? "Date" : "Date"}</TableHead>
+            <TableHead scope="col">{en ? "Description" : "Libellé"}</TableHead>
+            <TableHead scope="col" className="whitespace-nowrap">{en ? "Type" : "Type"}</TableHead>
             <TableHead scope="col" className="text-right whitespace-nowrap">
-              Montant
+              {en ? "Amount" : "Montant"}
             </TableHead>
-            <TableHead scope="col" className="whitespace-nowrap">Statut</TableHead>
+            <TableHead scope="col" className="whitespace-nowrap">{en ? "Status" : "Statut"}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -64,7 +67,7 @@ export function TransactionTable({ items }: { items: CustomerTransactionDto[] })
                 ) : null}
               </TableCell>
               <TableCell className="whitespace-nowrap text-muted-foreground">
-                {transactionTypeLabel(item.type, item.direction)}
+                {transactionTypeLabel(item.type, item.direction, en ? "en" : "fr")}
               </TableCell>
               <TableCell className="text-right whitespace-nowrap">
                 <span
@@ -74,6 +77,7 @@ export function TransactionTable({ items }: { items: CustomerTransactionDto[] })
                     item.currency,
                     item.minorUnit,
                     item.direction,
+                    en ? "en" : "fr",
                   )}
                 >
                   {privacyMode
@@ -88,7 +92,7 @@ export function TransactionTable({ items }: { items: CustomerTransactionDto[] })
               </TableCell>
               <TableCell className="whitespace-nowrap">
                 <StatusBadge
-                  label={transactionStatusLabel(item.status)}
+                  label={transactionStatusLabel(item.status, en ? "en" : "fr")}
                   tone={transactionStatusTone(item.status)}
                 />
               </TableCell>

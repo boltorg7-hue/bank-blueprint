@@ -1,4 +1,5 @@
 import { memo, useState } from "react";
+import { useLanguage } from "@/components/providers/LanguageProvider";
 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -16,11 +17,11 @@ import type { DocumentLifecycleStatus } from "@/features/statements/types/statem
 import { formatDateTime } from "@/lib/format/date";
 
 /** Customer document centre (PROMPT 09 §55 – §73). */
-const FILTERS: Array<{ value: DocumentFilter; label: string }> = [
-  { value: "ALL", label: "Tous" },
-  { value: "STATEMENTS", label: "Relevés" },
-  { value: "RECEIPTS", label: "Reçus" },
-  { value: "LETTERS", label: "Courriers" },
+const FILTERS: Array<{ value: DocumentFilter; label: string; labelEn: string }> = [
+  { value: "ALL", label: "Tous", labelEn: "All" },
+  { value: "STATEMENTS", label: "Relevés", labelEn: "Statements" },
+  { value: "RECEIPTS", label: "Reçus", labelEn: "Receipts" },
+  { value: "LETTERS", label: "Courriers", labelEn: "Letters" },
 ];
 
 const STATUS_TONE: Record<DocumentLifecycleStatus, "success" | "pending" | "failed" | "neutral"> = {
@@ -38,6 +39,8 @@ function fileSize(bytes: number | null): string | null {
 }
 
 const DocumentRow = memo(function DocumentRow({ document }: { document: CustomerDocumentDto }) {
+  const { language } = useLanguage();
+  const en = language === "en";
   const size = fileSize(document.sizeBytes);
   return (
     <Card className="space-y-3 p-4 sm:p-5">
@@ -59,9 +62,9 @@ const DocumentRow = memo(function DocumentRow({ document }: { document: Customer
 
       <p className="text-caption text-muted-foreground">
         {document.generatedAt
-          ? `Édité le ${formatDateTime(document.generatedAt)}`
-          : `Demandé le ${formatDateTime(document.createdAt)}`}
-        {document.version > 1 ? ` · version ${document.version}` : ""}
+          ? `${en ? "Edited" : "Édité"} ${en ? "on" : "le"} ${formatDateTime(document.generatedAt)}`
+          : `${en ? "Requested" : "Demandé"} ${en ? "on" : "le"} ${formatDateTime(document.createdAt)}`}
+        {document.version > 1 ? ` · ${en ? "version" : "version"} ${document.version}` : ""}
       </p>
 
       {document.status === "READY" ? <DocumentActions reference={document.reference} /> : null}
@@ -70,6 +73,8 @@ const DocumentRow = memo(function DocumentRow({ document }: { document: Customer
 });
 
 export function DocumentList() {
+  const { language } = useLanguage();
+  const en = language === "en";
   const [filter, setFilter] = useState<DocumentFilter>("ALL");
   const [cursor, setCursor] = useState<string | null>(null);
   const [history, setHistory] = useState<string[]>([]);
@@ -77,7 +82,7 @@ export function DocumentList() {
 
   return (
     <div className="space-y-4">
-      <div role="tablist" aria-label="Filtrer les documents" className="flex flex-wrap gap-2">
+      <div role="tablist" aria-label={en ? "Filter documents" : "Filtrer les documents"} className="flex flex-wrap gap-2">
         {FILTERS.map((entry) => (
           <Button
             key={entry.value}
@@ -88,7 +93,7 @@ export function DocumentList() {
             variant={filter === entry.value ? "default" : "outline"}
             onClick={() => { setFilter(entry.value); setCursor(null); setHistory([]); }}
           >
-            {entry.label}
+            {en ? entry.labelEn : entry.label}
           </Button>
         ))}
       </div>
@@ -99,16 +104,16 @@ export function DocumentList() {
         <ErrorState onRetry={() => void refetch()} />
       ) : !data || data.items.length === 0 ? (
         <EmptyState
-          title="Aucun document"
-          description="Vos relevés et reçus apparaîtront ici dès qu'ils seront édités."
+          title={en ? "No documents" : "Aucun document"}
+          description={en ? "Your statements and receipts will appear here when issued." : "Vos relevés et reçus apparaîtront ici dès qu'ils seront édités."}
         />
       ) : (
         <>
           {data.items.map((document) => <DocumentRow key={document.reference} document={document} />)}
           {(history.length > 0 || data.hasNext) ? (
             <div className="flex justify-end gap-2">
-              <Button variant="outline" disabled={!history.length} onClick={() => setHistory((items) => { const next = [...items]; setCursor(next.pop() || null); return next; })}>Précédent</Button>
-              <Button variant="outline" disabled={!data.hasNext} onClick={() => { if (!data.nextCursor) return; setHistory((items) => [...items, cursor ?? ""]); setCursor(data.nextCursor); }}>Suivant</Button>
+              <Button variant="outline" disabled={!history.length} onClick={() => setHistory((items) => { const next = [...items]; setCursor(next.pop() || null); return next; })}>{en ? "Previous" : "Précédent"}</Button>
+              <Button variant="outline" disabled={!data.hasNext} onClick={() => { if (!data.nextCursor) return; setHistory((items) => [...items, cursor ?? ""]); setCursor(data.nextCursor); }}>{en ? "Next" : "Suivant"}</Button>
             </div>
           ) : null}
         </>

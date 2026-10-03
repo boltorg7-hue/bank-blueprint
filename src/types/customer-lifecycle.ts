@@ -64,6 +64,24 @@ export const LIFECYCLE_LABELS: Record<CustomerLifecycleState, string> = {
   CLOSED: "Compte clôturé",
 };
 
+export const LIFECYCLE_LABELS_EN: Record<CustomerLifecycleState, string> = {
+  VISITOR: "Visitor",
+  REGISTERED: "Account created",
+  EMAIL_VERIFICATION_REQUIRED: "Email verification required",
+  CONTACT_VERIFICATION_REQUIRED: "Phone verification required",
+  PROFILE_INCOMPLETE: "Information to complete",
+  IDENTITY_REQUIRED: "Identity verification required",
+  IDENTITY_SUBMITTED: "Documents submitted",
+  IDENTITY_UNDER_REVIEW: "Verification in progress",
+  ADDITIONAL_DOCUMENT_REQUIRED: "Additional document requested",
+  IDENTITY_VERIFIED: "Identity verified",
+  BANKING_REVIEW: "Account opening under review",
+  ACTIVE: "Active account",
+  RESTRICTED: "Limited account",
+  SUSPENDED: "Suspended account",
+  CLOSED: "Closed account",
+};
+
 /**
  * Only ACTIVE customers may use transactional banking features.
  */

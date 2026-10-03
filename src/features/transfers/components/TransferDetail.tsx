@@ -53,10 +53,10 @@ export function TransferDetail({ reference }: { reference: string }) {
   const isTerminal = TERMINAL_TRANSFER_STATUSES.includes(data.status);
   /** Only an un-started transfer can still be confirmed or abandoned (§43). */
   const awaitingCustomer = data.status === "READY_FOR_CONFIRMATION" || data.status === "DRAFT";
-  const failureMessage = transferFailureMessage(data.failureCode);
+  const failureMessage = transferFailureMessage(data.failureCode, en ? "en" : "fr");
 
   const rows: Array<{ label: string; value: string }> = [
-    { label: en ? "Transfer type" : "Type de virement", value: en ? (data.kind === "EXTERNAL_TRANSFER" ? "External transfer" : "Internal transfer") : transferKindLabel(data.kind) },
+    { label: en ? "Transfer type" : "Type de virement", value: en ? (data.kind === "EXTERNAL_TRANSFER" ? "External transfer" : "Internal transfer") : transferKindLabel(data.kind, en ? "en" : "fr") },
     { label: en ? "Recipient" : "Bénéficiaire", value: data.recipientDisplay },
   ];
   if (data.destinationBankName) {
@@ -82,7 +82,7 @@ export function TransferDetail({ reference }: { reference: string }) {
             })}
           </p>
           <StatusBadge
-            label={transferStatusLabel(data.status)}
+            label={transferStatusLabel(data.status, en ? "en" : "fr")}
             tone={transferStatusTone(data.status)}
           />
           {failureMessage ? (
@@ -126,7 +126,7 @@ export function TransferDetail({ reference }: { reference: string }) {
               onClick={() =>
                 cancel.mutate(data.reference, {
                   onSuccess: () => toast.success(en ? "Transfer cancelled" : "Virement annulé"),
-                  onError: (error) => toast.error(transferErrorMessage(error)),
+                  onError: (error) => toast.error(transferErrorMessage(error, en ? "en" : "fr")),
                 })
               }
             >
@@ -142,10 +142,10 @@ export function TransferDetail({ reference }: { reference: string }) {
                     setConfirmationPassword("");
                      if (outcome.status === "COMPLETED") toast.success(en ? "Transfer completed" : "Virement exécuté");
                     else if (outcome.failureCode)
-                      toast.error(transferFailureMessage(outcome.failureCode) as string);
+                      toast.error(transferFailureMessage(outcome.failureCode, en ? "en" : "fr") as string);
                      else toast.success(en ? "Transfer submitted. Track its progress below." : "Virement transmis. Suivez son avancement ci-dessous.");
                   },
-                  onError: (error) => toast.error(transferErrorMessage(error)),
+                  onError: (error) => toast.error(transferErrorMessage(error, en ? "en" : "fr")),
                 });
               }}
             >
@@ -182,7 +182,7 @@ export function TransferDetail({ reference }: { reference: string }) {
         isRefreshing={refreshSettlement.isPending}
         onRefresh={() =>
           refreshSettlement.mutate(data.reference, {
-            onError: (error) => toast.error(transferErrorMessage(error)),
+            onError: (error) => toast.error(transferErrorMessage(error, en ? "en" : "fr")),
           })
         }
       />
@@ -204,7 +204,7 @@ export function TransferDetail({ reference }: { reference: string }) {
               />
               <div className="min-w-0">
                 <p className="text-sm font-medium text-foreground">
-                  {transferStatusLabel(event.status)}
+                  {transferStatusLabel(event.status, en ? "en" : "fr")}
                 </p>
                 <p className="text-caption text-muted-foreground">
                   {formatDateTime(event.occurredAt)}

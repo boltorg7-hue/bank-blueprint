@@ -49,8 +49,15 @@ const STATE_TONES: Record<TransferProgressState, ProgressTone> = {
   BLOCKED: "attention",
 };
 
-export function progressStateLabel(state: TransferProgressState): string {
-  return STATE_LABELS[state];
+const STATE_LABELS_EN: Record<TransferProgressState, string> = {
+  CREATED: "Transfer created", ACCOUNT_VALIDATED: "Account verified", FUNDS_VALIDATED: "Funds verified",
+  SECURITY_CONFIRMED: "Security confirmation completed", COMPLIANCE_CHECK: "Regulatory checks in progress",
+  DOCUMENT_REQUIRED: "Document required", DOCUMENT_REVIEW: "Document under review", FINAL_REVIEW: "Final bank review",
+  APPROVED: "Transfer approved", SETTLEMENT_PENDING: "Final confirmation pending", COMPLETED: "Transfer completed",
+  FAILED: "Transfer not completed", CANCELLED: "Transfer cancelled", BLOCKED: "Transfer suspended",
+};
+export function progressStateLabel(state: TransferProgressState, language: "fr" | "en" = "fr"): string {
+  return language === "en" ? STATE_LABELS_EN[state] : STATE_LABELS[state];
 }
 
 /** 99 % must never look like a success (§66). */
@@ -67,11 +74,12 @@ export function progressTone(transfer: {
 export function progressExplanation(
   transfer: Pick<TransferDto, "status" | "kind" | "progressState" | "progressPercent">,
   openRequirement?: TransferRequirementDto | undefined,
+  language: "fr" | "en" = "fr",
 ): string {
   if (transfer.status === "COMPLETED" && transfer.progressPercent === 100) {
-    return transfer.kind === "INTERNAL_TRANSFER"
-      ? "Le compte du bénéficiaire a été crédité. Le virement est terminé."
-      : "Le parcours de simulation du transfert externe est terminé.";
+    return language === "en"
+      ? transfer.kind === "INTERNAL_TRANSFER" ? "The recipient account has been credited. The transfer is complete." : "The simulated external transfer workflow is complete."
+      : transfer.kind === "INTERNAL_TRANSFER" ? "Le compte du bénéficiaire a été crédité. Le virement est terminé." : "Le parcours de simulation du transfert externe est terminé.";
   }
 
   switch (transfer.status) {
@@ -104,10 +112,12 @@ export function progressExplanation(
 export function progressAnnouncement(transfer: {
   progressPercent: number;
   progressState: TransferProgressState;
+  language?: "fr" | "en";
 }): string {
-  return `Progression du virement, ${transfer.progressPercent} pour cent, ${progressStateLabel(
-    transfer.progressState,
-  ).toLowerCase()}.`;
+  const language = transfer.language ?? "fr";
+  return language === "en"
+    ? `Transfer progress, ${transfer.progressPercent} percent, ${progressStateLabel(transfer.progressState, "en").toLowerCase()}.`
+    : `Progression du virement, ${transfer.progressPercent} pour cent, ${progressStateLabel(transfer.progressState, "fr").toLowerCase()}.`;
 }
 
 const REQUIREMENT_STATUS_LABELS: Record<TransferRequirementStatus, string> = {
@@ -120,8 +130,12 @@ const REQUIREMENT_STATUS_LABELS: Record<TransferRequirementStatus, string> = {
   EXPIRED: "Expiré",
 };
 
-export function requirementStatusLabel(status: TransferRequirementStatus): string {
-  return REQUIREMENT_STATUS_LABELS[status];
+const REQUIREMENT_STATUS_LABELS_EN: Record<TransferRequirementStatus, string> = {
+  REQUIRED: "Required", SUBMITTED: "Submitted", UNDER_REVIEW: "Under review", SATISFIED: "Accepted",
+  REPLACEMENT_REQUIRED: "Replacement required", WAIVED: "Not required", EXPIRED: "Expired",
+};
+export function requirementStatusLabel(status: TransferRequirementStatus, language: "fr" | "en" = "fr"): string {
+  return language === "en" ? REQUIREMENT_STATUS_LABELS_EN[status] : REQUIREMENT_STATUS_LABELS[status];
 }
 
 const REJECTION_MESSAGES: Record<string, string> = {
@@ -132,9 +146,14 @@ const REJECTION_MESSAGES: Record<string, string> = {
 };
 
 /** Customer-safe reason only: internal review notes are never exposed (§37). */
-export function rejectionMessage(code: string | null): string | null {
+const REJECTION_MESSAGES_EN: Record<string, string> = {
+  UNREADABLE: "The document could not be read.", EXPIRED: "The document provided has expired.",
+  WRONG_TYPE: "The document provided does not match the requested supporting document.",
+  INCOMPLETE: "The document provided was incomplete.",
+};
+export function rejectionMessage(code: string | null, language: "fr" | "en" = "fr"): string | null {
   if (!code) return null;
-  return REJECTION_MESSAGES[code] ?? "Le document fourni n'a pas pu être accepté.";
+  return language === "en" ? REJECTION_MESSAGES_EN[code] ?? "The document could not be accepted." : REJECTION_MESSAGES[code] ?? "Le document fourni n'a pas pu être accepté.";
 }
 
 export function openRequirement(

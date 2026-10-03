@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useLanguage } from "@/components/providers/LanguageProvider";
 import { Link } from "@tanstack/react-router";
 import { MoreHorizontal, Send, Trash2, UserRound } from "lucide-react";
 import { toast } from "sonner";
@@ -29,6 +30,8 @@ function beneficiaryLabel(beneficiary: BeneficiaryDto): string {
  * of the destination account are shown — never the full account number.
  */
 export function BeneficiaryList({ action }: { action?: React.ReactNode }) {
+  const { language } = useLanguage();
+  const en = language === "en";
   const { data, isPending, isError, refetch } = useBeneficiaries();
   const removeBeneficiary = useRemoveBeneficiary();
   const [pendingRemoval, setPendingRemoval] = useState<BeneficiaryDto | null>(null);
@@ -41,8 +44,8 @@ export function BeneficiaryList({ action }: { action?: React.ReactNode }) {
   if (beneficiaries.length === 0) {
     return (
       <EmptyState
-        title="Aucun bénéficiaire enregistré"
-        description="Enregistrez un compte destinataire pour préparer vos virements."
+        title={en ? "No beneficiaries saved" : "Aucun bénéficiaire enregistré"}
+        description={en ? "Save a recipient account to prepare transfers." : "Enregistrez un compte destinataire pour préparer vos virements."}
         action={action}
       />
     );
@@ -65,11 +68,11 @@ export function BeneficiaryList({ action }: { action?: React.ReactNode }) {
                   {beneficiaryLabel(beneficiary)}
                 </p>
                 <p className="text-caption truncate text-muted-foreground">
-                  Compte •••• {beneficiary.maskedNumber} · {beneficiary.currency}
+                  {en ? "Account" : "Compte"} •••• {beneficiary.maskedNumber} · {beneficiary.currency}
                 </p>
                 {beneficiary.lastUsedAt ? (
                   <p className="text-caption truncate text-muted-foreground">
-                    Dernier virement le {formatDate(beneficiary.lastUsedAt)}
+                    {en ? "Last transfer on " : "Dernier virement le "}{formatDate(beneficiary.lastUsedAt)}
                   </p>
                 ) : null}
               </div>
@@ -78,15 +81,15 @@ export function BeneficiaryList({ action }: { action?: React.ReactNode }) {
                   <Link
                     to="/app/transfers/new"
                     search={{ beneficiary: beneficiary.reference }}
-                    aria-label={`Envoyer un virement à ${beneficiaryLabel(beneficiary)}`}
+                    aria-label={`${en ? "Send a transfer to" : "Envoyer un virement à"} ${beneficiaryLabel(beneficiary)}`}
                   >
                     <Send className="size-4" aria-hidden="true" />
-                    <span className="hidden sm:inline">Envoyer</span>
+                    <span className="hidden sm:inline">{en ? "Send" : "Envoyer"}</span>
                   </Link>
                 </Button>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" aria-label="Autres actions">
+                    <Button variant="ghost" size="icon" aria-label={en ? "More actions" : "Autres actions"}>
                       <MoreHorizontal className="size-4" aria-hidden="true" />
                     </Button>
                   </DropdownMenuTrigger>
@@ -108,9 +111,9 @@ export function BeneficiaryList({ action }: { action?: React.ReactNode }) {
         onOpenChange={(open) => {
           if (!open) setPendingRemoval(null);
         }}
-        title="Supprimer ce bénéficiaire ?"
-        description="Les virements déjà exécutés vers ce bénéficiaire restent visibles dans votre historique."
-        confirmLabel="Supprimer"
+        title={en ? "Delete this beneficiary?" : "Supprimer ce bénéficiaire ?"}
+        description={en ? "Transfers already executed to this beneficiary remain visible in your history." : "Les virements déjà exécutés vers ce bénéficiaire restent visibles dans votre historique."}
+        confirmLabel={en ? "Delete" : "Supprimer"}
         tone="danger"
         loading={removeBeneficiary.isPending}
         onConfirm={() => {

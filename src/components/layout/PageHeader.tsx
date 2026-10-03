@@ -3,6 +3,7 @@ import { Link } from "@tanstack/react-router";
 import { ArrowLeft } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { useLanguage } from "@/components/providers/LanguageProvider";
 import type { AppPath } from "@/lib/routing";
 
 export function PageHeader({
@@ -20,12 +21,13 @@ export function PageHeader({
   context?: ReactNode;
   backTo?: AppPath;
 }) {
+  const { language } = useLanguage();
   return (
     <header className="mb-6 grid min-w-0 grid-cols-1 gap-4 sm:mb-8 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-start">
       <div className="flex min-w-0 items-start gap-2.5 sm:gap-3">
         {backTo ? (
           <Button variant="ghost" size="icon" className="touch-target -ml-2 shrink-0" asChild>
-            <Link to={backTo} aria-label="Retour">
+            <Link to={backTo} aria-label={language === "en" ? "Back" : "Retour"}>
               <ArrowLeft className="size-5" aria-hidden="true" />
             </Link>
           </Button>

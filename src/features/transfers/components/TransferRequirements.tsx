@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import { useLanguage } from "@/components/providers/LanguageProvider";
 import { FileCheck2, Upload } from "lucide-react";
 import { toast } from "sonner";
 
@@ -46,15 +47,16 @@ export function TransferRequirements({
   requirements: TransferRequirementDto[];
   documents: TransferDocumentDto[];
 }) {
+  const { language } = useLanguage();
+  const en = language === "en";
   if (requirements.length === 0) return null;
 
   return (
     <Card className="space-y-4 p-4 sm:p-5">
       <div>
-        <h2 className="text-sm font-semibold text-foreground">Justificatifs demandés</h2>
+        <h2 className="text-sm font-semibold text-foreground">{en ? "Required documents" : "Justificatifs demandés"}</h2>
         <p className="text-caption text-muted-foreground">
-          Ces documents sont exigés par la réglementation avant l'exécution du virement. Le montant
-          reste réservé sur votre compte pendant l'examen.
+          {en ? "These documents are required before the transfer can be executed. The amount remains reserved in your account during the review." : "Ces documents sont exigés par la réglementation avant l'exécution du virement. Le montant reste réservé sur votre compte pendant l'examen."}
         </p>
       </div>
 
@@ -65,6 +67,7 @@ export function TransferRequirements({
               reference={reference}
               requirement={requirement}
               documents={documents.filter((doc) => doc.requirementId === requirement.id)}
+              en={en}
             />
           </li>
         ))}
@@ -77,10 +80,12 @@ function RequirementRow({
   reference,
   requirement,
   documents,
+  en,
 }: {
   reference: string;
   requirement: TransferRequirementDto;
   documents: TransferDocumentDto[];
+  en: boolean;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [error, setError] = useState<string | null>(null);
@@ -88,7 +93,7 @@ function RequirementRow({
 
   const isOpen =
     requirement.status === "REQUIRED" || requirement.status === "REPLACEMENT_REQUIRED";
-  const refusal = rejectionMessage(requirement.rejectionReasonCode);
+  const refusal = rejectionMessage(requirement.rejectionReasonCode, en ? "en" : "fr");
 
   return (
     <div className="rounded-lg border border-border p-3">
@@ -99,18 +104,18 @@ function RequirementRow({
             <p className="text-caption text-muted-foreground">{requirement.description}</p>
           ) : null}
           <p className="text-caption text-muted-foreground">
-            Demandé le {formatDateTime(requirement.requestedAt)}
+            {en ? "Requested on" : "Demandé le"} {formatDateTime(requirement.requestedAt)}
           </p>
         </div>
         <StatusBadge
-          label={requirementStatusLabel(requirement.status)}
+          label={requirementStatusLabel(requirement.status, en ? "en" : "fr")}
           tone={STATUS_TONES[requirement.status]}
         />
       </div>
 
       {refusal ? (
         <p role="alert" className="text-caption mt-2 text-danger">
-          {refusal} Transmettez un nouveau document pour poursuivre.
+          {refusal} {en ? "Submit a new document to continue." : "Transmettez un nouveau document pour poursuivre."}
         </p>
       ) : null}
 
@@ -123,7 +128,7 @@ function RequirementRow({
             >
               <FileCheck2 className="size-4 shrink-0" aria-hidden="true" />
               <span className="truncate">
-                {document.originalFilename ?? "Document transmis"} ·{" "}
+                {document.originalFilename ?? (en ? "Submitted document" : "Document transmis")} ·{" "}
                 {formatDateTime(document.uploadedAt)}
               </span>
             </li>
@@ -138,23 +143,23 @@ function RequirementRow({
             type="file"
             className="sr-only"
             accept={ACCEPTED}
-            aria-label={`Transmettre le justificatif : ${requirement.title}`}
+            aria-label={`${en ? "Upload document" : "Transmettre le justificatif"} : ${requirement.title}`}
             onChange={(event) => {
               const file = event.target.files?.[0];
               event.target.value = "";
               if (!file) return;
               setError(null);
               if (file.size > MAX_BYTES) {
-                setError("Le fichier dépasse 15 Mo. Transmettez une version plus légère.");
+                setError(en ? "The file exceeds 15 MB. Upload a smaller version." : "Le fichier dépasse 15 Mo. Transmettez une version plus légère.");
                 return;
               }
               upload.mutate(
                 { reference, requirementId: requirement.id, file },
                 {
                   onSuccess: () =>
-                    toast.success("Document transmis. Nos équipes procèdent à sa vérification."),
+                    toast.success(en ? "Document submitted. Our team will review it." : "Document transmis. Nos équipes procèdent à sa vérification."),
                   onError: () =>
-                    setError("L'envoi n'a pas abouti. Vérifiez le fichier, puis réessayez."),
+                    setError(en ? "Upload failed. Check the file and try again." : "L'envoi n'a pas abouti. Vérifiez le fichier, puis réessayez."),
                 },
               );
             }}
@@ -171,11 +176,10 @@ function RequirementRow({
             ) : (
               <Upload className="size-4" aria-hidden="true" />
             )}
-            {upload.isPending ? "Envoi en cours…" : "Transmettre le document"}
+            {upload.isPending ? (en ? "Uploading…" : "Envoi en cours…") : (en ? "Upload document" : "Transmettre le document")}
           </Button>
           <p className="text-caption text-muted-foreground">
-            Formats acceptés : JPG, PNG, HEIC ou PDF, jusqu'à 15 Mo. Vos documents restent privés et
-            ne sont consultables que par les équipes habilitées de la banque.
+            {en ? "Accepted formats: JPG, PNG, HEIC or PDF, up to 15 MB. Your documents remain private and are only accessible to authorized bank staff." : "Formats acceptés : JPG, PNG, HEIC ou PDF, jusqu'à 15 Mo. Vos documents restent privés et ne sont consultables que par les équipes habilitées de la banque."}
           </p>
           {error ? (
             <p role="alert" className="text-caption text-danger">

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useLanguage } from "@/components/providers/LanguageProvider";
 import { AlertTriangle, UserPlus } from "lucide-react";
 import { toast } from "sonner";
 
@@ -34,6 +35,8 @@ export function AddBeneficiaryDialog({
   trigger?: React.ReactNode;
   onAdded?: (reference: string) => void;
 }) {
+  const { language } = useLanguage();
+  const en = language === "en";
   const [open, setOpen] = useState(false);
   const [identifier, setIdentifier] = useState("");
   const [nickname, setNickname] = useState("");
@@ -65,7 +68,7 @@ export function AddBeneficiaryDialog({
         {trigger ?? (
           <Button>
             <UserPlus className="size-4" aria-hidden="true" />
-            Ajouter un bénéficiaire
+            {en ? "Add beneficiary" : "Ajouter un bénéficiaire"}
           </Button>
         )}
       </DialogTrigger>
@@ -73,14 +76,14 @@ export function AddBeneficiaryDialog({
         <DialogHeader>
           <DialogTitle>Ajouter un bénéficiaire</DialogTitle>
           <DialogDescription>
-            Enregistrez un compte détenu chez nous à partir de son numéro de compte ou de son IBAN.
+            {en ? "Register an account held with us using its account number or IBAN." : "Enregistrez un compte détenu chez nous à partir de son numéro de compte ou de son IBAN."}
           </DialogDescription>
         </DialogHeader>
 
         {resolved === null ? (
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="beneficiary-identifier">Numéro de compte ou IBAN</Label>
+              <Label htmlFor="beneficiary-identifier">{en ? "Account number or IBAN" : "Numéro de compte ou IBAN"}</Label>
               <Input
                 id="beneficiary-identifier"
                 autoComplete="off"
@@ -90,12 +93,11 @@ export function AddBeneficiaryDialog({
                   setIdentifier(event.target.value);
                   setError(null);
                 }}
-                placeholder="Ex. 0012345678 ou TT00RFC…"
+                placeholder={en ? "e.g. 0012345678 or TT00RFC…" : "Ex. 0012345678 ou TT00RFC…"}
                 aria-invalid={error !== null || undefined}
               />
               <p className="text-caption text-muted-foreground">
-                Nous vérifions le compte avant tout enregistrement. Aucun virement n'est déclenché à
-                cette étape.
+                {en ? "We verify the account before registering it. No transfer is initiated at this stage." : "Nous vérifions le compte avant tout enregistrement. Aucun virement n'est déclenché à cette étape."}
               </p>
             </div>
 
@@ -108,7 +110,7 @@ export function AddBeneficiaryDialog({
 
             <DialogFooter className="flex-col-reverse gap-2 sm:flex-row">
               <Button variant="outline" onClick={() => setOpen(false)} className="w-full sm:w-auto">
-                Annuler
+                {en ? "Cancel" : "Annuler"}
               </Button>
               <Button
                 className="w-full sm:w-auto"
@@ -119,45 +121,45 @@ export function AddBeneficiaryDialog({
                     onSuccess: (result) => {
                       if (!result) {
                         setError(
-                          "Aucun compte actif ne correspond à cet identifiant. Vérifiez la saisie auprès du bénéficiaire.",
+                          en ? "No active account matches this identifier. Check the details with the beneficiary." : "Aucun compte actif ne correspond à cet identifiant.",
                         );
                         return;
                       }
                       setResolved(result);
                     },
                     onError: () =>
-                      setError("La vérification n'a pas abouti. Vous pouvez réessayer."),
+                      setError(en ? "Verification failed. Please try again." : "La vérification n'a pas abouti. Vous pouvez réessayer."),
                   });
                 }}
               >
                 {resolve.isPending ? <Spinner className="size-4" /> : null}
-                Vérifier le compte
+                {en ? "Verify account" : "Vérifier le compte"}
               </Button>
             </DialogFooter>
           </div>
         ) : (
           <div className="space-y-4">
             <div className="rounded-lg border border-border bg-surface-sunken p-3">
-              <p className="text-caption text-muted-foreground">Compte vérifié</p>
+              <p className="text-caption text-muted-foreground">{en ? "Account verified" : "Compte vérifié"}</p>
               <p className="text-sm font-semibold text-foreground">{resolved.displayName}</p>
               <p className="text-caption text-muted-foreground">
-                Compte •••• {resolved.maskedNumber} · {resolved.currency}
+                {en ? "Account" : "Compte"} •••• {resolved.maskedNumber} · {resolved.currency}
               </p>
               {resolved.isOwnAccount ? (
                 <p className="text-caption mt-2 text-info">
-                  Ce compte vous appartient : il apparaîtra comme un virement entre vos comptes.
+                  {en ? "This account belongs to you: it will appear as a transfer between your accounts." : "Ce compte vous appartient : il apparaîtra comme un virement entre vos comptes."}
                 </p>
               ) : null}
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="beneficiary-nickname">Libellé (optionnel)</Label>
+              <Label htmlFor="beneficiary-nickname">{en ? "Label (optional)" : "Libellé (optionnel)"}</Label>
               <Input
                 id="beneficiary-nickname"
                 value={nickname}
                 maxLength={60}
                 onChange={(event) => setNickname(event.target.value)}
-                placeholder="Ex. Loyer, Épargne famille"
+                placeholder={en ? "e.g. Rent, Family savings" : "Ex. Loyer, Épargne famille"}
               />
             </div>
 
@@ -174,7 +176,7 @@ export function AddBeneficiaryDialog({
                 className="w-full sm:w-auto"
                 onClick={() => setResolved(null)}
               >
-                Modifier la saisie
+                {en ? "Edit details" : "Modifier la saisie"}
               </Button>
               <Button
                 className="w-full sm:w-auto"
@@ -184,21 +186,21 @@ export function AddBeneficiaryDialog({
                     { identifier: normalized, nickname: nickname.trim() || null },
                     {
                       onSuccess: (created) => {
-                        toast.success("Bénéficiaire enregistré");
+                        toast.success(en ? "Beneficiary saved" : "Bénéficiaire enregistré");
                         setOpen(false);
                         reset();
                         onAdded?.(created.reference);
                       },
                       onError: () =>
                         setError(
-                          "L'enregistrement n'a pas abouti. Vérifiez le statut de votre compte, puis réessayez.",
+                          en ? "The beneficiary could not be saved. Check your account status and try again." : "L'enregistrement n'a pas abouti. Vérifiez le statut de votre compte, puis réessayez.",
                         ),
                     },
                   )
                 }
               >
                 {add.isPending ? <Spinner className="size-4" /> : null}
-                Enregistrer le bénéficiaire
+                {en ? "Save beneficiary" : "Enregistrer le bénéficiaire"}
               </Button>
             </DialogFooter>
           </div>

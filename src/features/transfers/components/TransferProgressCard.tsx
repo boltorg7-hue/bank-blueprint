@@ -1,4 +1,5 @@
 import { AlertTriangle, CheckCircle2, Clock, ShieldAlert } from "lucide-react";
+import { useLanguage } from "@/components/providers/LanguageProvider";
 
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -32,9 +33,11 @@ export function TransferProgressCard({
   onRefresh?: () => void;
   isRefreshing?: boolean;
 }) {
+  const { language } = useLanguage();
+  const en = language === "en";
   const tone = progressTone(transfer);
   const requirement = openRequirement(transfer.requirements);
-  const explanation = progressExplanation(transfer, requirement);
+  const explanation = progressExplanation(transfer, requirement, en ? "en" : "fr");
 
   const barClass =
     tone === "success"
@@ -74,9 +77,9 @@ export function TransferProgressCard({
         <Icon className={cn("mt-0.5 size-5 shrink-0", iconColour)} aria-hidden="true" />
         <div className="min-w-0 flex-1">
           <p className="text-sm font-semibold text-foreground">
-            {progressStateLabel(transfer.progressState)}
+            {progressStateLabel(transfer.progressState, en ? "en" : "fr")}
           </p>
-          <p className="text-caption text-muted-foreground">{transferKindLabel(transfer.kind)}</p>
+          <p className="text-caption text-muted-foreground">{transferKindLabel(transfer.kind, en ? "en" : "fr")}</p>
         </div>
         <p className="text-amount shrink-0 text-sm font-semibold text-foreground">
           {transfer.progressPercent} %
@@ -91,7 +94,7 @@ export function TransferProgressCard({
         />
         {/* Progress is never conveyed by colour or position alone (§91). */}
         <p className="sr-only" role="status">
-          {progressAnnouncement(transfer)}
+          {progressAnnouncement({ ...transfer, language: en ? "en" : "fr" })}
         </p>
       </div>
 
@@ -99,21 +102,19 @@ export function TransferProgressCard({
 
       {transfer.settlementIsSimulated && transfer.kind === "EXTERNAL_TRANSFER" ? (
         <p className="text-caption rounded-lg border border-border bg-surface-sunken p-3 text-muted-foreground">
-          Ce virement suit un circuit de règlement de démonstration : aucun mouvement de fonds réel
-          n'a lieu vers une autre banque tant que la banque n'a pas raccordé le réseau définitif.
+          {en ? "This transfer uses a demonstration settlement route: no real funds move to another bank until the final network is connected." : "Ce virement suit un circuit de règlement de démonstration : aucun mouvement de fonds réel n'a lieu vers une autre banque tant que la banque n'a pas raccordé le réseau définitif."}
         </p>
       ) : null}
 
       {transfer.fundsReserved && transfer.status !== "COMPLETED" ? (
         <p className="text-caption text-muted-foreground">
-          Le montant est réservé sur votre compte : il n'est plus disponible pour une autre
-          opération, mais il n'est définitivement débité qu'à l'issue du virement.
+          {en ? "The amount is reserved in your account: it is unavailable for another operation but is only finally debited when the transfer completes." : "Le montant est réservé sur votre compte : il n'est plus disponible pour une autre opération, mais il n'est définitivement débité qu'à l'issue du virement."}
         </p>
       ) : null}
 
       {transfer.finalizedAt ? (
         <p className="text-caption text-muted-foreground">
-          Dernière étape enregistrée le {formatDateTime(transfer.finalizedAt)}.
+          {en ? "Last recorded step on" : "Dernière étape enregistrée le"} {formatDateTime(transfer.finalizedAt)}.
         </p>
       ) : null}
 
@@ -126,7 +127,7 @@ export function TransferProgressCard({
           onClick={onRefresh}
         >
           {isRefreshing ? <Spinner className="size-4" /> : null}
-          Actualiser le suivi
+          {en ? "Refresh status" : "Actualiser le suivi"}
         </Button>
       ) : null}
     </Card>

@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { resolvePostLoginRoute } from "@/features/auth/lib/post-login";
 import { checkConfirmationLink } from "@/features/auth/services/email-confirmation.functions";
+import { useLanguage } from "@/components/providers/LanguageProvider";
 
 /**
  * Public authentication callback (§26).
@@ -34,6 +35,7 @@ function AuthCallbackPage() {
   const { redirect, next, v } = Route.useSearch();
   const [failed, setFailed] = useState(false);
   const [stale, setStale] = useState(false);
+  const { language } = useLanguage();
 
   useEffect(() => {
     let active = true;
@@ -83,11 +85,11 @@ function AuthCallbackPage() {
   if (stale) {
     return (
       <AuthShell
-        title="Lien expiré / Link expired"
-        description="Ce lien a été remplacé par un envoi plus récent. Utilisez le dernier e-mail reçu. — This link was replaced by a newer one; use the latest email."
+        title={language === "en" ? "Link expired" : "Lien expiré"}
+        description={language === "en" ? "This link was replaced by a newer one. Use the latest email you received." : "Ce lien a été remplacé par un envoi plus récent. Utilisez le dernier e-mail reçu."}
       >
         <Button className="w-full touch-target" onClick={() => void navigate({ to: "/verify-email" })}>
-          Recevoir un nouveau lien / Get a new link
+          {language === "en" ? "Get a new link" : "Recevoir un nouveau lien"}
         </Button>
       </AuthShell>
     );
@@ -96,21 +98,21 @@ function AuthCallbackPage() {
   if (failed) {
     return (
       <AuthShell
-        title="Connexion incomplète"
-        description="Nous n'avons pas pu finaliser votre connexion. Réessayez depuis la page de connexion."
+        title={language === "en" ? "Incomplete sign-in" : "Connexion incomplète"}
+        description={language === "en" ? "We could not complete your sign-in. Please try again from the sign-in page." : "Nous n'avons pas pu finaliser votre connexion. Réessayez depuis la page de connexion."}
       >
         <Button className="w-full touch-target" onClick={() => void navigate({ to: "/login" })}>
-          Retour à la connexion
+          {language === "en" ? "Back to sign-in" : "Retour à la connexion"}
         </Button>
       </AuthShell>
     );
   }
 
   return (
-    <AuthShell title="Connexion en cours" description="Nous préparons votre espace sécurisé.">
+    <AuthShell title={language === "en" ? "Signing you in" : "Connexion en cours"} description={language === "en" ? "We are preparing your secure banking space." : "Nous préparons votre espace sécurisé."}>
       <div className="flex items-center gap-3 text-muted-foreground">
         <Spinner className="size-5" />
-        <span className="text-body-sm">Un instant…</span>
+        <span className="text-body-sm">{language === "en" ? "One moment…" : "Un instant…"}</span>
       </div>
     </AuthShell>
   );

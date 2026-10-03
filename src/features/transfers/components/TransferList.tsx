@@ -130,11 +130,11 @@ export function TransferList({ action }: { action?: React.ReactNode }) {
                       </p>
                       <p className="text-caption truncate text-muted-foreground">
                         {formatDateTime(transfer.createdAt)} ·{" "}
-                        {transferKindShortLabel(transfer.kind)}
+                        {transferKindShortLabel(transfer.kind, language === "en" ? "en" : "fr")}
                       </p>
                       <div className="mt-1 flex flex-wrap items-center gap-2">
                         <StatusBadge
-                          label={transferStatusLabel(transfer.status)}
+                          label={transferStatusLabel(transfer.status, language === "en" ? "en" : "fr")}
                           tone={transferStatusTone(transfer.status)}
                         />
                         {!TERMINAL_TRANSFER_STATUSES.includes(transfer.status) ? (
