@@ -754,3 +754,79 @@ test("5.8.8.7 ne laisse pas de reliquats de debug ou de maintenance explicite", 
     walk(directory);
   }
 });
+
+test("5.8.8.8 certifie la cohérence globale des primitives, shells, états et surfaces", () => {
+  const button = read("src/components/ui/button.tsx");
+  const input = read("src/components/ui/input.tsx");
+  const textarea = read("src/components/ui/textarea.tsx");
+  const select = read("src/components/ui/select.tsx");
+  const tabs = read("src/components/ui/tabs.tsx");
+  const feedback = read("src/components/feedback/index.tsx");
+  const state = read("src/components/feedback/StateBlock.tsx");
+  const pageHeader = read("src/components/layout/PageHeader.tsx");
+  const banking = read("src/components/layout/BankingAppLayout.tsx");
+  const admin = read("src/components/layout/AdminLayout.tsx");
+  const sidebar = read("src/components/navigation/AdminSidebar.tsx");
+  const table = read("src/components/ui/table.tsx");
+  const dialog = read("src/components/ui/dialog.tsx");
+  const sheet = read("src/components/ui/sheet.tsx");
+  const account = read("src/features/accounts/components/AccountListItem.tsx");
+  const more = read("src/routes/app.more.tsx");
+  const adminDashboard = read("src/routes/admin.dashboard.tsx");
+  const adminFunding = read("src/routes/admin.funding.tsx");
+  const onboarding = read("src/routes/admin.onboarding-cases.tsx");
+
+  for (const source of [button, input, textarea, select, tabs]) {
+    assert.match(source, /focus-visible:ring-2 focus-visible:ring-ring/);
+    assert.match(source, /motion-safe:transition-/);
+    assert.match(source, /duration-150/);
+  }
+
+  assert.match(button, /min-h-11/);
+  assert.match(input, /min-h-11/);
+  assert.match(textarea, /min-h-\[60px\]/);
+  assert.match(select, /min-h-11 w-full/);
+  assert.match(tabs, /min-h-11/);
+
+  assert.match(feedback, /min-h-24/);
+  assert.match(feedback, /motion-reduce:transition-none/);
+  assert.match(state, /min-h-44/);
+  assert.match(state, /motion-reduce:transition-none/);
+
+  assert.match(pageHeader, /text-heading-xl text-balance text-foreground/);
+  assert.match(account, /native-surface/);
+  assert.match(more, /text-overline/);
+
+  for (const source of [banking, admin]) {
+    assert.match(source, /min-w-0 flex-1/);
+    assert.match(source, /overscroll-x-none/);
+  }
+
+  assert.match(sidebar, /text-overline text-muted-foreground/);
+  assert.match(table, /motion-safe:transition-\[background-color,border-color\]/);
+  assert.match(table, /motion-reduce:transition-none/);
+  assert.match(adminDashboard, /native-surface/);
+  assert.match(adminFunding, /<PageSection>[\s\S]*<PageHeader/);
+  assert.match(onboarding, /native-surface/);
+
+  assert.match(dialog, /w-\[calc\(100vw-2rem\)\]/);
+  assert.match(dialog, /max-h-\[calc\(100dvh-2rem\)\]/);
+  assert.match(dialog, /overflow-y-auto/);
+  assert.match(sheet, /max-w-full overflow-y-auto overscroll-contain/);
+  assert.match(sheet, /max-h-\[92dvh\]/);
+
+  for (const directory of ["src", "scripts", "supabase"]) {
+    const walk = (path) => {
+      for (const entry of readdirSync(new URL(`${path}/`, root), { withFileTypes: true })) {
+        const child = join(path, entry.name);
+        if (entry.isDirectory()) walk(child);
+        else if (/\.(?:ts|tsx|js|mjs|sql)$/.test(entry.name)) {
+          const source = read(child);
+          assert.doesNotMatch(source, /(^|\s)(TODO|FIXME|debugger)(\s|:|$)/);
+          assert.doesNotMatch(source, /console\.(log|debug|info|warn|error)\s*\(/);
+        }
+      }
+    };
+    walk(directory);
+  }
+});
