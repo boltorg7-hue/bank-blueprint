@@ -1,4 +1,5 @@
 import { ArrowDownLeft, ArrowUpRight } from "lucide-react";
+import { useLanguage } from "@/components/providers/LanguageProvider";
 
 import { EmptyState } from "@/components/feedback";
 import { StatusBadge, type StatusTone } from "@/components/ui/status-badge";
@@ -13,19 +14,21 @@ import type { ActivitySummaryItemDto } from "@/features/accounts/types/account";
  * substitute for the full transaction history (PROMPT 07).
  */
 const STATUS: Record<ActivitySummaryItemDto["status"], { label: string; tone: StatusTone }> = {
-  POSTED: { label: "Comptabilisé", tone: "success" },
-  PENDING: { label: "En cours", tone: "pending" },
-  FAILED: { label: "Échoué", tone: "failed" },
+  POSTED: { label: en ? "Posted" : "Comptabilisé", tone: "success" },
+  PENDING: { label: en ? "Pending" : "En cours", tone: "pending" },
+  FAILED: { label: en ? "Failed" : "Échoué", tone: "failed" },
 };
 
 export function RecentActivityList({ items }: { items: ActivitySummaryItemDto[] }) {
+  const { language } = useLanguage();
+  const en = language === "en";
   const { privacyMode } = usePrivacyMode();
 
   if (items.length === 0) {
     return (
       <EmptyState
-        title="Aucune opération pour le moment"
-        description="Dès qu'une opération sera enregistrée sur votre compte, elle apparaîtra ici."
+        title={en ? "No activity yet" : "Aucune opération pour le moment"}
+        description={en ? "Activity will appear here as soon as an operation is recorded on your account." : "Dès qu'une opération sera enregistrée sur votre compte, elle apparaîtra ici."}
       />
     );
   }
