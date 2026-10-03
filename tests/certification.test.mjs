@@ -568,6 +568,19 @@ test("les cinq dépendances lourdes restent documentées comme modules ciblés d
 });
 
 
+test("les interactions modernes respectent feedback, accessibilité et réduction de mouvement", () => {
+  const button = read("src/components/ui/button.tsx");
+  const dialog = read("src/components/ui/dialog.tsx");
+  const sheet = read("src/components/ui/sheet.tsx");
+  const select = read("src/components/ui/select.tsx");
+
+  assert.match(button, /role="status" aria-live="polite"/);
+  assert.match(button, /aria-busy=\{loading \|\| undefined\}/);
+  assert.match(dialog, /motion-reduce:animate-none/);
+  assert.match(sheet, /motion-reduce:animate-none/);
+  assert.match(select, /motion-reduce:animate-none/);
+});
+
 test("la plateforme supporte un thème adaptatif 2026 sans décalage entre préférence système et interface", () => {
   const theme = read("src/components/providers/ThemeProvider.tsx");
   const preferences = read("src/features/profile/components/PreferencesPage.tsx");
