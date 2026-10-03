@@ -41,7 +41,7 @@ export function FundingConsole() {
   async function submit(event: React.FormEvent) {
     event.preventDefault();
     setTouched({ account: true, amount: true, reason: true });
-    const decimalPattern = /^\\d+(?:[.,]\\d{1,2})?$/;
+    const decimalPattern = /^\d+(?:[.,]\d{1,2})?$/;
     const decimal = Number(amount.replace(",", "."));
     if (!accountReference || !decimalPattern.test(amount.trim()) || !Number.isFinite(decimal) || decimal <= 0 || reason.trim().length < 8) {
       toast.error(en ? "Check the account, amount and reason (at least 8 characters)." : "Vérifiez le compte, le montant et le motif (8 caractères minimum).");
@@ -185,7 +185,7 @@ export function FundingConsole() {
                   placeholder="1000,00"
                   aria-invalid={
                     touched.amount &&
-                    (!/^\\d+(?:[.,]\\d{1,2})?$/.test(amount.trim()) || Number(amount.replace(",", ".")) <= 0) || undefined
+                    (!/^\d+(?:[.,]\d{1,2})?$/.test(amount.trim()) || Number(amount.replace(",", ".")) <= 0) || undefined
                   }
                 />
                 {touched.amount ? (
