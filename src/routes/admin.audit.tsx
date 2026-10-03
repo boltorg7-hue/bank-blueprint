@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useLanguage } from "@/components/providers/LanguageProvider";
 import { EmptyState, ErrorState, LoadingState } from "@/components/feedback";
 import { PageHeader } from "@/components/layout/PageHeader";
+import { PageSection } from "@/components/ui/page-section";
 import { Input } from "@/components/ui/input";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { AdminGate } from "@/features/admin/components/AdminGate";
