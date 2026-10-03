@@ -24,14 +24,14 @@ function AdminCustomersPage() {
   const [lifecycle, setLifecycle] = useState<"ALL" | CustomerLifecycleState>("ALL");
   const [accounts, setAccounts] = useState<"ALL" | "WITH_ACCOUNTS" | "WITHOUT_ACCOUNTS">("ALL");
   const [attention, setAttention] = useState<"ALL" | "NEEDS_ATTENTION" | "CLEAR">("ALL");
-  const [page, setPage] = useState(1);
+  const [cursor, setCursor] = useState<string | null>(null);\n  const [cursorHistory, setCursorHistory] = useState<string[]>([]);
 
   useEffect(() => {
     const timer = window.setTimeout(() => setDebouncedSearch(search.trim()), 250);
     return () => window.clearTimeout(timer);
   }, [search]);
 
-  const query = useAdminCustomers(debouncedSearch, page, lifecycle, accounts, attention);
+  const query = useAdminCustomers(debouncedSearch, cursor, lifecycle, accounts, attention);
   const customers = useMemo(() => {
     return [...(query.data?.items ?? [])].sort((a, b) => {
       const countDelta = b.attentionCount - a.attentionCount;
@@ -44,7 +44,7 @@ function AdminCustomersPage() {
   }, [query.data]);
 
   const hasFilters = Boolean(search.trim()) || lifecycle !== "ALL" || accounts !== "ALL" || attention !== "ALL";
-  useEffect(() => { setPage(1); }, [debouncedSearch, lifecycle, accounts, attention]);
+  useEffect(() => { setCursor(null); setCursorHistory([]); }, [debouncedSearch, lifecycle, accounts, attention]);
 
   const clearFilters = () => {
     setSearch("");
@@ -97,7 +97,7 @@ function AdminCustomersPage() {
         {customers.length} {en ? (customers.length === 1 ? "customer" : "customers") : (customers.length === 1 ? "client" : "clients")}
         {hasFilters && query.data ? `${query.data.items.length} ${en ? "loaded" : "chargés"}` : ""}
       </p>
-      <div className="flex items-center gap-2">{page > 1 ? <Button type="button" variant="outline" onClick={() => setPage((value) => value - 1)}>{en ? "Previous" : "Précédent"}</Button> : null}<Button type="button" variant="outline" disabled={!query.data?.hasNext} onClick={() => setPage((value) => value + 1)}>{en ? "Next" : "Suivant"}</Button>{hasFilters ? <Button type="button" variant="ghost" onClick={clearFilters}>{en ? "Clear filters" : "Réinitialiser les filtres"}</Button> : null}</div>
+      <div className="flex items-center gap-2">{cursor ? <Button type="button" variant="outline" onClick={() => { const previous = cursorHistory.at(-1) ?? null; setCursorHistory((items) => items.slice(0, -1)); setCursor(previous); }}>{en ? "Previous" : "Précédent"}</Button> : null}<Button type="button" variant="outline" disabled={!query.data?.hasNext || !query.data?.nextCursor} onClick={() => { if (!query.data?.nextCursor) return; setCursorHistory((items) => [...items, cursor ?? ""]); setCursor(query.data.nextCursor); }}>{en ? "Next" : "Suivant"}</Button>{hasFilters ? <Button type="button" variant="ghost" onClick={clearFilters}>{en ? "Clear filters" : "Réinitialiser les filtres"}</Button> : null}</div>
     </div>
     {query.isPending ? <LoadingState /> : query.isError ? <ErrorState onRetry={() => query.refetch()} /> : !customers.length ? <EmptyState title={en ? (hasFilters ? "No customer matches these filters" : "No customers found") : (hasFilters ? "Aucun client ne correspond à ces filtres" : "Aucun client trouvé")} /> : <AdminCustomersTable customers={customers} />}
   </PageSection></AdminGate>;
