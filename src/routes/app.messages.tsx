@@ -20,7 +20,7 @@ function AppMessagesRoute() {
   const { language } = useLanguage();
   const en = language === "en";
   return (
-    <FeatureShellPage title={en ? "Customer support" : "Service client"} description={en ? "Speak securely with our support team about your account and transactions." : "Échangez uniquement avec notre équipe d’assistance au sujet de votre compte et de vos opérations."} access="authenticated" width="default">
+    <FeatureShellPage title={en ? "Messages" : "Messages"} description={en ? "Secure messages with your bank about your account and transactions." : "Échangez de façon sécurisée avec votre banque au sujet de votre compte et de vos opérations."} access="authenticated" width="default">
       <SupportCenter />
     </FeatureShellPage>
   );
