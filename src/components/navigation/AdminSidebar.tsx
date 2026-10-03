@@ -18,6 +18,7 @@ export function AdminSidebar({ mobileOpen = false, onNavigate }: { mobileOpen?: 
 
   return (
     <aside
+      id="admin-navigation"
       aria-label={en ? "Back-office navigation" : "Navigation du back-office"}
       className={cn(
         "fixed inset-y-0 left-0 z-40 hidden w-72 max-w-[85vw] shrink-0 overflow-y-auto border-r border-border bg-surface shadow-sm lg:static lg:flex lg:w-64 lg:max-w-none lg:flex-col lg:shadow-none",
