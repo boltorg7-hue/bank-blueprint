@@ -6,6 +6,7 @@ import { Plus, Users } from "lucide-react";
 import { BankingContentContainer } from "@/components/layout/BankingAppLayout";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
+import { PageSection } from "@/components/ui/page-section";
 import { PermissionDeniedState } from "@/components/feedback";
 import { useCustomerSummary } from "@/features/customer-shell/hooks/useCustomerSummary";
 import {
@@ -64,7 +65,10 @@ function AppTransfersIndexRoute() {
         }
       />
       {allowed ? (
+        <PageSection>
+          
         <TransferList action={newTransferButton} />
+        </PageSection>
       ) : (
         <PermissionDeniedState description={blockedReason ?? undefined} />
       )}
