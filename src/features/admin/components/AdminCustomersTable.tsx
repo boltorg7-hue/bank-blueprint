@@ -47,7 +47,7 @@ export function AdminCustomersTable({ customers }: { customers: AdminCustomerDto
               <TableCell><StatusBadge label={LIFECYCLE_LABELS[customer.lifecycleState]} tone={customer.lifecycleState === "ACTIVE" ? "success" : customer.lifecycleState === "SUSPENDED" || customer.lifecycleState === "CLOSED" ? "failed" : "pending"} /></TableCell>
               <TableCell>{customer.accountCount}</TableCell>
               <TableCell>{formatDate(customer.createdAt)}</TableCell>
-              <TableCell><div className="flex flex-wrap gap-2"><Button size="sm" variant="ghost" onClick={() => setDetails(customer)}>{en ? "View" : "Voir"}</Button>{canManage ? actionsFor(customer) : null}</div></TableCell>
+              <TableCell><div className="flex flex-wrap gap-2"><Button size="sm" variant="ghost" onClick={() => setDetails(customer)}>{en ? "Open dossier" : "Ouvrir le dossier"}</Button>{canManage ? actionsFor(customer) : null}</div></TableCell>
             </TableRow>
           ))}
         </TableBody>
