@@ -30,12 +30,7 @@ import type {
  */
 export const TRANSFERS_KEY = ["transfers"] as const;
 
-const BEHAVIOUR = {
-  staleTime: 10_000,
-  gcTime: 60_000,
-  refetchOnWindowFocus: true,
-  retry: 1,
-} as const;
+const BEHAVIOUR = QUERY_POLICY.FINANCIAL;
 
 function useInvalidateFinancialState() {
   const queryClient = useQueryClient();
@@ -73,8 +68,7 @@ export function useTransferLimits(currency: string | null) {
     queryKey: [...TRANSFERS_KEY, "limits", currency],
     queryFn: () => fetchLimits({ data: { currency: currency as string } }),
     enabled: Boolean(currency),
-    staleTime: 300_000,
-    gcTime: 600_000,
+    ...QUERY_POLICY.STATIC,
   });
 }
 
