@@ -190,8 +190,8 @@ export async function loadAdminCustomers(
     counts.set(key, (counts.get(key) ?? 0) + 1);
   }
   const accountIds = (accounts ?? []).map((row: any) => String(row.id));
-  const authById = ids.length ? await loadAdminAuthEmails(admin, ids) : new Map<string, string | null>();
-  const [{ data: verifications }, { data: documents }, { data: notifications }, { data: transfers }, { data: funding }] = await Promise.all([
+  const [authById, { data: verifications }, { data: documents }, { data: notifications }, { data: transfers }, { data: funding }] = await Promise.all([
+    ids.length ? loadAdminAuthEmails(admin, ids) : Promise.resolve(new Map<string, string | null>()),
     ids.length ? admin.from("identity_verifications").select("user_id,status,submitted_at,decided_at").in("user_id", ids) : Promise.resolve({ data: [] as any[] }),
     ids.length ? admin.from("verification_documents").select("user_id,status,created_at").in("user_id", ids) : Promise.resolve({ data: [] as any[] }),
     ids.length ? admin.from("notifications").select("user_id,read_at,created_at").in("user_id", ids).is("archived_at", null).is("read_at", null) : Promise.resolve({ data: [] as any[] }),
