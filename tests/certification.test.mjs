@@ -299,3 +299,28 @@ test("la navigation mobile client reste limitée à cinq destinations primaires"
   assert.match(bottomNav, /item\.to === "\/app\/more"/);
   assert.match(bottomNav, /pathname\.startsWith\("\/app\/transactions"\)/);
 });
+
+
+test("les primitives UI partagent une grammaire visuelle et tactile cohérente", () => {
+  const input = read("src/components/ui/input.tsx");
+  const textarea = read("src/components/ui/textarea.tsx");
+  const select = read("src/components/ui/select.tsx");
+  const tabs = read("src/components/ui/tabs.tsx");
+  const badge = read("src/components/ui/badge.tsx");
+  const form = read("src/components/ui/form.tsx");
+
+  for (const source of [input, textarea]) {
+    assert.match(source, /bg-surface/);
+    assert.match(source, /focus-visible:ring-2 focus-visible:ring-ring/);
+  }
+  assert.match(select, /min-h-11/);
+  assert.match(select, /focus:ring-2 focus:ring-ring/);
+  assert.match(select, /min-h-11 w-full cursor-default/);
+  assert.match(tabs, /min-h-11 items-center/);
+  assert.match(tabs, /min-h-9 items-center/);
+  for (const tone of ["success", "warning", "info", "danger"]) {
+    assert.match(badge, new RegExp(tone + ":"));
+  }
+  assert.match(form, /text-body-sm text-muted-foreground/);
+  assert.match(form, /text-body-sm font-medium text-destructive/);
+});
