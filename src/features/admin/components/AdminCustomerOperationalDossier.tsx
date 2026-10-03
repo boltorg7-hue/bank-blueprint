@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { useLanguage } from "@/components/providers/LanguageProvider";
 import { ErrorState, LoadingState } from "@/components/feedback";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -40,7 +41,7 @@ export function AdminCustomerOperationalDossier({ customer, open, onOpenChange }
   );
 }
 
-function DossierBody({ dossier, en }: { dossier: NonNullable<ReturnType<typeof useAdminCustomerDossier>["data"]>; en: boolean }) {
+function DossierBody({ dossier, en }: { dossier: import("@/features/admin/types/admin-customer-dossier").AdminCustomerDossierDto; en: boolean }) {
   const c = dossier.customer;
   return <>
     <Card>
@@ -71,7 +72,7 @@ function DossierBody({ dossier, en }: { dossier: NonNullable<ReturnType<typeof u
 
     <div className="grid gap-5 lg:grid-cols-2">
       <Section title={en ? "Transfers" : "Virements"}>{dossier.transfers.length ? dossier.transfers.map((t) => <div key={t.reference} className="rounded-md border border-border p-3"><div className="flex justify-between gap-3"><span className="font-medium">{t.reference}</span><StatusBadge label={t.status} tone={tone(t.status)} /></div><p className="mt-1 text-sm">{t.recipient}</p><p className="text-xs text-muted-foreground">{formatDateTime(t.createdAt)} · {t.progressPercent}%</p></div>) : <EmptyLine text={en ? "No external transfer." : "Aucun virement externe."} />}</Section>
-      <Section title={en ? "Funding" : "Financement"}>{dossier.funding.length ? dossier.funding.map((f) => <div key={f.id} className="rounded-md border border-border p-3"><div className="flex justify-between gap-3"><span className="font-medium">{f.accountReference}</span><StatusBadge label={f.status} tone={tone(f.status)} /></div><p className="mt-1 font-semibold">{money(f.amountMinor,f.currency,2)}</p><p className="text-xs text-muted-foreground">{f.reason} · {formatDateTime(f.createdAt)}</p></div>) : <EmptyLine text={en ? "No funding request." : "Aucune demande de financement."} />}</Section>
+      <Section title={en ? "Funding" : "Financement"}>{dossier.funding.length ? dossier.funding.map((f) => <div key={f.id} className="rounded-md border border-border p-3"><div className="flex justify-between gap-3"><span className="font-medium">{f.accountReference}</span><StatusBadge label={f.status} tone={tone(f.status)} /></div><p className="mt-1 font-semibold">{money(f.amountMinor,f.currency,f.minorUnit)}</p><p className="text-xs text-muted-foreground">{f.reason} · {formatDateTime(f.createdAt)}</p></div>) : <EmptyLine text={en ? "No funding request." : "Aucune demande de financement."} />}</Section>
     </div>
 
     <div className="grid gap-5 lg:grid-cols-2">
