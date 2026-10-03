@@ -15,7 +15,7 @@ const toneStyles: Record<StateTone, { wrap: string; icon: string }> = {
 export function StateBlock({
   icon: Icon, title, description, tone = "neutral", actions, className,
 }: {
-  icon: LucideIcon; title: string; description?: string; tone?: StateTone;
+  icon: LucideIcon; title: string; description?: string | undefined; tone?: StateTone;
   actions?: ReactNode; className?: string;
 }) {
   const styles = toneStyles[tone];

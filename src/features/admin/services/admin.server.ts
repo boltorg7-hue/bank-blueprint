@@ -185,13 +185,13 @@ export async function loadAdminCustomers(
     if (!accountOwnerIds.size) return { items: [], hasNext: false, nextCursor: null };
     query = query.in("id", [...accountOwnerIds]);
   } else if (accountsFilter === "WITHOUT_ACCOUNTS" && accountOwnerIds.size) {
-    query = query.not("id", "in", \`(\${[...accountOwnerIds].join(",")})\`);
+    query = query.not("id", "in", `(${[...accountOwnerIds].join(",")})`);
   }
   if (attentionFilter === "NEEDS_ATTENTION") {
     if (!attentionIds.size) return { items: [], hasNext: false };
     query = query.in("id", [...attentionIds]);
   } else if (attentionFilter === "CLEAR" && attentionIds.size) {
-    query = query.not("id", "in", \`(\${[...attentionIds].join(",")})\`);
+    query = query.not("id", "in", `(${[...attentionIds].join(",")})`);
   }
 
   if (normalizedTerm) {
@@ -205,8 +205,8 @@ export async function loadAdminCustomers(
     const referencePrefix = normalizedTerm.replace(/^cus-?/i, "");
     const referenceRange = /^[0-9a-f]{1,12}$/i.test(referencePrefix)
       ? {
-          lower: \`\${referencePrefix.padEnd(12, "0")}-0000-0000-0000-000000000000\`,
-          upper: \`\${referencePrefix.padEnd(12, "f")}-ffff-ffff-ffff-ffffffffffff\`,
+          lower: `${referencePrefix.padEnd(12, "0")}-0000-0000-0000-000000000000`,
+          upper: `${referencePrefix.padEnd(12, "f")}-ffff-ffff-ffff-ffffffffffff`,
         }
       : null;
     if (exactEmailId || uuidMatch) {
@@ -214,8 +214,8 @@ export async function loadAdminCustomers(
     } else if (referenceRange) {
       query = query.gte("id", referenceRange.lower).lte("id", referenceRange.upper);
     } else {
-      const pattern = \`*\${normalizedTerm}*\`;
-      query = query.or(\`first_name.ilike.\${pattern},middle_name.ilike.\${pattern},last_name.ilike.\${pattern},phone.ilike.\${pattern}\`);
+      const pattern = `*${normalizedTerm}*`;
+      query = query.or(`first_name.ilike.${pattern},middle_name.ilike.${pattern},last_name.ilike.${pattern},phone.ilike.${pattern}`);
     }
   }
 
@@ -313,7 +313,7 @@ export async function loadAdminCustomers(
     const oldestAttentionAt = attentionAt.length ? attentionAt.sort((a, b) => Date.parse(a) - Date.parse(b))[0] ?? null : null;
     return {
       id: row.id,
-      reference: \`CUS-\${String(row.id).replace(/-/g, "").slice(0, 12).toUpperCase()}\`,
+      reference: `CUS-${String(row.id).replace(/-/g, "").slice(0, 12).toUpperCase()}`,
       fullName: [row.first_name, row.middle_name, row.last_name].filter(Boolean).join(" ") || "Client sans nom",
       email: authById.get(row.id) ?? null,
       phone: row.phone ?? null,

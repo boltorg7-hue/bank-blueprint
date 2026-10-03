@@ -1,1 +1,2 @@
-import type {Notification} from "../types";export type NotificationSummary=Pick<Notification,"id"|"channel"|"template"|"read">;
+import type { NotificationDto } from "../types";
+export type NotificationSummary = Pick<NotificationDto, "id" | "category" | "title" | "readAt">;

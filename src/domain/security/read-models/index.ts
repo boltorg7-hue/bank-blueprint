@@ -1,1 +1,2 @@
-import type {SecurityAuditEntry} from "../types";export type SecurityEventSummary=Pick<SecurityAuditEntry,"id"|"customerId"|"action"|"occurredAt">;
+import type { SecurityEventDto } from "../types";
+export type SecurityEventSummary = Pick<SecurityEventDto, "id" | "type" | "title" | "createdAt">;

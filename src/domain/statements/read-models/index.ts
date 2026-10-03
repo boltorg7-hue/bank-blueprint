@@ -1,1 +1,2 @@
-import type {Statement} from "../types";export type StatementSummary=Pick<Statement,"id"|"accountId"|"periodStart"|"periodEnd"|"documentId">;
+import type { StatementDto } from "../types";
+export type StatementSummary = Pick<StatementDto, "reference" | "accountReference" | "periodStart" | "periodEnd" | "documentReference">;

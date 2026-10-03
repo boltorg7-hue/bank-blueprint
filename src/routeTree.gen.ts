@@ -34,6 +34,7 @@ import { Route as VerifyContactRouteImport } from './routes/verify-contact'
 import { Route as VerifyEmailRouteImport } from './routes/verify-email'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as AdminAccountsRouteImport } from './routes/admin.accounts'
+import { Route as AdminAuditRouteImport } from './routes/admin.audit'
 import { Route as AdminCustomersRouteImport } from './routes/admin.customers'
 import { Route as AdminDashboardRouteImport } from './routes/admin.dashboard'
 import { Route as AdminFundingRouteImport } from './routes/admin.funding'
@@ -198,6 +199,11 @@ const AdminIndexRoute = AdminIndexRouteImport.update({
 const AdminAccountsRoute = AdminAccountsRouteImport.update({
   id: '/accounts',
   path: '/accounts',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminAuditRoute = AdminAuditRouteImport.update({
+  id: '/audit',
+  path: '/audit',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminCustomersRoute = AdminCustomersRouteImport.update({
@@ -429,6 +435,7 @@ export interface FileRoutesByFullPath {
   '/verify-contact': typeof VerifyContactRoute
   '/verify-email': typeof VerifyEmailRoute
   '/admin/accounts': typeof AdminAccountsRoute
+  '/admin/audit': typeof AdminAuditRoute
   '/admin/customers': typeof AdminCustomersRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/funding': typeof AdminFundingRoute
@@ -493,6 +500,7 @@ export interface FileRoutesByTo {
   '/verify-contact': typeof VerifyContactRoute
   '/verify-email': typeof VerifyEmailRoute
   '/admin/accounts': typeof AdminAccountsRoute
+  '/admin/audit': typeof AdminAuditRoute
   '/admin/customers': typeof AdminCustomersRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/funding': typeof AdminFundingRoute
@@ -558,6 +566,7 @@ export interface FileRoutesById {
   '/verify-contact': typeof VerifyContactRoute
   '/verify-email': typeof VerifyEmailRoute
   '/admin/accounts': typeof AdminAccountsRoute
+  '/admin/audit': typeof AdminAuditRoute
   '/admin/customers': typeof AdminCustomersRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/funding': typeof AdminFundingRoute
@@ -627,6 +636,7 @@ export interface FileRouteTypes {
     | '/verify-contact'
     | '/verify-email'
     | '/admin/accounts'
+    | '/admin/audit'
     | '/admin/customers'
     | '/admin/dashboard'
     | '/admin/funding'
@@ -691,6 +701,7 @@ export interface FileRouteTypes {
     | '/verify-contact'
     | '/verify-email'
     | '/admin/accounts'
+    | '/admin/audit'
     | '/admin/customers'
     | '/admin/dashboard'
     | '/admin/funding'
@@ -755,6 +766,7 @@ export interface FileRouteTypes {
     | '/verify-contact'
     | '/verify-email'
     | '/admin/accounts'
+    | '/admin/audit'
     | '/admin/customers'
     | '/admin/dashboard'
     | '/admin/funding'
@@ -1002,6 +1014,13 @@ declare module '@tanstack/react-router' {
       path: '/accounts'
       fullPath: '/admin/accounts'
       preLoaderRoute: typeof AdminAccountsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/audit': {
+      id: '/admin/audit'
+      path: '/audit'
+      fullPath: '/admin/audit'
+      preLoaderRoute: typeof AdminAuditRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/customers': {
@@ -1289,6 +1308,7 @@ declare module '@tanstack/react-router' {
 
 interface AdminRouteChildren {
   AdminAccountsRoute: typeof AdminAccountsRoute
+  AdminAuditRoute: typeof AdminAuditRoute
   AdminCustomersRoute: typeof AdminCustomersRoute
   AdminDashboardRoute: typeof AdminDashboardRoute
   AdminFundingRoute: typeof AdminFundingRoute
@@ -1301,6 +1321,7 @@ interface AdminRouteChildren {
 
 const AdminRouteChildren: AdminRouteChildren = {
   AdminAccountsRoute: AdminAccountsRoute,
+  AdminAuditRoute: AdminAuditRoute,
   AdminCustomersRoute: AdminCustomersRoute,
   AdminDashboardRoute: AdminDashboardRoute,
   AdminFundingRoute: AdminFundingRoute,

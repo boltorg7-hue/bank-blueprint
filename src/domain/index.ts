@@ -7,6 +7,7 @@ export * from "./transfers/types";export * from "./transfers/schemas";export * f
 export * from "./customers/types";export * from "./customers/schemas";export * from "./customers/commands";export * from "./customers/read-models";export * from "./customers/events";
 export * from "./onboarding/types";export * from "./onboarding/schemas";export * from "./onboarding/commands";export * from "./onboarding/read-models";export * from "./onboarding/events";
 export * from "./notifications/types";export * from "./notifications/schemas";export * from "./notifications/commands";export * from "./notifications/read-models";export * from "./notifications/events";
-export * from "./documents/types";export * from "./documents/schemas";export * from "./documents/commands";export * from "./documents/read-models";export * from "./documents/events";
+export type { CustomerDocumentType, CustomerDocumentDto, CustomerDocumentPageDto, DocumentDownloadDto, DocumentFilter } from "./documents/types";
+export { DOCUMENT_REFERENCE_PATTERN, DOCUMENT_TYPE_LABELS, documentTypesForFilter } from "./documents/types";export * from "./documents/schemas";export * from "./documents/commands";export * from "./documents/read-models";export * from "./documents/events";
 export * from "./statements/types";export * from "./statements/schemas";export * from "./statements/commands";export * from "./statements/read-models";export * from "./statements/events";
 export * from "./security/types";export * from "./security/schemas";export * from "./security/commands";export * from "./security/read-models";export * from "./security/events";
