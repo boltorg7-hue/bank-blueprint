@@ -111,6 +111,12 @@ export type FundingRequestStatus = "PENDING" | "APPROVED" | "REJECTED";
 
 export type FundingRequestPageDto = { items: FundingRequestDto[]; hasNext: boolean; nextCursor: string | null };
 
+export type FundingAccountOptionDto = {
+  id: string;
+  reference: string;
+  holderName: string;
+};
+
 export type FundingRequestDto = {
   id: string;
   accountReference: string;
