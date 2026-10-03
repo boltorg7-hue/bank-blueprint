@@ -24,7 +24,7 @@ export function StateBlock({
       role={tone === "danger" ? "alert" : undefined}
       className={cn(
         "flex min-h-44 flex-col items-center justify-center gap-4 rounded-xl border px-5 py-8 text-center shadow-subtle",
-        "motion-safe:transition-[opacity,transform] motion-safe:duration-200",
+        "motion-safe:transition-[opacity,transform] motion-safe:duration-200 motion-reduce:transition-none",
         styles.wrap, className,
       )}
     >
