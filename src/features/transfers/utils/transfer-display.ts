@@ -135,17 +135,17 @@ export function transferErrorMessage(error: unknown, language: "fr" | "en" = "fr
   );
   if (known) return transferFailureMessage(known, language) ?? (language === "en" ? "The transfer could not be processed." : FAILURE_MESSAGES.UNEXPECTED_ERROR);
   if (message.includes("REQUIREMENT_NOT_OPEN"))
-    return "Ce justificatif a déjà été transmis et est en cours d'examen.";
+    return language === "en" ? "This document has already been submitted and is under review." : "Ce justificatif a déjà été transmis et est en cours d'examen.";
   if (message.includes("REQUIREMENT_UNAVAILABLE"))
-    return "Ce justificatif n'est plus demandé pour ce virement.";
+    return language === "en" ? "This document is no longer required for this transfer." : "Ce justificatif n'est plus demandé pour ce virement.";
   if (message.includes("RECENT_AUTHENTICATION_REQUIRED"))
-    return "Votre mot de passe n’a pas pu être confirmé. Vérifiez-le puis réessayez.";
+    return language === "en" ? "Your password could not be confirmed. Check it and try again." : "Votre mot de passe n’a pas pu être confirmé. Vérifiez-le puis réessayez.";
   return language === "en" ? FAILURE_MESSAGES_EN.UNEXPECTED_ERROR : FAILURE_MESSAGES.UNEXPECTED_ERROR;
 }
 
 /** Progress copy for an in-flight execution (§120, §143). */
-export function transferProgressLabel(status: TransferStatus): string {
-  switch (status) {
+export function transferProgressLabel(status: TransferStatus, language: "fr" | "en" = "fr"): string {
+  if (language === "en") {\n    switch (status) {\n      case "CONFIRMED": return "Verifying your transfer…";\n      case "FUNDS_RESERVED": return "Reserving funds…";\n      case "PROCESSING": return "Processing the transfer…";\n      default: return "Processing…";\n    }\n  }\n  switch (status) {
     case "CONFIRMED":
       return "Vérification de votre virement…";
     case "FUNDS_RESERVED":
