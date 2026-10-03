@@ -34,7 +34,7 @@ export const ADMIN_DOSSIER_KEY = ["admin", "customer-dossier"] as const;
 
 export function useAdminContext() {
   const fn = useServerFn(getAdminStaffContext);
-  return useQuery({ queryKey: ADMIN_CONTEXT_KEY, queryFn: () => fn({ data: { cursor } }), ...QUERY_POLICY.NORMAL, retry: false });
+  return useQuery({ queryKey: ADMIN_CONTEXT_KEY, queryFn: () => fn(), ...QUERY_POLICY.NORMAL, retry: false });
 }
 
 export function useAdminDashboard() {
@@ -167,7 +167,7 @@ export function useAdminExternalTransfers(cursor: string | null = null) {
 
   return useQuery({
     queryKey: [...ADMIN_EXTERNAL_TRANSFERS_KEY, cursor],
-    queryFn: () => fn(),
+    queryFn: () => fn({ data: { cursor } }),
     ...QUERY_POLICY.REALTIME,
     enabled:
       staff?.authorized === true &&
@@ -192,7 +192,7 @@ export function useAdminAudit(search = "", cursor: string | null = null) {
   const { data: staff } = useAdminContext();
   return useQuery({
     queryKey: [...ADMIN_AUDIT_KEY, search, cursor],
-    queryFn: () => fn({ data: { search } }),
+    queryFn: () => fn({ data: { search, cursor } }),
     ...QUERY_POLICY.REALTIME,
     enabled: staff?.authorized === true && staff.permissions.includes("audit.read"),
   });
