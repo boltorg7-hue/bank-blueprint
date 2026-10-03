@@ -357,3 +357,26 @@ test("le tableau financier bascule vers une liste mobile au lieu de forcer un ta
   assert.match(list, /native-list/);
   assert.match(table, /overflow-hidden rounded-xl border/);
 });
+
+
+test("le socle tactile 5.5 conserve des zones d'action d'au moins 44px", () => {
+  const dropdown = read("src/components/ui/dropdown-menu.tsx");
+  const command = read("src/components/ui/command.tsx");
+  const sheet = read("src/components/ui/sheet.tsx");
+  const dialog = read("src/components/ui/dialog.tsx");
+  assert.match(dropdown, /min-h-11/);
+  assert.match(command, /min-h-11/);
+  assert.match(command, /h-12 w-full/);
+  assert.match(sheet, /safe-pb/);
+  assert.match(dialog, /size-11/);
+});
+
+test("les actions financières critiques ont un verrou local contre le double-submit", () => {
+  const transfer = read("src/features/transfers/components/TransferWizard.tsx");
+  assert.match(transfer, /initiateLock = useRef\(false\)/);
+  assert.match(transfer, /confirmLock = useRef\(false\)/);
+  assert.match(transfer, /loading=\{initiate\.isPending\}/);
+  assert.match(transfer, /loading=\{confirm\.isPending\}/);
+  assert.match(transfer, /onSettled: \(\) => \{\s*initiateLock\.current = false;/);
+  assert.match(transfer, /onSettled: \(\) => \{\s*confirmLock\.current = false;/);
+});
