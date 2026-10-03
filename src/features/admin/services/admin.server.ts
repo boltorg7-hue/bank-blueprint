@@ -78,23 +78,66 @@ async function loadAdminAuthEmails(admin: Client, ids: string[]) {
   return result;
 }
 
-async function loadAdminEmailVerificationStatus(admin: Client, ids: string[]) {
-  const result = new Map<string, boolean>();
-  for (let offset = 0; offset < ids.length; offset += 8) {
-    const batch = ids.slice(offset, offset + 8);
+type AdminAuthUser = {
+  email: string | null;
+  verified: boolean;
+};
+
+async function loadAdminAuthUsers(admin: Client, ids: string[]) {
+  const result = new Map<string, AdminAuthUser>();
+  const now = Date.now();
+  const missing: string[] = [];
+
+  for (const id of ids) {
+    const cached = adminAuthEmailCache.get(id);
+    if (cached && cached.expiresAt > now) {
+      result.set(id, {
+        email: cached.email,
+        verified: false,
+      });
+    } else {
+      missing.push(id);
+    }
+  }
+
+  if (!missing.length) return result;
+
+  for (let offset = 0; offset < missing.length; offset += 8) {
+    const batch = missing.slice(offset, offset + 8);
     const batchResults = await Promise.all(
       batch.map(async (id) => {
         try {
           const { data } = await admin.auth.admin.getUserById(id);
-          return { id, verified: Boolean(data.user?.email_confirmed_at) };
+          return {
+            id,
+            email: data.user?.email ?? null,
+            verified: Boolean(data.user?.email_confirmed_at),
+          };
         } catch {
-          return { id, verified: false };
+          return { id, email: null, verified: false };
         }
       }),
     );
-    for (const entry of batchResults) result.set(entry.id, entry.verified);
+
+    const expiresAt = now + ADMIN_AUTH_EMAIL_CACHE_TTL_MS;
+    for (const entry of batchResults) {
+      result.set(entry.id, {
+        email: entry.email,
+        verified: entry.verified,
+      });
+      adminAuthEmailCache.set(entry.id, {
+        email: entry.email,
+        expiresAt,
+      });
+    }
   }
+
   return result;
+}
+
+async function loadAdminEmailVerificationStatus(admin: Client, ids: string[]) {
+  const users = await loadAdminAuthUsers(admin, ids);
+  return new Map([...users].map(([id, user]) => [id, user.verified]));
 }
 
 function normalizeStaffContext(raw: unknown): StaffContextDto {
@@ -395,9 +438,15 @@ export async function loadAdminOnboardingCases(
       : Promise.resolve({ data: [] as any[] }),
   ]);
 
-  const [authById, emailVerifiedById] = customerIds.length
-    ? await Promise.all([loadAdminAuthEmails(admin, customerIds), loadAdminEmailVerificationStatus(admin, customerIds)])
-    : [new Map<string, string | null>(), new Map<string, boolean>()];
+  const authUsersById = customerIds.length
+    ? await loadAdminAuthUsers(admin, customerIds)
+    : new Map<string, AdminAuthUser>();
+  const authById = new Map(
+    [...authUsersById].map(([id, user]) => [id, user.email]),
+  );
+  const emailVerifiedById = new Map(
+    [...authUsersById].map(([id, user]) => [id, user.verified]),
+  );
 
   const verificationByUser = new Map((verifications ?? []).map((row: any) => [String(row.user_id), row]));
   const documentsByUser = new Map<string, AdminOnboardingCaseDto["documents"]>();
