@@ -263,6 +263,30 @@
     outline: 2px solid var(--color-ring);
     outline-offset: 2px;
   }
+
+  /*
+   * Touch interaction baseline:
+   * - prevents the browser from interpreting rapid taps as zoom gestures;
+   * - keeps controls responsive on coarse-pointer devices;
+   * - removes the platform tap flash while preserving our explicit pressed state.
+   */
+  button,
+  a,
+  [role="button"],
+  input,
+  select,
+  textarea {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /*
+   * Avoid accidental horizontal page scrolling on mobile. Components that
+   * intentionally scroll horizontally (tables/carousels) own their overflow.
+   */
+  body {
+    overflow-x: hidden;
+  }
 }
 
 /* Safe-area utilities — required for fixed/sticky mobile navigation. */
