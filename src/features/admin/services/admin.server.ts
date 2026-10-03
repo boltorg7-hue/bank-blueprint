@@ -55,6 +55,25 @@ async function loadAdminAuthEmails(admin: Client, ids: string[]) {
   return result;
 }
 
+async function loadAdminEmailVerificationStatus(admin: Client, ids: string[]) {
+  const result = new Map<string, boolean>();
+  for (let offset = 0; offset < ids.length; offset += 8) {
+    const batch = ids.slice(offset, offset + 8);
+    const batchResults = await Promise.all(
+      batch.map(async (id) => {
+        try {
+          const { data } = await admin.auth.admin.getUserById(id);
+          return { id, verified: Boolean(data.user?.email_confirmed_at) };
+        } catch {
+          return { id, verified: false };
+        }
+      }),
+    );
+    for (const entry of batchResults) result.set(entry.id, entry.verified);
+  }
+  return result;
+}
+
 function normalizeStaffContext(raw: unknown): StaffContextDto {
   const value = (raw ?? {}) as Record<string, unknown>;
   return {
@@ -312,7 +331,9 @@ export async function loadAdminOnboardingCases(
       ? admin.from("bank_accounts").select("user_id,public_reference,status").in("user_id", customerIds).eq("is_primary", true)
       : Promise.resolve({ data: [] as any[] }),
   ]);
-  const authById = customerIds.length ? await loadAdminAuthEmails(admin, customerIds) : new Map<string, string | null>();
+  const [authById, emailVerifiedById] = customerIds.length
+    ? await Promise.all([loadAdminAuthEmails(admin, customerIds), loadAdminEmailVerificationStatus(admin, customerIds)])
+    : [new Map<string, string | null>(), new Map<string, boolean>()];
   const verificationByUser = new Map((verifications ?? []).map((row: any) => [String(row.user_id), row]));
   const documentsByUser = new Map<string, AdminOnboardingCaseDto["documents"]>();
   for (const document of documents ?? []) {
@@ -349,7 +370,7 @@ export async function loadAdminOnboardingCases(
       submittedAt: verification?.submitted_at ? String(verification.submitted_at) : null,
       decidedAt: verification?.decided_at ? String(verification.decided_at) : null,
       createdAt: String(row.created_at),
-      emailVerified: Boolean(authUser?.email_confirmed_at),
+      emailVerified: emailVerifiedById.get(String(row.id)) ?? false,
       accountReference: account?.public_reference ? String(account.public_reference) : null,
       accountStatus: account?.status ? String(account.status) : null,
       approval: approval ? {
