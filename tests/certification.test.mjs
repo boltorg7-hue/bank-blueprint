@@ -208,3 +208,12 @@ test("les policies sensibles ne peuvent pas ouvrir une surface anon/public et le
   assert.match(sql, /has_permission/);
   assert.match(sql, /is_staff/);
 });
+
+
+test("la matrice des migrations trie par timestamp même dans les sous-dossiers", () => {
+  const audit = read("scripts/audit-migration-functions.mjs");
+  assert.match(audit, /path\.basename\(a\)/);
+  assert.match(audit, /path\.basename\(b\)/);
+  assert.match(audit, /aName\.localeCompare\(bName\)/);
+  assert.match(audit, /\\$\\$\[\\s\\S\]\*\?\\\\\$\\$/);
+});
