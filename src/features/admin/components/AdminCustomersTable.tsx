@@ -37,13 +37,13 @@ export function AdminCustomersTable({ customers }: { customers: AdminCustomerDto
     <div className="hidden overflow-hidden rounded-md border border-border bg-surface md:block">
       <Table>
         <TableHeader><TableRow>
-          <TableHead>{en ? "Customer" : "Client"}</TableHead><TableHead>Contact</TableHead><TableHead>{en ? "Status" : "Statut"}</TableHead><TableHead>{en ? "Accounts" : "Comptes"}</TableHead><TableHead>{en ? "Registered" : "Inscription"}</TableHead>{canManage ? <TableHead>Action</TableHead> : null}
+          <TableHead>{en ? "Customer" : "Client"}</TableHead><TableHead>{en ? "Attention" : "Action requise"}</TableHead><TableHead>Contact</TableHead><TableHead>{en ? "Status" : "Statut"}</TableHead><TableHead>{en ? "Accounts" : "Comptes"}</TableHead><TableHead>{en ? "Registered" : "Inscription"}</TableHead>{canManage ? <TableHead>Action</TableHead> : null}
         </TableRow></TableHeader>
         <TableBody>
           {customers.map((customer) => (
             <TableRow key={customer.id}>
               <TableCell><p className="font-medium">{customer.fullName}</p><p className="text-xs text-muted-foreground">{customer.reference}</p></TableCell>
-              <TableCell><p>{customer.email ?? (en ? "No email provided" : "E-mail non renseigné")}</p><p className="text-xs text-muted-foreground">{customer.phone ?? (en ? "No phone provided" : "Téléphone non renseigné")}</p></TableCell>
+              <TableCell>{customer.attentionCount > 0 ? <div className="flex items-center gap-2 text-sm font-medium"><CircleAlert className="size-4 text-warning" aria-hidden="true" />{customer.attentionCount}</div> : <span className="text-sm text-muted-foreground">—</span>}</TableCell><TableCell><p>{customer.email ?? (en ? "No email provided" : "E-mail non renseigné")}</p><p className="text-xs text-muted-foreground">{customer.phone ?? (en ? "No phone provided" : "Téléphone non renseigné")}</p></TableCell>
               <TableCell><StatusBadge label={LIFECYCLE_LABELS[customer.lifecycleState]} tone={customer.lifecycleState === "ACTIVE" ? "success" : customer.lifecycleState === "SUSPENDED" || customer.lifecycleState === "CLOSED" ? "failed" : "pending"} /></TableCell>
               <TableCell>{customer.accountCount}</TableCell>
               <TableCell>{formatDate(customer.createdAt)}</TableCell>
