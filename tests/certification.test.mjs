@@ -689,3 +689,21 @@ test("5.8.8.3 aligne les écrans client sur les primitives de page et de surface
   assert.match(featureShell, /BankingContentContainer width=\{width\}/);
   assert.match(featureShell, /<PageSection>/);
 });
+
+
+test("5.8.8.4 aligne les surfaces et la motion de la console administrative", () => {
+  const table = read("src/components/ui/table.tsx");
+  const sidebar = read("src/components/navigation/AdminSidebar.tsx");
+  const layout = read("src/components/layout/AdminLayout.tsx");
+  const dashboard = read("src/routes/admin.dashboard.tsx");
+  const funding = read("src/routes/admin.funding.tsx");
+  const onboarding = read("src/routes/admin.onboarding-cases.tsx");
+
+  assert.match(table, /motion-safe:transition-\\[background-color,border-color\\]/);
+  assert.match(table, /motion-reduce:transition-none/);
+  assert.match(sidebar, /text-overline text-muted-foreground/);
+  assert.match(layout, /text-caption font-medium/);
+  assert.match(dashboard, /native-surface p-4 sm:p-5/);
+  assert.match(funding, /<PageSection>[\\s\\S]*<PageHeader/);
+  assert.match(onboarding, /native-surface mb-5/);
+});
