@@ -28,7 +28,7 @@ export function LoginForm({ redirectTo }: { redirectTo?: string | undefined }) {
     });
 
     if (!parsed.success) {
-      setErrors(fieldErrorsFrom(parsed.error));
+      setErrors(fieldErrorsFrom(parsed.error, en ? "en" : "fr"));
       return;
     }
 
