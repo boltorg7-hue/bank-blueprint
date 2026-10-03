@@ -324,3 +324,36 @@ test("les primitives UI partagent une grammaire visuelle et tactile cohérente",
   assert.match(form, /text-body-sm text-muted-foreground/);
   assert.match(form, /text-body-sm font-medium text-destructive/);
 });
+
+
+test("les écrans métier principaux conservent une composition mobile-first", () => {
+  const dashboard = read("src/routes/app.dashboard.tsx");
+  const history = read("src/features/transactions/components/TransactionHistory.tsx");
+  const transfer = read("src/features/transfers/components/TransferWizard.tsx");
+  const profile = read("src/features/profile/components/ProfilePage.tsx");
+  const security = read("src/features/security/components/SecurityCenter.tsx");
+  const support = read("src/features/support/components/SupportCenter.tsx");
+  const stepper = read("src/components/ui/stepper.tsx");
+
+  assert.match(dashboard, /grid gap-3 sm:grid-cols-\[minmax\(0,1fr\)_auto\]/);
+  assert.match(dashboard, /grid gap-3 md:grid-cols-2/);
+  assert.match(history, /lg:hidden/);
+  assert.match(history, /hidden lg:block/);
+  assert.match(transfer, /w-full sm:w-auto/);
+  assert.match(profile, /w-full sm:w-auto/);
+  assert.match(security, /flex-col items-start gap-2 sm:flex-row/);
+  assert.match(support, /flex flex-col gap-2 sm:flex-row/);
+  assert.match(support, /SelectTrigger/);
+  assert.match(stepper, /sm:hidden/);
+  assert.match(stepper, /text-caption/);
+});
+
+test("le tableau financier bascule vers une liste mobile au lieu de forcer un tableau étroit", () => {
+  const history = read("src/features/transactions/components/TransactionHistory.tsx");
+  const list = read("src/features/transactions/components/TransactionList.tsx");
+  const table = read("src/features/transactions/components/TransactionTable.tsx");
+  assert.match(history, /<TransactionList/);
+  assert.match(history, /<TransactionTable/);
+  assert.match(list, /native-list/);
+  assert.match(table, /overflow-hidden rounded-xl border/);
+});
