@@ -134,7 +134,7 @@ function DashboardPage() {
                     <Link
                       to="/app/accounts/$accountRef"
                       params={{ accountRef: item.reference }}
-                      className="native-surface press-feedback block min-w-0 p-4 transition hover:border-brand/30 hover:shadow-sm"
+                      className="native-surface press-feedback block min-w-0 rounded-xl p-4 transition-[border-color,box-shadow,transform] duration-150 hover:border-brand/30 hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 motion-reduce:transition-none"
                     >
                       <div className="flex items-start justify-between gap-3">
                         <div className="min-w-0">
@@ -156,9 +156,9 @@ function DashboardPage() {
             </ul>
           </section>
 
-          {data?.monthlySummary && <MonthlySummaryCard summary={data.monthlySummary} />}
-
           <ActionRequiredTransfers />
+
+          {data?.monthlySummary && <MonthlySummaryCard summary={data.monthlySummary} />}
 
           <section aria-labelledby="quick-actions-heading" className="space-y-3.5 sm:space-y-4">
             <div className="flex items-end justify-between gap-3">
@@ -173,6 +173,8 @@ function DashboardPage() {
               <QuickAction to="/app/accounts/$accountRef" params={{ accountRef: account.reference }} label={en ? "Receive a payment" : "Recevoir un paiement"} icon={ArrowDownToLine} />
             </ul>
           </section>
+
+          <section aria-labelledby="activity-heading" className="space-y-3.5 sm:space-y-4">
             <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
               <h2 id="activity-heading" className="text-heading-sm font-semibold text-foreground md:text-heading-md">
                 {en ? "Recent activity" : "Activité récente"}
