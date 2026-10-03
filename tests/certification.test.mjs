@@ -264,3 +264,34 @@ test("les index de production couvrent les parcours de pagination et recherche p
   assert.match(sql, /using gin \(first_name extensions\.gin_trgm_ops\)/i);
   assert.match(sql, /using gin \(last_name extensions\.gin_trgm_ops\)/i);
 });
+
+
+test("le shell mobile respecte le contrat tactile et les safe areas", () => {
+  const styles = read("src/styles.css");
+  const bottomNav = read("src/components/navigation/CustomerBottomNav.tsx");
+  const bankingLayout = read("src/components/layout/BankingAppLayout.tsx");
+  assert.match(styles, /touch-action:\s*manipulation/);
+  assert.match(styles, /-webkit-tap-highlight-color:\s*transparent/);
+  assert.match(styles, /overflow-x:\s*hidden/);
+  assert.match(bottomNav, /safe-pb/);
+  assert.match(bottomNav, /min-h-16/);
+  assert.match(bottomNav, /touch-target/);
+  assert.match(bankingLayout, /pb-mobile-nav/);
+  assert.match(bankingLayout, /min-h-dvh-safe/);
+});
+
+test("les primitives de dialogue conservent une fermeture tactile de 44px minimum", () => {
+  for (const file of ["src/components/ui/dialog.tsx", "src/components/ui/sheet.tsx"]) {
+    const source = read(file);
+    assert.match(source, /flex size-11 items-center justify-center/);
+    assert.match(source, /touch-target/);
+  }
+});
+
+test("la navigation mobile client reste limitée à cinq destinations primaires", () => {
+  const navigation = read("src/config/navigation.ts");
+  const match = navigation.match(/export const CUSTOMER_PRIMARY_NAV[\\s\\S]*?\\];/);
+  assert.ok(match);
+  const entries = match[0].match(/\\{ label:/g) ?? [];
+  assert.ok(entries.length <= 5);
+});
