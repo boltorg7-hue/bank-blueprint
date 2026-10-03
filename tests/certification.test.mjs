@@ -189,3 +189,12 @@ test("notifications utilise pagination et filtre serveur", () => {
   assert.match(ui, /useNotifications\\(filter, cursor\\)/);
   assert.doesNotMatch(ui, /q\\.data\\?\\.items \\?\\? \\[\\]\\)\\.filter/);
 });
+
+test("la matrice DB certifie la version finale des fonctions", () => {
+  const audit = read("scripts/audit-migration-functions.mjs");
+  assert.match(audit, /entry\.finalDefinition = match\[0\]/);
+  assert.match(audit, /entry\.securityDefiner = \/SECURITY\\s\+DEFINER/);
+  assert.match(audit, /entry\.searchPath = \/search_path/);
+  assert.doesNotMatch(audit, /securityDefiner \\|\\|=/);
+  assert.doesNotMatch(audit, /searchPath \\|\\|=/);
+});
