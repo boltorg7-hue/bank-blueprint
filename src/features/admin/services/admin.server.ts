@@ -298,7 +298,7 @@ export async function loadAdminOnboardingCases(
 
   const rows = profiles ?? [];
   const customerIds = rows.map((row: any) => String(row.id));
-  const [{ data: verifications }, { data: documents }, { data: approvals }, { data: accounts }, { data: authPage }] = await Promise.all([
+  const [{ data: verifications }, { data: documents }, { data: approvals }, { data: accounts }] = await Promise.all([
     customerIds.length
       ? admin.from("identity_verifications").select("user_id,status,submitted_at,decided_at").in("user_id", customerIds)
       : Promise.resolve({ data: [] as any[] }),
