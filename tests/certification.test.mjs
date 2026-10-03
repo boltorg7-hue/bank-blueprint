@@ -568,6 +568,22 @@ test("les cinq dépendances lourdes restent documentées comme modules ciblés d
 });
 
 
+test("lexperience mobile native conserve navigation, safe area et feuilles tactiles", () => {
+  const nav = read("src/components/navigation/CustomerBottomNav.tsx");
+  const layout = read("src/components/layout/BankingAppLayout.tsx");
+  const sheet = read("src/components/ui/sheet.tsx");
+  const styles = read("src/styles.css");
+
+  assert.match(nav, /safe-pb/);
+  assert.match(nav, /backdrop-blur-xl/);
+  assert.match(layout, /pb-mobile-nav/);
+  assert.match(layout, /overscroll-x-none/);
+  assert.match(sheet, /max-h-\[92dvh\]/);
+  assert.match(sheet, /overscroll-contain/);
+  assert.match(styles, /safe-area-inset-bottom/);
+  assert.match(styles, /touch-action: manipulation/);
+});
+
 test("le dashboard conserve une hierarchie claire et des actions accessibles", () => {
   const dashboard = read("src/routes/app.dashboard.tsx");
   const actionRequired = read("src/features/transfers/components/ActionRequiredTransfers.tsx");
