@@ -77,26 +77,54 @@ const FAILURE_MESSAGES: Record<TransferFailureCode, string> = {
     "Le virement n'a pas pu être traité. Aucun montant n'a été débité ; vous pouvez réessayer.",
 };
 
-export function transferStatusLabel(status: TransferStatus): string {
-  return STATUS_LABELS[status] ?? "En cours de traitement";
+const STATUS_LABELS_EN: Record<TransferStatus, string> = {
+  DRAFT: "Draft", READY_FOR_CONFIRMATION: "Awaiting confirmation", CONFIRMED: "Confirmed",
+  FUNDS_RESERVED: "Funds reserved", PROCESSING: "Processing", COMPLIANCE_REVIEW: "Under review",
+  DOCUMENT_REQUIRED: "Action required", APPROVED: "Approved", SETTLEMENT_PENDING: "Final confirmation pending",
+  COMPLETED: "Completed", FAILED: "Failed", REJECTED: "Declined", CANCELLED: "Cancelled",
+  BLOCKED: "Suspended", REVERSED: "Reversed",
+};
+export function transferStatusLabel(status: TransferStatus, language: "fr" | "en" = "fr"): string {
+  return language === "en" ? STATUS_LABELS_EN[status] ?? "Processing" : STATUS_LABELS[status] ?? "En cours de traitement";
 }
 
 export function transferStatusTone(status: TransferStatus): StatusTone {
   return STATUS_TONES[status] ?? "pending";
 }
 
-export function transferFailureMessage(code: TransferFailureCode | null): string | null {
+const FAILURE_MESSAGES_EN: Record<TransferFailureCode, string> = {
+  INSUFFICIENT_FUNDS: "Your available balance is insufficient. No amount was debited.",
+  LIMIT_EXCEEDED: "This transfer exceeds an applicable account limit. No amount was debited.",
+  ACCOUNT_RESTRICTED: "Transfers are unavailable with your account's current status.",
+  DESTINATION_UNAVAILABLE: "The recipient account cannot receive this transfer. Check the saved beneficiary.",
+  DESTINATION_NOT_SUPPORTED: "This destination is not currently supported. No transfer was initiated.",
+  DESTINATION_IS_INTERNAL: "This account is held with us. Save it as an internal beneficiary for an immediate transfer.",
+  CURRENCY_MISMATCH: "The recipient account uses a different currency. This transfer is not possible.",
+  BENEFICIARY_UNAVAILABLE: "This beneficiary is no longer available for transfers.",
+  SOURCE_ACCOUNT_UNAVAILABLE: "The source account is unavailable for transfers.",
+  INVALID_AMOUNT: "The amount entered is not valid.", INVALID_DESTINATION: "The beneficiary details are not valid.",
+  INVALID_TRANSITION: "This transfer can no longer be modified at this stage.", TRANSFER_UNAVAILABLE: "This transfer is unavailable.",
+  SETTLEMENT_FAILED: "The receiving bank could not receive this transfer. Reserved funds have been released.",
+  COMPLIANCE_REJECTED: "This transfer was not authorized after review. Reserved funds have been released.",
+  PROCESSING_ERROR: "The transfer could not be executed. No amount was debited; you can try again.",
+  UNEXPECTED_ERROR: "The transfer could not be processed. No amount was debited; you can try again.",
+};
+export function transferFailureMessage(code: TransferFailureCode | null, language: "fr" | "en" = "fr"): string | null {
   if (!code) return null;
-  return FAILURE_MESSAGES[code] ?? FAILURE_MESSAGES.UNEXPECTED_ERROR;
+  return language === "en" ? FAILURE_MESSAGES_EN[code] ?? FAILURE_MESSAGES_EN.UNEXPECTED_ERROR : FAILURE_MESSAGES[code] ?? FAILURE_MESSAGES.UNEXPECTED_ERROR;
 }
 
 /** Customer wording for the route, never the technical enum (§84, §86). */
-export function transferKindLabel(kind: TransferKind): string {
-  return kind === "INTERNAL_TRANSFER" ? "Virement dans notre banque" : "Virement vers une autre banque";
+export function transferKindLabel(kind: TransferKind, language: "fr" | "en" = "fr"): string {
+  return language === "en"
+    ? kind === "INTERNAL_TRANSFER" ? "Internal transfer" : "External transfer"
+    : kind === "INTERNAL_TRANSFER" ? "Virement dans notre banque" : "Virement vers une autre banque";
 }
 
-export function transferKindShortLabel(kind: TransferKind): string {
-  return kind === "INTERNAL_TRANSFER" ? "Notre banque" : "Autre banque";
+export function transferKindShortLabel(kind: TransferKind, language: "fr" | "en" = "fr"): string {
+  return language === "en"
+    ? kind === "INTERNAL_TRANSFER" ? "Our bank" : "Other bank"
+    : kind === "INTERNAL_TRANSFER" ? "Notre banque" : "Autre banque";
 }
 
 /** Maps a thrown server-function error to a customer message. */
