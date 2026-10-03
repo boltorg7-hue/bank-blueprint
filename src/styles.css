@@ -358,6 +358,24 @@
   transform: scale(0.985);
 }
 
+/* Shared micro-interaction grammar: short, purposeful feedback only. */
+@utility motion-micro {
+  transition-property: transform, opacity, background-color, border-color, box-shadow;
+  transition-duration: var(--duration-fast);
+  transition-timing-function: var(--ease-banking);
+}
+@utility motion-reveal {
+  animation: banking-enter var(--duration-base) var(--ease-banking) both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .motion-micro {
+    transition: none !important;
+  }
+  .motion-reveal {
+    animation: none !important;
+  }
+}
+
 /* ---------------------------------------------------------------------------
  * TYPOGRAPHY SCALE (PROMPT 01 §10)
  * Mobile-first sizes; expressive display sizes stay for marketing surfaces.
