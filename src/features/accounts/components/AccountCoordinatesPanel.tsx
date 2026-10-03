@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useLanguage } from "@/components/providers/LanguageProvider";
 import { Copy, Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
 
@@ -23,27 +24,29 @@ export function AccountCoordinatesPanel({
   coordinates: AccountCoordinates;
   holderName: string;
 }) {
+  const { language } = useLanguage();
+  const en = language === "en";
   const [revealed, setRevealed] = useState(false);
 
   const rows: Array<{ label: string; value: string; copyable?: boolean }> = [
-    { label: "Titulaire", value: holderName },
+    { label: en ? "Account holder" : "Titulaire", value: holderName },
     {
-      label: "Numéro de compte",
+      label: en ? "Account number" : "Numéro de compte",
       value: revealed ? coordinates.accountNumber : maskFull(coordinates.accountNumber),
       copyable: revealed,
     },
   ];
   if (coordinates.iban) rows.push({ label: "IBAN", value: coordinates.iban, copyable: true });
   if (coordinates.bic) rows.push({ label: "SWIFT / BIC", value: coordinates.bic, copyable: true });
-  if (coordinates.bankCode) rows.push({ label: "Code banque", value: coordinates.bankCode });
-  if (coordinates.branchCode) rows.push({ label: "Code agence", value: coordinates.branchCode });
+  if (coordinates.bankCode) rows.push({ label: en ? "Bank code" : "Code banque", value: coordinates.bankCode });
+  if (coordinates.branchCode) rows.push({ label: en ? "Branch code" : "Code agence", value: coordinates.branchCode });
 
   const copy = async (label: string, value: string) => {
     try {
       await navigator.clipboard.writeText(value);
-      toast.success(`${label} copié`);
+      toast.success(en ? `${label} copied` : `${label} copié`);
     } catch {
-      toast.error("Copie impossible sur cet appareil");
+      toast.error(en ? "Copy is unavailable on this device" : "Copie impossible sur cet appareil");
     }
   };
 
@@ -54,16 +57,16 @@ export function AccountCoordinatesPanel({
     >
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h2 id="coordinates-heading" className="text-heading-sm text-foreground">
-          Coordonnées bancaires
+          {en ? "Banking details" : "Coordonnées bancaires"}
         </h2>
         <Button variant="ghost" size="sm" onClick={() => setRevealed((value) => !value)}>
           {revealed ? (
             <>
-              <EyeOff className="size-4" aria-hidden="true" /> Masquer
+              <EyeOff className="size-4" aria-hidden="true" /> {en ? "Hide" : "Masquer"}
             </>
           ) : (
             <>
-              <Eye className="size-4" aria-hidden="true" /> Afficher le numéro
+              <Eye className="size-4" aria-hidden="true" /> {en ? "Show account number" : "Afficher le numéro"}
             </>
           )}
         </Button>
@@ -79,7 +82,7 @@ export function AccountCoordinatesPanel({
                 <Button
                   variant="ghost"
                   size="icon"
-                  aria-label={`Copier ${row.label}`}
+                  aria-label={en ? `Copy ${row.label}` : `Copier ${row.label}`}
                   onClick={() => copy(row.label, row.value)}
                 >
                   <Copy className="size-4" aria-hidden="true" />
