@@ -2,6 +2,6 @@ import { useMutation,useQuery,useQueryClient } from "@tanstack/react-query"; imp
 import { getNotifications,markEveryNotificationRead,updateNotification } from "@/features/notifications/services/notifications.functions";
 import { QUERY_POLICY } from "@/lib/query-policy";
 export const NOTIFICATIONS_KEY=["notifications"] as const;
-export function useNotifications(){const fn=useServerFn(getNotifications);return useQuery({queryKey:NOTIFICATIONS_KEY,queryFn:()=>fn(),...QUERY_POLICY.REALTIME,refetchInterval:5_000});}
+export function useNotifications(category="ALL",cursor:string|null=null){const fn=useServerFn(getNotifications);return useQuery({queryKey:[...NOTIFICATIONS_KEY,category,cursor],queryFn:()=>fn({data:{category,cursor}}),...QUERY_POLICY.REALTIME,refetchInterval:5_000});}
 export function useUpdateNotification(){const fn=useServerFn(updateNotification);const qc=useQueryClient();return useMutation({mutationFn:(data:{id:string;action:"READ"|"ARCHIVE"})=>fn({data}),onSuccess:()=>qc.invalidateQueries({queryKey:NOTIFICATIONS_KEY})});}
 export function useMarkAllRead(){const fn=useServerFn(markEveryNotificationRead);const qc=useQueryClient();return useMutation({mutationFn:()=>fn(),onSuccess:()=>qc.invalidateQueries({queryKey:NOTIFICATIONS_KEY})});}
