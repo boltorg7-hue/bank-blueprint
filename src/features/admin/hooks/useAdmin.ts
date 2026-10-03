@@ -28,6 +28,10 @@ export const ADMIN_DASHBOARD_KEY = ["admin", "dashboard"] as const;
 export const ADMIN_ACCOUNTS_KEY = ["admin", "accounts"] as const;
 export const ADMIN_FUNDING_KEY = ["admin", "funding"] as const;
 export const ADMIN_ONBOARDING_KEY = ["admin", "onboarding-cases"] as const;
+export const ADMIN_CUSTOMERS_KEY = ["admin", "customers"] as const;
+export const ADMIN_DOSSIER_KEY = ["admin", "customer-dossier"] as const;
+const ADMIN_LIST_STALE_MS = 15_000;
+const ADMIN_OPERATIONAL_STALE_MS = 5_000;
 
 export function useAdminContext() {
   const fn = useServerFn(getAdminStaffContext);
@@ -43,7 +47,7 @@ export function useAdminDashboard() {
 export function useAdminCustomers(search: string, page = 1) {
   const fn = useServerFn(listAdminCustomers);
   const { data: staff } = useAdminContext();
-  return useQuery({ queryKey: ["admin", "customers", search, page], queryFn: () => fn({ data: { search, page } }), staleTime: 10_000, enabled: staff?.authorized === true && staff.permissions.includes("customers.read") });
+  return useQuery({ queryKey: [...ADMIN_CUSTOMERS_KEY, search, page], queryFn: () => fn({ data: { search, page } }), staleTime: ADMIN_LIST_STALE_MS, enabled: staff?.authorized === true && staff.permissions.includes("customers.read") });
 }
 
 export function useAdminOnboardingCases(search: string) {
@@ -52,7 +56,7 @@ export function useAdminOnboardingCases(search: string) {
   return useQuery({
     queryKey: [...ADMIN_ONBOARDING_KEY, search],
     queryFn: () => fn({ data: { search } }),
-    staleTime: 10_000,
+    staleTime: ADMIN_LIST_STALE_MS,
     enabled: staff?.authorized === true && staff.permissions.includes("customers.read"),
   });
 }
@@ -85,7 +89,7 @@ export function useActivateAdminOnboardingCustomer() {
 export function useAdminAccounts(search = "") {
   const fn = useServerFn(listAdminAccounts);
   const { data: staff } = useAdminContext();
-  return useQuery({ queryKey: [...ADMIN_ACCOUNTS_KEY, search], queryFn: () => fn({ data: { search } }), staleTime: 10_000, enabled: staff?.authorized === true && staff.permissions.includes("accounts.read") });
+  return useQuery({ queryKey: [...ADMIN_ACCOUNTS_KEY, search], queryFn: () => fn({ data: { search } }), staleTime: ADMIN_LIST_STALE_MS, enabled: staff?.authorized === true && staff.permissions.includes("accounts.read") });
 }
 
 export function useFundingRequests() {
@@ -125,7 +129,7 @@ export function useDecideFundingRequest() {
 
 export function useSetCustomerState() {
   const fn = useServerFn(setCustomerState); const queryClient = useQueryClient();
-  return useMutation({ mutationFn: (input: { customerId: string; state: "ACTIVE" | "RESTRICTED" | "SUSPENDED"; reason: string }) => fn({ data: input }), onSuccess: async () => { await Promise.all([queryClient.invalidateQueries({ queryKey: ["admin", "customers"] }), queryClient.invalidateQueries({ queryKey: ["admin", "customer-dossier"] }), queryClient.invalidateQueries({ queryKey: ADMIN_ACCOUNTS_KEY }), queryClient.invalidateQueries({ queryKey: ADMIN_DASHBOARD_KEY }), queryClient.invalidateQueries({ queryKey: ADMIN_AUDIT_KEY })]); } });
+  return useMutation({ mutationFn: (input: { customerId: string; state: "ACTIVE" | "RESTRICTED" | "SUSPENDED"; reason: string }) => fn({ data: input }), onSuccess: async (_data, variables) => { await Promise.all([queryClient.invalidateQueries({ queryKey: ADMIN_CUSTOMERS_KEY }), queryClient.invalidateQueries({ queryKey: [...ADMIN_DOSSIER_KEY, variables.customerId] }), queryClient.invalidateQueries({ queryKey: ADMIN_ACCOUNTS_KEY }), queryClient.invalidateQueries({ queryKey: ADMIN_DASHBOARD_KEY }), queryClient.invalidateQueries({ queryKey: ADMIN_AUDIT_KEY })]); } });
 }
 
 export function useSetAccountStatus() {
@@ -159,9 +163,9 @@ export function useAdminCustomerDossier(customerId: string | null) {
   const fn = useServerFn(getAdminCustomerDossier);
   const { data: staff } = useAdminContext();
   return useQuery({
-    queryKey: ["admin", "customer-dossier", customerId],
+    queryKey: [...ADMIN_DOSSIER_KEY, customerId],
     queryFn: () => fn({ data: { customerId: customerId! } }),
-    staleTime: 5_000,
+    staleTime: ADMIN_OPERATIONAL_STALE_MS,
     enabled: Boolean(customerId) && staff?.authorized === true && staff.permissions.includes("customers.read"),
   });
 }
