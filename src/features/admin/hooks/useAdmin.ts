@@ -4,6 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 
 import {
   createFundingRequest,
+  searchFundingAccounts,
   decideFundingRequest,
   getAdminDashboard,
   getAdminStaffContext,
@@ -95,6 +96,21 @@ export function useFundingRequests(cursor: string | null = null) {
   const fn = useServerFn(listFundingRequests);
   const { data: staff } = useAdminContext();
   return useQuery({ queryKey: [...ADMIN_FUNDING_KEY, cursor], queryFn: () => fn({ data: { cursor } }), ...QUERY_POLICY.REALTIME, enabled: staff?.authorized === true && (staff.permissions.includes("finance.adjustment.create") || staff.permissions.includes("finance.adjustment.approve")) });
+}
+
+export function useFundingAccountSearch(search: string) {
+  const fn = useServerFn(searchFundingAccounts);
+  const { data: staff } = useAdminContext();
+  const normalizedSearch = search.trim();
+  return useQuery({
+    queryKey: ["admin", "funding-account-search", normalizedSearch],
+    queryFn: () => fn({ data: { search: normalizedSearch } }),
+    ...QUERY_POLICY.NORMAL,
+    enabled:
+      normalizedSearch.length >= 2 &&
+      staff?.authorized === true &&
+      (staff.permissions.includes("finance.adjustment.create") || staff.permissions.includes("finance.adjustment.approve")),
+  });
 }
 
 export function useCreateFundingRequest() {
