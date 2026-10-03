@@ -21,12 +21,12 @@ import {
  */
 export const DOCUMENTS_KEY = ["documents"] as const;
 
-export function useDocuments(filter: DocumentFilter = "ALL") {
+export function useDocuments(filter: DocumentFilter = "ALL", cursor: string | null = null) {
   const fetchList = useServerFn(listCustomerDocuments);
   const types = documentTypesForFilter(filter);
   return useQuery<CustomerDocumentDto[]>({
-    queryKey: [...DOCUMENTS_KEY, "list", filter],
-    queryFn: () => fetchList({ data: { types: types ?? [] } }),
+    queryKey: [...DOCUMENTS_KEY, "list", filter, cursor],
+    queryFn: () => fetchList({ data: { types: types ?? [], cursor } }),
     ...QUERY_POLICY.NORMAL,
     retry: 1,
   });
