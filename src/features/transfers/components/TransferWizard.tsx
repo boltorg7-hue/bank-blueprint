@@ -495,7 +495,7 @@ export function TransferWizard({ initialBeneficiary }: { initialBeneficiary?: st
             <p className="text-sm text-muted-foreground">
               {result.status === "COMPLETED"
                 ? (en ? "The transfer was completed and added to your history." : "Le virement a été exécuté et enregistré dans votre historique.")
-                : (transferFailureMessage(result.failureCode) ??
+                : (transferFailureMessage(result.failureCode, en ? "en" : "fr") ??
                   progressExplanation({
                     status: result.status,
                     kind: result.kind,
