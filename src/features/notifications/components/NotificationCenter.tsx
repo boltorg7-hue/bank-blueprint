@@ -52,7 +52,7 @@ export function NotificationCenter() {
         ))}
       </div>
       {!items.length ? (
-        <EmptyState title={en ? "No notifications" : "Aucune notification"} description={en ? "Account, pricing and transaction alerts will appear here." : "Vos alertes de compte, de tarifs et d'opérations apparaîtront ici."} />
+        <EmptyState title={en ? "No notifications yet" : "Aucune notification pour le moment"} description={en ? "Account, pricing and transaction alerts will appear here." : "Vos alertes de compte, de tarifs et d'opérations apparaîtront ici."} />
       ) : (
         <div className="space-y-3">
           {items.map((n) => (
