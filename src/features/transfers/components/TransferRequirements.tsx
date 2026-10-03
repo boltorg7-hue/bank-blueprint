@@ -58,8 +58,7 @@ export function TransferRequirements({
       <div>
         <h2 className="text-sm font-semibold text-foreground">{en ? "Required documents" : "Justificatifs demandés"}</h2>
         <p className="text-caption text-muted-foreground">
-          Ces documents sont exigés par la réglementation avant l'exécution du virement. Le montant
-          reste réservé sur votre compte pendant l'examen.
+          {en ? "These documents are required before the transfer can be executed. The amount remains reserved in your account during the review." : "Ces documents sont exigés par la réglementation avant l'exécution du virement. Le montant reste réservé sur votre compte pendant l'examen."}
         </p>
       </div>
 
@@ -109,7 +108,7 @@ function RequirementRow({
           </p>
         </div>
         <StatusBadge
-          label={requirementStatusLabel(requirement.status)}
+          label={requirementStatusLabel(requirement.status, en ? "en" : "fr")}
           tone={STATUS_TONES[requirement.status]}
         />
       </div>
@@ -129,7 +128,7 @@ function RequirementRow({
             >
               <FileCheck2 className="size-4 shrink-0" aria-hidden="true" />
               <span className="truncate">
-                {document.originalFilename ?? "Document transmis"} ·{" "}
+                {document.originalFilename ?? (en ? "Submitted document" : "Document transmis")} ·{" "}
                 {formatDateTime(document.uploadedAt)}
               </span>
             </li>
