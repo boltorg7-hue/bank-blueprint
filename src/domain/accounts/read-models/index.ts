@@ -1,2 +1,2 @@
-import type { Account } from "../types";
-export type AccountSummary = Pick<Account, "id" | "customerId" | "currency" | "status" | "balance">;
+import type { CustomerAccountSummaryDto } from "../types";
+export type AccountSummary = Pick<CustomerAccountSummaryDto, "reference" | "displayName" | "currency" | "status" | "balance">;

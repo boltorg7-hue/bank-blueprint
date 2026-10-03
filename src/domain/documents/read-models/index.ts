@@ -1,1 +1,2 @@
-import type {Document} from "../types";export type DocumentSummary=Pick<Document,"id"|"customerId"|"type"|"status">;
+import type { CustomerDocumentDto } from "../types";
+export type DocumentSummary = Pick<CustomerDocumentDto, "reference" | "documentType" | "status">;
