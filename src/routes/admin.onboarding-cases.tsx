@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { Button } from "@/components/ui/button";
 import { createFileRoute } from "@tanstack/react-router";
 
 import { EmptyState, ErrorState, LoadingState } from "@/components/feedback";
@@ -42,7 +43,7 @@ function AdminOnboardingCasesPage() {
         <Input aria-label={en ? "Search applications" : "Rechercher un dossier"} placeholder={en ? "Name, email or customer reference" : "Nom, e-mail ou référence client"} value={search} onChange={(event) => setSearch(event.target.value)} className="min-h-11" />
         <Select value={status} onValueChange={setStatus}><SelectTrigger className="min-h-11" aria-label={en ? "Filter by status" : "Filtrer par statut"}><SelectValue /></SelectTrigger><SelectContent><SelectItem value="ALL">{en ? "All statuses" : "Tous les statuts"}</SelectItem><SelectItem value="NOT_STARTED">{en ? "Not started" : "Non commencé"}</SelectItem><SelectItem value="IN_PROGRESS">{en ? "In progress" : "En cours"}</SelectItem><SelectItem value="SUBMITTED">{en ? "Submitted" : "Dossier transmis"}</SelectItem><SelectItem value="UNDER_REVIEW">{en ? "Awaiting supervisor" : "Validation superviseur"}</SelectItem><SelectItem value="ADDITIONAL_INFORMATION_REQUIRED">{en ? "More information required" : "Complément requis"}</SelectItem><SelectItem value="VERIFIED">{en ? "Limited account opened" : "Compte limité ouvert"}</SelectItem><SelectItem value="REJECTED">{en ? "Rejected" : "Refusé"}</SelectItem></SelectContent></Select>
       </div>
-      {query.isPending ? <LoadingState /> : query.isError ? <ErrorState onRetry={() => query.refetch()} /> : !filtered.length ? <EmptyState title={en ? "No application found" : "Aucun dossier trouvé"} /> : <AdminOnboardingCases cases={filtered} />}
+      {query.isPending ? <LoadingState /> : query.isError ? <ErrorState onRetry={() => query.refetch()} /> : !filtered.length ? <div className="space-y-3"><EmptyState title={search.trim() || status !== "ALL" ? (en ? "No application matches these filters" : "Aucun dossier ne correspond à ces filtres") : (en ? "No application found" : "Aucun dossier trouvé")} />{search.trim() || status !== "ALL" ? <div className="flex justify-center"><Button variant="ghost" onClick={() => { setSearch(""); setStatus("ALL"); }}>{en ? "Clear filters" : "Réinitialiser les filtres"}</Button></div> : null}</div> : <AdminOnboardingCases cases={filtered} />}
       </PageSection>
     </AdminGate>
   );
