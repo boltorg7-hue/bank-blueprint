@@ -25,7 +25,7 @@ export function LoadingState({
       role="status"
       aria-live="polite"
       className={cn(
-        "flex items-center justify-center gap-2 py-8 text-sm text-muted-foreground",\n        "motion-safe:transition-opacity motion-safe:duration-200",
+        "flex min-h-24 items-center justify-center gap-2 rounded-xl border border-border bg-surface px-4 py-8 text-sm text-muted-foreground",\n        "motion-safe:transition-opacity motion-safe:duration-200 motion-reduce:transition-none",
         className,
       )}
     >
