@@ -211,6 +211,8 @@ function QuickAction({
   icon: React.ComponentType<{ className?: string }>;
   disabled?: boolean;
 }) {
+  const { language } = useLanguage();
+  const en = language === "en";
   const content = (
     <>
       <div className={cn(
@@ -221,7 +223,7 @@ function QuickAction({
       </div>
       <div className="mt-3 min-w-0">
         <span className="block break-words font-semibold leading-tight tracking-tight">{label}</span>
-        {disabled && <span className="mt-1 block text-caption font-medium opacity-70">Indisponible</span>}
+        {disabled && <span className="mt-1 block text-caption font-medium opacity-70">{en ? "Unavailable" : "Indisponible"}</span>}
       </div>
     </>
   );
