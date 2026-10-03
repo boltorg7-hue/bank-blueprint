@@ -30,7 +30,7 @@ export function ActionRequiredTransfers() {
               <Link
                 to="/app/transfers/$transferRef"
                 params={{ transferRef: transfer.reference }}
-                className="flex items-center gap-3 p-4 transition-colors hover:bg-surface-sunken"
+                className="press-feedback flex min-h-11 items-center gap-3 rounded-xl p-4 transition-[background-color,transform,box-shadow] duration-150 hover:bg-surface-sunken hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 motion-reduce:transition-none"
               >
                 <span
                   aria-hidden="true"

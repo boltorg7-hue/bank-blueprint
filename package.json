@@ -9,7 +9,7 @@
     "build:dev": "node scripts/optimize-home-images.mjs && vite build --mode development",
     "preview": "vite preview",
     "lint": "eslint .",
-    "test:certification": "node --test tests/certification.test.mjs",
+    "test:certification": "node --test tests/certification.test.mjs tests/admin-ui-certification.test.mjs",
     "test:db": "supabase test db",
     "format": "prettier --write .",
     "audit:migrations": "node scripts/audit-migration-functions.mjs",

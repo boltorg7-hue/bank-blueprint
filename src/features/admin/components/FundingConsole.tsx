@@ -143,7 +143,7 @@ export function FundingConsole() {
                           <li key={account.id}>
                             <button
                               type="button"
-                              className="flex w-full items-center justify-between gap-3 px-3 py-2 text-left hover:bg-surface-sunken"
+                              className="flex min-h-11 w-full items-center justify-between gap-3 px-3 py-2 text-left hover:bg-surface-sunken focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                               onClick={() => {
                                 setAccountReference(account.reference);
                                 setAccountSearch(account.reference);
@@ -242,7 +242,7 @@ export function FundingConsole() {
                     tone={request.status === "PENDING" ? "pending" : request.status === "APPROVED" ? "success" : "failed"}
                   />
                 </div>
-                <p className="text-amount text-foreground">{formatMoneyFromMinor(request.amountMinor, { currency: request.currency })}</p>
+                <p className="text-amount text-right text-numeric text-foreground">{formatMoneyFromMinor(request.amountMinor, { currency: request.currency })}</p>
                 <div className="rounded-md bg-surface-sunken p-3">
                   <p className="text-caption text-muted-foreground">{en ? "Reason" : "Motif"}</p>
                   <p className="text-body-sm mt-1">{request.reason}</p>
@@ -250,8 +250,8 @@ export function FundingConsole() {
                 </div>
                 {request.status === "PENDING" && canApprove ? (
                   <div className="grid grid-cols-2 gap-3">
-                    <Button onClick={() => void makeDecision(request.id, true)} disabled={decide.isPending}>{en ? "Approve" : "Approuver"}</Button>
-                    <Button variant="outline" onClick={() => void makeDecision(request.id, false)} disabled={decide.isPending}>{en ? "Reject" : "Refuser"}</Button>
+                    <Button onClick={() => void makeDecision(request.id, true)} disabled={decide.isPending} loading={decide.isPending}>{en ? "Approve" : "Approuver"}</Button>
+                    <Button variant="outline" onClick={() => void makeDecision(request.id, false)} disabled={decide.isPending} loading={decide.isPending}>{en ? "Reject" : "Refuser"}</Button>
                   </div>
                 ) : request.checkerName ? (
                   <p className="text-caption text-muted-foreground">Checker · {request.checkerName}</p>
@@ -265,7 +265,7 @@ export function FundingConsole() {
               <TableHeader>
                 <TableRow>
                   <TableHead>{en ? "Account" : "Compte"}</TableHead>
-                  <TableHead>{en ? "Amount" : "Montant"}</TableHead>
+                  <TableHead className="text-right">{en ? "Amount" : "Montant"}</TableHead>
                   <TableHead>{en ? "Reason" : "Motif"}</TableHead>
                   <TableHead>Maker</TableHead>
                   <TableHead>{en ? "Status" : "Statut"}</TableHead>
@@ -274,10 +274,10 @@ export function FundingConsole() {
               </TableHeader>
               <TableBody>
                 {(requests.data.items ?? []).map((request) => (
-                  <TableRow key={request.id}>
-                    <TableCell><p className="font-medium">{request.holderName}</p><p className="text-xs text-muted-foreground">{request.accountReference}</p></TableCell>
-                    <TableCell>{formatMoneyFromMinor(request.amountMinor, { currency: request.currency })}</TableCell>
-                    <TableCell className="max-w-xs">{request.reason}</TableCell>
+                  <TableRow key={request.id} className="align-middle">
+                    <TableCell className="max-w-[16rem]"><p className="truncate font-medium">{request.holderName}</p><p className="truncate text-xs text-muted-foreground">{request.accountReference}</p></TableCell>
+                    <TableCell className="whitespace-nowrap text-right text-numeric">{formatMoneyFromMinor(request.amountMinor, { currency: request.currency })}</TableCell>
+                    <TableCell className="max-w-xs"><p className="line-clamp-2 text-sm">{request.reason}</p></TableCell>
                     <TableCell>{request.makerName}</TableCell>
                     <TableCell>
                       <StatusBadge
@@ -288,8 +288,8 @@ export function FundingConsole() {
                     <TableCell>
                       {request.status === "PENDING" && canApprove ? (
                         <div className="flex gap-2">
-                          <Button size="sm" onClick={() => void makeDecision(request.id, true)} disabled={decide.isPending}>{en ? "Approve" : "Approuver"}</Button>
-                          <Button size="sm" variant="outline" onClick={() => void makeDecision(request.id, false)} disabled={decide.isPending}>{en ? "Reject" : "Refuser"}</Button>
+                          <Button size="sm" onClick={() => void makeDecision(request.id, true)} disabled={decide.isPending} loading={decide.isPending}>{en ? "Approve" : "Approuver"}</Button>
+                          <Button size="sm" variant="outline" onClick={() => void makeDecision(request.id, false)} disabled={decide.isPending} loading={decide.isPending}>{en ? "Reject" : "Refuser"}</Button>
                         </div>
                       ) : request.checkerName ?? "—"}
                     </TableCell>

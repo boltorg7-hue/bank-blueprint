@@ -288,6 +288,29 @@ test("les primitives de dialogue conservent une fermeture tactile de 44px minimu
   }
 });
 
+test("la navigation secondaire garde Plus actif sans voler l’état aux parcours primaires", () => {
+  const navigation = read("src/config/navigation.ts");
+  const bottomNav = read("src/components/navigation/CustomerBottomNav.tsx");
+  const more = read("src/routes/app.more.tsx");
+
+  assert.match(navigation, /export function isCustomerMoreRoute/);
+  for (const route of [
+    "/app/more",
+    "/app/beneficiaries",
+    "/app/statements",
+    "/app/documents",
+    "/app/messages",
+    "/app/notifications",
+    "/app/profile",
+    "/app/security",
+    "/app/settings",
+  ]) {
+    assert.match(navigation, new RegExp('"' + route.replace(/[.*+?^$()|[\]\\]/g, "\\test("la navigation mobile client reste limitée à cinq destinations primaires", () => {") + '"'));
+  }
+  assert.match(bottomNav, /isCustomerMoreRoute\(pathname\)/);
+  assert.match(more, /aria-current=\{pathname === item\.to \|\| pathname\.startsWith\(item\.to \+ "\/"\) \? "page" : undefined\}/);
+});
+
 test("la navigation mobile client reste limitée à cinq destinations primaires", () => {
   const navigation = read("src/config/navigation.ts");
   const match = navigation.match(/export const CUSTOMER_PRIMARY_NAV[\s\S]*?\];/);
@@ -542,4 +565,352 @@ test("les cinq dépendances lourdes restent documentées comme modules ciblés d
   ]) {
     assert.match(packageJson, new RegExp('"' + dependency.replace(/[.*+?^$()|[\]\\]/g, "\\$&") + '"\\s*:'));
   }
+});
+
+
+test("le motion design reste court, coherent et compatible reduced motion", () => {
+  const button = read("src/components/ui/button.tsx");
+  const dialog = read("src/components/ui/dialog.tsx");
+  const sheet = read("src/components/ui/sheet.tsx");
+  const select = read("src/components/ui/select.tsx");
+  const styles = read("src/styles.css");
+
+  assert.match(button, /motion-safe:transition-/);
+  assert.match(dialog, /motion-reduce:animate-none/);
+  assert.match(sheet, /motion-safe:transition-transform/);
+  assert.match(sheet, /motion-reduce:animate-none/);
+  assert.match(select, /motion-reduce:animate-none/);
+  assert.match(styles, /@utility motion-micro/);
+  assert.match(styles, /@utility motion-reveal/);
+  assert.match(styles, /prefers-reduced-motion: reduce/);
+});
+
+test("lexperience mobile native conserve navigation, safe area et feuilles tactiles", () => {
+  const nav = read("src/components/navigation/CustomerBottomNav.tsx");
+  const layout = read("src/components/layout/BankingAppLayout.tsx");
+  const sheet = read("src/components/ui/sheet.tsx");
+  const styles = read("src/styles.css");
+
+  assert.match(nav, /safe-pb/);
+  assert.match(nav, /backdrop-blur-xl/);
+  assert.match(layout, /pb-mobile-nav/);
+  assert.match(layout, /overscroll-x-none/);
+  assert.match(sheet, /max-h-\[92dvh\]/);
+  assert.match(sheet, /overscroll-contain/);
+  assert.match(styles, /safe-area-inset-bottom/);
+  assert.match(styles, /touch-action: manipulation/);
+});
+
+test("le dashboard conserve une hierarchie claire et des actions accessibles", () => {
+  const dashboard = read("src/routes/app.dashboard.tsx");
+  const actionRequired = read("src/features/transfers/components/ActionRequiredTransfers.tsx");
+
+  assert.match(dashboard, /<section aria-labelledby="activity-heading"/);
+  assert.match(dashboard, /focus-visible:ring-2 focus-visible:ring-ring/);
+  assert.match(dashboard, /motion-reduce:transition-none/);
+  assert.ok(dashboard.indexOf("<ActionRequiredTransfers />") < dashboard.indexOf("<MonthlySummaryCard"), "actions requises avant le resume mensuel");
+  assert.match(actionRequired, /focus-visible:ring-2 focus-visible:ring-ring/);
+  assert.match(actionRequired, /min-h-11/);
+});
+
+test("les interactions modernes respectent feedback, accessibilité et réduction de mouvement", () => {
+  const button = read("src/components/ui/button.tsx");
+  const dialog = read("src/components/ui/dialog.tsx");
+  const sheet = read("src/components/ui/sheet.tsx");
+  const select = read("src/components/ui/select.tsx");
+
+  assert.match(button, /role="status" aria-live="polite"/);
+  assert.match(button, /aria-busy=\{loading \|\| undefined\}/);
+  assert.match(dialog, /motion-reduce:animate-none/);
+  assert.match(sheet, /motion-reduce:animate-none/);
+  assert.match(select, /motion-reduce:animate-none/);
+});
+
+test("la plateforme supporte un thème adaptatif 2026 sans décalage entre préférence système et interface", () => {
+  const theme = read("src/components/providers/ThemeProvider.tsx");
+  const preferences = read("src/features/profile/components/PreferencesPage.tsx");
+
+  assert.match(theme, /ThemeMode = "light" \| "dark" \| "system"/);
+  assert.match(theme, /prefers-color-scheme: dark/);
+  assert.match(theme, /addEventListener\?\.\("change"/);
+  assert.match(theme, /theme === "light" \? "dark" : theme === "dark" \? "system" : "light"/);
+  assert.match(preferences, /setTheme\(result\.theme\)/);
+  assert.match(preferences, /value={form\.theme}/);
+  assert.match(preferences, /value="system"/);
+});
+
+test("5.8.8.1 standardise les primitives de contrôle sur une même grammaire visuelle", () => {
+  const button = read("src/components/ui/button.tsx");
+  const input = read("src/components/ui/input.tsx");
+  const textarea = read("src/components/ui/textarea.tsx");
+  const select = read("src/components/ui/select.tsx");
+  const tabs = read("src/components/ui/tabs.tsx");
+
+  for (const source of [button, input, textarea, select, tabs]) {
+    assert.match(source, /focus-visible:ring-2 focus-visible:ring-ring/);
+    assert.match(source, /focus-visible:ring-offset-2/);
+    assert.match(source, /motion-safe:transition-/);
+    assert.match(source, /duration-150/);
+  }
+
+  assert.match(button, /min-h-11/);
+  assert.match(input, /min-h-11/);
+  assert.match(textarea, /min-h-\[60px\]/);
+  assert.match(select, /min-h-11 w-full/);
+  assert.match(select, /focus-visible:outline-none/);
+  assert.match(tabs, /TabsTrigger[\\s\\S]*min-h-11/);
+});
+
+test("5.8.8.1 conserve le reduced-motion sur les primitives animées", () => {
+  const select = read("src/components/ui/select.tsx");
+  const dialog = read("src/components/ui/dialog.tsx");
+  const sheet = read("src/components/ui/sheet.tsx");
+  const styles = read("src/styles.css");
+
+  assert.match(select, /motion-reduce:animate-none/);
+  assert.match(dialog, /motion-reduce:animate-none/);
+  assert.match(sheet, /motion-reduce:animate-none/);
+  assert.match(styles, /prefers-reduced-motion: reduce/);
+});
+
+
+test("5.8.8.3 aligne les écrans client sur les primitives de page et de surface partagées", () => {
+  const header = read("src/components/layout/PageHeader.tsx");
+  const account = read("src/features/accounts/components/AccountListItem.tsx");
+  const more = read("src/routes/app.more.tsx");
+  const featureShell = read("src/features/customer-shell/components/FeatureShellPage.tsx");
+
+  assert.match(header, /text-heading-xl text-balance text-foreground/);
+  assert.doesNotMatch(header, /sm:text-3xl/);
+  assert.match(account, /native-surface press-feedback/);
+  assert.match(account, /motion-safe:transition-\[border-color,box-shadow,transform\]/);
+  assert.match(account, /motion-reduce:transition-none/);
+  assert.match(more, /text-overline text-muted-foreground/);
+  assert.match(featureShell, /BankingContentContainer width=\{width\}/);
+  assert.match(featureShell, /<PageSection>/);
+});
+
+
+test("5.8.8.4 aligne les surfaces et la motion de la console administrative", () => {
+  const table = read("src/components/ui/table.tsx");
+  const sidebar = read("src/components/navigation/AdminSidebar.tsx");
+  const layout = read("src/components/layout/AdminLayout.tsx");
+  const dashboard = read("src/routes/admin.dashboard.tsx");
+  const funding = read("src/routes/admin.funding.tsx");
+  const onboarding = read("src/routes/admin.onboarding-cases.tsx");
+
+  assert.match(table, /motion-safe:transition-\\[background-color,border-color\\]/);
+  assert.match(table, /motion-reduce:transition-none/);
+  assert.match(sidebar, /text-overline text-muted-foreground/);
+  assert.match(layout, /text-caption font-medium/);
+  assert.match(dashboard, /native-surface p-4 sm:p-5/);
+  assert.match(funding, /<PageSection>[\\s\\S]*<PageHeader/);
+  assert.match(onboarding, /native-surface mb-5/);
+});
+
+
+test("5.8.8.5 standardise les états globaux de feedback", () => {
+  const feedback = read("src/components/feedback/index.tsx");
+  const state = read("src/components/feedback/StateBlock.tsx");
+  const skeleton = read("src/components/ui/skeleton.tsx");
+  assert.match(feedback, /min-h-24 items-center justify-center gap-2 rounded-xl border border-border bg-surface/);
+  assert.match(feedback, /motion-reduce:transition-none/);
+  assert.match(state, /min-h-44 flex flex-col items-center justify-center/);
+  assert.match(state, /motion-reduce:transition-none/);
+  assert.match(skeleton, /animate-pulse/);
+});
+
+
+test("5.8.8.6 renforce la responsivité des overlays sur petits écrans", () => {
+  const dialog = read("src/components/ui/dialog.tsx");
+  const sheet = read("src/components/ui/sheet.tsx");
+  const banking = read("src/components/layout/BankingAppLayout.tsx");
+  const admin = read("src/components/layout/AdminLayout.tsx");
+  assert.match(dialog, /w-\\[calc\\(100vw-2rem\\)\\]/);
+  assert.match(dialog, /max-h-\\[calc\\(100dvh-2rem\\)\\]/);
+  assert.match(dialog, /overflow-y-auto/);
+  assert.match(sheet, /max-w-full overflow-y-auto overscroll-contain/);
+  assert.match(sheet, /bottom:.*max-h-\\\[92dvh\\\]/s);
+  assert.match(banking, /min-w-0 flex-1 overscroll-x-none/);
+  assert.match(admin, /min-w-0 flex-1 overscroll-x-none/);
+});
+
+test("5.8.8.7 ne laisse pas de reliquats de debug ou de maintenance explicite", () => {
+  const feedback = read("src/components/feedback/index.tsx");
+  const state = read("src/components/feedback/StateBlock.tsx");
+  for (const source of [feedback, state]) assert.doesNotMatch(source, /\\n/);
+  for (const directory of ["src", "scripts", "supabase"]) {
+    const walk = (path) => {
+      for (const entry of readdirSync(new URL(`${path}/`, root), { withFileTypes: true })) {
+        const child = join(path, entry.name);
+        if (entry.isDirectory()) walk(child);
+        else if (/\.(?:ts|tsx|js|mjs|sql)$/.test(entry.name)) {
+          const source = read(child);
+          assert.doesNotMatch(source, /(^|\s)(TODO|FIXME|debugger)(\s|:|$)/);
+          assert.doesNotMatch(source, /console\.(log|debug|info|warn|error)\s*\(/);
+        }
+      }
+    };
+    walk(directory);
+  }
+});
+
+test("5.8.8.8 certifie la cohérence globale des primitives, shells, états et surfaces", () => {
+  const button = read("src/components/ui/button.tsx");
+  const input = read("src/components/ui/input.tsx");
+  const textarea = read("src/components/ui/textarea.tsx");
+  const select = read("src/components/ui/select.tsx");
+  const tabs = read("src/components/ui/tabs.tsx");
+  const feedback = read("src/components/feedback/index.tsx");
+  const state = read("src/components/feedback/StateBlock.tsx");
+  const pageHeader = read("src/components/layout/PageHeader.tsx");
+  const banking = read("src/components/layout/BankingAppLayout.tsx");
+  const admin = read("src/components/layout/AdminLayout.tsx");
+  const sidebar = read("src/components/navigation/AdminSidebar.tsx");
+  const table = read("src/components/ui/table.tsx");
+  const dialog = read("src/components/ui/dialog.tsx");
+  const sheet = read("src/components/ui/sheet.tsx");
+  const account = read("src/features/accounts/components/AccountListItem.tsx");
+  const more = read("src/routes/app.more.tsx");
+  const adminDashboard = read("src/routes/admin.dashboard.tsx");
+  const adminFunding = read("src/routes/admin.funding.tsx");
+  const onboarding = read("src/routes/admin.onboarding-cases.tsx");
+
+  for (const source of [button, input, textarea, select, tabs]) {
+    assert.match(source, /focus-visible:ring-2 focus-visible:ring-ring/);
+    assert.match(source, /motion-safe:transition-/);
+    assert.match(source, /duration-150/);
+  }
+
+  assert.match(button, /min-h-11/);
+  assert.match(input, /min-h-11/);
+  assert.match(textarea, /min-h-\[60px\]/);
+  assert.match(select, /min-h-11 w-full/);
+  assert.match(tabs, /min-h-11/);
+
+  assert.match(feedback, /min-h-24/);
+  assert.match(feedback, /motion-reduce:transition-none/);
+  assert.match(state, /min-h-44/);
+  assert.match(state, /motion-reduce:transition-none/);
+
+  assert.match(pageHeader, /text-heading-xl text-balance text-foreground/);
+  assert.match(account, /native-surface/);
+  assert.match(more, /text-overline/);
+
+  for (const source of [banking, admin]) {
+    assert.match(source, /min-w-0 flex-1/);
+    assert.match(source, /overscroll-x-none/);
+  }
+
+  assert.match(sidebar, /text-overline text-muted-foreground/);
+  assert.match(table, /motion-safe:transition-\[background-color,border-color\]/);
+  assert.match(table, /motion-reduce:transition-none/);
+  assert.match(adminDashboard, /native-surface/);
+  assert.match(adminFunding, /<PageSection>[\s\S]*<PageHeader/);
+  assert.match(onboarding, /native-surface/);
+
+  assert.match(dialog, /w-\[calc\(100vw-2rem\)\]/);
+  assert.match(dialog, /max-h-\[calc\(100dvh-2rem\)\]/);
+  assert.match(dialog, /overflow-y-auto/);
+  assert.match(sheet, /max-w-full overflow-y-auto overscroll-contain/);
+  assert.match(sheet, /max-h-\[92dvh\]/);
+
+  for (const directory of ["src", "scripts", "supabase"]) {
+    const walk = (path) => {
+      for (const entry of readdirSync(new URL(`${path}/`, root), { withFileTypes: true })) {
+        const child = join(path, entry.name);
+        if (entry.isDirectory()) walk(child);
+        else if (/\.(?:ts|tsx|js|mjs|sql)$/.test(entry.name)) {
+          const source = read(child);
+          assert.doesNotMatch(source, /(^|\s)(TODO|FIXME|debugger)(\s|:|$)/);
+          assert.doesNotMatch(source, /console\.(log|debug|info|warn|error)\s*\(/);
+        }
+      }
+    };
+    walk(directory);
+  }
+});
+
+test("5.8.9 certifie la modernisation UI/UX 2026 de bout en bout", () => {
+  const packageJson = read("package.json");
+  const theme = read("src/components/providers/ThemeProvider.tsx");
+  const navigation = read("src/config/navigation.ts");
+  const button = read("src/components/ui/button.tsx");
+  const loading = read("src/components/feedback/index.tsx");
+  const dashboard = read("src/routes/app.dashboard.tsx");
+  const bottomNav = read("src/components/navigation/CustomerBottomNav.tsx");
+  const banking = read("src/components/layout/BankingAppLayout.tsx");
+  const admin = read("src/components/layout/AdminLayout.tsx");
+  const adminSidebar = read("src/components/navigation/AdminSidebar.tsx");
+  const pageHeader = read("src/components/layout/PageHeader.tsx");
+  const dialog = read("src/components/ui/dialog.tsx");
+  const sheet = read("src/components/ui/sheet.tsx");
+  const styles = read("src/styles.css");
+
+  assert.match(packageJson, /"test:certification": "node --test tests\/certification\.test\.mjs tests\/admin-ui-certification\.test\.mjs"/);
+
+  // 5.8.1 — thème adaptatif.
+  assert.match(theme, /ThemeMode = "light" \| "dark" \| "system"/);
+  assert.match(theme, /prefers-color-scheme: dark/);
+  assert.match(theme, /addEventListener\?\.\("change"/);
+
+  // 5.8.2 — navigation active et mobile primaire.
+  const primary = navigation.match(/export const CUSTOMER_PRIMARY_NAV[\s\S]*?\];/);
+  assert.ok(primary);
+  assert.ok((primary[0].match(/\{ label:/g) ?? []).length <= 5);
+  assert.match(navigation, /isCustomerMoreRoute/);
+  assert.match(bottomNav, /aria-current=\{selected \? "page" : undefined\}/);
+
+  // 5.8.3 + 5.8.6 — feedback d'action et motion maîtrisé.
+  assert.match(button, /aria-busy=\{loading \|\| undefined\}/);
+  assert.match(button, /role="status" aria-live="polite"/);
+  assert.match(button, /motion-safe:transition-/);
+  assert.match(styles, /prefers-reduced-motion: reduce/);
+  assert.match(styles, /@utility motion-micro/);
+  assert.match(styles, /@utility motion-reveal/);
+
+  // 5.8.4 — hiérarchie du dashboard.
+  assert.ok(dashboard.indexOf("<ActionRequiredTransfers />") < dashboard.indexOf("<MonthlySummaryCard"));
+  assert.match(dashboard, /aria-labelledby="activity-heading"/);
+  assert.match(dashboard, /focus-visible:ring-2 focus-visible:ring-ring/);
+
+  // 5.8.5 — expérience mobile/native-like.
+  assert.match(bottomNav, /safe-pb/);
+  assert.match(bottomNav, /touch-target/);
+  assert.match(banking, /pb-mobile-nav/);
+  assert.match(banking, /overscroll-x-none/);
+  assert.match(sheet, /max-h-\[92dvh\]/);
+  assert.match(sheet, /overscroll-contain/);
+
+  // 5.8.7 — shell administratif moderne et structuré.
+  assert.match(adminSidebar, /text-overline text-muted-foreground/);
+  assert.match(adminSidebar, /min-h-11/);
+  assert.match(admin, /aria-controls="admin-navigation"/);
+
+  // 5.8.8 — cohérence globale des primitives, surfaces et responsive.
+  assert.match(pageHeader, /text-heading-xl text-balance text-foreground/);
+  assert.match(dialog, /w-\[calc\(100vw-2rem\)\]/);
+  assert.match(dialog, /max-h-\[calc\(100dvh-2rem\)\]/);
+  assert.match(dialog, /overflow-y-auto/);
+  assert.match(sheet, /max-w-full overflow-y-auto overscroll-contain/);
+  assert.match(sheet, /motion-reduce:animate-none/);
+
+  // Le nettoyage technique final reste un invariant de certification.
+  for (const directory of ["src", "scripts", "supabase"]) {
+    const walk = (path) => {
+      for (const entry of readdirSync(new URL(`${path}/`, root), { withFileTypes: true })) {
+        const child = join(path, entry.name);
+        if (entry.isDirectory()) walk(child);
+        else if (/\.(?:ts|tsx|js|mjs|sql)$/.test(entry.name)) {
+          const source = read(child);
+          assert.doesNotMatch(source, /(^|\s)(TODO|FIXME|debugger)(\s|:|$)/);
+          assert.doesNotMatch(source, /console\.(log|debug|info|warn|error)\s*\(/);
+        }
+      }
+    };
+    walk(directory);
+  }
+
+  // La certification 5.8.8 globale doit elle-même rester dans la suite.
+  assert.match(read("tests/certification.test.mjs"), /5\.8\.8\.8 certifie la cohérence globale/);
 });

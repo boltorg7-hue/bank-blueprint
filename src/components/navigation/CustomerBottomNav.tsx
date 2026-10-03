@@ -1,6 +1,6 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 
-import { CUSTOMER_PRIMARY_NAV } from "@/config/navigation";
+import { CUSTOMER_PRIMARY_NAV, isCustomerMoreRoute } from "@/config/navigation";
 import { englishNavLabel } from "@/components/navigation/CustomerSidebar";
 import { useLanguage } from "@/components/providers/LanguageProvider";
 import { cn } from "@/lib/utils";
@@ -12,9 +12,9 @@ export function CustomerBottomNav() {
   return (
     <nav
       aria-label={language === "en" ? "Customer navigation (mobile)" : "Navigation client (mobile)"}
-      className="safe-px safe-pb fixed inset-x-0 bottom-0 z-40 border-t border-border bg-surface/95 shadow-[var(--shadow-elevated)] backdrop-blur-xl lg:hidden"
+      className="safe-px safe-pb fixed inset-x-0 bottom-0 z-40 border-t border-border bg-surface/95 shadow-[var(--shadow-elevated)] backdrop-blur-xl supports-[backdrop-filter]:bg-surface/80 lg:hidden"
     >
-      <ul className="mx-auto flex min-h-16 w-full max-w-lg items-stretch px-1.5 sm:px-2">
+      <ul className="mx-auto flex min-h-16 w-full max-w-lg items-stretch overscroll-none px-1.5 sm:px-2">
         {CUSTOMER_PRIMARY_NAV.map((item) => {
           const Icon = item.icon;
 
@@ -37,7 +37,7 @@ export function CustomerBottomNav() {
 
           const selected =
             pathname === item.to ||
-            (item.to === "/app/more" && pathname.startsWith("/app/more")) ||
+            (item.to === "/app/more" && isCustomerMoreRoute(pathname)) ||
             (item.to === "/app/transfers/new" && pathname.startsWith("/app/transfers")) ||
             (item.to === "/app/accounts" && pathname.startsWith("/app/accounts")) ||
             (item.to === "/app/activity" &&

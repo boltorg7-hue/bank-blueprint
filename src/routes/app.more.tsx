@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useRouterState } from "@tanstack/react-router";
 import { ChevronRight, LogOut } from "lucide-react";
 
 import { BankingContentContainer } from "@/components/layout/BankingAppLayout";
@@ -26,6 +26,7 @@ export const Route = createFileRoute("/app/more")({
 function MoreRoute() {
   const { language } = useLanguage();
   const en = language === "en";
+  const pathname = useRouterState({ select: (state) => state.location.pathname });
   const signOut = useSignOut();
   const { summary } = useCustomerSummary();
   const transactional = summary ? canTransact(summary.lifecycleState) : false;
@@ -40,7 +41,7 @@ function MoreRoute() {
           <section key={group.title} aria-labelledby={`group-${group.title}`} className="min-w-0 space-y-2">
             <h2
               id={`group-${group.title}`}
-              className="text-xs font-medium uppercase tracking-wide text-muted-foreground"
+              className="text-overline text-muted-foreground"
             >
               {en ? ({ Banque: "Banking", Documents: "Documents", Échanges: "Communication", "Mon compte": "My account" } as Record<string, string>)[group.title] ?? group.title : group.title}
             </h2>
@@ -68,7 +69,8 @@ function MoreRoute() {
                   <li key={item.label}>
                     <Link
                       to={item.to}
-                      className="touch-target flex items-center gap-3 px-4 py-3 text-sm text-foreground hover:bg-surface-sunken"
+                      aria-current={pathname === item.to || pathname.startsWith(item.to + "/") ? "page" : undefined}
+                      className="touch-target flex items-center gap-3 rounded-lg px-4 py-3 text-sm text-foreground transition-colors hover:bg-surface-sunken aria-[current=page]:bg-brand/8 aria-[current=page]:font-medium"
                     >
                       <Icon className="size-4 shrink-0 text-brand" aria-hidden="true" />
                       <span className="min-w-0 flex-1 truncate">{en ? englishNavLabel(item.label) : item.label}</span>

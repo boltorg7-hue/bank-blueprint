@@ -49,7 +49,7 @@ export function AdminAccountsTable({ accounts }: { accounts: AdminAccountDto[] }
     if (!canManage || !["ACTIVE", "FROZEN"].includes(account.status)) return null;
     const status = account.status === "ACTIVE" ? "FROZEN" : "ACTIVE";
     return (
-      <Button className="w-auto" size="sm" variant="outline" onClick={() => setDecision({ account, status })}>
+      <Button className="min-h-10 w-auto" size="sm" variant="outline" onClick={() => setDecision({ account, status })}>
         {status === "FROZEN" ? (en ? "Freeze" : "Geler") : (en ? "Reactivate" : "Réactiver")}
       </Button>
     );
@@ -66,20 +66,20 @@ export function AdminAccountsTable({ accounts }: { accounts: AdminAccountDto[] }
             <div className="grid grid-cols-[minmax(0,1fr)_auto] gap-3">
               <div className="min-w-0">
                 <p className="truncate font-semibold text-foreground">{account.displayName}</p>
-                <p className="text-caption mt-1 text-muted-foreground">{account.reference} · {account.maskedNumber}</p>
+                <p className="text-caption mt-1 truncate text-muted-foreground">{account.reference} · {account.maskedNumber}</p>
               </div>
               <StatusBadge label={account.status} tone={statusTone(account.status)} />
             </div>
             <div>
               <p className="text-caption text-muted-foreground">{en ? "Account holder" : "Titulaire"}</p>
-              <p className="text-body-sm mt-1 text-foreground">{account.holderName}</p>
-              <p className="text-caption mt-1 text-muted-foreground">{account.holderReference}</p>
+              <p className="text-body-sm mt-1 truncate text-foreground">{account.holderName}</p>
+              <p className="text-caption mt-1 truncate text-muted-foreground">{account.holderReference}</p>
             </div>
             <dl className="grid grid-cols-2 gap-3 rounded-md bg-surface-sunken p-3">
               <div><dt className="text-caption text-muted-foreground">{en ? "Available" : "Disponible"}</dt><dd className="text-numeric mt-1 text-sm font-semibold">{balance(account.availableBalanceMinor, account.currency, account.minorUnit)}</dd></div>
               <div><dt className="text-caption text-muted-foreground">{en ? "Reserved" : "Réservé"}</dt><dd className="text-numeric mt-1 text-sm">{balance(account.heldBalanceMinor, account.currency, account.minorUnit)}</dd></div>
             </dl>
-            <div className="flex flex-wrap gap-2"><Button size="sm" variant="ghost" onClick={() => setDetails(account)}>{en ? "View account" : "Voir le compte"}</Button><Button size="sm" variant="ghost" onClick={() => openDossier(account)}>{en ? "Open dossier" : "Ouvrir le dossier"}</Button>{actionFor(account)}</div>
+            <div className="flex flex-wrap items-center gap-2 border-t border-border pt-3"><Button size="sm" variant="ghost" className="min-h-10" onClick={() => setDetails(account)}>{en ? "View account" : "Voir le compte"}</Button><Button size="sm" variant="ghost" onClick={() => openDossier(account)}>{en ? "Open dossier" : "Ouvrir le dossier"}</Button>{actionFor(account)}</div>
           </li>
         ))}
       </ul>
@@ -90,21 +90,21 @@ export function AdminAccountsTable({ accounts }: { accounts: AdminAccountDto[] }
             <TableHead>{en ? "Account" : "Compte"}</TableHead>
             <TableHead>{en ? "Account holder" : "Titulaire"}</TableHead>
             <TableHead>{en ? "Status" : "Statut"}</TableHead>
-            <TableHead>{en ? "Ledger balance" : "Solde comptable"}</TableHead>
-            <TableHead>{en ? "Available" : "Disponible"}</TableHead>
-            <TableHead>{en ? "Reserved" : "Réservé"}</TableHead>
+            <TableHead className="text-right">{en ? "Ledger balance" : "Solde comptable"}</TableHead>
+            <TableHead className="text-right">{en ? "Available" : "Disponible"}</TableHead>
+            <TableHead className="text-right">{en ? "Reserved" : "Réservé"}</TableHead>
             <TableHead>{en ? "Action" : "Action"}</TableHead>
           </TableRow></TableHeader>
           <TableBody>
             {accounts.map((account) => (
-              <TableRow key={account.id}>
-                <TableCell><p className="font-medium">{account.displayName}</p><p className="text-xs text-muted-foreground">{account.reference} · {account.maskedNumber}</p></TableCell>
-                <TableCell><p>{account.holderName}</p><p className="text-xs text-muted-foreground">{account.holderReference}</p></TableCell>
+              <TableRow key={account.id} className="align-middle">
+                <TableCell className="max-w-[16rem]"><p className="truncate font-medium">{account.displayName}</p><p className="text-xs text-muted-foreground">{account.reference} · {account.maskedNumber}</p></TableCell>
+                <TableCell className="max-w-[14rem]"><p className="truncate">{account.holderName}</p><p className="text-xs text-muted-foreground">{account.holderReference}</p></TableCell>
                 <TableCell><StatusBadge label={account.status} tone={statusTone(account.status)} /></TableCell>
-                <TableCell>{balance(account.ledgerBalanceMinor, account.currency, account.minorUnit)}</TableCell>
-                <TableCell>{balance(account.availableBalanceMinor, account.currency, account.minorUnit)}</TableCell>
-                <TableCell>{balance(account.heldBalanceMinor, account.currency, account.minorUnit)}</TableCell>
-                <TableCell><div className="flex flex-wrap gap-2"><Button size="sm" variant="ghost" onClick={() => openDossier(account)}>{en ? "Dossier" : "Dossier"}</Button><Button size="sm" variant="ghost" onClick={() => setDetails(account)}>{en ? "View" : "Voir"}</Button>{actionFor(account)}</div></TableCell>
+                <TableCell className="whitespace-nowrap text-right text-numeric">{balance(account.ledgerBalanceMinor, account.currency, account.minorUnit)}</TableCell>
+                <TableCell className="whitespace-nowrap text-right text-numeric">{balance(account.availableBalanceMinor, account.currency, account.minorUnit)}</TableCell>
+                <TableCell className="whitespace-nowrap text-right text-numeric">{balance(account.heldBalanceMinor, account.currency, account.minorUnit)}</TableCell>
+                <TableCell><div className="flex flex-wrap items-center gap-2"><Button size="sm" variant="ghost" className="min-h-10" onClick={() => openDossier(account)}>{en ? "Dossier" : "Dossier"}</Button><Button size="sm" variant="ghost" onClick={() => setDetails(account)}>{en ? "View" : "Voir"}</Button>{actionFor(account)}</div></TableCell>
               </TableRow>
             ))}
           </TableBody>
