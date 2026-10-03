@@ -568,6 +568,18 @@ test("les cinq dépendances lourdes restent documentées comme modules ciblés d
 });
 
 
+test("le dashboard conserve une hierarchie claire et des actions accessibles", () => {
+  const dashboard = read("src/routes/app.dashboard.tsx");
+  const actionRequired = read("src/features/transfers/components/ActionRequiredTransfers.tsx");
+
+  assert.match(dashboard, /<section aria-labelledby="activity-heading"/);
+  assert.match(dashboard, /focus-visible:ring-2 focus-visible:ring-ring/);
+  assert.match(dashboard, /motion-reduce:transition-none/);
+  assert.ok(dashboard.indexOf("<ActionRequiredTransfers />") < dashboard.indexOf("<MonthlySummaryCard"), "actions requises avant le resume mensuel");
+  assert.match(actionRequired, /focus-visible:ring-2 focus-visible:ring-ring/);
+  assert.match(actionRequired, /min-h-11/);
+});
+
 test("les interactions modernes respectent feedback, accessibilité et réduction de mouvement", () => {
   const button = read("src/components/ui/button.tsx");
   const dialog = read("src/components/ui/dialog.tsx");
