@@ -49,6 +49,7 @@ export function PublicSection({
   className,
   id,
   tone = "default",
+  deferRender = false,
 }: {
   children: ReactNode;
   className?: string;
@@ -60,6 +61,7 @@ export function PublicSection({
       {...(id ? { id } : {})}
       className={cn(
         "px-4 py-12 sm:px-6 sm:py-20",
+        deferRender && "content-auto",
         tone === "sunken" && "bg-surface-sunken",
         tone === "contrast" && "bg-primary text-primary-foreground",
         className,
