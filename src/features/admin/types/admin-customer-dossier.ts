@@ -56,6 +56,7 @@ export type AdminCustomerDossierDto = {
     accountReference: string;
     amountMinor: number;
     currency: string;
+    minorUnit: number;
     reason: string;
     status: string;
     createdAt: string;
