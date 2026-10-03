@@ -41,7 +41,7 @@ export function useAdminContext() {
 export function useAdminDashboard() {
   const fn = useServerFn(getAdminDashboard);
   const { data: staff } = useAdminContext();
-  return useQuery({ queryKey: ADMIN_DASHBOARD_KEY, queryFn: () => fn(), staleTime: 10_000, retry: 1, enabled: staff?.authorized === true && staff.permissions.includes("admin.access") });
+  return useQuery({ queryKey: ADMIN_DASHBOARD_KEY, queryFn: () => fn(), staleTime: ADMIN_LIST_STALE_MS, retry: 1, enabled: staff?.authorized === true && staff.permissions.includes("admin.access") });
 }
 
 export function useAdminCustomers(search: string, page = 1) {
@@ -95,7 +95,7 @@ export function useAdminAccounts(search = "") {
 export function useFundingRequests() {
   const fn = useServerFn(listFundingRequests);
   const { data: staff } = useAdminContext();
-  return useQuery({ queryKey: ADMIN_FUNDING_KEY, queryFn: () => fn(), staleTime: 5_000, enabled: staff?.authorized === true && (staff.permissions.includes("finance.adjustment.create") || staff.permissions.includes("finance.adjustment.approve")) });
+  return useQuery({ queryKey: ADMIN_FUNDING_KEY, queryFn: () => fn(), staleTime: ADMIN_OPERATIONAL_STALE_MS, enabled: staff?.authorized === true && (staff.permissions.includes("finance.adjustment.create") || staff.permissions.includes("finance.adjustment.approve")) });
 }
 
 export function useCreateFundingRequest() {
@@ -144,7 +144,7 @@ export const ADMIN_AUDIT_KEY = ["admin", "audit"] as const;
 export function useAdminAudit(search = "") {
   const fn = useServerFn(listAdminAuditEvents);
   const { data: staff } = useAdminContext();
-  return useQuery({ queryKey: [...ADMIN_AUDIT_KEY, search], queryFn: () => fn({ data: { search } }), staleTime: 5_000, enabled: staff?.authorized === true && staff.permissions.includes("audit.read") });
+  return useQuery({ queryKey: [...ADMIN_AUDIT_KEY, search], queryFn: () => fn({ data: { search } }), staleTime: ADMIN_OPERATIONAL_STALE_MS, enabled: staff?.authorized === true && staff.permissions.includes("audit.read") });
 }
 
 export function useAdminAccountStatusHistory(accountReference: string | null) {
@@ -153,7 +153,7 @@ export function useAdminAccountStatusHistory(accountReference: string | null) {
   return useQuery({
     queryKey: ["admin", "account-status-history", accountReference],
     queryFn: () => fn({ data: { accountReference: accountReference! } }),
-    staleTime: 5_000,
+    staleTime: ADMIN_OPERATIONAL_STALE_MS,
     enabled: Boolean(accountReference) && staff?.authorized === true && staff.permissions.includes("accounts.read"),
   });
 }
