@@ -1,1 +1,2 @@
-import type {OnboardingCase} from "../types";export type OnboardingSummary=Pick<OnboardingCase,"id"|"customerId"|"status"|"step">;
+import type { CustomerContext } from "../types";
+export type OnboardingSummary = Pick<CustomerContext, "email" | "emailVerified">;

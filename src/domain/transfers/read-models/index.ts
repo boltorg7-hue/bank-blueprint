@@ -1,2 +1,2 @@
-import type { Transfer } from "../types";
-export type TransferSummary = Pick<Transfer, "id" | "sourceAccountId" | "destinationAccountId" | "amount" | "status">;
+import type { TransferDto } from "../types";
+export type TransferSummary = Pick<TransferDto, "reference" | "status" | "amountMinor" | "sourceAccountReference">;
