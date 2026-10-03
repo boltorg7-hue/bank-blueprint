@@ -32,14 +32,16 @@ function AdminCustomersPage() {
   const query = useAdminCustomers(debouncedSearch);
   const customers = useMemo(() => {
     const rows = query.data ?? [];
-    return rows.filter((customer) => {
-      const lifecycleMatches = lifecycle === "ALL" || customer.lifecycleState === lifecycle;
-      const accountMatches =
-        accounts === "ALL" ||
-        (accounts === "WITH_ACCOUNTS" && customer.accountCount > 0) ||
-        (accounts === "WITHOUT_ACCOUNTS" && customer.accountCount === 0);
-      return lifecycleMatches && accountMatches;
-    });
+    return rows
+      .filter((customer) => {
+        const lifecycleMatches = lifecycle === "ALL" || customer.lifecycleState === lifecycle;
+        const accountMatches =
+          accounts === "ALL" ||
+          (accounts === "WITH_ACCOUNTS" && customer.accountCount > 0) ||
+          (accounts === "WITHOUT_ACCOUNTS" && customer.accountCount === 0);
+        return lifecycleMatches && accountMatches;
+      })
+      .sort((a, b) => b.attentionCount - a.attentionCount);
   }, [accounts, lifecycle, query.data]);
 
   const hasFilters = Boolean(search.trim()) || lifecycle !== "ALL" || accounts !== "ALL";
