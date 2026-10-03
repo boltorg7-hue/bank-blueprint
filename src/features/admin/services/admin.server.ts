@@ -17,6 +17,39 @@ type Client = SupabaseClient<any, any, any>;
 
 export class AdminAccessError extends Error {}
 
+const ADMIN_AUTH_EMAIL_CACHE_TTL_MS = 60_000;
+const adminAuthEmailCache = new Map<string, { email: string | null; expiresAt: number }>();
+
+async function loadAdminAuthEmails(admin: Client, ids: string[]) {
+  const now = Date.now();
+  const result = new Map<string, string | null>();
+  const missing: string[] = [];
+  for (const id of ids) {
+    const cached = adminAuthEmailCache.get(id);
+    if (cached && cached.expiresAt > now) result.set(id, cached.email);
+    else missing.push(id);
+  }
+  if (!missing.length) return result;
+
+  const responses = await Promise.all(
+    missing.map(async (id) => {
+      try {
+        const { data } = await admin.auth.admin.getUserById(id);
+        return { id, email: data.user?.email ?? null };
+      } catch {
+        return { id, email: null };
+      }
+    }),
+  );
+
+  const expiresAt = now + ADMIN_AUTH_EMAIL_CACHE_TTL_MS;
+  for (const entry of responses) {
+    result.set(entry.id, entry.email);
+    adminAuthEmailCache.set(entry.id, { email: entry.email, expiresAt });
+  }
+  return result;
+}
+
 function normalizeStaffContext(raw: unknown): StaffContextDto {
   const value = (raw ?? {}) as Record<string, unknown>;
   return {
@@ -151,13 +184,8 @@ export async function loadAdminCustomers(
     const key = String((account as any).user_id);
     counts.set(key, (counts.get(key) ?? 0) + 1);
   }
-  const authById = new Map<string, string | null>();
-  if (ids.length) {
-    const { data: authPage } = await admin.auth.admin.listUsers({ page: 1, perPage: 1000 });
-    for (const user of authPage?.users ?? []) if (ids.includes(user.id)) authById.set(user.id, user.email ?? null);
-  }
-
   const accountIds = (accounts ?? []).map((row: any) => String(row.id));
+  const authById = ids.length ? await loadAdminAuthEmails(admin, ids) : new Map<string, string | null>();
   const [{ data: verifications }, { data: documents }, { data: notifications }, { data: transfers }, { data: funding }] = await Promise.all([
     ids.length ? admin.from("identity_verifications").select("user_id,status,submitted_at,decided_at").in("user_id", ids) : Promise.resolve({ data: [] as any[] }),
     ids.length ? admin.from("verification_documents").select("user_id,status,created_at").in("user_id", ids) : Promise.resolve({ data: [] as any[] }),
