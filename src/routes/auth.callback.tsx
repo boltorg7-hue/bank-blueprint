@@ -33,7 +33,7 @@ function AuthCallbackPage() {
   const navigate = useNavigate();
   const { redirect, next, v } = Route.useSearch();
   const [failed, setFailed] = useState(false);
-  const [stale, setStale] = useState(false);
+  const [stale, setStale] = useState(false);\n  const [language, setLanguage] = useState<"fr" | "en">("fr");
 
   useEffect(() => {
     let active = true;
@@ -83,11 +83,11 @@ function AuthCallbackPage() {
   if (stale) {
     return (
       <AuthShell
-        title="Lien expiré / Link expired"
-        description="Ce lien a été remplacé par un envoi plus récent. Utilisez le dernier e-mail reçu. — This link was replaced by a newer one; use the latest email."
+        title={language === "en" ? "Link expired" : "Lien expiré"}
+        description={language === "en" ? "This link was replaced by a newer one. Use the latest email you received." : "Ce lien a été remplacé par un envoi plus récent. Utilisez le dernier e-mail reçu."}
       >
         <Button className="w-full touch-target" onClick={() => void navigate({ to: "/verify-email" })}>
-          Recevoir un nouveau lien / Get a new link
+          {language === "en" ? "Get a new link" : "Recevoir un nouveau lien"}
         </Button>
       </AuthShell>
     );
