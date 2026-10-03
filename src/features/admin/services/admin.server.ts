@@ -129,15 +129,14 @@ async function adminClient() {
 export async function loadAdminCustomers(
   client: Client,
   search = "",
-  page = 1,
+  cursor: string | null = null,
   lifecycle: CustomerLifecycleState | "ALL" = "ALL",
   accountsFilter: "ALL" | "WITH_ACCOUNTS" | "WITHOUT_ACCOUNTS" = "ALL",
   attentionFilter: "ALL" | "NEEDS_ATTENTION" | "CLEAR" = "ALL",
 ): Promise<AdminCustomerPageDto> {
   await requireAdminPermission(client, "customers.read");
   const admin = await adminClient();
-  const pageSize = 50;
-  const safePage = Math.max(1, Math.floor(page));
+  const cursorValue = decodeAdminCursor(cursor);
   const term = search.trim().replace(/[%_,().*]/g, "");
   const normalizedTerm = term.toLocaleLowerCase("fr");
 
@@ -219,8 +218,8 @@ export async function loadAdminCustomers(
   const { data, error } = await query.limit(ADMIN_PAGE_SIZE + 1);
   if (error) throw new AdminAccessError("CUSTOMERS_UNAVAILABLE");
   const rows = data ?? [];
-  const hasNext = rows.length > pageSize;
-  const pageRows = rows.slice(0, pageSize);
+  const hasNext = rows.length > ADMIN_PAGE_SIZE;
+  const pageRows = rows.slice(0, ADMIN_PAGE_SIZE);
   const ids = pageRows.map((row: any) => String(row.id));
 
   const { data: accounts } = ids.length ? await admin.from("bank_accounts").select("id,user_id").in("user_id", ids) : { data: [] as any[] };
@@ -319,7 +318,8 @@ export async function loadAdminCustomers(
       oldestAttentionAt,
     };
   });
-  return { items: mapped, hasNext };
+  const last = pageRows[pageRows.length - 1];
+  return { items: mapped, hasNext, nextCursor: hasNext && last ? encodeAdminCursor({ createdAt: String(last.created_at), id: String(last.id) }) : null };
 }
 
 export async function loadAdminOnboardingCases(
