@@ -13,7 +13,13 @@ function walk(dir) {
   });
 }
 
-const migrationFiles = walk(migrationsDir).filter(function (file) { return file.endsWith(".sql"); }).sort();
+const migrationFiles = walk(migrationsDir)
+  .filter(function (file) { return file.endsWith(".sql"); })
+  .sort(function (a, b) {
+    const aName = path.basename(a);
+    const bName = path.basename(b);
+    return aName.localeCompare(bName) || a.localeCompare(b);
+  });
 const sourceFiles = sourceDirs.flatMap(walk).filter(function (file) { return /\.(ts|tsx|sql)$/.test(file); });
 const functions = new Map();
 
