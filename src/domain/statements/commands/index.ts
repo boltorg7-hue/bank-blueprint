@@ -1,0 +1,1 @@
+import type {CommandContext,CommandResult} from "../../_shared/commands";import type {Statement} from "../types";export type GenerateStatementCommand={customerId:string;accountId:string;periodStart:string;periodEnd:string};export type GenerateStatementHandler=(command:GenerateStatementCommand,context:CommandContext)=>Promise<CommandResult<Statement>>;
