@@ -145,7 +145,15 @@ export function transferErrorMessage(error: unknown, language: "fr" | "en" = "fr
 
 /** Progress copy for an in-flight execution (§120, §143). */
 export function transferProgressLabel(status: TransferStatus, language: "fr" | "en" = "fr"): string {
-  if (language === "en") {\n    switch (status) {\n      case "CONFIRMED": return "Verifying your transfer…";\n      case "FUNDS_RESERVED": return "Reserving funds…";\n      case "PROCESSING": return "Processing the transfer…";\n      default: return "Processing…";\n    }\n  }\n  switch (status) {
+  if (language === "en") {
+    switch (status) {
+      case "CONFIRMED": return "Verifying your transfer…";
+      case "FUNDS_RESERVED": return "Reserving funds…";
+      case "PROCESSING": return "Processing the transfer…";
+      default: return "Processing…";
+    }
+  }
+  switch (status) {
     case "CONFIRMED":
       return "Vérification de votre virement…";
     case "FUNDS_RESERVED":
