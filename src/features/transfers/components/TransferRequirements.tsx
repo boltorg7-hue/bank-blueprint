@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import { useLanguage } from "@/components/providers/LanguageProvider";
 import { FileCheck2, Upload } from "lucide-react";
 import { toast } from "sonner";
 
@@ -46,12 +47,14 @@ export function TransferRequirements({
   requirements: TransferRequirementDto[];
   documents: TransferDocumentDto[];
 }) {
+  const { language } = useLanguage();
+  const en = language === "en";
   if (requirements.length === 0) return null;
 
   return (
     <Card className="space-y-4 p-4 sm:p-5">
       <div>
-        <h2 className="text-sm font-semibold text-foreground">Justificatifs demandés</h2>
+        <h2 className="text-sm font-semibold text-foreground">{en ? "Required documents" : "Justificatifs demandés"}</h2>
         <p className="text-caption text-muted-foreground">
           Ces documents sont exigés par la réglementation avant l'exécution du virement. Le montant
           reste réservé sur votre compte pendant l'examen.
@@ -99,7 +102,7 @@ function RequirementRow({
             <p className="text-caption text-muted-foreground">{requirement.description}</p>
           ) : null}
           <p className="text-caption text-muted-foreground">
-            Demandé le {formatDateTime(requirement.requestedAt)}
+            {en ? "Requested on" : "Demandé le"} {formatDateTime(requirement.requestedAt)}
           </p>
         </div>
         <StatusBadge
@@ -138,7 +141,7 @@ function RequirementRow({
             type="file"
             className="sr-only"
             accept={ACCEPTED}
-            aria-label={`Transmettre le justificatif : ${requirement.title}`}
+            aria-label={`${en ? "Upload document" : "Transmettre le justificatif"} : ${requirement.title}`}
             onChange={(event) => {
               const file = event.target.files?.[0];
               event.target.value = "";
@@ -171,7 +174,7 @@ function RequirementRow({
             ) : (
               <Upload className="size-4" aria-hidden="true" />
             )}
-            {upload.isPending ? "Envoi en cours…" : "Transmettre le document"}
+            {upload.isPending ? (en ? "Uploading…" : "Envoi en cours…") : (en ? "Upload document" : "Transmettre le document")}
           </Button>
           <p className="text-caption text-muted-foreground">
             Formats acceptés : JPG, PNG, HEIC ou PDF, jusqu'à 15 Mo. Vos documents restent privés et
