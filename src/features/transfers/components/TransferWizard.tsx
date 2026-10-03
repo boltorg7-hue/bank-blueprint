@@ -1,6 +1,6 @@
 import { useLanguage } from "@/components/providers/LanguageProvider";
 import { useLiveFinancialSettings } from "@/features/settings/useLiveFinancialSettings";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { AlertTriangle, ArrowRight, CheckCircle2, Loader2 } from "lucide-react";
 
@@ -106,6 +106,8 @@ export function TransferWizard({ initialBeneficiary }: { initialBeneficiary?: st
 
   const initiate = useInitiateTransfer();
   const confirm = useConfirmTransfer();
+  const initiateLock = useRef(false);
+  const confirmLock = useRef(false);
 
   const accounts = useMemo(
     () => (accountsQuery.data ?? []).filter((account) => account.status === "ACTIVE"),
@@ -348,9 +350,12 @@ export function TransferWizard({ initialBeneficiary }: { initialBeneficiary?: st
             </Button>
             <Button
               className="w-full sm:w-auto"
-              disabled={amountMinor === null || overBalance || overLimit || initiate.isPending}
+              disabled={amountMinor === null || overBalance || overLimit}
+              loading={initiate.isPending}
+              loadingLabel={en ? "Preparing transfer…" : "Préparation du virement…"}
               onClick={() => {
-                if (amountMinor === null || !source || !beneficiary) return;
+                if (initiateLock.current || amountMinor === null || !source || !beneficiary) return;
+                initiateLock.current = true;
                 setError(null);
                 initiate.mutate(
                   {
@@ -365,6 +370,9 @@ export function TransferWizard({ initialBeneficiary }: { initialBeneficiary?: st
                       setStepIndex(2);
                     },
                     onError: (mutationError) => setError(transferErrorMessage(mutationError)),
+                    onSettled: () => {
+                      initiateLock.current = false;
+                    },
                   },
                 );
               }}
@@ -427,13 +435,17 @@ export function TransferWizard({ initialBeneficiary }: { initialBeneficiary?: st
             </Button>
             <Button
               className="w-full sm:w-auto"
-              disabled={confirm.isPending}
+              disabled={false}
+              loading={confirm.isPending}
+              loadingLabel={en ? "Processing transfer…" : "Exécution du virement…"}
               onClick={() => {
+                if (confirmLock.current) return;
                 setError(null);
                 if (!confirmationPassword) {
                   setError((en ? "Confirm your password before executing the transfer." : "Confirmez votre mot de passe avant d’exécuter le virement."));
                   return;
                 }
+                confirmLock.current = true;
                 confirm.mutate({ reference: transfer.reference, password: confirmationPassword }, {
                   onSuccess: (outcome) => {
                     setConfirmationPassword("");
@@ -449,6 +461,9 @@ export function TransferWizard({ initialBeneficiary }: { initialBeneficiary?: st
                     setStepIndex(3);
                   },
                   onError: (mutationError) => setError(transferErrorMessage(mutationError)),
+                  onSettled: () => {
+                    confirmLock.current = false;
+                  },
                 });
               }}
             >
