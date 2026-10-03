@@ -3,6 +3,7 @@ import { ChevronRight, LogOut } from "lucide-react";
 
 import { BankingContentContainer } from "@/components/layout/BankingAppLayout";
 import { PageHeader } from "@/components/layout/PageHeader";
+import { PageSection } from "@/components/ui/page-section";
 import { Button } from "@/components/ui/button";
 import { useSignOut } from "@/features/auth/hooks/useSessionUser";
 import { useCustomerSummary } from "@/features/customer-shell/hooks/useCustomerSummary";
@@ -34,7 +35,7 @@ function MoreRoute() {
     <BankingContentContainer width="narrow">
       <PageHeader title={en ? "More" : "Plus"} description={en ? "Your banking services, organised by topic." : "Tous les services de votre espace client, classés par rubrique."} />
 
-      <div className="grid gap-6 sm:grid-cols-2 sm:items-start">
+      <PageSection className="grid gap-6 sm:grid-cols-2 sm:items-start">
         {CUSTOMER_MORE_GROUPS.map((group) => (
           <section key={group.title} aria-labelledby={`group-${group.title}`} className="min-w-0 space-y-2">
             <h2
@@ -87,7 +88,7 @@ function MoreRoute() {
           <LogOut className="size-4" aria-hidden="true" />
           {en ? "Sign out" : "Se déconnecter"}
         </Button>
-      </div>
+      </PageSection>
     </BankingContentContainer>
   );
 }
