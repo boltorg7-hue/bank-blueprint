@@ -446,3 +446,25 @@ test("les gros modules restent absents du shell générique quand ils sont inuti
   assert.match(documents, /await import\("@\/features\/documents\/templates\/receipt-pdf\.server"\)/);
   assert.doesNotMatch(read("src/router.tsx"), /from "recharts"|from "pdf-lib"/);
 });
+
+
+test("les assets critiques du premier écran sont optimisés et le hero est prioritaire", () => {
+  const root = read("src/routes/__root.tsx");
+  const home = read("src/routes/index.tsx");
+  const optimizer = read("scripts/optimize-home-images.mjs");
+
+  assert.match(root, /@fontsource\/sora\/500\.css/);
+  assert.match(root, /@fontsource\/manrope\/400\.css/);
+  assert.match(root, /@fontsource\/ibm-plex-mono\/400\.css/);
+  assert.doesNotMatch(root, /fonts\.googleapis\.com|fonts\.gstatic\.com/);
+
+  assert.match(home, /rel: "preload"/);
+  assert.match(home, /as: "image"/);
+  assert.match(home, /imageSrcSet: HOME_IMAGE_VARIANTS\.woodbrook\.avif/);
+  assert.match(home, /fetchPriority=\{priority \? "high" : "low"\}/);
+  assert.match(home, /loading=\{priority \? "eager" : "lazy"\}/);
+
+  assert.match(optimizer, /avif/);
+  assert.match(optimizer, /webp/);
+  assert.match(optimizer, /withoutEnlargement: true/);
+});
