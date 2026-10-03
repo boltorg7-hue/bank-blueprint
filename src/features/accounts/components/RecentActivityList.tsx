@@ -13,16 +13,21 @@ import type { ActivitySummaryItemDto } from "@/features/accounts/types/account";
  * Recent activity preview (§67 – §73). Read-only, short, and never a
  * substitute for the full transaction history (PROMPT 07).
  */
-const STATUS: Record<ActivitySummaryItemDto["status"], { label: string; tone: StatusTone }> = {
-  POSTED: { label: en ? "Posted" : "Comptabilisé", tone: "success" },
-  PENDING: { label: en ? "Pending" : "En cours", tone: "pending" },
-  FAILED: { label: en ? "Failed" : "Échoué", tone: "failed" },
+const STATUS_TONES: Record<ActivitySummaryItemDto["status"], StatusTone> = {
+  POSTED: "success",
+  PENDING: "pending",
+  FAILED: "failed",
 };
 
 export function RecentActivityList({ items }: { items: ActivitySummaryItemDto[] }) {
   const { language } = useLanguage();
   const en = language === "en";
   const { privacyMode } = usePrivacyMode();
+  const statusLabels = {
+    POSTED: en ? "Posted" : "Comptabilisé",
+    PENDING: en ? "Pending" : "En cours",
+    FAILED: en ? "Failed" : "Échoué",
+  } as const;
 
   if (items.length === 0) {
     return (
@@ -38,7 +43,6 @@ export function RecentActivityList({ items }: { items: ActivitySummaryItemDto[] 
       {items.map((item) => {
         const credit = item.direction === "credit";
         const Icon = credit ? ArrowDownLeft : ArrowUpRight;
-        const status = STATUS[item.status];
         return (
           <li key={item.reference} className="flex items-center gap-3 p-4 transition-colors hover:bg-muted/30 motion-safe:duration-200">
             <span
@@ -64,7 +68,7 @@ export function RecentActivityList({ items }: { items: ActivitySummaryItemDto[] 
                       { signDisplay: "always" },
                     )}
               </p>
-              <StatusBadge className="mt-1" label={status.label} tone={status.tone} />
+              <StatusBadge className="mt-1" label={statusLabels[item.status]} tone={STATUS_TONES[item.status]} />
             </div>
           </li>
         );
