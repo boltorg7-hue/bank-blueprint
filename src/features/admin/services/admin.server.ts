@@ -498,7 +498,8 @@ export async function loadAdminCustomerDossier(
 
   let audit: any[] = [];
   if (auditAllowed) {
-    const auditResult = await admin.from("admin_audit_events").select("action,resource_type,resource_reference,result,created_at").eq("resource_reference", reference).order("created_at", { ascending: false }).limit(30);
+    const auditRefs = [reference, ...accountRefs];
+    const auditResult = auditRefs.length ? await admin.from("admin_audit_events").select("action,resource_type,resource_reference,result,created_at").in("resource_reference", auditRefs).order("created_at", { ascending: false }).limit(30) : { data: [] as any[] };
     audit = auditResult.data ?? [];
   }
 
