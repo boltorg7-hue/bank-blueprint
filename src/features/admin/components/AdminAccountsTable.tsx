@@ -30,7 +30,7 @@ export function AdminAccountsTable({ accounts }: { accounts: AdminAccountDto[] }
   const [details, setDetails] = useState<AdminAccountDto | null>(null);
   const [dossierCustomer, setDossierCustomer] = useState<import("@/features/admin/types/admin").AdminCustomerDto | null>(null);
   const history = useAdminAccountStatusHistory(details?.reference ?? null);
-  const openDossier = (account: AdminAccountDto) => setDossierCustomer({ id: account.holderId, reference: account.holderReference, fullName: account.holderName, email: null, phone: null, lifecycleState: "ACTIVE", accountCount: 1, createdAt: new Date().toISOString(), attentionCount: 0, attentionReasons: [], oldestAttentionAt: null });
+  const openDossier = (account: AdminAccountDto) => setDossierCustomer({ id: account.holderId, reference: account.holderReference, fullName: account.holderName, email: null, phone: null, lifecycleState: account.holderLifecycleState, accountCount: 1, createdAt: account.holderCreatedAt, attentionCount: 0, attentionReasons: [], oldestAttentionAt: null });
   const reasonValid = reason.trim().length >= 8;
 
   async function confirmChange() {
