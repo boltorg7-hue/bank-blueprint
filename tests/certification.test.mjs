@@ -147,3 +147,16 @@ test("Onboarding utilise recherche, statut et pagination serveur", () => {
   assert.doesNotMatch(route, /useMemo|\\.filter\\(\\(item\\) => item\\.verificationStatus/);
   assert.match(route, /query\\.data\\.hasNext/);
 });
+
+test("l'historique transactions utilise un curseur serveur", () => {
+  const server = read("src/features/transactions/services/transactions.server.ts");
+  const types = read("src/features/transactions/types/transaction.ts");
+  const ui = read("src/features/transactions/components/TransactionHistory.tsx");
+  assert.match(server, /decodeTransactionCursor\\(request.cursor\\)/);
+  assert.match(server, /limit\\(pageSize \\+ 1\\)/);
+  assert.doesNotMatch(server, /getTransactions[\\s\\S]*?\\.range\\(/);
+  assert.doesNotMatch(server, /getTransactions[\\s\\S]*?count: "exact"/);
+  assert.match(types, /cursor\\?: string \\| null/);
+  assert.match(ui, /cursorHistory/);
+  assert.doesNotMatch(ui, /totalCount|totalPages/);
+});
