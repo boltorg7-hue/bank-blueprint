@@ -24,7 +24,8 @@ function AdminCustomersPage() {
   const [lifecycle, setLifecycle] = useState<"ALL" | CustomerLifecycleState>("ALL");
   const [accounts, setAccounts] = useState<"ALL" | "WITH_ACCOUNTS" | "WITHOUT_ACCOUNTS">("ALL");
   const [attention, setAttention] = useState<"ALL" | "NEEDS_ATTENTION" | "CLEAR">("ALL");
-  const [cursor, setCursor] = useState<string | null>(null);\n  const [cursorHistory, setCursorHistory] = useState<string[]>([]);
+  const [cursor, setCursor] = useState<string | null>(null);
+  const [cursorHistory, setCursorHistory] = useState<string[]>([]);
 
   useEffect(() => {
     const timer = window.setTimeout(() => setDebouncedSearch(search.trim()), 250);
