@@ -1,1 +1,3 @@
-import {z} from "zod";export const securityActionSchema=z.enum(["login","password_change","mfa_change","session_revoke","sensitive_action"]);export const securityAuditSchema=z.object({customerId:z.string().min(1),action:securityActionSchema,occurredAt:z.string().datetime({offset:true}),ipAddress:z.string().optional()});
+import {z} from "zod";
+export const securityDeviceSchema=z.object({deviceLabel:z.string().trim().min(2).max(240)});
+export const securityActionSchema=z.enum(["login","password_change","mfa_change","session_revoke","sensitive_action"]);
