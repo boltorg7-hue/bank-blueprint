@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import { useLanguage } from "@/components/providers/LanguageProvider";
 import { LifeBuoy, Lock, LogOut, Sliders, UserRound } from "lucide-react";
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -15,7 +16,7 @@ import { StatusBadge } from "@/components/ui/status-badge";
 import { useSignOut } from "@/features/auth/hooks/useSessionUser";
 import type { CustomerSummary } from "@/features/customer-shell/hooks/useCustomerSummary";
 import { lifecycleStatusTone } from "@/features/customer-shell/lib/status-tone";
-import { LIFECYCLE_LABELS } from "@/types/customer-lifecycle";
+import { LIFECYCLE_LABELS, LIFECYCLE_LABELS_EN } from "@/types/customer-lifecycle";
 
 const MENU_ITEMS = [
   { label: "Mon profil", to: "/app/profile", icon: UserRound },
@@ -26,6 +27,8 @@ const MENU_ITEMS = [
 
 /** Customer account menu (§18 – §20). Sign-out terminates the real session. */
 export function CustomerMenu({ summary }: { summary: CustomerSummary | null }) {
+  const { language } = useLanguage();
+  const en = language === "en";
   const signOut = useSignOut();
 
   return (
@@ -35,7 +38,7 @@ export function CustomerMenu({ summary }: { summary: CustomerSummary | null }) {
           variant="ghost"
           size="icon"
           className="touch-target rounded-full"
-          aria-label="Menu client"
+          aria-label={en ? "Customer menu" : "Menu client"}
         >
           <Avatar className="size-8">
             <AvatarFallback className="text-xs font-medium">
@@ -52,7 +55,7 @@ export function CustomerMenu({ summary }: { summary: CustomerSummary | null }) {
           {summary ? (
             <StatusBadge
               tone={lifecycleStatusTone(summary.lifecycleState)}
-              label={LIFECYCLE_LABELS[summary.lifecycleState]}
+              label={(en ? LIFECYCLE_LABELS_EN : LIFECYCLE_LABELS)[summary.lifecycleState]}
             />
           ) : null}
         </DropdownMenuLabel>
@@ -63,7 +66,7 @@ export function CustomerMenu({ summary }: { summary: CustomerSummary | null }) {
             <DropdownMenuItem key={item.label} asChild>
               <Link to={item.to}>
                 <Icon className="size-4" aria-hidden="true" />
-                {item.label}
+                {en ? ({ "Mon profil": "My profile", "Sécurité": "Security", "Préférences": "Preferences", "Aide": "Help" } as Record<string, string>)[item.label] : item.label}
               </Link>
             </DropdownMenuItem>
           );
@@ -71,7 +74,7 @@ export function CustomerMenu({ summary }: { summary: CustomerSummary | null }) {
         <DropdownMenuSeparator />
         <DropdownMenuItem onSelect={() => void signOut()}>
           <LogOut className="size-4" aria-hidden="true" />
-          Se déconnecter
+          {en ? "Sign out" : "Se déconnecter"}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
