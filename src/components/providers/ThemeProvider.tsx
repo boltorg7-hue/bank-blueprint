@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
  */
 const STORAGE_KEY = "rfc.theme";
 
-export type ThemeMode = "light" | "dark";
+export type ThemeMode = "light" | "dark" | "system";
 
 type ThemeContextValue = {
   theme: ThemeMode;
@@ -24,28 +24,40 @@ const ThemeContext = createContext<ThemeContextValue>({
   toggleTheme: () => {},
 });
 
+function resolveTheme(mode: ThemeMode): "light" | "dark" {
+  if (mode !== "system") return mode;
+  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+}
+
 function applyTheme(mode: ThemeMode) {
-  document.documentElement.classList.toggle("dark", mode === "dark");
-  document.documentElement.style.colorScheme = mode;
+  const resolved = resolveTheme(mode);
+  document.documentElement.classList.toggle("dark", resolved === "dark");
+  document.documentElement.style.colorScheme = resolved;
 }
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setThemeState] = useState<ThemeMode>("light");
 
   useEffect(() => {
-    let initial: ThemeMode = "light";
+    let initial: ThemeMode = "system";
     try {
       const stored = window.localStorage.getItem(STORAGE_KEY);
-      if (stored === "dark" || stored === "light") {
-        initial = stored;
-      } else if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
-        initial = "dark";
-      }
+      if (stored === "dark" || stored === "light" || stored === "system") initial = stored;
     } catch {
       /* storage unavailable */
     }
     setThemeState(initial);
     applyTheme(initial);
+
+    const media = window.matchMedia("(prefers-color-scheme: dark)");
+    const onSystemThemeChange = () => {
+      setThemeState((current) => {
+        if (current === "system") applyTheme("system");
+        return current;
+      });
+    };
+    media.addEventListener?.("change", onSystemThemeChange);
+    return () => media.removeEventListener?.("change", onSystemThemeChange);
   }, []);
 
   const setTheme = useCallback((mode: ThemeMode) => {
@@ -59,7 +71,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const value = useMemo(
-    () => ({ theme, setTheme, toggleTheme: () => setTheme(theme === "dark" ? "light" : "dark") }),
+    () => ({ theme, setTheme, toggleTheme: () => setTheme(theme === "light" ? "dark" : theme === "dark" ? "system" : "light") }),
     [theme, setTheme],
   );
 
@@ -79,7 +91,7 @@ export function ThemeToggle({ className }: { className?: string }) {
       size="icon"
       className={className}
       onClick={toggleTheme}
-      aria-label={theme === "dark" ? "Activer le thème clair" : "Activer le thème sombre"}
+      aria-label={theme === "dark" ? "Activer le thème clair" : theme === "light" ? "Utiliser le thème système" : "Activer le thème sombre"}
     >
       {theme === "dark" ? <Sun aria-hidden="true" /> : <Moon aria-hidden="true" />}
     </Button>
