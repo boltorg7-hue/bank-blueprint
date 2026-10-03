@@ -15,6 +15,10 @@ import { isAllowed } from "@/features/customer-shell/lib/route-access";
 import { accountAllowsTransactions, accountRestrictionMessage } from "@/features/accounts/utils/account-display";
 import { useLanguage } from "@/components/providers/LanguageProvider";
 import { cn } from "@/lib/utils";
+import { formatAccountAmount, accountStatusLabel } from "@/features/accounts/utils/account-display";
+import { StatusBadge } from "@/components/ui/status-badge";
+import { usePrivacyMode } from "@/components/providers/PrivacyModeProvider";
+import { PRIVACY_PLACEHOLDER } from "@/lib/format/mask";
 
 export const Route = createFileRoute("/app/dashboard")({
   head: () => ({
@@ -29,6 +33,7 @@ export const Route = createFileRoute("/app/dashboard")({
 function DashboardPage() {
   const { language } = useLanguage();
   const en = language === "en";
+  const { privacyMode } = usePrivacyMode();
   const { summary: customer } = useCustomerSummary();
   const query = useDashboardSummary();
   const data = query.data;
@@ -91,25 +96,95 @@ function DashboardPage() {
             </p>
           )}
 
+          <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
+            <p className="text-body-sm text-muted-foreground">
+              {en ? "Move money when you need it." : "Déplacez votre argent quand vous en avez besoin."}
+            </p>
+            <Link
+              to="/app/transfers"
+              aria-disabled={!canTransact}
+              className={cn(
+                "press-feedback inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-brand px-5 py-2.5 text-sm font-semibold text-brand-foreground shadow-sm transition hover:brightness-95",
+                !canTransact && "pointer-events-none opacity-50",
+              )}
+            >
+              <Send className="size-4" aria-hidden="true" />
+              {en ? "Make a transfer" : "Faire un virement"}
+            </Link>
+          </div>
+
+          <section aria-labelledby="activity-heading" className="space-y-3.5 sm:space-y-4">
+            <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+              <h2 id="activity-heading" className="text-heading-sm font-semibold text-foreground md:text-heading-md">
+                {en ? "Recent activity" : "Activité récente"}
+              </h2>
+              <Link to="/app/transactions" className="shrink-0 text-caption font-medium text-brand hover:underline">
+                {en ? "Full history" : "Tout l'historique"}
+              </Link>
+            </div>
+            <RecentActivityList items={data?.recentActivity ?? []} />
+          </section>
+
+          <section aria-labelledby="accounts-heading" className="space-y-3.5 sm:space-y-4">
+            <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+              <h2 id="accounts-heading" className="text-heading-sm font-semibold text-foreground md:text-heading-md">
+                {en ? "Accounts" : "Comptes"}
+              </h2>
+              <Link to="/app/accounts" className="shrink-0 text-caption font-medium text-brand hover:underline">
+                {en ? "View all" : "Voir tous"}
+              </Link>
+            </div>
+            <ul className="grid gap-3 md:grid-cols-2">
+              {data.accounts.map((item) => {
+                const amount = item.balance
+                  ? privacyMode
+                    ? PRIVACY_PLACEHOLDER
+                    : formatAccountAmount(item.balance.availableBalanceMinor, item.currency, item.minorUnit)
+                  : en ? "Unavailable" : "Indisponible";
+                return (
+                  <li key={item.reference}>
+                    <Link
+                      to="/app/accounts/$accountRef"
+                      params={{ accountRef: item.reference }}
+                      className="native-surface press-feedback block min-w-0 p-4 transition hover:border-brand/30 hover:shadow-sm"
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <p className="text-label truncate text-foreground">{item.displayName}</p>
+                          <p className="text-caption text-numeric mt-0.5 text-muted-foreground">
+                            {item.accountType === "CURRENT" ? (en ? "Current" : "Courant") : (en ? "Savings" : "Épargne")} · ••••{item.maskedNumber.slice(-4)}
+                          </p>
+                        </div>
+                        <StatusBadge label={accountStatusLabel(item.status)} tone={item.status === "ACTIVE" ? "success" : "pending"} />
+                      </div>
+                      <p className="text-amount mt-5 text-foreground">{amount}</p>
+                      <p className="text-caption mt-0.5 text-muted-foreground">
+                        {en ? "Available balance" : "Solde disponible"}
+                      </p>
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </section>
+
+          {data?.monthlySummary && <MonthlySummaryCard summary={data.monthlySummary} />}
+
           <ActionRequiredTransfers />
 
           <section aria-labelledby="quick-actions-heading" className="space-y-3.5 sm:space-y-4">
             <div className="flex items-end justify-between gap-3">
               <h2 id="quick-actions-heading" className="text-heading-sm font-semibold text-foreground md:text-heading-md">
-                {en ? "Quick actions" : "Actions rapides"}
+                {en ? "Actions & services" : "Actions et services"}
               </h2>
             </div>
-            <ul className="grid grid-cols-2 gap-2.5 sm:gap-3 md:gap-4 lg:grid-cols-4">
+            <ul className="grid grid-cols-2 gap-2.5 sm:gap-3 md:grid-cols-3 lg:grid-cols-4">
               <QuickAction to="/app/transfers" label={en ? "Send money" : "Envoyer de l'argent"} icon={Send} disabled={!canTransact} />
               <QuickAction to="/app/accounts" label={en ? "My accounts" : "Mes comptes"} icon={Wallet} />
               <QuickAction to="/app/statements" label={en ? "Statements" : "Relevés"} icon={FileText} />
               <QuickAction to="/app/accounts/$accountRef" params={{ accountRef: account.reference }} label={en ? "Receive a payment" : "Recevoir un paiement"} icon={ArrowDownToLine} />
             </ul>
           </section>
-
-          {data?.monthlySummary && <MonthlySummaryCard summary={data.monthlySummary} />}
-
-          <section aria-labelledby="activity-heading" className="space-y-3.5 sm:space-y-4">
             <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
               <h2 id="activity-heading" className="text-heading-sm font-semibold text-foreground md:text-heading-md">
                 {en ? "Recent activity" : "Activité récente"}
