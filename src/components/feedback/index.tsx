@@ -10,9 +10,21 @@ import { StateBlock } from "./StateBlock";
 export { StateBlock };
 export type { StateTone } from "./StateBlock";
 
+/** Shared customer-facing vocabulary for asynchronous UI states. */
+export const UI_STATE_COPY = {
+  loading: { fr: "Chargement…", en: "Loading…" },
+  errorTitle: { fr: "Impossible de charger ces données.", en: "Unable to load this data." },
+  errorDescription: {
+    fr: "Une erreur est survenue. Réessayez dans un instant.",
+    en: "Something went wrong. Please try again shortly.",
+  },
+  retry: { fr: "Réessayer", en: "Try again" },
+  empty: { fr: "Aucune donnée", en: "No data" },
+} as const;
+
 /** Inline loading indicator with an accessible live region. */
 export function LoadingState({
-  label = "Chargement…",
+  label,
   className,
 }: {
   label?: string;
@@ -20,6 +32,8 @@ export function LoadingState({
 }) {
   const { language } = useLanguage();
   const en = language === "en";
+  const resolvedLabel = label ?? (en ? UI_STATE_COPY.loading.en : UI_STATE_COPY.loading.fr);
+
   return (
     <div
       role="status"
@@ -31,7 +45,7 @@ export function LoadingState({
       )}
     >
       <Loader2 className="size-4 animate-spin" aria-hidden="true" />
-      <span>{en && label === "Chargement…" ? "Loading…" : label}</span>
+      <span>{resolvedLabel}</span>
     </div>
   );
 }
@@ -62,8 +76,8 @@ export function EmptyState({
 }
 
 export function ErrorState({
-  title = "Cette information n'a pas pu être chargée",
-  description = "Une erreur est survenue de notre côté. Vous pouvez réessayer dans un instant.",
+  title,
+  description,
   onRetry,
 }: {
   title?: string | undefined;
@@ -72,16 +86,17 @@ export function ErrorState({
 }) {
   const { language } = useLanguage();
   const en = language === "en";
+
   return (
     <StateBlock
       icon={AlertTriangle}
       tone="danger"
-      title={en && title === "Cette information n'a pas pu être chargée" ? "This information could not be loaded" : title}
-      description={en && description.startsWith("Une erreur est survenue") ? "Something went wrong. Please try again shortly." : description}
+      title={title ?? (en ? UI_STATE_COPY.errorTitle.en : UI_STATE_COPY.errorTitle.fr)}
+      description={description ?? (en ? UI_STATE_COPY.errorDescription.en : UI_STATE_COPY.errorDescription.fr)}
       actions={
         onRetry ? (
           <Button variant="outline" onClick={onRetry}>
-            {en ? "Try again" : "Réessayer"}
+            {en ? UI_STATE_COPY.retry.en : UI_STATE_COPY.retry.fr}
           </Button>
         ) : undefined
       }
@@ -105,7 +120,7 @@ export function NetworkUnavailableState({ onRetry }: { onRetry?: (() => void) | 
       actions={
         onRetry ? (
           <Button variant="outline" onClick={onRetry}>
-            {en ? "Try again" : "Réessayer"}
+            {en ? UI_STATE_COPY.retry.en : UI_STATE_COPY.retry.fr}
           </Button>
         ) : undefined
       }
