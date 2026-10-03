@@ -40,9 +40,7 @@ function DocumentsStepPage() {
     );
   }
 
-  const editable =
-    !isSubmitted(context) ||
-    context.profile.lifecycle_state === "ADDITIONAL_DOCUMENT_REQUIRED";
+  const editable = !isSubmitted(context);
   const ready = hasIdentityDocument(context) && hasProofOfAddress(context);
 
   return (
