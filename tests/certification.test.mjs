@@ -160,3 +160,22 @@ test("l'historique transactions utilise un curseur serveur", () => {
   assert.match(ui, /cursorHistory/);
   assert.doesNotMatch(ui, /totalCount|totalPages/);
 });
+
+test("documents et support utilisent la pagination serveur", () => {
+  const documents = read("src/features/documents/services/documents.server.ts");
+  const documentUi = read("src/features/documents/components/DocumentList.tsx");
+  const support = read("src/features/support/services/support.server.ts");
+  const supportUi = read("src/features/support/components/SupportCenter.tsx");
+  const adminSupportUi = read("src/features/support/components/AdminSupportConsole.tsx");
+  assert.match(documents, /decodeDocumentCursor\\(options.cursor\\)/);
+  assert.match(documents, /limit\\(DOCUMENT_PAGE_SIZE \\+ 1\\)/);
+  assert.doesNotMatch(documents, /listDocuments[\\s\\S]*?\\.limit\\(40\\)/);
+  assert.match(documentUi, /hasNext/);
+  assert.match(support, /decodeSupportCursor\\(cursor\\)/);
+  assert.match(support, /SUPPORT_PAGE_SIZE \\+ 1/);
+  assert.doesNotMatch(support, /loadAdminSupport[\\s\\S]*?\\.limit\\(100\\)/);
+  assert.match(support, /messagesByThread/);
+  assert.doesNotMatch(support, /messages.*\\.filter\\(.*thread_id/);
+  assert.match(supportUi, /useCustomerSupport\\(cursor\\)/);
+  assert.match(adminSupportUi, /useAdminSupport\\(cursor\\)/);
+});
