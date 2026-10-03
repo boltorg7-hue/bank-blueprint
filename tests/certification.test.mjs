@@ -830,3 +830,87 @@ test("5.8.8.8 certifie la cohérence globale des primitives, shells, états et s
     walk(directory);
   }
 });
+
+test("5.8.9 certifie la modernisation UI/UX 2026 de bout en bout", () => {
+  const packageJson = read("package.json");
+  const theme = read("src/components/providers/ThemeProvider.tsx");
+  const navigation = read("src/config/navigation.ts");
+  const button = read("src/components/ui/button.tsx");
+  const loading = read("src/components/feedback/index.tsx");
+  const dashboard = read("src/routes/app.dashboard.tsx");
+  const bottomNav = read("src/components/navigation/CustomerBottomNav.tsx");
+  const banking = read("src/components/layout/BankingAppLayout.tsx");
+  const admin = read("src/components/layout/AdminLayout.tsx");
+  const adminSidebar = read("src/components/navigation/AdminSidebar.tsx");
+  const pageHeader = read("src/components/layout/PageHeader.tsx");
+  const dialog = read("src/components/ui/dialog.tsx");
+  const sheet = read("src/components/ui/sheet.tsx");
+  const styles = read("src/styles.css");
+
+  assert.match(packageJson, /"test:certification": "node --test tests\/certification\.test\.mjs tests\/admin-ui-certification\.test\.mjs"/);
+
+  // 5.8.1 — thème adaptatif.
+  assert.match(theme, /ThemeMode = "light" \| "dark" \| "system"/);
+  assert.match(theme, /prefers-color-scheme: dark/);
+  assert.match(theme, /addEventListener\?\.\("change"/);
+
+  // 5.8.2 — navigation active et mobile primaire.
+  const primary = navigation.match(/export const CUSTOMER_PRIMARY_NAV[\s\S]*?\];/);
+  assert.ok(primary);
+  assert.ok((primary[0].match(/\{ label:/g) ?? []).length <= 5);
+  assert.match(navigation, /isCustomerMoreRoute/);
+  assert.match(bottomNav, /aria-current=\{selected \? "page" : undefined\}/);
+
+  // 5.8.3 + 5.8.6 — feedback d'action et motion maîtrisé.
+  assert.match(button, /aria-busy=\{loading \|\| undefined\}/);
+  assert.match(button, /role="status" aria-live="polite"/);
+  assert.match(button, /motion-safe:transition-/);
+  assert.match(styles, /prefers-reduced-motion: reduce/);
+  assert.match(styles, /@utility motion-micro/);
+  assert.match(styles, /@utility motion-reveal/);
+
+  // 5.8.4 — hiérarchie du dashboard.
+  assert.ok(dashboard.indexOf("<ActionRequiredTransfers />") < dashboard.indexOf("<MonthlySummaryCard"));
+  assert.match(dashboard, /aria-labelledby="activity-heading"/);
+  assert.match(dashboard, /focus-visible:ring-2 focus-visible:ring-ring/);
+
+  // 5.8.5 — expérience mobile/native-like.
+  assert.match(bottomNav, /safe-pb/);
+  assert.match(bottomNav, /touch-target/);
+  assert.match(banking, /pb-mobile-nav/);
+  assert.match(banking, /overscroll-x-none/);
+  assert.match(sheet, /max-h-\[92dvh\]/);
+  assert.match(sheet, /overscroll-contain/);
+
+  // 5.8.7 — shell administratif moderne et structuré.
+  assert.match(adminSidebar, /text-overline text-muted-foreground/);
+  assert.match(adminSidebar, /min-h-11/);
+  assert.match(admin, /aria-controls="admin-navigation"/);
+
+  // 5.8.8 — cohérence globale des primitives, surfaces et responsive.
+  assert.match(pageHeader, /text-heading-xl text-balance text-foreground/);
+  assert.match(dialog, /w-\[calc\(100vw-2rem\)\]/);
+  assert.match(dialog, /max-h-\[calc\(100dvh-2rem\)\]/);
+  assert.match(dialog, /overflow-y-auto/);
+  assert.match(sheet, /max-w-full overflow-y-auto overscroll-contain/);
+  assert.match(sheet, /motion-reduce:animate-none/);
+
+  // Le nettoyage technique final reste un invariant de certification.
+  for (const directory of ["src", "scripts", "supabase"]) {
+    const walk = (path) => {
+      for (const entry of readdirSync(new URL(`${path}/`, root), { withFileTypes: true })) {
+        const child = join(path, entry.name);
+        if (entry.isDirectory()) walk(child);
+        else if (/\.(?:ts|tsx|js|mjs|sql)$/.test(entry.name)) {
+          const source = read(child);
+          assert.doesNotMatch(source, /(^|\s)(TODO|FIXME|debugger)(\s|:|$)/);
+          assert.doesNotMatch(source, /console\.(log|debug|info|warn|error)\s*\(/);
+        }
+      }
+    };
+    walk(directory);
+  }
+
+  // La certification 5.8.8 globale doit elle-même rester dans la suite.
+  assert.match(read("tests/certification.test.mjs"), /5\.8\.8\.8 certifie la cohérence globale/);
+});
