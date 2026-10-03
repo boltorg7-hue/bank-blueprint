@@ -71,6 +71,8 @@ export type AdminOnboardingApprovalDto = {
   decidedAt: string | null;
 };
 
+export type AdminOnboardingCasePageDto = { items: AdminOnboardingCaseDto[]; hasNext: boolean; nextCursor: string | null };
+
 export type AdminOnboardingCaseDto = {
   customerId: string;
   reference: string;
