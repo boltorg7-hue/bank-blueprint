@@ -121,7 +121,7 @@ function ExternalTransfersTable({ transfers }: { transfers: AdminExternalTransfe
             <TableHead>{en ? "Status" : "État"}</TableHead>
             <TableHead>{en ? "Documents" : "Justificatifs"}</TableHead>
             <TableHead>{en ? "Created" : "Créé le"}</TableHead>
-            <TableHead className="text-right">Action</TableHead>
+            <TableHead className="text-right">{en ? "Action" : "Action"}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
