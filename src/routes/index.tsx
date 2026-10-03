@@ -89,7 +89,20 @@ function HomeResponsiveImage({
 }
 
 export const Route = createFileRoute("/")({
-  head: () => ({ ...meta, ...jsonLd }),
+  head: () => ({
+    ...meta,
+    ...jsonLd,
+    links: [
+      {
+        rel: "preload",
+        as: "image",
+        href: "/images/home/woodbrook-1280w.avif",
+        type: "image/avif",
+        imageSrcSet: HOME_IMAGE_VARIANTS.woodbrook.avif,
+        imageSizes: "(max-width: 1279px) 100vw, 1280px",
+      },
+    ],
+  }),
   component: HomePage,
 });
 
