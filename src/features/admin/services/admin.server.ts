@@ -53,14 +53,17 @@ async function adminClient() {
 export async function loadAdminCustomers(
   client: Client,
   search = "",
+  page = 1,
 ): Promise<AdminCustomerDto[]> {
   await requireAdminPermission(client, "customers.read");
   const admin = await adminClient();
+  const pageSize = 50;
+  const safePage = Math.max(1, Math.floor(page));
   const query = admin
     .from("profiles")
     .select("id, first_name, middle_name, last_name, phone, lifecycle_state, created_at")
     .order("created_at", { ascending: false })
-    .limit(100);
+    .range((safePage - 1) * pageSize, safePage * pageSize - 1);
   const term = search.trim().replace(/[%_,()]/g, "");
   const { data, error } = await query;
   if (error) throw new AdminAccessError("CUSTOMERS_UNAVAILABLE");
