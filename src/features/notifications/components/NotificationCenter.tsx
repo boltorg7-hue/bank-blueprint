@@ -26,8 +26,10 @@ const CATEGORY_LABEL: Record<string, string> = {
 export function NotificationCenter() {
   const { language } = useLanguage();
   const en = language === "en";
-  const q = useNotifications(), update = useUpdateNotification(), all = useMarkAllRead();
   const [filter, setFilter] = useState<string>("ALL");
+  const [cursor, setCursor] = useState<string | null>(null);
+  const [history, setHistory] = useState<string[]>([]);
+  const q = useNotifications(filter, cursor), update = useUpdateNotification(), all = useMarkAllRead();
   if (q.isPending) return <LoadingState label={en ? "Loading notifications…" : "Chargement des notifications…"} />;
   if (q.isError) return <ErrorState onRetry={() => q.refetch()} />;
   const items = q.data?.items ?? [];
@@ -37,7 +39,7 @@ export function NotificationCenter() {
         title="Notifications"
         description={en ? "Important changes to your accounts, fees and approved transactions." : "Changements importants sur vos comptes, les tarifs et vos opérations approuvées."}
         action={q.data?.unreadCount ? (
-          <Button variant="outline" onClick={() => all.mutate()} disabled={all.isPending}>
+          <Button variant="outline" loading={all.isPending} onClick={() => all.mutate()} loadingLabel={en ? "Marking…" : "Marquage…"}>
             <CheckCheck className="mr-2 size-4" />{en ? "Mark all as read" : "Tout marquer comme lu"}
           </Button>
         ) : undefined}
@@ -50,11 +52,11 @@ export function NotificationCenter() {
         ))}
       </div>
       {!items.length ? (
-        <EmptyState title={en ? "No notifications" : "Aucune notification"} description={en ? "Account, pricing and transaction alerts will appear here." : "Vos alertes de compte, de tarifs et d'opérations apparaîtront ici."} />
+        <EmptyState title={en ? "No notifications yet" : "Aucune notification pour le moment"} description={en ? "Account, pricing and transaction alerts will appear here." : "Vos alertes de compte, de tarifs et d'opérations apparaîtront ici."} />
       ) : (
         <div className="space-y-3">
           {items.map((n) => (
-            <Card key={n.id} className={n.readAt ? "" : "border-info/40"}><CardContent className="p-4">
+            <Card key={n.id} className={`motion-safe:transition-[border-color,box-shadow,transform] motion-safe:duration-200 hover:shadow-sm ${n.readAt ? "" : "border-info/40"}`}><CardContent className="p-4">
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <div className="flex flex-wrap items-center gap-2">

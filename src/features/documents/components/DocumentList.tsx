@@ -43,7 +43,7 @@ const DocumentRow = memo(function DocumentRow({ document }: { document: Customer
   const en = language === "en";
   const size = fileSize(document.sizeBytes);
   return (
-    <Card className="space-y-3 p-4 sm:p-5">
+    <Card className="space-y-3 p-4 sm:p-5 motion-safe:transition-[box-shadow,border-color,transform] motion-safe:duration-200 hover:shadow-sm">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="text-sm font-semibold text-foreground">{document.title}</p>
@@ -104,8 +104,8 @@ export function DocumentList() {
         <ErrorState onRetry={() => void refetch()} />
       ) : !data || data.items.length === 0 ? (
         <EmptyState
-          title={en ? "No documents" : "Aucun document"}
-          description={en ? "Your statements and receipts will appear here when issued." : "Vos relevés et reçus apparaîtront ici dès qu'ils seront édités."}
+          title={en ? "No documents yet" : "Aucun document pour le moment"}
+          description={en ? "Your statements, receipts and letters will appear here when they are issued." : "Vos relevés, reçus et courriers apparaîtront ici dès leur émission."}
         />
       ) : (
         <>

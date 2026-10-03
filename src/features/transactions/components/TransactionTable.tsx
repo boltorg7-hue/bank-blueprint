@@ -32,8 +32,8 @@ export function TransactionTable({ items }: { items: CustomerTransactionDto[] })
   const en = language === "en";
 
   return (
-    <div className="overflow-hidden rounded-xl border border-border bg-surface">
-      <Table>
+    <div className="overflow-x-auto rounded-xl border border-border bg-surface">
+      <Table className="min-w-[760px]">
         <caption className="sr-only">{en ? "Your transaction history, newest first" : "Historique de vos opérations, du plus récent au plus ancien"}</caption>
         <TableHeader>
           <TableRow>

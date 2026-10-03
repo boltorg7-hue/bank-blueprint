@@ -44,7 +44,7 @@ function StatementRow({ statement }: { statement: StatementDto }) {
     });
 
   return (
-    <Card className="space-y-3 p-4 sm:p-5">
+    <Card className="space-y-3 p-4 sm:p-5 motion-safe:transition-[box-shadow,border-color] motion-safe:duration-200 hover:shadow-sm">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="text-sm font-semibold text-foreground">{periodLabel(statement)}</p>
@@ -59,7 +59,7 @@ function StatementRow({ statement }: { statement: StatementDto }) {
         />
       </div>
 
-      <dl className="grid grid-cols-2 gap-3 rounded-lg border border-border p-3 sm:grid-cols-4">
+      <dl className="grid grid-cols-1 gap-3 rounded-lg sm:grid-cols-2 border border-border p-3 lg:grid-cols-4">
         {[
           { label: "Solde d'ouverture", value: money(statement.openingBalanceMinor) },
           { label: "Crédits", value: money(statement.totalCreditMinor) },
@@ -109,8 +109,8 @@ export function StatementList() {
   if (!data || data.length === 0) {
     return (
       <EmptyState
-        title="Aucun relevé émis"
-        description="Choisissez un compte et une période pour éditer votre premier relevé officiel."
+        title="Aucun relevé disponible pour le moment"
+        description="Choisissez un compte et une période pour éditer votre premier relevé officiel. Vos relevés disponibles apparaîtront ensuite ici."
       />
     );
   }

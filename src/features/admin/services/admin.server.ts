@@ -78,23 +78,45 @@ async function loadAdminAuthEmails(admin: Client, ids: string[]) {
   return result;
 }
 
-async function loadAdminEmailVerificationStatus(admin: Client, ids: string[]) {
-  const result = new Map<string, boolean>();
+type AdminAuthUser = {
+  email: string | null;
+  verified: boolean;
+};
+
+async function loadAdminAuthUsers(admin: Client, ids: string[]) {
+  const result = new Map<string, AdminAuthUser>();
+
   for (let offset = 0; offset < ids.length; offset += 8) {
     const batch = ids.slice(offset, offset + 8);
     const batchResults = await Promise.all(
       batch.map(async (id) => {
         try {
           const { data } = await admin.auth.admin.getUserById(id);
-          return { id, verified: Boolean(data.user?.email_confirmed_at) };
+          return {
+            id,
+            email: data.user?.email ?? null,
+            verified: Boolean(data.user?.email_confirmed_at),
+          };
         } catch {
-          return { id, verified: false };
+          return { id, email: null, verified: false };
         }
       }),
     );
-    for (const entry of batchResults) result.set(entry.id, entry.verified);
+
+    for (const entry of batchResults) {
+      result.set(entry.id, {
+        email: entry.email,
+        verified: entry.verified,
+      });
+    }
   }
+
   return result;
+}
+
+async function loadAdminEmailVerificationStatus(admin: Client, ids: string[]) {
+  const users = await loadAdminAuthUsers(admin, ids);
+  return new Map([...users].map(([id, user]) => [id, user.verified]));
 }
 
 function normalizeStaffContext(raw: unknown): StaffContextDto {
@@ -147,31 +169,11 @@ export async function loadAdminCustomers(
 
   const accountOwnerIds = new Set<string>();
   if (accountsFilter !== "ALL") {
-    const { data: accountRows, error: accountError } = await admin.from("bank_accounts").select("user_id");
+    const { data: accountRows, error: accountError } = await admin
+      .from("bank_accounts")
+      .select("user_id");
     if (accountError) throw new AdminAccessError("CUSTOMERS_UNAVAILABLE");
     for (const row of accountRows ?? []) accountOwnerIds.add(String((row as any).user_id));
-  }
-
-  const attentionIds = new Set<string>();
-  if (attentionFilter !== "ALL") {
-    const [{ data: nonActive }, { data: kyc }, { data: documents }, { data: notifications }, { data: transfers }, { data: pendingFunding }] = await Promise.all([
-      admin.from("profiles").select("id").neq("lifecycle_state", "ACTIVE"),
-      admin.from("identity_verifications").select("user_id,status").in("status", ["UNDER_REVIEW", "ADDITIONAL_INFORMATION_REQUIRED", "REJECTED"]),
-      admin.from("verification_documents").select("user_id,status").in("status", ["ACTION_REQUIRED", "REJECTED", "EXPIRED"]),
-      admin.from("notifications").select("user_id").is("archived_at", null).is("read_at", null),
-      admin.from("transfers").select("sender_user_id,status").in("status", ["PROCESSING", "COMPLIANCE_REVIEW", "DOCUMENT_REQUIRED", "SETTLEMENT_PENDING"]),
-      admin.from("funding_requests").select("account_id").eq("status", "PENDING"),
-    ]);
-    for (const row of nonActive ?? []) attentionIds.add(String((row as any).id));
-    for (const row of kyc ?? []) attentionIds.add(String((row as any).user_id));
-    for (const row of documents ?? []) attentionIds.add(String((row as any).user_id));
-    for (const row of notifications ?? []) attentionIds.add(String((row as any).user_id));
-    for (const row of transfers ?? []) attentionIds.add(String((row as any).sender_user_id));
-    const fundingAccountIds = [...new Set((pendingFunding ?? []).map((row: any) => String(row.account_id)))];
-    if (fundingAccountIds.length) {
-      const { data: fundingAccounts } = await admin.from("bank_accounts").select("user_id").in("id", fundingAccountIds);
-      for (const row of fundingAccounts ?? []) attentionIds.add(String((row as any).user_id));
-    }
   }
 
   let query = admin.from("profiles")
@@ -395,9 +397,15 @@ export async function loadAdminOnboardingCases(
       : Promise.resolve({ data: [] as any[] }),
   ]);
 
-  const [authById, emailVerifiedById] = customerIds.length
-    ? await Promise.all([loadAdminAuthEmails(admin, customerIds), loadAdminEmailVerificationStatus(admin, customerIds)])
-    : [new Map<string, string | null>(), new Map<string, boolean>()];
+  const authUsersById = customerIds.length
+    ? await loadAdminAuthUsers(admin, customerIds)
+    : new Map<string, AdminAuthUser>();
+  const authById = new Map(
+    [...authUsersById].map(([id, user]) => [id, user.email]),
+  );
+  const emailVerifiedById = new Map(
+    [...authUsersById].map(([id, user]) => [id, user.verified]),
+  );
 
   const verificationByUser = new Map((verifications ?? []).map((row: any) => [String(row.user_id), row]));
   const documentsByUser = new Map<string, AdminOnboardingCaseDto["documents"]>();

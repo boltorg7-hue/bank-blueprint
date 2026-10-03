@@ -139,13 +139,14 @@ async function fetchBalances(
   // Balances are joined through the owned accounts only (RLS enforces this too).
   const { data, error } = await client
     .from("account_balances")
-    .select(`${BALANCE_COLUMNS}, bank_accounts!inner(public_reference)`);
+    .select(`${BALANCE_COLUMNS}, bank_accounts!inner(public_reference)`)
+    .in("bank_accounts.public_reference", references);
   if (error) throw new AccountAccessError("BALANCES_UNAVAILABLE");
 
   const map = new Map<string, BalanceRow>();
   for (const row of (data ?? []) as any[]) {
     const reference = row.bank_accounts?.public_reference as string | undefined;
-    if (reference && references.includes(reference)) map.set(reference, row as BalanceRow);
+    if (reference) map.set(reference, row as BalanceRow);
   }
   return map;
 }
@@ -181,14 +182,17 @@ export async function loadAccountDetails(
   if (!data) return null;
 
   const row = data as unknown as AccountRow;
-  const balances = await fetchBalances(client, [row.public_reference]);
+  const [balances, profileResult] = await Promise.all([
+    fetchBalances(client, [row.public_reference]),
+    client
+      .from("profiles")
+      .select("first_name, middle_name, last_name")
+      .eq("id", userId)
+      .maybeSingle(),
+  ]);
   const summary = toSummary(row, balances.get(row.public_reference) ?? null);
 
-  const { data: profile } = await client
-    .from("profiles")
-    .select("first_name, middle_name, last_name")
-    .eq("id", userId)
-    .maybeSingle();
+  const { data: profile } = profileResult;
 
   const holderName =
     [profile?.first_name, profile?.middle_name, profile?.last_name]
