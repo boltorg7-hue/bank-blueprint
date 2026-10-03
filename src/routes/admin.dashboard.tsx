@@ -55,7 +55,7 @@ function AdminDashboardShell() {
         {staff.isPending ? (
           <LoadingState label={en ? "Loading staff context…" : "Chargement du profil opérationnel…"} />
         ) : staff.isError ? (\n          <ErrorState onRetry={() => staff.refetch()} />\n        ) : staff.data && (
-          <section className="rounded-xl border border-border bg-surface p-4 sm:p-5" aria-label={en ? "Staff context" : "Contexte du personnel"}>
+          <section className="native-surface p-4 sm:p-5" aria-label={en ? "Staff context" : "Contexte du personnel"}>
             <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
               <div className="flex min-w-0 items-start gap-3">
                 <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-muted">
