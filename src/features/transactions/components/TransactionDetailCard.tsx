@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { useLanguage } from "@/components/providers/LanguageProvider";
 
 import { OperationReceiptButton } from "@/features/documents/components/OperationReceiptButton";
+import { Card } from "@/components/ui/card";
 
 
 import { AmountText } from "@/components/data-display";
@@ -38,7 +39,7 @@ export function TransactionDetailCard({ transaction }: { transaction: Transactio
     <div className="space-y-4">
       <section
         aria-label={en ? "Transaction amount" : "Montant de l'opération"}
-        className="rounded-xl border border-border bg-surface p-5 text-center"
+        className="p-5"
       >
         <p className="text-caption text-muted-foreground">{transaction.displayTitle}</p>
         <div className="mt-2 flex justify-center">
@@ -76,7 +77,7 @@ export function TransactionDetailCard({ transaction }: { transaction: Transactio
         </div>
       </section>
 
-      <section aria-label={en ? "Transaction details" : "Détail de l'opération"} className="rounded-xl border border-border bg-surface p-5">
+      <section aria-label={en ? "Transaction details" : "Détail de l'opération"} className="p-5">
         <dl className="divide-y divide-border">
           <DetailRow label={en ? "Reference" : "Référence"} value={<span className="text-numeric">{transaction.reference}</span>} />
           <DetailRow label="Type" value={transactionTypeLabel(transaction.type, transaction.direction)} />
