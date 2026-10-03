@@ -4,9 +4,9 @@
   "sideEffects": false,
   "type": "module",
   "scripts": {
-    "dev": "vite dev",
-    "build": "vite build",
-    "build:dev": "vite build --mode development",
+    "dev": "node scripts/optimize-home-images.mjs && vite dev",
+    "build": "node scripts/optimize-home-images.mjs && vite build",
+    "build:dev": "node scripts/optimize-home-images.mjs && vite build --mode development",
     "preview": "vite preview",
     "lint": "eslint .",
     "test:certification": "node --test tests/certification.test.mjs",
@@ -92,6 +92,7 @@
     "prettier": "^3.7.3",
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.56.1",
-    "vite": "8.1.5"
+    "vite": "8.1.5",
+    "sharp": "^0.34.4"
   }
 }
