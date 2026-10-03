@@ -171,8 +171,7 @@ export async function loadAdminCustomers(
   if (accountsFilter !== "ALL") {
     const { data: accountRows, error: accountError } = await admin
       .from("bank_accounts")
-      .select("user_id")
-      .limit(5000);
+      .select("user_id");
     if (accountError) throw new AdminAccessError("CUSTOMERS_UNAVAILABLE");
     for (const row of accountRows ?? []) accountOwnerIds.add(String((row as any).user_id));
   }
