@@ -578,6 +578,7 @@ export async function loadAdminCustomerDossier(
     admin.from("transfers").select("public_reference,recipient_display_snapshot,amount_minor,currency,status,progress_percent,created_at").eq("sender_user_id", customerId).order("created_at", { ascending: false }).limit(20),
   ]);
 
+  if (kycResult.error || documentsResult.error || accountsResult.error || notificationsResult.error || supportResult.error || transferResult.error) throw new AdminAccessError("CUSTOMER_DOSSIER_UNAVAILABLE");
   const accounts = accountsResult.data ?? [];
   const accountIds = accounts.map((a: any) => String(a.id));
   const accountRefs = accounts.map((a: any) => String(a.public_reference));
