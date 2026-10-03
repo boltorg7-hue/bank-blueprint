@@ -48,7 +48,7 @@ export type AdminCustomerDto = {
   oldestAttentionAt: string | null;
 };
 
-export type AdminCustomerPageDto = { items: AdminCustomerDto[]; hasNext: boolean; };
+export type AdminCursorPage = { cursor: string | null; hasNext: boolean; };\n\nexport type AdminCustomerPageDto = { items: AdminCustomerDto[]; hasNext: boolean; nextCursor: string | null; };\nexport type AdminAccountPageDto = { items: AdminAccountDto[]; hasNext: boolean; nextCursor: string | null; };
 
 export type AdminOnboardingDocumentDto = {
   type: string;
