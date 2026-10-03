@@ -48,7 +48,12 @@ export function hasProofOfAddress(context: CustomerContext): boolean {
 }
 
 export function isSubmitted(context: CustomerContext): boolean {
-  return ["SUBMITTED", "UNDER_REVIEW", "VERIFIED"].includes(context.verification.status);
+  return [
+    "SUBMITTED",
+    "UNDER_REVIEW",
+    "ADDITIONAL_INFORMATION_REQUIRED",
+    "VERIFIED",
+  ].includes(context.verification.status);
 }
 
 export function buildOnboardingTasks(context: CustomerContext): OnboardingTask[] {
