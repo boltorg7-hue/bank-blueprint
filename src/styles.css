@@ -312,6 +312,14 @@
   min-height: 100dvh;
 }
 
+/* Defer rendering of below-the-fold public sections without collapsing layout.
+ * The intrinsic size is only a reservation; interactive banking surfaces do not
+ * use this utility. */
+@utility content-auto {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 600px;
+}
+
 /* Minimum comfortable touch target. */
 @utility touch-target {
   min-height: 2.75rem;
