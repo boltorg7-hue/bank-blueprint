@@ -12,8 +12,8 @@ import type {
   AdminAuditEventDto,
 } from "@/features/admin/types/admin";
 
-function searchInput(input: { search?: string } | undefined) {
-  return { search: String(input?.search ?? "").trim().slice(0, 80) };
+function searchInput(input: { search?: string; page?: number } | undefined) {
+  return { search: String(input?.search ?? "").trim().slice(0, 80), page: Math.max(1, Math.floor(Number(input?.page ?? 1))) };
 }
 
 export const getAdminStaffContext = createServerFn({ method: "GET" })
@@ -35,7 +35,7 @@ export const listAdminCustomers = createServerFn({ method: "POST" })
   .inputValidator(searchInput)
   .handler(async ({ data, context }): Promise<AdminCustomerDto[]> => {
     const service = await import("@/features/admin/services/admin.server");
-    return service.loadAdminCustomers(context.supabase, data.search);
+    return service.loadAdminCustomers(context.supabase, data.search, data.page);
   });
 
 export const listAdminOnboardingCases = createServerFn({ method: "POST" })
