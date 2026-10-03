@@ -11,11 +11,15 @@ import type { SupportStatus, SupportThreadDto } from "@/features/support/types/s
 import { formatDateTime } from "@/lib/format";
 
 export function AdminSupportConsole() {
-  const query=useAdminSupport();
+  const [cursor, setCursor] = useState<string | null>(null);
+  const [history, setHistory] = useState<string[]>([]);
+  const query=useAdminSupport(cursor);
   if(query.isPending)return <LoadingState />;
   if(query.isError)return <ErrorState onRetry={()=>query.refetch()} />;
-  if(!query.data?.length)return <EmptyState title="Aucune demande client" />;
-  return <div className="space-y-5">{query.data.map((thread)=><AdminThread key={thread.id} thread={thread}/>)}</div>;
+  if(!query.data?.items.length)return <EmptyState title="Aucune demande client" />;
+  return <div className="space-y-5">{query.data.items.map((thread)=><AdminThread key={thread.id} thread={thread}/>)}
+    {(history.length > 0 || query.data.hasNext) ? <div className="flex justify-end gap-2"><Button variant="outline" disabled={!history.length || query.isFetching} onClick={() => setHistory((items) => { const next = [...items]; setCursor(next.pop() || null); return next; })}>Précédent</Button><Button variant="outline" disabled={!query.data.hasNext || query.isFetching} onClick={() => { if (!query.data.nextCursor) return; setHistory((items) => [...items, cursor ?? ""]); setCursor(query.data.nextCursor); }}>Suivant</Button></div> : null}
+  </div>;
 }
 function AdminThread({thread}:{thread:SupportThreadDto}) {
   const reply=useStaffReplySupportThread(); const status=useSetSupportStatus(); const [body,setBody]=useState("");
