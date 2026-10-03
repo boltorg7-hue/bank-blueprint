@@ -71,6 +71,7 @@ export function formatTransactionAmount(
   currency: string,
   minorUnit: number,
   direction: TransactionDirection,
+  language: "fr" | "en" = "fr",
 ): string {
   const signed = direction === "OUTGOING" ? -amountMinor : amountMinor;
   return formatMoneyFromMinor(signed, {
@@ -91,7 +92,7 @@ export function transactionAmountAriaLabel(
     currency,
     minorUnitScale: 10 ** minorUnit,
   });
-  return `${directionLabel(direction)}, ${amount}`;
+  return `${directionLabel(direction, language)}, ${amount}`;
 }
 
 /** Decimal value for presentation primitives that expect major units. */
