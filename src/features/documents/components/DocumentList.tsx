@@ -104,8 +104,8 @@ export function DocumentList() {
         <ErrorState onRetry={() => void refetch()} />
       ) : !data || data.items.length === 0 ? (
         <EmptyState
-          title={en ? "No documents" : "Aucun document"}
-          description={en ? "Your statements and receipts will appear here when issued." : "Vos relevés et reçus apparaîtront ici dès qu'ils seront édités."}
+          title={en ? "No documents yet" : "Aucun document pour le moment"}
+          description={en ? "Your statements, receipts and letters will appear here when they are issued." : "Vos relevés, reçus et courriers apparaîtront ici dès leur émission."}
         />
       ) : (
         <>
