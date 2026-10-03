@@ -1,3 +1,2 @@
-import type {DomainId} from "../../_shared/types";
-export type NotificationChannel="email"|"sms"|"push"|"in_app";
-export type Notification={id:DomainId;customerId:DomainId;channel:NotificationChannel;template:string;read:boolean};
+export type NotificationDto={id:string;category:string;severity:"INFO"|"SUCCESS"|"WARNING"|"CRITICAL";title:string;body:string;resourcePath:string|null;readAt:string|null;createdAt:string};
+export type NotificationCenterDto={items:NotificationDto[];unreadCount:number};
