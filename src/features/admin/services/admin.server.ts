@@ -563,6 +563,7 @@ export async function loadAdminCustomerDossier(
       accountReference: accountById.get(String(row.account_id))?.public_reference ? String(accountById.get(String(row.account_id)).public_reference) : "—",
       amountMinor: Number(row.amount_minor),
       currency: String(row.currency),
+      minorUnit: Number(accountById.get(String(row.account_id))?.currency_minor_unit ?? 2),
       reason: String(row.reason),
       status: String(row.status),
       createdAt: String(row.created_at),
