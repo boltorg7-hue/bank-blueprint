@@ -543,3 +543,17 @@ test("les cinq dépendances lourdes restent documentées comme modules ciblés d
     assert.match(packageJson, new RegExp('"' + dependency.replace(/[.*+?^$()|[\]\\]/g, "\\$&") + '"\\s*:'));
   }
 });
+
+
+test("la plateforme supporte un thème adaptatif 2026 sans décalage entre préférence système et interface", () => {
+  const theme = read("src/components/providers/ThemeProvider.tsx");
+  const preferences = read("src/features/profile/components/PreferencesPage.tsx");
+
+  assert.match(theme, /ThemeMode = "light" \| "dark" \| "system"/);
+  assert.match(theme, /prefers-color-scheme: dark/);
+  assert.match(theme, /addEventListener\?\.\("change"/);
+  assert.match(theme, /theme === "light" \? "dark" : theme === "dark" \? "system" : "light"/);
+  assert.match(preferences, /setTheme\(result\.theme\)/);
+  assert.match(preferences, /value={form\.theme}/);
+  assert.match(preferences, /value="system"/);
+});
