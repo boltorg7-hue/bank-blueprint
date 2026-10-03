@@ -290,8 +290,8 @@ test("les primitives de dialogue conservent une fermeture tactile de 44px minimu
 
 test("la navigation mobile client reste limitée à cinq destinations primaires", () => {
   const navigation = read("src/config/navigation.ts");
-  const match = navigation.match(/export const CUSTOMER_PRIMARY_NAV[\\s\\S]*?\\];/);
+  const match = navigation.match(/export const CUSTOMER_PRIMARY_NAV[\s\S]*?\];/);
   assert.ok(match);
-  const entries = match[0].match(/\\{ label:/g) ?? [];
+  const entries = match[0].match(/\{ label:/g) ?? [];
   assert.ok(entries.length <= 5);
 });
