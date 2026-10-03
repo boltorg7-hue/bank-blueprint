@@ -369,7 +369,7 @@ export function TransferWizard({ initialBeneficiary }: { initialBeneficiary?: st
                       setTransfer(created);
                       setStepIndex(2);
                     },
-                    onError: (mutationError) => setError(transferErrorMessage(mutationError)),
+                    onError: (mutationError) => setError(transferErrorMessage(mutationError, en ? "en" : "fr")),
                     onSettled: () => {
                       initiateLock.current = false;
                     },
@@ -410,7 +410,7 @@ export function TransferWizard({ initialBeneficiary }: { initialBeneficiary?: st
           />
           <div className="space-y-2">
             <p className="text-caption text-muted-foreground">
-              {en ? "Destination selected by the bank" : "Destination retenue par la banque"} : {en ? transfer.kind === "EXTERNAL_TRANSFER" ? "external transfer" : "internal transfer" : transferKindLabel(transfer.kind)}.
+              {en ? "Destination selected by the bank" : "Destination retenue par la banque"} : {en ? transfer.kind === "EXTERNAL_TRANSFER" ? "external transfer" : "internal transfer" : transferKindLabel(transfer.kind, en ? "en" : "fr")}.
             </p>
             {transfer.kind === "EXTERNAL_TRANSFER" ? (
               <p className="text-caption text-muted-foreground">
@@ -458,7 +458,7 @@ export function TransferWizard({ initialBeneficiary }: { initialBeneficiary?: st
                     });
                     setStepIndex(3);
                   },
-                  onError: (mutationError) => setError(transferErrorMessage(mutationError)),
+                  onError: (mutationError) => setError(transferErrorMessage(mutationError, en ? "en" : "fr")),
                   onSettled: () => {
                     confirmLock.current = false;
                   },
@@ -489,7 +489,7 @@ export function TransferWizard({ initialBeneficiary }: { initialBeneficiary?: st
               <Loader2 className="size-10 text-primary" aria-hidden="true" />
             )}
             <StatusBadge
-              label={transferStatusLabel(result.status)}
+              label={transferStatusLabel(result.status, en ? "en" : "fr")}
               tone={transferStatusTone(result.status)}
             />
             <p className="text-sm text-muted-foreground">
