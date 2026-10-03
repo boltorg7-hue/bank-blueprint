@@ -38,7 +38,7 @@ export function NotificationCenter() {
         description={en ? "Important changes to your accounts, fees and approved transactions." : "Changements importants sur vos comptes, les tarifs et vos opérations approuvées."}
         action={q.data?.unreadCount ? (
           <Button variant="outline" onClick={() => all.mutate()} disabled={all.isPending}>
-            <CheckCheck className="mr-2 size-4" />Tout marquer comme lu
+            <CheckCheck className="mr-2 size-4" />{en ? "Mark all as read" : "Tout marquer comme lu"}
           </Button>
         ) : undefined}
       />
