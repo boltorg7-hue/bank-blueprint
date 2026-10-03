@@ -36,7 +36,7 @@ export function TransferSummaryCard({
   return (
     <Card className={cn(className)}>
       <CardContent className="p-4 sm:p-5">
-        <p className="text-overline text-muted-foreground"{en ? "Amount" : "Montant"}</p>
+        <p className="text-overline text-muted-foreground">{en ? "Amount" : "Montant"}</p>
         <div className="mt-1">
           <AmountText
             amount={Math.abs(amount)}
@@ -48,7 +48,7 @@ export function TransferSummaryCard({
 
         <div className="mt-4 flex items-center gap-3 rounded-lg bg-surface-sunken p-3">
           <div className="min-w-0 flex-1">
-            <p className="text-caption text-muted-foreground"{en ? "From" : "Depuis"}</p>
+            <p className="text-caption text-muted-foreground">{en ? "From" : "Depuis"}</p>
             <p className="text-label truncate text-foreground">{fromLabel}</p>
             {fromIdentifier && (
               <p className="text-numeric text-caption text-muted-foreground">{maskIdentifier(fromIdentifier)}</p>
@@ -56,7 +56,7 @@ export function TransferSummaryCard({
           </div>
           <ArrowRight className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
           <div className="min-w-0 flex-1">
-            <p className="text-caption text-muted-foreground"{en ? "To" : "Vers"}</p>
+            <p className="text-caption text-muted-foreground">{en ? "To" : "Vers"}</p>
             <p className="text-label truncate text-foreground">{toLabel}</p>
             {toIdentifier && (
               <p className="text-numeric text-caption text-muted-foreground">{maskIdentifier(toIdentifier)}</p>
@@ -68,7 +68,7 @@ export function TransferSummaryCard({
           <dl className="mt-4 space-y-2">
             {reference && (
               <div className="flex items-start justify-between gap-3">
-                <dt className="text-caption text-muted-foreground"{en ? "Reference" : "Référence"}</dt>
+                <dt className="text-caption text-muted-foreground">{en ? "Reference" : "Référence"}</dt>
                 <dd className="text-body-sm text-right text-foreground">{reference}</dd>
               </div>
             )}
