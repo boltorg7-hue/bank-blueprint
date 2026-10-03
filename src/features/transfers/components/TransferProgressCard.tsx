@@ -79,7 +79,7 @@ export function TransferProgressCard({
           <p className="text-sm font-semibold text-foreground">
             {progressStateLabel(transfer.progressState, en ? "en" : "fr")}
           </p>
-          <p className="text-caption text-muted-foreground">{transferKindLabel(transfer.kind)}</p>
+          <p className="text-caption text-muted-foreground">{transferKindLabel(transfer.kind, en ? "en" : "fr")}</p>
         </div>
         <p className="text-amount shrink-0 text-sm font-semibold text-foreground">
           {transfer.progressPercent} %
