@@ -53,7 +53,7 @@ export function CustomerBottomNav() {
               >
                 <div
                   className={cn(
-                    "flex size-8 shrink-0 items-center justify-center rounded-full transition-all duration-200",
+                    "flex size-8 shrink-0 items-center justify-center rounded-full transition-[transform,background-color] duration-200",
                     selected && "scale-105 bg-brand/10",
                   )}
                 >
