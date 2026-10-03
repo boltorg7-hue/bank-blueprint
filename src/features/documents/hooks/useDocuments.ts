@@ -26,8 +26,7 @@ export function useDocuments(filter: DocumentFilter = "ALL") {
   return useQuery<CustomerDocumentDto[]>({
     queryKey: [...DOCUMENTS_KEY, "list", filter],
     queryFn: () => fetchList({ data: { types: types ?? [] } }),
-    staleTime: 30_000,
-    gcTime: 300_000,
+    ...QUERY_POLICY.NORMAL,
     retry: 1,
   });
 }
@@ -42,7 +41,7 @@ export function useOperationReceipt(
     queryKey: [...DOCUMENTS_KEY, "receipt", documentType, sourceReference],
     queryFn: () => find({ data: { documentType, sourceReference } }),
     enabled: enabled && sourceReference.length > 0,
-    staleTime: 30_000,
+    ...QUERY_POLICY.NORMAL,
     retry: 0,
   });
 }
