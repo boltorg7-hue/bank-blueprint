@@ -63,16 +63,15 @@ export type TransactionFilters = {
 };
 
 export type TransactionPageRequest = TransactionFilters & {
-  page?: number;
+  cursor?: string | null;
   pageSize?: number;
 };
 
 export type TransactionPageDto = {
   items: CustomerTransactionDto[];
-  page: number;
   pageSize: number;
-  totalCount: number;
   hasMore: boolean;
+  nextCursor: string | null;
 };
 
 export type ActivitySummaryDto = {
