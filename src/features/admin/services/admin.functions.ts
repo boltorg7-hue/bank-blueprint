@@ -125,7 +125,7 @@ export const listAdminAccounts = createServerFn({ method: "POST" })
     return service.loadAdminAccounts(context.supabase, data.search, data.cursor ?? null);
   });
 
-export const listFundingRequests = createServerFn({ method: "GET" })
+export const listFundingRequests = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<FundingRequestDto[]> => {
     const service = await import("@/features/admin/services/admin.server");
