@@ -7,8 +7,22 @@ import type { SupportCategory, SupportStatus } from "@/features/support/types/su
 
 const CUSTOMER_SUPPORT_KEY = ["support", "customer"] as const;
 const ADMIN_SUPPORT_KEY = ["support", "admin"] as const;
-export function useCustomerSupport() { const fn = useServerFn(getCustomerSupport); return useQuery({ queryKey: CUSTOMER_SUPPORT_KEY, queryFn: () => fn(), ...QUERY_POLICY.REALTIME }); }
-export function useAdminSupport() { const fn = useServerFn(getAdminSupport); return useQuery({ queryKey: ADMIN_SUPPORT_KEY, queryFn: () => fn(), ...QUERY_POLICY.REALTIME }); }
+export function useCustomerSupport(cursor: string | null = null) {
+  const fn = useServerFn(getCustomerSupport);
+  return useQuery({
+    queryKey: [...CUSTOMER_SUPPORT_KEY, cursor],
+    queryFn: () => fn({ data: { cursor } }),
+    ...QUERY_POLICY.REALTIME,
+  });
+}
+export function useAdminSupport(cursor: string | null = null) {
+  const fn = useServerFn(getAdminSupport);
+  return useQuery({
+    queryKey: [...ADMIN_SUPPORT_KEY, cursor],
+    queryFn: () => fn({ data: { cursor } }),
+    ...QUERY_POLICY.REALTIME,
+  });
+}
 function useInvalidatingMutation<T>(fn: (data: T) => Promise<unknown>, key: readonly string[]) { const qc = useQueryClient(); return useMutation({ mutationFn: fn, onSuccess: () => qc.invalidateQueries({ queryKey: key }) }); }
 export function useCreateSupportThread() { const fn = useServerFn(createSupportThread); return useInvalidatingMutation((data: { subject: string; category: SupportCategory; body: string }) => fn({ data }), CUSTOMER_SUPPORT_KEY); }
 export function useReplySupportThread() { const fn = useServerFn(replySupportThread); return useInvalidatingMutation((data: { threadId: string; body: string }) => fn({ data }), CUSTOMER_SUPPORT_KEY); }
