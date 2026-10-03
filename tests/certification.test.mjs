@@ -132,3 +132,18 @@ test("le funding ne dépend plus de la collection Accounts paginée", () => {
   assert.match(hooks, /useFundingAccountSearch/);
   assert.doesNotMatch(ui, /useAdminAccounts/);
 });
+
+test("Onboarding utilise recherche, statut et pagination serveur", () => {
+  const server = read("src/features/admin/services/admin.server.ts");
+  const functions = read("src/features/admin/services/admin.functions.ts");
+  const hooks = read("src/features/admin/hooks/useAdmin.ts");
+  const route = read("src/routes/admin.onboarding-cases.tsx");
+  assert.match(server, /loadAdminOnboardingCases[\\s\\S]*?decodeAdminCursor\\(cursor\\)/);
+  assert.match(server, /loadAdminOnboardingCases[\\s\\S]*?limit\\(ADMIN_PAGE_SIZE \\+ 1\\)/);
+  assert.doesNotMatch(server, /loadAdminOnboardingCases[\\s\\S]*?\\.limit\\(100\\)/);
+  assert.match(functions, /onboardingSearchInput/);
+  assert.match(functions, /listAdminOnboardingCases[\\s\\S]*?data\\.cursor/);
+  assert.match(hooks, /useAdminOnboardingCases\\(search: string, status = "ALL", cursor/);
+  assert.doesNotMatch(route, /useMemo|\\.filter\\(\\(item\\) => item\\.verificationStatus/);
+  assert.match(route, /query\\.data\\.hasNext/);
+});
