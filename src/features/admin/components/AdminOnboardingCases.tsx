@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { AdminCustomerOperationalDossier } from "@/features/admin/components/AdminCustomerOperationalDossier";
 import { FileCheck2, Files, ShieldCheck, UserRoundCheck } from "lucide-react";
 import { toast } from "sonner";
 
@@ -102,6 +103,7 @@ export function AdminOnboardingCases({ cases }: { cases: AdminOnboardingCaseDto[
   const permissions = context.data?.permissions ?? [];
   const [action, setAction] = useState<{ item: AdminOnboardingCaseDto; type: "APPROVE" | "REJECT" | "REQUEST_INFO" | "CONFIRM" | "RETURN" | "ACTIVATE" } | null>(null);
   const [note, setNote] = useState("");
+  const [dossierCustomer, setDossierCustomer] = useState<import("@/features/admin/types/admin").AdminCustomerDto | null>(null);
 
   function actions(item: AdminOnboardingCaseDto) {
     const pending = item.approval?.status === "PENDING_SECOND_REVIEW";
@@ -160,7 +162,7 @@ export function AdminOnboardingCases({ cases }: { cases: AdminOnboardingCaseDto[
             </div>
             <DocumentList documents={item.documents} />
             {item.approval ? <div className="rounded-md border border-border p-3"><p className="text-xs text-muted-foreground">{en ? "First review" : "Premier examen"}</p><p className="mt-1 text-sm font-medium">{item.approval.reviewerName} · {item.approval.recommendation === "APPROVE" ? (en ? "Approval recommended" : "Approbation recommandée") : (en ? "Rejection recommended" : "Refus recommandé")}</p><p className="mt-1 text-sm text-muted-foreground">{item.approval.reviewerNote}</p></div> : null}
-            {actions(item)}
+            <div className="flex flex-wrap gap-2"><Button size="sm" variant="ghost" onClick={() => setDossierCustomer({ id: item.customerId, reference: item.reference, fullName: item.fullName, email: item.email, phone: null, lifecycleState: item.lifecycleState, accountCount: item.accountReference ? 1 : 0, createdAt: item.createdAt, attentionCount: 0, attentionReasons: [], oldestAttentionAt: null })}>{en ? "Open dossier" : "Ouvrir le dossier"}</Button>{actions(item)}</div>
           </li>
         ))}
       </ul>
@@ -172,11 +174,12 @@ export function AdminOnboardingCases({ cases }: { cases: AdminOnboardingCaseDto[
             <TableCell><CaseStatus status={item.verificationStatus} /><Progress step={item.onboardingStep} /></TableCell>
             <TableCell><div className="flex items-center gap-2"><FileCheck2 className="size-4 text-muted-foreground" /><span className="font-medium">{item.documents.length}</span></div><div className="mt-2 max-w-sm"><DocumentList documents={item.documents} /></div></TableCell>
             <TableCell>{item.approval ? <div><p className="font-medium">{item.approval.reviewerName}</p><p className="text-xs text-muted-foreground">{item.approval.recommendation === "APPROVE" ? (en ? "Approval recommended" : "Approbation recommandée") : (en ? "Rejection recommended" : "Refus recommandé")}</p></div> : item.submittedAt ? formatDateTime(item.submittedAt) : "—"}</TableCell>
-            <TableCell><div className="min-w-56">{actions(item)}</div></TableCell>
+            <TableCell><div className="min-w-56 space-y-2"><Button size="sm" variant="ghost" onClick={() => setDossierCustomer({ id: item.customerId, reference: item.reference, fullName: item.fullName, email: item.email, phone: null, lifecycleState: item.lifecycleState, accountCount: item.accountReference ? 1 : 0, createdAt: item.createdAt, attentionCount: 0, attentionReasons: [], oldestAttentionAt: null })}>{en ? "Open dossier" : "Ouvrir le dossier"}</Button>{actions(item)}</div></TableCell>
           </TableRow>)}</TableBody>
         </Table>
       </div>
       <Dialog open={Boolean(action)} onOpenChange={(open) => { if (!open) { setAction(null); setNote(""); } }}><DialogContent className="w-[calc(100%-2rem)] rounded-md"><DialogHeader><DialogTitle className="flex items-center gap-2"><ShieldCheck className="size-5" />{en ? "Confirm this decision" : "Confirmer cette décision"}</DialogTitle><DialogDescription>{action?.type === "CONFIRM" ? (en ? "You are the second reviewer. The first reviewer cannot confirm their own recommendation." : "Vous êtes le second examinateur. Le premier ne peut pas confirmer sa propre recommandation.") : (en ? "Record a clear, auditable reason before continuing." : "Consignez un motif clair et traçable avant de continuer.")}</DialogDescription></DialogHeader><div className="space-y-2"><Label htmlFor="onboarding-decision-note">{en ? "Decision note" : "Motif de la décision"}</Label><Textarea id="onboarding-decision-note" value={note} onChange={(event) => setNote(event.target.value)} minLength={8} maxLength={500} autoFocus /></div><DialogFooter className="gap-2"><Button variant="outline" onClick={() => setAction(null)}>{en ? "Cancel" : "Annuler"}</Button><Button onClick={() => void confirmAction()} disabled={note.trim().length < 8 || review.isPending || decide.isPending || activate.isPending}>{en ? "Confirm" : "Confirmer"}</Button></DialogFooter></DialogContent></Dialog>
+      <AdminCustomerOperationalDossier customer={dossierCustomer} open={Boolean(dossierCustomer)} onOpenChange={(open) => { if (!open) setDossierCustomer(null); }} />
     </>
   );
 }
