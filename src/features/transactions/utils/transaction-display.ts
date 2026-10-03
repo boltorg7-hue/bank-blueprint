@@ -39,29 +39,29 @@ const TYPE_LABELS: Record<string, string> = {
   ACCOUNT_OPENING: "Ouverture de compte",
 };
 
-export function transactionStatusLabel(status: CustomerTransactionStatus): string {
-  return STATUS_LABELS[status];
+export function transactionStatusLabel(status: CustomerTransactionStatus, language: "fr" | "en" = "fr"): string {
+  return language === "en" ? ({PENDING:"Pending",PROCESSING:"Processing",COMPLETED:"Completed",FAILED:"Failed",CANCELLED:"Cancelled",REVERSED:"Reversed"} as Record<CustomerTransactionStatus,string>)[status] : STATUS_LABELS[status];
 }
 
 export function transactionStatusTone(status: CustomerTransactionStatus): StatusTone {
   return STATUS_TONES[status];
 }
 
-export function transactionTypeLabel(type: string, direction: TransactionDirection): string {
+export function transactionTypeLabel(type: string, direction: TransactionDirection, language: "fr" | "en" = "fr"): string {
   if (type === "TRANSFER") {
-    return direction === "INCOMING" ? "Virement reçu" : "Virement émis";
+    return language === "en" ? (direction === "INCOMING" ? "Incoming transfer" : "Outgoing transfer") : (direction === "INCOMING" ? "Virement reçu" : "Virement émis");
   }
-  return TYPE_LABELS[type] ?? "Opération";
+  return language === "en" ? ({TRANSFER:"Transfer",FUNDING:"Account funding",FEE:"Fee",REFUND:"Refund",ADJUSTMENT:"Adjustment",REVERSAL:"Reversal",ACCOUNT_OPENING:"Account opening"} as Record<string,string>)[type] ?? "Transaction" : TYPE_LABELS[type] ?? "Opération";
 }
 
-export function directionLabel(direction: TransactionDirection): string {
+export function directionLabel(direction: TransactionDirection, language: "fr" | "en" = "fr"): string {
   switch (direction) {
     case "INCOMING":
-      return "Entrée d'argent";
+      return language === "en" ? "Incoming funds" : "Entrée d'argent";
     case "OUTGOING":
-      return "Sortie d'argent";
+      return language === "en" ? "Outgoing funds" : "Sortie d'argent";
     default:
-      return "Opération";
+      return language === "en" ? "Transaction" : "Opération";
   }
 }
 
