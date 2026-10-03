@@ -1,4 +1,5 @@
 import { Download, Eye, Printer } from "lucide-react";
+import { useLanguage } from "@/components/providers/LanguageProvider";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -20,6 +21,8 @@ export function DocumentActions({
   disabled?: boolean;
   size?: "sm" | "default";
 }) {
+  const { language } = useLanguage();
+  const en = language === "en";
   const access = useDocumentAccess();
 
   const open = (intent: "download" | "preview", print: boolean) => {
@@ -29,11 +32,11 @@ export function DocumentActions({
         onSuccess: ({ url }) => {
           const opened = window.open(url, "_blank", "noopener,noreferrer");
           if (!opened) {
-            toast.error("Autorisez l'ouverture des fenêtres pour afficher ce document.");
+            toast.error(en ? "Allow pop-ups to view this document." : "Autorisez l'ouverture des fenêtres pour afficher ce document.");
             return;
           }
           if (print) {
-            toast.info("Utilisez la fonction d'impression du lecteur PDF ouvert.");
+            toast.info(en ? "Use the print function in the opened PDF viewer." : "Utilisez la fonction d'impression du lecteur PDF ouvert.");
           }
         },
         onError: (error) => toast.error(documentErrorMessage(error.message)),
@@ -53,7 +56,7 @@ export function DocumentActions({
         onClick={() => open("download", false)}
       >
         <Download aria-hidden className="mr-2 size-4" />
-        Télécharger
+        {en ? "Download" : "Télécharger"}
       </Button>
       <Button
         type="button"
@@ -63,7 +66,7 @@ export function DocumentActions({
         onClick={() => open("preview", false)}
       >
         <Eye aria-hidden className="mr-2 size-4" />
-        Aperçu
+        {en ? "Preview" : "Aperçu"}
       </Button>
       <Button
         type="button"
@@ -73,7 +76,7 @@ export function DocumentActions({
         onClick={() => open("preview", true)}
       >
         <Printer aria-hidden className="mr-2 size-4" />
-        Imprimer
+        {en ? "Print" : "Imprimer"}
       </Button>
     </div>
   );
