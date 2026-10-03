@@ -97,7 +97,7 @@ export function DocumentList() {
         <SkeletonBlock lines={5} />
       ) : isError ? (
         <ErrorState onRetry={() => void refetch()} />
-      ) : !data || data.length === 0 ? (
+      ) : !data || data.items.length === 0 ? (
         <EmptyState
           title="Aucun document"
           description="Vos relevés et reçus apparaîtront ici dès qu'ils seront édités."
