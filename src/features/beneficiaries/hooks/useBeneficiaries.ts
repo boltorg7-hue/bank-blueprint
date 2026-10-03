@@ -22,12 +22,7 @@ import type {
  */
 export const BENEFICIARIES_KEY = ["beneficiaries"] as const;
 
-const BEHAVIOUR = {
-  staleTime: 15_000,
-  gcTime: 60_000,
-  refetchOnWindowFocus: true,
-  retry: 1,
-} as const;
+const BEHAVIOUR = QUERY_POLICY.NORMAL;
 
 export function useBeneficiaries() {
   const fetchList = useServerFn(listCustomerBeneficiaries);
@@ -85,8 +80,7 @@ export function useSupportedDestinations() {
   return useQuery<SettlementRailDto[]>({
     queryKey: [...BENEFICIARIES_KEY, "destinations"],
     queryFn: () => fetchRails(),
-    staleTime: 600_000,
-    gcTime: 900_000,
+    ...QUERY_POLICY.STATIC,
   });
 }
 
