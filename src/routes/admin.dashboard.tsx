@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useLanguage } from "@/components/providers/LanguageProvider";
 import { CircleDollarSign, ShieldCheck, UserRoundCheck, Users, Wallet } from "lucide-react";
 
-import { PageHeader } from "@/components/layout/PageHeader";
+import { PageSection } from "@/components/ui/page-section";
 import { ErrorState, LoadingState } from "@/components/feedback";
 import { KpiCard } from "@/components/data-display/KpiCard";
 import { AdminGate } from "@/features/admin/components/AdminGate";
