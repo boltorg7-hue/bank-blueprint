@@ -43,10 +43,10 @@ export function useAdminDashboard() {
   return useQuery({ queryKey: ADMIN_DASHBOARD_KEY, queryFn: () => fn(), ...QUERY_POLICY.NORMAL, retry: 1, enabled: staff?.authorized === true && staff.permissions.includes("admin.access") });
 }
 
-export function useAdminCustomers(search: string, page = 1, lifecycle = "ALL", accounts = "ALL", attention = "ALL") {
+export function useAdminCustomers(search: string, cursor: string | null = null, lifecycle = "ALL", accounts = "ALL", attention = "ALL") {
   const fn = useServerFn(listAdminCustomers);
   const { data: staff } = useAdminContext();
-  return useQuery({ queryKey: [...ADMIN_CUSTOMERS_KEY, search, page, lifecycle, accounts, attention], queryFn: () => fn({ data: { search, page, lifecycle, accounts, attention } }), ...QUERY_POLICY.NORMAL, enabled: staff?.authorized === true && staff.permissions.includes("customers.read") });
+  return useQuery({ queryKey: [...ADMIN_CUSTOMERS_KEY, search, cursor, lifecycle, accounts, attention], queryFn: () => fn({ data: { search, cursor, lifecycle, accounts, attention } }), ...QUERY_POLICY.NORMAL, enabled: staff?.authorized === true && staff.permissions.includes("customers.read") });
 }
 
 export function useAdminOnboardingCases(search: string) {
@@ -85,10 +85,10 @@ export function useActivateAdminOnboardingCustomer() {
   return onboardingMutation((data: { customerId: string; reason: string }) => fn({ data }));
 }
 
-export function useAdminAccounts(search = "") {
+export function useAdminAccounts(search = "", cursor: string | null = null) {
   const fn = useServerFn(listAdminAccounts);
   const { data: staff } = useAdminContext();
-  return useQuery({ queryKey: [...ADMIN_ACCOUNTS_KEY, search], queryFn: () => fn({ data: { search } }), ...QUERY_POLICY.NORMAL, enabled: staff?.authorized === true && staff.permissions.includes("accounts.read") });
+  return useQuery({ queryKey: [...ADMIN_ACCOUNTS_KEY, search, cursor], queryFn: () => fn({ data: { search, cursor } }), ...QUERY_POLICY.NORMAL, enabled: staff?.authorized === true && staff.permissions.includes("accounts.read") });
 }
 
 export function useFundingRequests() {
