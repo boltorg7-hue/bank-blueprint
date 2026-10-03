@@ -6,6 +6,7 @@ import type {
   AdminCustomerDto,
   AdminDashboardDto,
   FundingRequestDto,
+  FundingAccountOptionDto,
   StaffContextDto,
   AdminExternalTransferDto,
   AdminOnboardingCaseDto,
@@ -127,9 +128,20 @@ export const listAdminAccounts = createServerFn({ method: "POST" })
 
 export const listFundingRequests = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }): Promise<FundingRequestDto[]> => {
+  .inputValidator(searchInput)
+  .handler(async ({ data, context }): Promise<FundingRequestPageDto> => {
     const service = await import("@/features/admin/services/admin.server");
     return service.loadFundingRequests(context.supabase, data.cursor ?? null);
+  });
+
+export const searchFundingAccounts = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { search?: string } | undefined) => ({
+    search: String(input?.search ?? "").trim().slice(0, 80),
+  }))
+  .handler(async ({ data, context }): Promise<FundingAccountOptionDto[]> => {
+    const service = await import("@/features/admin/services/admin.server");
+    return service.searchFundingAccounts(context.supabase, data.search);
   });
 
 export const createFundingRequest = createServerFn({ method: "POST" })
