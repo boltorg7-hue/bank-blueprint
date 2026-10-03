@@ -107,6 +107,7 @@ export function TransferWizard({ initialBeneficiary }: { initialBeneficiary?: st
   const initiate = useInitiateTransfer();
   const confirm = useConfirmTransfer();
   const initiateLock = useRef(false);
+  const requestKeyRef = useRef<string | null>(null);
   const confirmLock = useRef(false);
 
   const accounts = useMemo(
@@ -357,12 +358,14 @@ export function TransferWizard({ initialBeneficiary }: { initialBeneficiary?: st
                 if (initiateLock.current || amountMinor === null || !source || !beneficiary) return;
                 initiateLock.current = true;
                 setError(null);
+                requestKeyRef.current ??= globalThis.crypto.randomUUID();
                 initiate.mutate(
                   {
                     sourceAccountReference: source.reference,
                     beneficiaryReference: beneficiary.reference,
                     amountMinor,
                     customerReference: note.trim(),
+                    idempotencyKey: requestKeyRef.current,
                   },
                   {
                     onSuccess: (created) => {
