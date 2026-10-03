@@ -39,6 +39,6 @@ export function ProfilePage() {
       </form></CardContent></Card>
       <Card><CardHeader><CardTitle>{en ? "Verification" : "Vérification"}</CardTitle><CardDescription>{en ? "This is separate from your bank account status." : "État distinct du statut de votre compte bancaire."}</CardDescription></CardHeader><CardContent><StatusBadge label={data.identityStatus} tone={data.identityStatus === "VERIFIED" ? "success" : "pending"} /></CardContent></Card>
       <Card><CardHeader><CardTitle>{en ? "My bank details" : "Mes coordonnées bancaires"}</CardTitle><CardDescription>{en ? "Read-only. Balances are available under Accounts." : "Lecture seule. Les soldes restent disponibles dans la section Comptes."}</CardDescription></CardHeader><CardContent className="space-y-3">{data.accounts.length ? data.accounts.map((account) => <div key={account.reference} className="rounded-lg border p-4"><div className="flex justify-between gap-3"><div><p className="font-medium">{account.displayName}</p><p className="text-sm text-muted-foreground">{account.reference} · {account.maskedNumber}</p></div><StatusBadge label={account.status} tone={account.status === "ACTIVE" ? "success" : "pending"} /></div>{account.iban ? <p className="mt-2 text-xs text-muted-foreground">IBAN : {account.iban}</p> : null}{account.bic ? <p className="text-xs text-muted-foreground">BIC : {account.bic}</p> : null}</div>) : <p className="text-sm text-muted-foreground">{en ? "No bank account opened yet." : "Aucun compte bancaire ouvert."}</p>}</CardContent></Card>
-    </div>
-  </PageSection>;
+    </PageSection>
+  </div>;
 }
