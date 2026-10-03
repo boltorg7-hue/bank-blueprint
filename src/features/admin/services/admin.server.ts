@@ -78,59 +78,95 @@ export async function loadAdminCustomers(
   const customerIds = (data ?? []).map((row: any) => String(row.id));
   const accountIds = (accounts ?? []).map((row: any) => String((row as any).id)).filter(Boolean);
   const [{ data: verifications }, { data: documents }, { data: notifications }, { data: transfers }, { data: funding }] = await Promise.all([
-    customerIds.length ? admin.from("identity_verifications").select("user_id,status").in("user_id", customerIds) : Promise.resolve({ data: [] as any[] }),
-    customerIds.length ? admin.from("verification_documents").select("user_id,status").in("user_id", customerIds) : Promise.resolve({ data: [] as any[] }),
-    customerIds.length ? admin.from("notifications").select("user_id,read_at").in("user_id", customerIds).is("archived_at", null) : Promise.resolve({ data: [] as any[] }),
-    customerIds.length ? admin.from("transfers").select("sender_user_id,status").in("sender_user_id", customerIds) : Promise.resolve({ data: [] as any[] }),
-    accountIds.length ? admin.from("funding_requests").select("account_id,status").in("account_id", accountIds) : Promise.resolve({ data: [] as any[] }),
+    customerIds.length ? admin.from("identity_verifications").select("user_id,status,submitted_at,decided_at").in("user_id", customerIds) : Promise.resolve({ data: [] as any[] }),
+    customerIds.length ? admin.from("verification_documents").select("user_id,status,created_at").in("user_id", customerIds) : Promise.resolve({ data: [] as any[] }),
+    customerIds.length ? admin.from("notifications").select("user_id,read_at,created_at").in("user_id", customerIds).is("archived_at", null) : Promise.resolve({ data: [] as any[] }),
+    customerIds.length ? admin.from("transfers").select("sender_user_id,status,created_at").in("sender_user_id", customerIds) : Promise.resolve({ data: [] as any[] }),
+    accountIds.length ? admin.from("funding_requests").select("account_id,status,created_at").in("account_id", accountIds) : Promise.resolve({ data: [] as any[] }),
   ]);
   const accountOwnerById = new Map((accounts ?? []).map((row: any) => [String(row.id), String(row.user_id)]));
-  const verificationByUser = new Map<string, Set<string>>();
+  const verificationByUser = new Map<string, { statuses: Set<string>; attentionAt: string[] }>();
   for (const row of verifications ?? []) {
     const id = String((row as any).user_id);
-    const set = verificationByUser.get(id) ?? new Set<string>();
-    set.add(String((row as any).status));
-    verificationByUser.set(id, set);
+    const current = verificationByUser.get(id) ?? { statuses: new Set<string>(), attentionAt: [] };
+    const status = String((row as any).status);
+    current.statuses.add(status);
+    const timestamp = ["UNDER_REVIEW", "ADDITIONAL_INFORMATION_REQUIRED"].includes(status) ? row.submitted_at : status === "REJECTED" ? row.decided_at : null;
+    if (timestamp) current.attentionAt.push(String(timestamp));
+    verificationByUser.set(id, current);
   }
-  const documentByUser = new Map<string, Set<string>>();
+  const documentByUser = new Map<string, { statuses: Set<string>; attentionAt: string[] }>();
   for (const row of documents ?? []) {
     const id = String((row as any).user_id);
-    const set = documentByUser.get(id) ?? new Set<string>();
-    set.add(String((row as any).status));
-    documentByUser.set(id, set);
+    const current = documentByUser.get(id) ?? { statuses: new Set<string>(), attentionAt: [] };
+    const status = String((row as any).status);
+    current.statuses.add(status);
+    if (["ACTION_REQUIRED", "REJECTED", "EXPIRED"].includes(status) && (row as any).created_at) current.attentionAt.push(String((row as any).created_at));
+    documentByUser.set(id, current);
   }
-  const unreadByUser = new Map<string, number>();
+  const unreadByUser = new Map<string, { count: number; attentionAt: string[] }>();
   for (const row of notifications ?? []) {
     if (!row.read_at) {
       const id = String((row as any).user_id);
-      unreadByUser.set(id, (unreadByUser.get(id) ?? 0) + 1);
+      const current = unreadByUser.get(id) ?? { count: 0, attentionAt: [] };
+      current.count += 1;
+      if ((row as any).created_at) current.attentionAt.push(String((row as any).created_at));
+      unreadByUser.set(id, current);
     }
   }
-  const openTransfersByUser = new Map<string, number>();
+  const openTransfersByUser = new Map<string, { count: number; attentionAt: string[] }>();
   for (const row of transfers ?? []) {
     if (["PROCESSING", "COMPLIANCE_REVIEW", "DOCUMENT_REQUIRED", "SETTLEMENT_PENDING"].includes(String((row as any).status))) {
       const id = String((row as any).sender_user_id);
-      openTransfersByUser.set(id, (openTransfersByUser.get(id) ?? 0) + 1);
+      const current = openTransfersByUser.get(id) ?? { count: 0, attentionAt: [] };
+      current.count += 1;
+      if ((row as any).created_at) current.attentionAt.push(String((row as any).created_at));
+      openTransfersByUser.set(id, current);
     }
   }
-  const pendingFundingByUser = new Map<string, number>();
+  const pendingFundingByUser = new Map<string, { count: number; attentionAt: string[] }>();
   for (const row of funding ?? []) {
     if (String((row as any).status) === "PENDING") {
       const owner = accountOwnerById.get(String((row as any).account_id));
-      if (owner) pendingFundingByUser.set(owner, (pendingFundingByUser.get(owner) ?? 0) + 1);
+      if (owner) {
+        const current = pendingFundingByUser.get(owner) ?? { count: 0, attentionAt: [] };
+        current.count += 1;
+        if ((row as any).created_at) current.attentionAt.push(String((row as any).created_at));
+        pendingFundingByUser.set(owner, current);
+      }
     }
   }
   const mapped: AdminCustomerDto[] = (data ?? []).map((row: any) => {
     const id = String(row.id);
     const attentionReasons: string[] = [];
     if (row.lifecycle_state !== "ACTIVE") attentionReasons.push("LIFECYCLE");
-    const verificationStatuses = verificationByUser.get(id) ?? new Set<string>();
-    if ([...verificationStatuses].some((status) => ["UNDER_REVIEW", "ADDITIONAL_INFORMATION_REQUIRED", "REJECTED"].includes(status))) attentionReasons.push("KYC");
-    const documentStatuses = documentByUser.get(id) ?? new Set<string>();
-    if ([...documentStatuses].some((status) => ["ACTION_REQUIRED", "REJECTED", "EXPIRED"].includes(status))) attentionReasons.push("DOCUMENTS");
-    if ((unreadByUser.get(id) ?? 0) > 0) attentionReasons.push("NOTIFICATIONS");
-    if ((openTransfersByUser.get(id) ?? 0) > 0) attentionReasons.push("TRANSFERS");
-    if ((pendingFundingByUser.get(id) ?? 0) > 0) attentionReasons.push("FUNDING");
+    const attentionAt: string[] = [];
+    const verification = verificationByUser.get(id);
+    if ([...(verification?.statuses ?? [])].some((status) => ["UNDER_REVIEW", "ADDITIONAL_INFORMATION_REQUIRED", "REJECTED"].includes(status))) {
+      attentionReasons.push("KYC");
+      attentionAt.push(...(verification?.attentionAt ?? []));
+    }
+    const documents = documentByUser.get(id);
+    if ([...(documents?.statuses ?? [])].some((status) => ["ACTION_REQUIRED", "REJECTED", "EXPIRED"].includes(status))) {
+      attentionReasons.push("DOCUMENTS");
+      attentionAt.push(...(documents?.attentionAt ?? []));
+    }
+    const unread = unreadByUser.get(id);
+    if ((unread?.count ?? 0) > 0) {
+      attentionReasons.push("NOTIFICATIONS");
+      attentionAt.push(...(unread?.attentionAt ?? []));
+    }
+    const openTransfers = openTransfersByUser.get(id);
+    if ((openTransfers?.count ?? 0) > 0) {
+      attentionReasons.push("TRANSFERS");
+      attentionAt.push(...(openTransfers?.attentionAt ?? []));
+    }
+    const pendingFunding = pendingFundingByUser.get(id);
+    if ((pendingFunding?.count ?? 0) > 0) {
+      attentionReasons.push("FUNDING");
+      attentionAt.push(...(pendingFunding?.attentionAt ?? []));
+    }
+    const oldestAttentionAt = attentionAt.length ? attentionAt.sort((a, b) => Date.parse(a) - Date.parse(b))[0] ?? null : null;
     return {
       id: row.id,
       reference: `CUS-${String(row.id).replace(/-/g, "").slice(0, 12).toUpperCase()}`,
@@ -142,6 +178,7 @@ export async function loadAdminCustomers(
       createdAt: row.created_at,
       attentionCount: attentionReasons.length,
       attentionReasons,
+      oldestAttentionAt,
     };
   });
   if (!term) return mapped;
