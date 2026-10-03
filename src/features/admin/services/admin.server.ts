@@ -311,8 +311,8 @@ export async function loadAdminOnboardingCases(
     customerIds.length
       ? admin.from("bank_accounts").select("user_id,public_reference,status").in("user_id", customerIds).eq("is_primary", true)
       : Promise.resolve({ data: [] as any[] }),
-    admin.auth.admin.listUsers({ page: 1, perPage: 1000 }),
   ]);
+  const authById = customerIds.length ? await loadAdminAuthEmails(admin, customerIds) : new Map<string, string | null>();
   const verificationByUser = new Map((verifications ?? []).map((row: any) => [String(row.user_id), row]));
   const documentsByUser = new Map<string, AdminOnboardingCaseDto["documents"]>();
   for (const document of documents ?? []) {
@@ -325,7 +325,6 @@ export async function loadAdminOnboardingCases(
     });
     documentsByUser.set(userId, customerDocuments);
   }
-  const authById = new Map((authPage?.users ?? []).map((user) => [user.id, user]));
   const accountByUser = new Map((accounts ?? []).map((row: any) => [String(row.user_id), row]));
   const staffIds = [...new Set((approvals ?? []).flatMap((row: any) => [row.reviewer_user_id, row.checker_user_id]).filter(Boolean).map(String))];
   const { data: staffProfiles } = staffIds.length
@@ -338,12 +337,12 @@ export async function loadAdminOnboardingCases(
     const verification: any = verificationByUser.get(String(row.id));
     const approval: any = approvalByUser.get(String(row.id));
     const account: any = accountByUser.get(String(row.id));
-    const authUser = authById.get(String(row.id));
+    const authEmail = authById.get(String(row.id)) ?? null;
     return {
       customerId: String(row.id),
       reference: `CUS-${String(row.id).replace(/-/g, "").slice(0, 12).toUpperCase()}`,
       fullName: [row.first_name, row.middle_name, row.last_name].filter(Boolean).join(" ") || "Client sans nom",
-      email: authUser?.email ?? null,
+      email: authEmail,
       lifecycleState: row.lifecycle_state as CustomerLifecycleState,
       onboardingStep: String(row.onboarding_step),
       verificationStatus: String(verification?.status ?? "NOT_STARTED"),
