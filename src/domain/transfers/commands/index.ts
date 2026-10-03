@@ -1,4 +1,6 @@
-import type { CommandContext, CommandResult } from "../../_shared/commands";
-import type { Transfer } from "../types";
-export type CreateTransferCommand = { sourceAccountId: string; destinationAccountId: string; amount: number; currency: string };
-export type CreateTransferHandler = (command: CreateTransferCommand, context: CommandContext) => Promise<CommandResult<Transfer>>;
+import type {CommandContext,CommandResult} from "../../_shared/commands";import type {TransferConfirmationResultDto,TransferDetailDto,TransferDto,TransferLimitsDto} from "../types";
+export type ListCustomerTransfersCommand={limit?:number};export type ListCustomerTransfersHandler=(command:ListCustomerTransfersCommand,context:CommandContext)=>Promise<CommandResult<TransferDto[]>>;
+export type GetTransferCommand={reference:string};export type GetTransferHandler=(command:GetTransferCommand,context:CommandContext)=>Promise<CommandResult<TransferDetailDto|null>>;
+export type GetTransferLimitsCommand={currency:string};export type GetTransferLimitsHandler=(command:GetTransferLimitsCommand,context:CommandContext)=>Promise<CommandResult<TransferLimitsDto|null>>;
+export type InitiateTransferCommand={sourceAccountReference:string;beneficiaryReference:string;amountMinor:number;customerReference?:string};export type InitiateTransferHandler=(command:InitiateTransferCommand,context:CommandContext)=>Promise<CommandResult<TransferDto>>;
+export type ConfirmTransferCommand={reference:string};export type ConfirmTransferHandler=(command:ConfirmTransferCommand,context:CommandContext)=>Promise<CommandResult<TransferConfirmationResultDto>>;
