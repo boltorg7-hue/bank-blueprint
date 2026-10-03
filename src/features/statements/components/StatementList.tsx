@@ -109,8 +109,8 @@ export function StatementList() {
   if (!data || data.length === 0) {
     return (
       <EmptyState
-        title="Aucun relevé émis"
-        description="Choisissez un compte et une période pour éditer votre premier relevé officiel."
+        title="Aucun relevé disponible pour le moment"
+        description="Choisissez un compte et une période pour éditer votre premier relevé officiel. Vos relevés disponibles apparaîtront ensuite ici."
       />
     );
   }
