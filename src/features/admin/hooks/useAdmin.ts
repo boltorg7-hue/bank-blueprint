@@ -20,6 +20,7 @@ import {
   reviewAdminOnboardingCase,
   listAdminAuditEvents,
   listAdminAccountStatusHistory,
+  getAdminCustomerDossier,
 } from "@/features/admin/services/admin.functions";
 
 export const ADMIN_CONTEXT_KEY = ["admin", "context"] as const;
@@ -150,5 +151,17 @@ export function useAdminAccountStatusHistory(accountReference: string | null) {
     queryFn: () => fn({ data: { accountReference: accountReference! } }),
     staleTime: 5_000,
     enabled: Boolean(accountReference) && staff?.authorized === true && staff.permissions.includes("accounts.read"),
+  });
+}
+
+
+export function useAdminCustomerDossier(customerId: string | null) {
+  const fn = useServerFn(getAdminCustomerDossier);
+  const { data: staff } = useAdminContext();
+  return useQuery({
+    queryKey: ["admin", "customer-dossier", customerId],
+    queryFn: () => fn({ data: { customerId: customerId! } }),
+    staleTime: 5_000,
+    enabled: Boolean(customerId) && staff?.authorized === true && staff.permissions.includes("customers.read"),
   });
 }
