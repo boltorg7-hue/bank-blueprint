@@ -10,17 +10,17 @@ import type {
   AdminExternalTransferDto,
   AdminOnboardingCaseDto,
   AdminAuditEventDto,
-  AdminCustomerPageDto,
+  AdminCustomerPageDto,\n  AdminAccountPageDto,
 } from "@/features/admin/types/admin";
 
-function customerSearchInput(input: { search?: string; page?: number; lifecycle?: string; accounts?: string; attention?: string } | undefined) {
+function customerSearchInput(input: { search?: string; cursor?: string | null; lifecycle?: string; accounts?: string; attention?: string } | undefined) {
   const lifecycle = String(input?.lifecycle ?? "ALL");
   const accounts = String(input?.accounts ?? "ALL");
   const attention = String(input?.attention ?? "ALL");
   if (!["ALL", "WITH_ACCOUNTS", "WITHOUT_ACCOUNTS"].includes(accounts) || !["ALL", "NEEDS_ATTENTION", "CLEAR"].includes(attention)) throw new Error("INVALID_CUSTOMER_FILTER");
   return {
     search: String(input?.search ?? "").trim().slice(0, 80),
-    page: Math.max(1, Math.floor(Number(input?.page ?? 1))),
+    cursor: input?.cursor ? String(input.cursor).slice(0, 512) : null,
     lifecycle,
     accounts,
     attention,
@@ -49,7 +49,7 @@ export const listAdminCustomers = createServerFn({ method: "POST" })
   .inputValidator(customerSearchInput)
   .handler(async ({ data, context }): Promise<AdminCustomerPageDto> => {
     const service = await import("@/features/admin/services/admin.server");
-    return service.loadAdminCustomers(context.supabase, data.search, data.page, data.lifecycle as any, data.accounts as any, data.attention as any);
+    return service.loadAdminCustomers(context.supabase, data.search, data.cursor, data.lifecycle as any, data.accounts as any, data.attention as any);
   });
 
 export const listAdminOnboardingCases = createServerFn({ method: "POST" })
@@ -116,9 +116,9 @@ export const activateAdminOnboardingCustomer = createServerFn({ method: "POST" }
 export const listAdminAccounts = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator(searchInput)
-  .handler(async ({ data, context }): Promise<AdminAccountDto[]> => {
+  .handler(async ({ data, context }): Promise<AdminAccountPageDto> => {
     const service = await import("@/features/admin/services/admin.server");
-    return service.loadAdminAccounts(context.supabase, data.search);
+    return service.loadAdminAccounts(context.supabase, data.search, data.cursor ?? null);
   });
 
 export const listFundingRequests = createServerFn({ method: "GET" })
