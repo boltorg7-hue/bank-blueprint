@@ -113,3 +113,41 @@ BEGIN
   END LOOP;
 END $$;
 
+
+
+-- Sensitive policy semantics: no anonymous/public policy surface, and any
+-- authenticated SELECT policy must be explicitly scoped to the owner or a
+-- staff/admin permission boundary.
+DO $$
+DECLARE
+  _table text;
+  _policy record;
+  _qual text;
+BEGIN
+  FOREACH _table IN ARRAY ARRAY[
+    'bank_accounts','account_balances','ledger_accounts','ledger_transactions','ledger_entries',
+    'transfers','transfer_requirements','transfer_compliance_cases','funding_requests',
+    'identity_verifications','verification_documents','customer_documents','notifications',
+    'admin_audit_events','account_status_history','support_threads','support_messages',
+    'customer_security_sessions','customer_security_events','security_step_up_grants'
+  ] LOOP
+    FOR _policy IN
+      SELECT policyname, cmd, roles, qual, with_check
+      FROM pg_policies
+      WHERE schemaname='public' AND tablename=_table
+    LOOP
+      IF EXISTS (SELECT 1 FROM unnest(coalesce(_policy.roles, ARRAY[]::name[])) AS role_name WHERE role_name IN ('anon','public')) THEN
+        RAISE EXCEPTION 'SENSITIVE_POLICY_EXPOSES_ANON_OR_PUBLIC:%:%', _table, _policy.policyname;
+      END IF;
+
+      IF _policy.cmd IN ('SELECT','ALL','*')
+         AND EXISTS (SELECT 1 FROM unnest(coalesce(_policy.roles, ARRAY[]::name[])) AS role_name WHERE role_name='authenticated')
+      THEN
+        _qual := coalesce(_policy.qual,'') || ' ' || coalesce(_policy.with_check,'');
+        IF _qual !~* 'auth\\.uid\\s*\\(\\)|has_permission\\s*\\(|is_staff\\s*\\(' THEN
+          RAISE EXCEPTION 'AUTHENTICATED_POLICY_NOT_SCOPED:%:%', _table, _policy.policyname;
+        END IF;
+      END IF;
+    END LOOP;
+  END LOOP;
+END $$;
