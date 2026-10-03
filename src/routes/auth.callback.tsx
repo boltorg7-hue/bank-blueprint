@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { resolvePostLoginRoute } from "@/features/auth/lib/post-login";
 import { checkConfirmationLink } from "@/features/auth/services/email-confirmation.functions";
+import { useLanguage } from "@/components/providers/LanguageProvider";
 
 /**
  * Public authentication callback (§26).
@@ -33,7 +34,8 @@ function AuthCallbackPage() {
   const navigate = useNavigate();
   const { redirect, next, v } = Route.useSearch();
   const [failed, setFailed] = useState(false);
-  const [stale, setStale] = useState(false);\n  const [language, setLanguage] = useState<"fr" | "en">("fr");
+  const [stale, setStale] = useState(false);
+  const { language } = useLanguage();
 
   useEffect(() => {
     let active = true;
