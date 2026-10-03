@@ -16,7 +16,7 @@ import type {
   StatementDetailDto,
   StatementDto,
   StatementGenerationRequest,
-} from "@/features/statements/types/statement";
+} from "@/domain/statements/types";
 import type { StatementSnapshot } from "@/features/statements/templates/statement-pdf.server";
 
 export const DOCUMENT_BUCKET = "customer-documents";

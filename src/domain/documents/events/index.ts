@@ -1,0 +1,1 @@
+import type {DomainEvent} from "../../_shared/types";export type DocumentRegisteredEvent=DomainEvent<"documents.document.registered",{customerId:string;type:string}>;export type DocumentVerifiedEvent=DomainEvent<"documents.document.verified",{customerId:string;type:string}>;export type DocumentEvent=DocumentRegisteredEvent|DocumentVerifiedEvent;

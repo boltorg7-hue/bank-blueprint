@@ -9,7 +9,7 @@ import {
   type TransferDto,
   type TransferLimitsDto,
   type TransferStatus,
-} from "@/features/transfers/types/transfer";
+} from "@/domain/transfers/types";
 
 /**
  * Transfer server functions. Thin wrappers only: every runtime helper lives in

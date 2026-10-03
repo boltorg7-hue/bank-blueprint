@@ -23,7 +23,7 @@ import type {
   TransferRequirementDto,
   TransferStatus,
   TransferStatusEventDto,
-} from "@/features/transfers/types/transfer";
+} from "@/domain/transfers/types";
 
 type Client = SupabaseClient<any, any, any>;
 

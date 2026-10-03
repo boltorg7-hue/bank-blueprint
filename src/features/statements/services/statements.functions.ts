@@ -5,7 +5,7 @@ import {
   STATEMENT_REFERENCE_PATTERN,
   type StatementDetailDto,
   type StatementDto,
-} from "@/features/statements/types/statement";
+} from "@/domain/statements/types";
 
 /**
  * Statement server functions (PROMPT 09 §44 – §54).

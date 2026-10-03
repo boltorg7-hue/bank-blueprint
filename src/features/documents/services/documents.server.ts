@@ -14,7 +14,7 @@ import type {
   CustomerDocumentDto,
   CustomerDocumentType,
   DocumentDownloadDto,
-} from "@/features/documents/types/document";
+} from "@/domain/documents/types";
 import type {
   TransactionReceiptSnapshot,
   TransferReceiptSnapshot,

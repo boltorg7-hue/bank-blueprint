@@ -19,7 +19,7 @@ import type {
   DashboardSummaryDto,
   ActivitySummaryItemDto,
   MonthlySummaryDto,
-} from "@/features/accounts/types/account";
+} from "@/domain/accounts/types";
 
 export class AccountAccessError extends Error {}
 
