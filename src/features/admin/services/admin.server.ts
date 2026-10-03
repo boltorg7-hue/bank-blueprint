@@ -418,7 +418,7 @@ export async function loadAdminAccounts(
   const accountIds = rows.map((row: any) => String(row.id));
   const [{ data: profiles }, { data: balances }] = await Promise.all([
     userIds.length
-      ? admin.from("profiles").select("id, first_name, middle_name, last_name").in("id", userIds)
+      ? admin.from("profiles").select("id, first_name, middle_name, last_name, lifecycle_state, created_at").in("id", userIds)
       : Promise.resolve({ data: [] as any[] }),
     accountIds.length
       ? admin.from("account_balances").select("account_id, ledger_balance_minor, available_balance_minor, held_balance_minor").in("account_id", accountIds)
@@ -434,6 +434,8 @@ export async function loadAdminAccounts(
       id: row.id,
       reference: row.public_reference,
       holderId: String(row.user_id),
+      holderLifecycleState: (profile?.lifecycle_state ?? "ACTIVE") as CustomerLifecycleState,
+      holderCreatedAt: String(profile?.created_at ?? row.created_at),
       holderName: profile
         ? [profile.first_name, profile.middle_name, profile.last_name].filter(Boolean).join(" ") || "Client sans nom"
         : "Client indisponible",
