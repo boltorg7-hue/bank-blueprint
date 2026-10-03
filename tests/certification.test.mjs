@@ -468,3 +468,19 @@ test("les assets critiques du premier écran sont optimisés et le hero est prio
   assert.match(optimizer, /webp/);
   assert.match(optimizer, /withoutEnlargement: true/);
 });
+
+
+test("le budget statique du shell protège LCP/CLS et évite les gros modules au premier chargement", () => {
+  const root = read("src/routes/__root.tsx");
+  const router = read("src/router.tsx");
+  const home = read("src/routes/index.tsx");
+  const section = read("src/features/public/components/SectionHeader.tsx");
+  const styles = read("src/styles.css");
+
+  assert.doesNotMatch(root, /from ["']recharts["']|from ["']pdf-lib["']|from ["']react-day-picker["']/);
+  assert.doesNotMatch(router, /from ["']recharts["']|from ["']pdf-lib["']/);
+  assert.match(home, /width=\{1280\}\\n\\s+height=\{960\}/);
+  assert.match(home, /priority\\n/);
+  assert.match(section, /content-auto/);
+  assert.match(styles, /content-visibility:\\s*auto/);
+});
