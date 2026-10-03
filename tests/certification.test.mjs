@@ -503,3 +503,43 @@ test("aucune API de préchargement réseau manuel n'est ajoutée au shell critiq
   assert.doesNotMatch(root, /navigator\.connection|effectiveType|requestIdleCallback/);
   assert.doesNotMatch(router, /prefetchQuery|prefetchInfiniteQuery/);
 });
+
+
+test("les dépendances frontend lourdes restent isolées des shells critiques", () => {
+  const root = read("src/routes/__root.tsx");
+  const router = read("src/router.tsx");
+  const publicLayout = read("src/components/layout/PublicLayout.tsx");
+  const bankingLayout = read("src/components/layout/BankingAppLayout.tsx");
+  const adminLayout = read("src/components/layout/AdminLayout.tsx");
+  const chart = read("src/components/ui/chart.tsx");
+  const calendar = read("src/components/ui/calendar.tsx");
+  const carousel = read("src/components/ui/carousel.tsx");
+  const resizable = read("src/components/ui/resizable.tsx");
+  const documents = read("src/features/documents/services/documents.server.ts");
+
+  for (const source of [root, router, publicLayout, bankingLayout, adminLayout]) {
+    assert.doesNotMatch(
+      source,
+      /(?:from\s+["'](?:recharts|pdf-lib|react-day-picker|embla-carousel-react|react-resizable-panels)["']|import\(\s*["'](?:recharts|pdf-lib|react-day-picker|embla-carousel-react|react-resizable-panels)["'])/,
+    );
+  }
+
+  assert.match(chart, /from "recharts"/);
+  assert.match(calendar, /from "react-day-picker"/);
+  assert.match(carousel, /from "embla-carousel-react"/);
+  assert.match(resizable, /from "react-resizable-panels"/);
+  assert.match(documents, /await import\("@\/features\/documents\/templates\/receipt-pdf\.server"\)/);
+});
+
+test("les cinq dépendances lourdes restent documentées comme modules ciblés du bundle", () => {
+  const packageJson = read("package.json");
+  for (const dependency of [
+    "recharts",
+    "pdf-lib",
+    "react-day-picker",
+    "embla-carousel-react",
+    "react-resizable-panels",
+  ]) {
+    assert.match(packageJson, new RegExp('"' + dependency.replace(/[.*+?^$()|[\]\\]/g, "\\$&") + '"\\s*:'));
+  }
+});
