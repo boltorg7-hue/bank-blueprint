@@ -1,0 +1,1 @@
+import type {DomainEvent} from "../../_shared/types";export type SecurityEventRecorded=DomainEvent<"security.audit.recorded",{customerId:string;action:"login"|"password_change"|"mfa_change"|"session_revoke"|"sensitive_action"}>;
