@@ -34,7 +34,7 @@ export const ADMIN_DOSSIER_KEY = ["admin", "customer-dossier"] as const;
 
 export function useAdminContext() {
   const fn = useServerFn(getAdminStaffContext);
-  return useQuery({ queryKey: ADMIN_CONTEXT_KEY, queryFn: () => fn(), ...QUERY_POLICY.NORMAL, retry: false });
+  return useQuery({ queryKey: ADMIN_CONTEXT_KEY, queryFn: () => fn({ data: { cursor } }), ...QUERY_POLICY.NORMAL, retry: false });
 }
 
 export function useAdminDashboard() {
@@ -54,7 +54,7 @@ export function useAdminOnboardingCases(search: string) {
   const { data: staff } = useAdminContext();
   return useQuery({
     queryKey: [...ADMIN_ONBOARDING_KEY, search],
-    queryFn: () => fn({ data: { search } }),
+    queryFn: () => fn({ data: { search, cursor } }),
     ...QUERY_POLICY.NORMAL,
     enabled: staff?.authorized === true && staff.permissions.includes("customers.read"),
   });
@@ -88,13 +88,13 @@ export function useActivateAdminOnboardingCustomer() {
 export function useAdminAccounts(search = "", cursor: string | null = null) {
   const fn = useServerFn(listAdminAccounts);
   const { data: staff } = useAdminContext();
-  return useQuery({ queryKey: [...ADMIN_ACCOUNTS_KEY, search, cursor], queryFn: () => fn({ data: { search } }), ...QUERY_POLICY.NORMAL, enabled: staff?.authorized === true && staff.permissions.includes("accounts.read") });
+  return useQuery({ queryKey: [...ADMIN_ACCOUNTS_KEY, search, cursor], queryFn: () => fn({ data: { search, cursor } }), ...QUERY_POLICY.NORMAL, enabled: staff?.authorized === true && staff.permissions.includes("accounts.read") });
 }
 
-export function useFundingRequests() {
+export function useFundingRequests(cursor: string | null = null) {
   const fn = useServerFn(listFundingRequests);
   const { data: staff } = useAdminContext();
-  return useQuery({ queryKey: ADMIN_FUNDING_KEY, queryFn: () => fn(), ...QUERY_POLICY.REALTIME, enabled: staff?.authorized === true && (staff.permissions.includes("finance.adjustment.create") || staff.permissions.includes("finance.adjustment.approve")) });
+  return useQuery({ queryKey: [...ADMIN_FUNDING_KEY, cursor], queryFn: () => fn({ data: { cursor } }), ...QUERY_POLICY.REALTIME, enabled: staff?.authorized === true && (staff.permissions.includes("finance.adjustment.create") || staff.permissions.includes("finance.adjustment.approve")) });
 }
 
 export function useCreateFundingRequest() {
@@ -161,12 +161,12 @@ export function useSetAccountStatus() {
 
 export const ADMIN_EXTERNAL_TRANSFERS_KEY = ["admin", "external-transfers"] as const;
 
-export function useAdminExternalTransfers() {
+export function useAdminExternalTransfers(cursor: string | null = null) {
   const fn = useServerFn(listAdminExternalTransfers);
   const { data: staff } = useAdminContext();
 
   return useQuery({
-    queryKey: ADMIN_EXTERNAL_TRANSFERS_KEY,
+    queryKey: [...ADMIN_EXTERNAL_TRANSFERS_KEY, cursor],
     queryFn: () => fn(),
     ...QUERY_POLICY.REALTIME,
     enabled:
@@ -187,11 +187,11 @@ export function useAdvanceExternalTransfer() {
 
 export const ADMIN_AUDIT_KEY = ["admin", "audit"] as const;
 
-export function useAdminAudit(search = "") {
+export function useAdminAudit(search = "", cursor: string | null = null) {
   const fn = useServerFn(listAdminAuditEvents);
   const { data: staff } = useAdminContext();
   return useQuery({
-    queryKey: [...ADMIN_AUDIT_KEY, search],
+    queryKey: [...ADMIN_AUDIT_KEY, search, cursor],
     queryFn: () => fn({ data: { search } }),
     ...QUERY_POLICY.REALTIME,
     enabled: staff?.authorized === true && staff.permissions.includes("audit.read"),
