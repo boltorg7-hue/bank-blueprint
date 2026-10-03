@@ -1,3 +1,20 @@
-import type { DomainId, Money } from "../../_shared/types";
-export type TransferStatus = "pending" | "processing" | "completed" | "failed" | "cancelled";
-export type Transfer = { id: DomainId; sourceAccountId: DomainId; destinationAccountId: DomainId; amount: Money; status: TransferStatus };
+/** Canonical customer-safe transfer contracts. */
+export type TransferStatus="DRAFT"|"READY_FOR_CONFIRMATION"|"CONFIRMED"|"FUNDS_RESERVED"|"PROCESSING"|"COMPLIANCE_REVIEW"|"DOCUMENT_REQUIRED"|"APPROVED"|"SETTLEMENT_PENDING"|"COMPLETED"|"FAILED"|"REJECTED"|"CANCELLED"|"BLOCKED"|"REVERSED";
+export type TransferKind="INTERNAL_TRANSFER"|"EXTERNAL_TRANSFER";
+export type TransferProgressState="CREATED"|"ACCOUNT_VALIDATED"|"FUNDS_VALIDATED"|"SECURITY_CONFIRMED"|"COMPLIANCE_CHECK"|"DOCUMENT_REQUIRED"|"DOCUMENT_REVIEW"|"FINAL_REVIEW"|"APPROVED"|"SETTLEMENT_PENDING"|"COMPLETED"|"FAILED"|"CANCELLED"|"BLOCKED";
+export type ExternalSettlementState="NOT_SUBMITTED"|"SUBMITTED"|"PENDING"|"SUCCEEDED"|"FAILED"|"CANCELLED"|"UNKNOWN";
+export type TransferFailureCode="INSUFFICIENT_FUNDS"|"LIMIT_EXCEEDED"|"ACCOUNT_RESTRICTED"|"DESTINATION_UNAVAILABLE"|"DESTINATION_NOT_SUPPORTED"|"DESTINATION_IS_INTERNAL"|"CURRENCY_MISMATCH"|"BENEFICIARY_UNAVAILABLE"|"SOURCE_ACCOUNT_UNAVAILABLE"|"INVALID_AMOUNT"|"INVALID_DESTINATION"|"INVALID_TRANSITION"|"TRANSFER_UNAVAILABLE"|"SETTLEMENT_FAILED"|"COMPLIANCE_REJECTED"|"PROCESSING_ERROR"|"UNEXPECTED_ERROR";
+export type TransferRequirementType="IDENTITY_DOCUMENT"|"SOURCE_OF_FUNDS"|"INVOICE"|"CONTRACT"|"PROOF_OF_PAYMENT_PURPOSE"|"PROOF_OF_ADDRESS"|"OTHER_SUPPORTING_DOCUMENT";
+export type TransferRequirementStatus="REQUIRED"|"SUBMITTED"|"UNDER_REVIEW"|"SATISFIED"|"REPLACEMENT_REQUIRED"|"WAIVED"|"EXPIRED";
+export type TransferDocumentStatus="UPLOADED"|"UNDER_REVIEW"|"ACCEPTED"|"REJECTED"|"REPLACEMENT_REQUIRED";
+export type TransferDto={reference:string;status:TransferStatus;kind:TransferKind;progressState:TransferProgressState;progressPercent:number;amountMinor:number;currency:string;minorUnit:number;customerReference:string|null;recipientDisplay:string;destinationMasked:string;sourceMasked:string;sourceAccountReference:string|null;beneficiaryReference:string|null;destinationBankName:string|null;destinationCountry:string|null;settlementState:ExternalSettlementState|null;settlementIsSimulated:boolean;failureCode:TransferFailureCode|null;fundsReserved:boolean;createdAt:string;confirmedAt:string|null;completedAt:string|null;finalizedAt:string|null;transactionReference:string|null};
+export type TransferStatusEventDto={status:TransferStatus;reasonCode:string|null;occurredAt:string};
+export type TransferRequirementDto={id:string;requirementType:TransferRequirementType;title:string;description:string|null;status:TransferRequirementStatus;isMandatory:boolean;rejectionReasonCode:string|null;requestedAt:string;submittedAt:string|null;reviewedAt:string|null};
+export type TransferDocumentDto={id:string;requirementId:string|null;documentType:TransferRequirementType;originalFilename:string|null;status:TransferDocumentStatus;rejectionReasonCode:string|null;uploadedAt:string;reviewedAt:string|null};
+export type TransferDetailDto=TransferDto&{timeline:TransferStatusEventDto[];requirements:TransferRequirementDto[];documents:TransferDocumentDto[]};
+export type TransferLimitsDto={currency:string;maxPerTransferMinor:number;dailyLimitMinor:number;monthlyLimitMinor:number};
+export type TransferConfirmationResultDto={reference:string;status:TransferStatus;kind:TransferKind;progressPercent:number;failureCode:TransferFailureCode|null;transactionReference:string|null};
+export const TRANSFER_REFERENCE_PATTERN=/^TRF-\\d{4}-\\d{8}$/;
+export const TERMINAL_TRANSFER_STATUSES:readonly TransferStatus[]=["COMPLETED","FAILED","REJECTED","CANCELLED","BLOCKED","REVERSED"];
+export const ACTION_REQUIRED_TRANSFER_STATUSES:readonly TransferStatus[]=["READY_FOR_CONFIRMATION","DOCUMENT_REQUIRED"];
+export type TransferListFilter="ALL"|"INTERNAL"|"EXTERNAL"|"COMPLETED"|"PENDING"|"ACTION_REQUIRED"|"FAILED";
