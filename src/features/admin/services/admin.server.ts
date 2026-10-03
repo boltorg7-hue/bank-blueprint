@@ -9,6 +9,7 @@ import type {
   AdminExternalTransferDto,
   AdminOnboardingCaseDto,
   AdminActionResult,
+  AdminCustomerPageDto,
 } from "@/features/admin/types/admin";
 import type { CustomerLifecycleState } from "@/types/customer-lifecycle";
 
