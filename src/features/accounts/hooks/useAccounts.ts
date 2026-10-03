@@ -23,12 +23,7 @@ import type {
 export const ACCOUNTS_KEY = ["accounts"] as const;
 export const DASHBOARD_SUMMARY_KEY = ["dashboard-summary"] as const;
 
-const BALANCE_QUERY_BEHAVIOUR = {
-  staleTime: 10_000,
-  gcTime: 60_000,
-  refetchOnWindowFocus: true,
-  retry: 1,
-} as const;
+const BALANCE_QUERY_BEHAVIOUR = QUERY_POLICY.FINANCIAL;
 
 export function useCustomerAccounts() {
   const fetchAccounts = useServerFn(getCustomerAccounts);
