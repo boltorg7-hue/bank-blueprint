@@ -380,3 +380,29 @@ test("les actions financières critiques ont un verrou local contre le double-su
   assert.match(transfer, /onSettled: \(\) => \{\s*initiateLock\.current = false;/);
   assert.match(transfer, /onSettled: \(\) => \{\s*confirmLock\.current = false;/);
 });
+
+
+test("la performance frontend réserve le realtime aux données opérationnelles", () => {
+  const admin = read("src/features/admin/hooks/useAdmin.ts");
+  const notifications = read("src/features/notifications/hooks/useNotifications.ts");
+  const router = read("src/router.tsx");
+
+  const auditStart = admin.indexOf("export function useAdminAudit");
+  const auditEnd = admin.indexOf("export function useAdminAccountStatusHistory", auditStart);
+  const auditHook = admin.slice(auditStart, auditEnd);
+
+  const historyStart = admin.indexOf("export function useAdminAccountStatusHistory");
+  const dossierStart = admin.indexOf("export function useAdminCustomerDossier", historyStart);
+  const historyHook = admin.slice(historyStart, dossierStart);
+
+  const dossierHook = admin.slice(dossierStart);
+
+  assert.match(auditHook, /\.\.\.QUERY_POLICY\.NORMAL/);
+  assert.match(historyHook, /\.\.\.QUERY_POLICY\.NORMAL/);
+  assert.match(dossierHook, /\.\.\.QUERY_POLICY\.NORMAL/);
+  assert.match(admin, /useFundingRequests[\s\S]*?\.\.\.QUERY_POLICY\.REALTIME/);
+  assert.match(admin, /useAdminExternalTransfers[\s\S]*?\.\.\.QUERY_POLICY\.REALTIME/);
+  assert.match(notifications, /\.\.\.QUERY_POLICY\.REALTIME/);
+  assert.doesNotMatch(notifications, /refetchInterval\s*:/);
+  assert.match(router, /defaultPreloadStaleTime:\s*30_000/);
+});
