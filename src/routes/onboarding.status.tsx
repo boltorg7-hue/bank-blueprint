@@ -238,8 +238,7 @@ function OnboardingStatusPage() {
             <div className="min-w-0">
               <p className="text-label text-foreground">{copy.title}</p>
               <p className="text-body-sm mt-1 text-muted-foreground">{en ? LIFECYCLE_LABELS[state].replaceAll("_", " ") : LIFECYCLE_LABELS[state]}</p>
-              {verification?.submitted_at ? (
-                <div className="mt-2 flex flex-wrap items-center gap-2">
+              <div className="mt-2 flex flex-wrap items-center gap-2">
                 <span className="inline-flex min-h-7 items-center rounded-full bg-muted px-2.5 text-caption font-medium text-muted-foreground">
                   {en
                     ? verification.status.replaceAll("_", " ").toLowerCase()
@@ -252,7 +251,6 @@ function OnboardingStatusPage() {
                   </span>
                 ) : null}
               </div>
-              ) : null}
             </div>
           </div>
         </div>
