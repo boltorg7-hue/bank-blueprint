@@ -406,3 +406,17 @@ test("la performance frontend réserve le realtime aux données opérationnelles
   assert.doesNotMatch(notifications, /refetchInterval\s*:/);
   assert.match(router, /defaultPreloadStaleTime:\s*30_000/);
 });
+
+
+test("les listes métier évitent les rerenders inutiles et conservent une hiérarchie DOM cohérente", () => {
+  const dashboard = read("src/routes/app.dashboard.tsx");
+  const documents = read("src/features/documents/components/DocumentList.tsx");
+  const support = read("src/features/support/components/SupportCenter.tsx");
+
+  assert.equal((dashboard.match(/aria-labelledby="accounts-heading"/g) ?? []).length, 1);
+  assert.equal((dashboard.match(/aria-labelledby="activity-heading"/g) ?? []).length, 1);
+  assert.match(documents, /import \{ memo, useState \} from "react"/);
+  assert.match(documents, /const DocumentRow = memo\(function DocumentRow/);
+  assert.match(support, /import \{ memo, useState \} from "react"/);
+  assert.match(support, /const CustomerThread = memo\(function CustomerThread/);
+});
