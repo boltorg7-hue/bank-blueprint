@@ -42,10 +42,12 @@ export function TransferRequirements({
   reference,
   requirements,
   documents,
+  en,
 }: {
   reference: string;
   requirements: TransferRequirementDto[];
   documents: TransferDocumentDto[];
+  en: boolean;
 }) {
   const { language } = useLanguage();
   const en = language === "en";
@@ -68,6 +70,7 @@ export function TransferRequirements({
               reference={reference}
               requirement={requirement}
               documents={documents.filter((doc) => doc.requirementId === requirement.id)}
+              en={en}
             />
           </li>
         ))}
@@ -91,7 +94,7 @@ function RequirementRow({
 
   const isOpen =
     requirement.status === "REQUIRED" || requirement.status === "REPLACEMENT_REQUIRED";
-  const refusal = rejectionMessage(requirement.rejectionReasonCode);
+  const refusal = rejectionMessage(requirement.rejectionReasonCode, en ? "en" : "fr");
 
   return (
     <div className="rounded-lg border border-border p-3">
@@ -113,7 +116,7 @@ function RequirementRow({
 
       {refusal ? (
         <p role="alert" className="text-caption mt-2 text-danger">
-          {refusal} Transmettez un nouveau document pour poursuivre.
+          {refusal} {en ? "Submit a new document to continue." : "Transmettez un nouveau document pour poursuivre."}
         </p>
       ) : null}
 
@@ -148,16 +151,16 @@ function RequirementRow({
               if (!file) return;
               setError(null);
               if (file.size > MAX_BYTES) {
-                setError("Le fichier dépasse 15 Mo. Transmettez une version plus légère.");
+                setError(en ? "The file exceeds 15 MB. Upload a smaller version." : "Le fichier dépasse 15 Mo. Transmettez une version plus légère.");
                 return;
               }
               upload.mutate(
                 { reference, requirementId: requirement.id, file },
                 {
                   onSuccess: () =>
-                    toast.success("Document transmis. Nos équipes procèdent à sa vérification."),
+                    toast.success(en ? "Document submitted. Our team will review it." : "Document transmis. Nos équipes procèdent à sa vérification."),
                   onError: () =>
-                    setError("L'envoi n'a pas abouti. Vérifiez le fichier, puis réessayez."),
+                    setError(en ? "Upload failed. Check the file and try again." : "L'envoi n'a pas abouti. Vérifiez le fichier, puis réessayez."),
                 },
               );
             }}
@@ -177,8 +180,7 @@ function RequirementRow({
             {upload.isPending ? (en ? "Uploading…" : "Envoi en cours…") : (en ? "Upload document" : "Transmettre le document")}
           </Button>
           <p className="text-caption text-muted-foreground">
-            Formats acceptés : JPG, PNG, HEIC ou PDF, jusqu'à 15 Mo. Vos documents restent privés et
-            ne sont consultables que par les équipes habilitées de la banque.
+            {en ? "Accepted formats: JPG, PNG, HEIC or PDF, up to 15 MB. Your documents remain private and are only accessible to authorized bank staff." : "Formats acceptés : JPG, PNG, HEIC ou PDF, jusqu'à 15 Mo. Vos documents restent privés et ne sont consultables que par les équipes habilitées de la banque."}
           </p>
           {error ? (
             <p role="alert" className="text-caption text-danger">
