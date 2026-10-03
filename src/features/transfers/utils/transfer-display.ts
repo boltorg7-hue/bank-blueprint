@@ -100,19 +100,19 @@ export function transferKindShortLabel(kind: TransferKind): string {
 }
 
 /** Maps a thrown server-function error to a customer message. */
-export function transferErrorMessage(error: unknown): string {
+export function transferErrorMessage(error: unknown, language: "fr" | "en" = "fr"): string {
   const message = String((error as { message?: string } | null)?.message ?? "");
   const known = (Object.keys(FAILURE_MESSAGES) as TransferFailureCode[]).find((code) =>
     message.includes(code),
   );
-  if (known) return FAILURE_MESSAGES[known];
+  if (known) return transferFailureMessage(known, language) ?? (language === "en" ? "The transfer could not be processed." : FAILURE_MESSAGES.UNEXPECTED_ERROR);
   if (message.includes("REQUIREMENT_NOT_OPEN"))
     return "Ce justificatif a déjà été transmis et est en cours d'examen.";
   if (message.includes("REQUIREMENT_UNAVAILABLE"))
     return "Ce justificatif n'est plus demandé pour ce virement.";
   if (message.includes("RECENT_AUTHENTICATION_REQUIRED"))
     return "Votre mot de passe n’a pas pu être confirmé. Vérifiez-le puis réessayez.";
-  return FAILURE_MESSAGES.UNEXPECTED_ERROR;
+  return language === "en" ? FAILURE_MESSAGES_EN.UNEXPECTED_ERROR : FAILURE_MESSAGES.UNEXPECTED_ERROR;
 }
 
 /** Progress copy for an in-flight execution (§120, §143). */
