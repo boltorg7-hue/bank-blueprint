@@ -578,14 +578,27 @@ export async function loadAdminCustomerDossier(
   const accounts = accountsResult.data ?? [];
   const accountIds = accounts.map((a: any) => String(a.id));
   const accountRefs = accounts.map((a: any) => String(a.public_reference));
-  const [{ data: balances }, { data: funding }, { data: transactions }] = await Promise.all([
+  const [{ data: balances }, { data: funding }, { data: transactions }, { data: statusHistory }] = await Promise.all([
     accountIds.length ? admin.from("account_balances").select("account_id,ledger_balance_minor,available_balance_minor,held_balance_minor").in("account_id", accountIds) : Promise.resolve({ data: [] as any[] }),
     accountIds.length ? admin.from("funding_requests").select("id,account_id,amount_minor,currency,reason,status,created_at").in("account_id", accountIds).order("created_at", { ascending: false }).limit(20) : Promise.resolve({ data: [] as any[] }),
     accountRefs.length ? admin.from("customer_account_activity").select("reference,account_reference,transaction_type,direction,amount_minor,currency,minor_unit,display_description,counterparty_display,status,occurred_at").in("account_reference", accountRefs).order("occurred_at", { ascending: false }).limit(20) : Promise.resolve({ data: [] as any[] }),
+    accountIds.length ? admin.from("account_status_history").select("id,account_id,previous_status,new_status,reason_category,internal_note,changed_by,created_at").in("account_id", accountIds).order("created_at", { ascending: false }).limit(100) : Promise.resolve({ data: [] as any[] }),
   ]);
 
   const balanceByAccount = new Map((balances ?? []).map((row: any) => [String(row.account_id), row]));
   const accountById = new Map(accounts.map((row: any) => [String(row.id), row]));
+  const statusHistoryByAccount = new Map<string, any[]>();
+  for (const row of statusHistory ?? []) {
+    const key = String(row.account_id);
+    const current = statusHistoryByAccount.get(key) ?? [];
+    current.push(row);
+    statusHistoryByAccount.set(key, current);
+  }
+  const statusActorIds = [...new Set((statusHistory ?? []).map((row: any) => String(row.changed_by)).filter(Boolean))];
+  const { data: statusActors } = statusActorIds.length
+    ? await admin.from("staff_profiles").select("user_id,display_name,public_reference").in("user_id", statusActorIds)
+    : { data: [] as any[] };
+  const statusActorById = new Map((statusActors ?? []).map((row: any) => [String(row.user_id), row]));
   const securityAllowed = staff.permissions.includes("security.read") || staff.permissions.includes("admin.access");
   const auditAllowed = staff.permissions.includes("audit.read") || staff.permissions.includes("admin.access");
   const [{ data: sessions }, { data: securityEvents }] = securityAllowed
@@ -598,8 +611,29 @@ export async function loadAdminCustomerDossier(
   let audit: any[] = [];
   if (auditAllowed) {
     const auditRefs = [reference, ...accountRefs];
-    const auditResult = auditRefs.length ? await admin.from("admin_audit_events").select("action,resource_type,resource_reference,result,created_at").in("resource_reference", auditRefs).order("created_at", { ascending: false }).limit(30) : { data: [] as any[] };
-    audit = auditResult.data ?? [];
+    const auditResult = auditRefs.length
+      ? await admin.from("admin_audit_events").select("id,actor_user_id,action,resource_type,resource_reference,permission_checked,result,context,created_at").in("resource_reference", auditRefs).order("created_at", { ascending: false }).limit(50)
+      : { data: [] as any[] };
+    const actorIds = [...new Set((auditResult.data ?? []).map((row: any) => String(row.actor_user_id)).filter(Boolean))];
+    const { data: auditActors } = actorIds.length
+      ? await admin.from("staff_profiles").select("user_id,display_name,public_reference").in("user_id", actorIds)
+      : { data: [] as any[] };
+    const auditActorById = new Map((auditActors ?? []).map((row: any) => [String(row.user_id), row]));
+    audit = (auditResult.data ?? []).map((row: any) => {
+      const actor = auditActorById.get(String(row.actor_user_id));
+      return {
+        id: String(row.id),
+        action: String(row.action),
+        actorName: actor?.display_name ? String(actor.display_name) : "Staff indisponible",
+        actorReference: actor?.public_reference ? String(actor.public_reference) : null,
+        resourceType: row.resource_type ? String(row.resource_type) : null,
+        resourceReference: row.resource_reference ? String(row.resource_reference) : null,
+        permissionChecked: row.permission_checked ? String(row.permission_checked) : null,
+        result: row.result === "DENIED" ? "DENIED" : "ALLOWED",
+        context: row.context && typeof row.context === "object" && !Array.isArray(row.context) ? row.context : {},
+        createdAt: String(row.created_at),
+      };
+    });
   }
 
   const kyc = (kycResult.data ?? [])[0] as any;
@@ -634,6 +668,19 @@ export async function loadAdminCustomerDossier(
         ledgerBalanceMinor: Number(balance.ledger_balance_minor ?? 0),
         availableBalanceMinor: Number(balance.available_balance_minor ?? 0),
         heldBalanceMinor: Number(balance.held_balance_minor ?? 0),
+        statusHistory: (statusHistoryByAccount.get(String(row.id)) ?? []).map((history: any) => {
+          const actor = statusActorById.get(String(history.changed_by));
+          return {
+            id: String(history.id),
+            previousStatus: String(history.previous_status),
+            newStatus: String(history.new_status),
+            reasonCategory: String(history.reason_category),
+            internalNote: history.internal_note ? String(history.internal_note) : null,
+            changedByName: actor?.display_name ? String(actor.display_name) : "Agent bancaire",
+            changedByReference: actor?.public_reference ? String(actor.public_reference) : null,
+            changedAt: String(history.created_at),
+          };
+        }),
       };
     }),
     transactions: (transactions ?? []).map((row: any) => ({
