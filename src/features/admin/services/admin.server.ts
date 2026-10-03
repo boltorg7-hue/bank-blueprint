@@ -433,6 +433,7 @@ export async function loadAdminAccounts(
     return {
       id: row.id,
       reference: row.public_reference,
+      holderId: String(row.user_id),
       holderName: profile
         ? [profile.first_name, profile.middle_name, profile.last_name].filter(Boolean).join(" ") || "Client sans nom"
         : "Client indisponible",
