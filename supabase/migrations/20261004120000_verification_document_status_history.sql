@@ -50,7 +50,9 @@ DECLARE
 BEGIN
   v_changed_by := auth.uid();
 
-  IF public.is_staff(v_changed_by) THEN
+  IF v_changed_by IS NULL THEN
+    v_change_source := 'SYSTEM';
+  ELSIF public.is_staff(v_changed_by) THEN
     v_change_source := 'ADMIN';
   ELSE
     v_change_source := 'CUSTOMER';
