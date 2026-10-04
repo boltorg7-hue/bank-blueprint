@@ -2,7 +2,7 @@ begin;
 
 create extension if not exists pgtap;
 
-select plan(12);
+select plan(10);
 
 select has_function(
   'public',
