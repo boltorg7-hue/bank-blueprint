@@ -168,180 +168,64 @@ export async function loadAdminCustomers(
   const term = search.trim().replace(/[%_,().*]/g, "");
   const normalizedTerm = term.toLocaleLowerCase("fr");
 
-  const accountOwnerIds = new Set<string>();
-  if (accountsFilter !== "ALL") {
-    const { data: accountRows, error: accountError } = await admin
-      .from("bank_accounts")
-      .select("user_id");
-    if (accountError) throw new AdminAccessError("CUSTOMERS_UNAVAILABLE");
-    for (const row of accountRows ?? []) accountOwnerIds.add(String((row as any).user_id));
-  }
+  const { data, error } = await admin.rpc("admin_customer_page", {
+    p_search: normalizedTerm,
+    p_lifecycle: lifecycle,
+    p_accounts_filter: accountsFilter,
+    p_attention_filter: attentionFilter,
+    p_cursor_created_at: cursorValue?.createdAt ?? null,
+    p_cursor_id: cursorValue?.id ?? null,
+    p_limit: ADMIN_PAGE_SIZE + 1,
+  });
 
-  let query = admin.from("profiles")
-    .select("id, first_name, middle_name, last_name, phone, lifecycle_state, created_at")
-    .order("created_at", { ascending: false });
-
-  if (lifecycle !== "ALL") query = query.eq("lifecycle_state", lifecycle);
-  if (accountsFilter === "WITH_ACCOUNTS") {
-    if (!accountOwnerIds.size) return { items: [], hasNext: false, nextCursor: null };
-    query = query.in("id", [...accountOwnerIds]);
-  } else if (accountsFilter === "WITHOUT_ACCOUNTS" && accountOwnerIds.size) {
-    query = query.not("id", "in", `(${[...accountOwnerIds].join(",")})`);
-  }
-  const attentionIds = new Set<string>();
-  if (attentionFilter !== "ALL") {
-    const { data: inactiveProfiles, error: attentionError } = await admin
-      .from("profiles")
-      .select("id")
-      .neq("lifecycle_state", "ACTIVE");
-    if (attentionError) throw new AdminAccessError("CUSTOMERS_UNAVAILABLE");
-    for (const row of inactiveProfiles ?? []) attentionIds.add(String((row as any).id));
-    const { data: flaggedVerifications } = await admin
-      .from("identity_verifications")
-      .select("user_id")
-      .in("status", ["REJECTED", "ADDITIONAL_INFORMATION_REQUIRED", "EXPIRED"]);
-    for (const row of flaggedVerifications ?? []) attentionIds.add(String((row as any).user_id));
-  }
-  if (attentionFilter === "NEEDS_ATTENTION") {
-    if (!attentionIds.size) return { items: [], hasNext: false, nextCursor: null };
-    query = query.in("id", [...attentionIds]);
-  } else if (attentionFilter === "CLEAR" && attentionIds.size) {
-    query = query.not("id", "in", `(${[...attentionIds].join(",")})`);
-  }
-
-  if (normalizedTerm) {
-    const emailLookup = normalizedTerm.includes("@")
-      ? await admin.rpc("auth_user_for_email" as never, { _email: normalizedTerm } as never)
-      : { data: null as unknown };
-    const exactEmailId = emailLookup.data ? String(emailLookup.data) : null;
-    const uuidMatch = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(normalizedTerm)
-      ? normalizedTerm
-      : null;
-    const referencePrefix = normalizedTerm.replace(/^cus-?/i, "");
-    const referenceRange = /^[0-9a-f]{1,12}$/i.test(referencePrefix)
-      ? {
-          lower: `${referencePrefix.padEnd(12, "0")}-0000-0000-0000-000000000000`,
-          upper: `${referencePrefix.padEnd(12, "f")}-ffff-ffff-ffff-ffffffffffff`,
-        }
-      : null;
-    if (exactEmailId || uuidMatch) {
-      query = query.in("id", [exactEmailId ?? uuidMatch!]);
-    } else if (referenceRange) {
-      query = query.gte("id", referenceRange.lower).lte("id", referenceRange.upper);
-    } else {
-      const pattern = `*${normalizedTerm}*`;
-      query = query.or(`first_name.ilike.${pattern},middle_name.ilike.${pattern},last_name.ilike.${pattern},phone.ilike.${pattern}`);
-    }
-  }
-
-  if (cursorValue) {
-    query = query.or(`created_at.lt.${cursorValue.createdAt},and(created_at.eq.${cursorValue.createdAt},id.lt.${cursorValue.id})`);
-  }
-  const { data, error } = await query.limit(ADMIN_PAGE_SIZE + 1);
   if (error) throw new AdminAccessError("CUSTOMERS_UNAVAILABLE");
-  const rows = data ?? [];
+
+  const rows = (data ?? []) as Array<{
+    id: string;
+    first_name: string | null;
+    middle_name: string | null;
+    last_name: string | null;
+    phone: string | null;
+    lifecycle_state: CustomerLifecycleState;
+    created_at: string;
+    account_count: number;
+    attention_reasons: string[] | null;
+    attention_count: number;
+    oldest_attention_at: string | null;
+  }>;
+
   const hasNext = rows.length > ADMIN_PAGE_SIZE;
   const pageRows = rows.slice(0, ADMIN_PAGE_SIZE);
-  const ids = pageRows.map((row: any) => String(row.id));
+  const ids = pageRows.map((row) => String(row.id));
+  const authById = ids.length
+    ? await loadAdminAuthEmails(admin, ids)
+    : new Map<string, string | null>();
 
-  const { data: accounts } = ids.length ? await admin.from("bank_accounts").select("id,user_id").in("user_id", ids) : { data: [] as any[] };
-  const counts = new Map<string, number>();
-  for (const account of accounts ?? []) {
-    const key = String((account as any).user_id);
-    counts.set(key, (counts.get(key) ?? 0) + 1);
-  }
-  const accountIds = (accounts ?? []).map((row: any) => String(row.id));
-  const [authById, { data: verifications }, { data: documents }, { data: notifications }, { data: transfers }, { data: funding }] = await Promise.all([
-    ids.length ? loadAdminAuthEmails(admin, ids) : Promise.resolve(new Map<string, string | null>()),
-    ids.length ? admin.from("identity_verifications").select("user_id,status,submitted_at,decided_at").in("user_id", ids) : Promise.resolve({ data: [] as any[] }),
-    ids.length ? admin.from("verification_documents").select("user_id,status,created_at").in("user_id", ids) : Promise.resolve({ data: [] as any[] }),
-    ids.length ? admin.from("notifications").select("user_id,read_at,created_at").in("user_id", ids).is("archived_at", null).is("read_at", null) : Promise.resolve({ data: [] as any[] }),
-    ids.length ? admin.from("transfers").select("sender_user_id,status,created_at").in("sender_user_id", ids) : Promise.resolve({ data: [] as any[] }),
-    accountIds.length ? admin.from("funding_requests").select("account_id,status,created_at").in("account_id", accountIds).eq("status", "PENDING") : Promise.resolve({ data: [] as any[] }),
-  ]);
-
-  const accountOwnerById = new Map((accounts ?? []).map((row: any) => [String(row.id), String(row.user_id)]));
-  const verificationByUser = new Map<string, { statuses: Set<string>; attentionAt: string[] }>();
-  for (const row of verifications ?? []) {
-    const id = String((row as any).user_id);
-    const current = verificationByUser.get(id) ?? { statuses: new Set<string>(), attentionAt: [] };
-    const status = String((row as any).status);
-    current.statuses.add(status);
-    const timestamp = ["UNDER_REVIEW", "ADDITIONAL_INFORMATION_REQUIRED"].includes(status) ? row.submitted_at : status === "REJECTED" ? row.decided_at : null;
-    if (timestamp) current.attentionAt.push(String(timestamp));
-    verificationByUser.set(id, current);
-  }
-  const documentByUser = new Map<string, { statuses: Set<string>; attentionAt: string[] }>();
-  for (const row of documents ?? []) {
-    const id = String((row as any).user_id);
-    const current = documentByUser.get(id) ?? { statuses: new Set<string>(), attentionAt: [] };
-    const status = String((row as any).status);
-    current.statuses.add(status);
-    if (["ACTION_REQUIRED", "REJECTED", "EXPIRED"].includes(status) && (row as any).created_at) current.attentionAt.push(String((row as any).created_at));
-    documentByUser.set(id, current);
-  }
-  const unreadByUser = new Map<string, { count: number; attentionAt: string[] }>();
-  for (const row of notifications ?? []) {
-    const id = String((row as any).user_id);
-    const current = unreadByUser.get(id) ?? { count: 0, attentionAt: [] };
-    current.count += 1;
-    if ((row as any).created_at) current.attentionAt.push(String(row.created_at));
-    unreadByUser.set(id, current);
-  }
-  const openTransfersByUser = new Map<string, { count: number; attentionAt: string[] }>();
-  for (const row of transfers ?? []) {
-    if (["PROCESSING", "COMPLIANCE_REVIEW", "DOCUMENT_REQUIRED", "SETTLEMENT_PENDING"].includes(String((row as any).status))) {
-      const id = String((row as any).sender_user_id);
-      const current = openTransfersByUser.get(id) ?? { count: 0, attentionAt: [] };
-      current.count += 1;
-      if ((row as any).created_at) current.attentionAt.push(String(row.created_at));
-      openTransfersByUser.set(id, current);
-    }
-  }
-  const pendingFundingByUser = new Map<string, { count: number; attentionAt: string[] }>();
-  for (const row of funding ?? []) {
-    const owner = accountOwnerById.get(String((row as any).account_id));
-    if (owner) {
-      const current = pendingFundingByUser.get(owner) ?? { count: 0, attentionAt: [] };
-      current.count += 1;
-      if ((row as any).created_at) current.attentionAt.push(String(row.created_at));
-      pendingFundingByUser.set(owner, current);
-    }
-  }
-
-  const mapped: AdminCustomerDto[] = pageRows.map((row: any) => {
+  const items: AdminCustomerDto[] = pageRows.map((row) => {
     const id = String(row.id);
-    const attentionReasons: string[] = [];
-    if (row.lifecycle_state !== "ACTIVE") attentionReasons.push("LIFECYCLE");
-    const attentionAt: string[] = [];
-    const verification = verificationByUser.get(id);
-    if ([...(verification?.statuses ?? [])].some((status) => ["UNDER_REVIEW", "ADDITIONAL_INFORMATION_REQUIRED", "REJECTED"].includes(status))) {
-      attentionReasons.push("KYC"); attentionAt.push(...(verification?.attentionAt ?? []));
-    }
-    const documentState = documentByUser.get(id);
-    if ([...(documentState?.statuses ?? [])].some((status) => ["ACTION_REQUIRED", "REJECTED", "EXPIRED"].includes(status))) {
-      attentionReasons.push("DOCUMENTS"); attentionAt.push(...(documentState?.attentionAt ?? []));
-    }
-    if ((unreadByUser.get(id)?.count ?? 0) > 0) { attentionReasons.push("NOTIFICATIONS"); attentionAt.push(...(unreadByUser.get(id)?.attentionAt ?? [])); }
-    if ((openTransfersByUser.get(id)?.count ?? 0) > 0) { attentionReasons.push("TRANSFERS"); attentionAt.push(...(openTransfersByUser.get(id)?.attentionAt ?? [])); }
-    if ((pendingFundingByUser.get(id)?.count ?? 0) > 0) { attentionReasons.push("FUNDING"); attentionAt.push(...(pendingFundingByUser.get(id)?.attentionAt ?? [])); }
-    const oldestAttentionAt = attentionAt.length ? attentionAt.sort((a, b) => Date.parse(a) - Date.parse(b))[0] ?? null : null;
     return {
-      id: row.id,
-      reference: `CUS-${String(row.id).replace(/-/g, "").slice(0, 12).toUpperCase()}`,
+      id,
+      reference: `CUS-${id.replace(/-/g, "").slice(0, 12).toUpperCase()}`,
       fullName: [row.first_name, row.middle_name, row.last_name].filter(Boolean).join(" ") || "Client sans nom",
-      email: authById.get(row.id) ?? null,
+      email: authById.get(id) ?? null,
       phone: row.phone ?? null,
-      lifecycleState: row.lifecycle_state as CustomerLifecycleState,
-      accountCount: counts.get(row.id) ?? 0,
+      lifecycleState: row.lifecycle_state,
+      accountCount: Number(row.account_count ?? 0),
       createdAt: row.created_at,
-      attentionCount: attentionReasons.length,
-      attentionReasons,
-      oldestAttentionAt,
+      attentionCount: Number(row.attention_count ?? 0),
+      attentionReasons: Array.isArray(row.attention_reasons) ? row.attention_reasons.map(String) : [],
+      oldestAttentionAt: row.oldest_attention_at ?? null,
     };
   });
+
   const last = pageRows[pageRows.length - 1];
-  return { items: mapped, hasNext, nextCursor: hasNext && last ? encodeAdminCursor({ createdAt: String(last.created_at), id: String(last.id) }) : null };
+  return {
+    items,
+    hasNext,
+    nextCursor: hasNext && last
+      ? encodeAdminCursor({ createdAt: String(last.created_at), id: String(last.id) })
+      : null,
+  };
 }
 
 export async function loadAdminOnboardingCases(
