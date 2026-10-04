@@ -767,6 +767,35 @@ export async function loadAdminCustomerDossier(
     });
   }
 
+  const { data: attentionRows, error: attentionError } = await admin.rpc("admin_customer_page", {
+    p_search: "",
+    p_lifecycle: "ALL",
+    p_accounts_filter: "ALL",
+    p_attention_filter: "ALL",
+    p_cursor_created_at: null,
+    p_cursor_id: null,
+    p_limit: 1,
+    p_exact_user_id: customerId,
+  });
+
+  if (attentionError) throw new AdminAccessError("CUSTOMER_DOSSIER_UNAVAILABLE");
+
+  const attentionRow = (attentionRows ?? [])[0] as {
+    attention_reasons?: unknown;
+    attention_count?: unknown;
+    oldest_attention_at?: string | null;
+  } | undefined;
+
+  const attention = {
+    count: Number(attentionRow?.attention_count ?? 0),
+    reasons: Array.isArray(attentionRow?.attention_reasons)
+      ? attentionRow.attention_reasons.filter((reason): reason is "LIFECYCLE" | "KYC" | "DOCUMENTS" | "NOTIFICATIONS" | "TRANSFERS" | "FUNDING" =>
+          ["LIFECYCLE", "KYC", "DOCUMENTS", "NOTIFICATIONS", "TRANSFERS", "FUNDING"].includes(String(reason)),
+        )
+      : [],
+    oldestAt: attentionRow?.oldest_attention_at ? String(attentionRow.oldest_attention_at) : null,
+  };
+
   const kyc = (kycResult.data ?? [])[0] as any;
   const notifications = notificationsResult.data ?? [];
   return {
@@ -781,6 +810,7 @@ export async function loadAdminCustomerDossier(
       onboardingStep: profile.onboarding_step ? String(profile.onboarding_step) : null,
       emailVerified: Boolean(authResult.data.user?.email_confirmed_at),
     },
+    attention,
     kyc: {
       status: String(kyc?.status ?? "NOT_STARTED"),
       submittedAt: kyc?.submitted_at ? String(kyc.submitted_at) : null,
@@ -862,6 +892,6 @@ export async function loadAdminCustomerDossier(
       events: (securityEvents ?? []).map((row: any) => ({ type: String(row.event_type), title: String(row.title), createdAt: String(row.created_at) })),
       restricted: !securityAllowed,
     },
-    audit: audit.map((row: any) => ({ id: String(row.id), action: String(row.action), actorName: "Agent bancaire", actorReference: null, resourceType: row.resource_type ? String(row.resource_type) : null, resourceReference: row.resource_reference ? String(row.resource_reference) : null, permissionChecked: row.permission_checked ? String(row.permission_checked) : null, result: (row.result === "DENIED" ? "DENIED" : "ALLOWED") as "ALLOWED" | "DENIED", context: {}, createdAt: String(row.created_at) })),
+    audit,
   };
 }
