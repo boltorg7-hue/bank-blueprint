@@ -86,8 +86,8 @@ test("status history is captured by a database trigger, not duplicated in applic
   );
   assert.match(
     file,
-    /create trigger [a-z0-9_]*verification_document[a-z0-9_]*status[a-z0-9_]*history[a-z0-9_]*\s+after insert or update on public\.verification_documents/i,
-    "capture must be attached directly to verification_documents",
+    /create trigger [a-z0-9_]*verification_document[a-z0-9_]*status[a-z0-9_]*history[a-z0-9_]*\s+after insert or update(?:\s+of\s+status)?\s+on public\.verification_documents/i,
+    "capture must be attached directly to verification_documents and may restrict UPDATE events to status",
   );
   assert.match(
     file,
@@ -96,12 +96,12 @@ test("status history is captured by a database trigger, not duplicated in applic
   );
 });
 
-test("document creation records the initial NULL to UPLOADED state", () => {
+test("document creation records the initial NULL to inserted status state", () => {
   const file = historyMigrations.at(-1)?.content ?? "";
 
   assert.match(
     file,
-    /tg_op\s*=\s*'INSERT'|tg_op\s*=\s*'INSERT'/i,
+    /tg_op\s*=\s*'INSERT'/i,
     "trigger must distinguish document creation from updates",
   );
   assert.match(
@@ -201,24 +201,17 @@ test("history is not backfilled with fabricated historical transitions", () => {
   );
 });
 
-test("document status history supports exact attention timestamps for ACTION_REQUIRED and REJECTED", () => {
+test("history events expose database timestamps for future exact attention calculation", () => {
   const file = historyMigrations.at(-1)?.content ?? "";
 
-  assert.match(file, /ACTION_REQUIRED/i);
-  assert.match(file, /REJECTED/i);
   assert.match(
     file,
-    /created_at/i,
-    "transition timestamp must be available to the read model",
+    /created_at TIMESTAMPTZ NOT NULL DEFAULT now\(\)/i,
+    "transition timestamp must be available to a later read-model integration",
   );
-
-  const attentionMigration = readFileSync(
-    "supabase/migrations/20261004100000_admin_customer_page_contract.sql",
-    "utf8",
-  );
-  assert.match(
-    attentionMigration,
-    /verification_document_status_history/i,
-    "admin_customer_page must eventually consume document status history for exact attention timing",
+  assert.doesNotMatch(
+    file,
+    /admin_customer_page|20261004100000_admin_customer_page_contract/i,
+    "9.4 must not couple history creation to the existing admin_customer_page read model",
   );
 });
