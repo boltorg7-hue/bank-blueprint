@@ -96,7 +96,7 @@ export type AdminCustomerDossierDto = {
     resourceReference: string | null;
     permissionChecked: string | null;
     result: "ALLOWED" | "DENIED";
-    context: Record<string, unknown>;
+    context: Record<string, string | number | boolean | null>;
     createdAt: string;
   }>;
 };

@@ -151,3 +151,14 @@ export type AdminAuditEventDto = {
   context: Record<string, string | number | boolean | null>;
   createdAt: string;
 };
+
+export type AdminAccountStatusHistoryDto = {
+  id: string;
+  previousStatus: string;
+  newStatus: string;
+  reasonCategory: string;
+  internalNote: string | null;
+  changedByName: string;
+  changedByReference: string | null;
+  changedAt: string;
+};

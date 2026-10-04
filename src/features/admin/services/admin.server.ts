@@ -16,6 +16,7 @@ import type {
   FundingAccountOptionDto,
   AdminAuditEventPageDto,
   AdminExternalTransferPageDto,
+  AdminAccountStatusHistoryDto,
 } from "@/features/admin/types/admin";
 import type { CustomerLifecycleState } from "@/types/customer-lifecycle";
 
@@ -211,7 +212,7 @@ export async function loadAdminCustomers(
   if (normalizedTerm) {
     const emailLookup = normalizedTerm.includes("@")
       ? await admin.rpc("auth_user_for_email" as never, { _email: normalizedTerm } as never)
-      : { data: null };
+      : { data: null as unknown };
     const exactEmailId = emailLookup.data ? String(emailLookup.data) : null;
     const uuidMatch = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(normalizedTerm)
       ? normalizedTerm
@@ -719,7 +720,7 @@ export async function loadAdminAuditEvents(client: Client, search = "", cursor: 
   const actorIds = [...new Set(rows.map((row: any) => String(row.actor_user_id)))];
   const { data: staff } = actorIds.length ? await admin.from("staff_profiles").select("user_id,display_name,public_reference").in("user_id", actorIds) : { data: [] as any[] };
   const staffById = new Map((staff ?? []).map((row: any) => [String(row.user_id), row]));
-  const items = rows.map((row: any) => { const actor = staffById.get(String(row.actor_user_id)); return { id: String(row.id), actorName: actor?.display_name ?? "Staff indisponible", actorReference: actor?.public_reference ? String(actor.public_reference) : null, action: String(row.action), resourceType: row.resource_type ? String(row.resource_type) : null, resourceReference: row.resource_reference ? String(row.resource_reference) : null, permissionChecked: row.permission_checked ? String(row.permission_checked) : null, result: row.result === "DENIED" ? "DENIED" : "ALLOWED", context: row.context && typeof row.context === "object" && !Array.isArray(row.context) ? row.context : {}, createdAt: String(row.created_at) }; });
+  const items: import("@/features/admin/types/admin").AdminAuditEventDto[] = rows.map((row: any) => { const actor = staffById.get(String(row.actor_user_id)); return { id: String(row.id), actorName: actor?.display_name ?? "Staff indisponible", actorReference: actor?.public_reference ? String(actor.public_reference) : null, action: String(row.action), resourceType: row.resource_type ? String(row.resource_type) : null, resourceReference: row.resource_reference ? String(row.resource_reference) : null, permissionChecked: row.permission_checked ? String(row.permission_checked) : null, result: row.result === "DENIED" ? "DENIED" : "ALLOWED", context: row.context && typeof row.context === "object" && !Array.isArray(row.context) ? row.context : {}, createdAt: String(row.created_at) }; });
   const last = rows[rows.length - 1];
   return { items, hasNext, nextCursor: hasNext && last ? encodeAdminCursor({ createdAt: String(last.created_at), id: String(last.id) }) : null };
 }
@@ -977,6 +978,6 @@ export async function loadAdminCustomerDossier(
       events: (securityEvents ?? []).map((row: any) => ({ type: String(row.event_type), title: String(row.title), createdAt: String(row.created_at) })),
       restricted: !securityAllowed,
     },
-    audit: audit.map((row: any) => ({ action: String(row.action), resourceType: row.resource_type ? String(row.resource_type) : null, resourceReference: row.resource_reference ? String(row.resource_reference) : null, result: row.result === "DENIED" ? "DENIED" : "ALLOWED", createdAt: String(row.created_at) })),
+    audit: audit.map((row: any) => ({ id: String(row.id), action: String(row.action), actorName: "Agent bancaire", actorReference: null, resourceType: row.resource_type ? String(row.resource_type) : null, resourceReference: row.resource_reference ? String(row.resource_reference) : null, permissionChecked: row.permission_checked ? String(row.permission_checked) : null, result: (row.result === "DENIED" ? "DENIED" : "ALLOWED") as "ALLOWED" | "DENIED", context: {}, createdAt: String(row.created_at) })),
   };
 }
