@@ -227,8 +227,13 @@ test("audit DTO preserves real actor identity, references, authorization metadat
 
   assert.match(
     dossierType,
-    /context:\s*Record<string, unknown>/,
-    "audit context must accept arbitrary JSON object values",
+    /context:\s*Record<string, AdminCustomerDossierJsonValue>/,
+    "audit context must use the recursive JSON value contract",
+  );
+  assert.match(
+    dossierType,
+    /export type AdminCustomerDossierJsonValue\s*=\s*[\s\S]*AdminCustomerDossierJsonValue\[\][\s\S]*\{ \[key: string\]: AdminCustomerDossierJsonValue \}/,
+    "audit context contract must support nested JSON arrays and objects",
   );
   assert.match(
     dossierService,
@@ -240,12 +245,29 @@ test("audit DTO preserves real actor identity, references, authorization metadat
 test("dossier exposes a server-derived attention summary instead of recomputing business truth from truncated lists", () => {
   assert.match(
     dossierType,
-    /attention:\s*\{/,
+    /attention:\s*AdminCustomerDossierAttention/,
     "dossier needs an explicit server-derived attention contract",
   );
-  assert.match(dossierType, /attentionCount:\s*number/);
-  assert.match(dossierType, /attentionReasons:\s*string\[\]/);
-  assert.match(dossierType, /oldestAttentionAt:\s*string \| null/);
+  assert.match(
+    dossierType,
+    /export type AdminCustomerDossierAttention\s*=\s*\{[\s\S]*count:\s*number;[\s\S]*reasons:\s*AdminCustomerAttentionReason\[\];[\s\S]*oldestAt:\s*string \| null;/,
+    "attention contract must expose count, reasons and oldestAt",
+  );
+  assert.doesNotMatch(
+    dossierType,
+    /attentionCount:\s*number/,
+    "legacy flattened attentionCount contract must not replace attention.count",
+  );
+  assert.doesNotMatch(
+    dossierType,
+    /attentionReasons:\s*string\[\]/,
+    "legacy flattened attentionReasons contract must not replace attention.reasons",
+  );
+  assert.doesNotMatch(
+    dossierType,
+    /oldestAttentionAt:\s*string \| null/,
+    "legacy flattened oldestAttentionAt contract must not replace attention.oldestAt",
+  );
 
   assert.doesNotMatch(
     dossierUi,
