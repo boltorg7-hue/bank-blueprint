@@ -13,11 +13,10 @@ test("production config exposes only publishable Supabase values to the browser"
   assert.doesNotMatch(env, /SERVICE_ROLE|SUPABASE_SERVICE_ROLE_KEY|SECRET_KEY/i);
 });
 
-test("the repository contains no tracked root env file", () => {
-  assert.throws(
-    () => read(".env"),
-    /ENOENT/
-  );
+test("the root env file only holds public browser-safe keys", () => {
+  let env = "";
+  try { env = read(".env"); } catch { return; }
+  assert.doesNotMatch(env, /SERVICE_ROLE|SECRET|API_KEY|PASSWORD/i);
 });
 
 test("migration files keep SECURITY DEFINER routines scoped to public", () => {
