@@ -247,7 +247,7 @@ export function AddExternalBeneficiaryDialog({
                         const known = Object.keys(ERRORS).find((key) => code.includes(key));
                         setError(
                           known
-                            ? (en ? ERRORS_EN[known] : ERRORS[known])
+                            ? ((en ? ERRORS_EN[known] : ERRORS[known]) ?? code)
                             : (en ? "The beneficiary could not be saved. Check the details and try again." : "L'enregistrement n'a pas abouti. Vérifiez les coordonnées, puis réessayez."),
                         );
                       },

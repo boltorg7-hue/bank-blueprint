@@ -20,6 +20,7 @@ import {
 import { formatMoneyFromMinor } from "@/lib/format/currency";
 import { formatDateTime } from "@/lib/format/date";
 import { cn } from "@/lib/utils";
+import { useLanguage } from "@/components/providers/LanguageProvider";
 
 const FILTERS: Array<{ id: TransferListFilter; label: string }> = [
   { id: "ALL", label: "Tous" },
@@ -52,6 +53,7 @@ function matches(transfer: TransferDto, filter: TransferListFilter): boolean {
 
 /** Transfer list, most recent first (§76 – §79 ; PROMPT 08 §77 – §80). */
 export function TransferList({ action }: { action?: React.ReactNode }) {
+  const { language } = useLanguage();
   const { data, isPending, isError, refetch } = useTransfers();
   const [filter, setFilter] = useState<TransferListFilter>("ALL");
 

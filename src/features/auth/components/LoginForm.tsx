@@ -13,6 +13,7 @@ import { useLanguage } from "@/components/providers/LanguageProvider";
 
 export function LoginForm({ redirectTo }: { redirectTo?: string | undefined }) {
   const { language } = useLanguage();
+  const en = language === "en";
   const navigate = useNavigate();
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [formError, setFormError] = useState<string | null>(null);

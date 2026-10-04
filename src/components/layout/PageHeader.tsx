@@ -15,7 +15,7 @@ export function PageHeader({
   backTo,
 }: {
   title: string;
-  description?: string;
+  description?: string | undefined;
   action?: ReactNode;
   status?: ReactNode;
   context?: ReactNode;

@@ -55,6 +55,7 @@ export function PublicSection({
   className?: string;
   id?: string;
   tone?: "default" | "sunken" | "contrast";
+  deferRender?: boolean;
 }) {
   return (
     <section

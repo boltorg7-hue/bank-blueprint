@@ -87,6 +87,7 @@ export function transactionAmountAriaLabel(
   currency: string,
   minorUnit: number,
   direction: TransactionDirection,
+  language: "fr" | "en" = "fr",
 ): string {
   const amount = formatMoneyFromMinor(amountMinor, {
     currency,

@@ -148,6 +148,17 @@ export type AdminAuditEventDto = {
   resourceReference: string | null;
   permissionChecked: string | null;
   result: "ALLOWED" | "DENIED";
-  context: Record<string, unknown>;
+  context: Record<string, string | number | boolean | null>;
   createdAt: string;
+};
+
+export type AdminAccountStatusHistoryDto = {
+  id: string;
+  previousStatus: string;
+  newStatus: string;
+  reasonCategory: string;
+  internalNote: string | null;
+  changedByName: string;
+  changedByReference: string | null;
+  changedAt: string;
 };

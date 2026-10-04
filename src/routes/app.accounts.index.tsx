@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useLanguage } from "@/components/providers/LanguageProvider";
-import { BankingContentContainer, PageHeader } from "@/components/layout/BankingAppLayout";
+import { BankingContentContainer } from "@/components/layout/BankingAppLayout";
+import { PageHeader } from "@/components/layout/PageHeader";
 import { PageSection } from "@/components/ui";
 import { EmptyState, ErrorState, LoadingState, PermissionDeniedState } from "@/components/feedback";
 import { AccountListItem } from "@/features/accounts/components/AccountListItem";
