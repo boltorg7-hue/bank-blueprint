@@ -34,17 +34,7 @@ function AdminCustomersPage() {
   }, [search]);
 
   const query = useAdminCustomers(debouncedSearch, cursor, lifecycle, accounts, attention);
-  const customers = useMemo(() => {
-    return [...(query.data?.items ?? [])].sort((a, b) => {
-      const countDelta = b.attentionCount - a.attentionCount;
-      if (countDelta !== 0) return countDelta;
-      if (a.oldestAttentionAt && b.oldestAttentionAt) return Date.parse(a.oldestAttentionAt) - Date.parse(b.oldestAttentionAt);
-      if (a.oldestAttentionAt) return -1;
-      if (b.oldestAttentionAt) return 1;
-      return Date.parse(b.createdAt) - Date.parse(a.createdAt);
-    });
-  }, [query.data]);
-
+  const customers = query.data?.items ?? [];
   const hasFilters = Boolean(search.trim()) || lifecycle !== "ALL" || accounts !== "ALL" || attention !== "ALL";
   useEffect(() => { setCursor(null); setCursorHistory([]); }, [debouncedSearch, lifecycle, accounts, attention]);
 
