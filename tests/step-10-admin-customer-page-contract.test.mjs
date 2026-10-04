@@ -17,8 +17,11 @@ const expectedColumns = [
   "oldest_attention_at timestamptz",
 ];
 
+const returnColumns = file.match(/returns table \(([^;]+?)\)\nlanguage sql/s)?.[1] ?? "";
+assert.ok(returnColumns, "admin_customer_page return contract is missing");
+
 for (const column of expectedColumns) {
-  assert.ok(file.includes(column), `expected return column is missing: ${column}`);
+  assert.ok(returnColumns.includes(column), `expected return column is missing: ${column}`);
 }
 
 const reasonOrder = [
