@@ -51,14 +51,7 @@ export function AdminCustomerOperationalDossier({ customer, open, onOpenChange }
 
 function DossierBody({ dossier, en }: { dossier: import("@/features/admin/types/admin-customer-dossier").AdminCustomerDossierDto; en: boolean }) {
   const c = dossier.customer;
-  const attention = [
-    !["ACTIVE"].includes(c.lifecycleState),
-    ["UNDER_REVIEW", "ADDITIONAL_INFORMATION_REQUIRED", "REJECTED"].includes(dossier.kyc.status),
-    dossier.documents.some((d) => ["ACTION_REQUIRED", "REJECTED", "EXPIRED"].includes(d.status)),
-    dossier.notifications.unreadCount > 0,
-    dossier.transfers.some((t) => ["PROCESSING", "COMPLIANCE_REVIEW", "DOCUMENT_REQUIRED", "SETTLEMENT_PENDING"].includes(t.status)),
-    dossier.funding.some((f) => f.status === "PENDING"),
-  ].filter(Boolean).length;
+  const attention = dossier.attention.count;
 
   return <>
     <Card>
