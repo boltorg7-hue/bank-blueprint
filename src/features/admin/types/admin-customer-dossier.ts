@@ -1,5 +1,27 @@
 import type { CustomerLifecycleState } from "@/types/customer-lifecycle";
 
+export type AdminCustomerAttentionReason =
+  | "LIFECYCLE"
+  | "KYC"
+  | "DOCUMENTS"
+  | "NOTIFICATIONS"
+  | "TRANSFERS"
+  | "FUNDING";
+
+export type AdminCustomerDossierAttention = {
+  count: number;
+  reasons: AdminCustomerAttentionReason[];
+  oldestAt: string | null;
+};
+
+export type AdminCustomerDossierJsonValue =
+  | string
+  | number
+  | boolean
+  | null
+  | AdminCustomerDossierJsonValue[]
+  | { [key: string]: AdminCustomerDossierJsonValue };
+
 export type AdminCustomerDossierDto = {
   customer: {
     id: string;
@@ -12,6 +34,7 @@ export type AdminCustomerDossierDto = {
     onboardingStep: string | null;
     emailVerified: boolean;
   };
+  attention: AdminCustomerDossierAttention;
   kyc: {
     status: string;
     submittedAt: string | null;
@@ -96,7 +119,7 @@ export type AdminCustomerDossierDto = {
     resourceReference: string | null;
     permissionChecked: string | null;
     result: "ALLOWED" | "DENIED";
-    context: Record<string, string | number | boolean | null>;
+    context: Record<string, AdminCustomerDossierJsonValue>;
     createdAt: string;
   }>;
 };
