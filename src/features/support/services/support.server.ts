@@ -85,9 +85,9 @@ export async function loadCustomerSupport(
   return {
     items: await mapThreads(client, pageRows),
     hasNext,
-    nextCursor: hasNext && pageRows.length
-      ? encodeSupportCursor({ lastMessageAt: String(pageRows[pageRows.length - 1].last_message_at), id: String(pageRows[pageRows.length - 1].id) })
-      : null,
+    nextCursor: (() => { const lastRow = pageRows[pageRows.length - 1]; return hasNext && lastRow
+      ? encodeSupportCursor({ lastMessageAt: String(lastRow.last_message_at), id: String(lastRow.id) })
+      : null; })(),
   };
 }
 
@@ -130,8 +130,8 @@ export async function loadAdminSupport(
   return {
     items: await mapThreads(admin, pageRows, names),
     hasNext,
-    nextCursor: hasNext && pageRows.length
-      ? encodeSupportCursor({ lastMessageAt: String(pageRows[pageRows.length - 1].last_message_at), id: String(pageRows[pageRows.length - 1].id) })
-      : null,
+    nextCursor: (() => { const lastRow = pageRows[pageRows.length - 1]; return hasNext && lastRow
+      ? encodeSupportCursor({ lastMessageAt: String(lastRow.last_message_at), id: String(lastRow.id) })
+      : null; })(),
   };
 }

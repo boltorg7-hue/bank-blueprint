@@ -187,8 +187,22 @@ export async function loadAdminCustomers(
   } else if (accountsFilter === "WITHOUT_ACCOUNTS" && accountOwnerIds.size) {
     query = query.not("id", "in", `(${[...accountOwnerIds].join(",")})`);
   }
+  const attentionIds = new Set<string>();
+  if (attentionFilter !== "ALL") {
+    const { data: inactiveProfiles, error: attentionError } = await admin
+      .from("profiles")
+      .select("id")
+      .neq("lifecycle_state", "ACTIVE");
+    if (attentionError) throw new AdminAccessError("CUSTOMERS_UNAVAILABLE");
+    for (const row of inactiveProfiles ?? []) attentionIds.add(String((row as any).id));
+    const { data: flaggedVerifications } = await admin
+      .from("identity_verifications")
+      .select("user_id")
+      .in("status", ["REJECTED", "ADDITIONAL_INFORMATION_REQUIRED", "EXPIRED"]);
+    for (const row of flaggedVerifications ?? []) attentionIds.add(String((row as any).user_id));
+  }
   if (attentionFilter === "NEEDS_ATTENTION") {
-    if (!attentionIds.size) return { items: [], hasNext: false };
+    if (!attentionIds.size) return { items: [], hasNext: false, nextCursor: null };
     query = query.in("id", [...attentionIds]);
   } else if (attentionFilter === "CLEAR" && attentionIds.size) {
     query = query.not("id", "in", `(${[...attentionIds].join(",")})`);
@@ -355,7 +369,7 @@ export async function loadAdminOnboardingCases(
     if (/^[0-9a-f]{36}$/i.test(term)) query = query.eq("id", term);
   }
 
-  if (normalizedStatus === "NOT_STARTED" || normalizedStatus === "IN_PROGRESS") {
+  if (normalizedStatus === "NOT_STARTED") {
     query = query.eq("onboarding_step", normalizedStatus);
   }
 
@@ -372,7 +386,7 @@ export async function loadAdminOnboardingCases(
     const { data: matchingVerifications, error: verificationError } = await admin
       .from("identity_verifications")
       .select("user_id")
-      .eq("status", normalizedStatus);
+      .eq("status", normalizedStatus as never);
     if (verificationError) throw new AdminAccessError("ONBOARDING_CASES_UNAVAILABLE");
     const matchingIds = new Set((matchingVerifications ?? []).map((row: any) => String(row.user_id)));
     rows = rows.filter((row: any) => matchingIds.has(String(row.id)));

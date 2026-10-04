@@ -65,6 +65,7 @@ export type TransactionFilters = {
 export type TransactionPageRequest = TransactionFilters & {
   cursor?: string | null;
   pageSize?: number;
+  page?: number;
 };
 
 export type TransactionPageDto = {

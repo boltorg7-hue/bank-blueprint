@@ -123,7 +123,7 @@ function DashboardPage() {
               </Link>
             </div>
             <ul className="grid gap-3 md:grid-cols-2">
-              {data.accounts.map((item) => {
+              {(data?.accounts ?? []).map((item) => {
                 const amount = item.balance
                   ? privacyMode
                     ? PRIVACY_PLACEHOLDER
