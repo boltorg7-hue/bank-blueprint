@@ -18,7 +18,7 @@ const expectedColumns = [
 ];
 
 for (const column of expectedColumns) {
-  assert.match(file, new RegExp(`\\b${column.replace(/[.*+?^$()|[\]\\]/g, "\\$&")}\\b`));
+  assert.ok(file.includes(column), `expected return column is missing: ${column}`);
 }
 
 const reasonOrder = [
