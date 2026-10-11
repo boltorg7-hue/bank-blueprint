@@ -168,7 +168,7 @@ export async function loadAdminCustomers(
   const term = search.trim().replace(/[%_,().*]/g, "");
   const normalizedTerm = term.toLocaleLowerCase("fr");
 
-  const { data, error } = await admin.rpc("admin_customer_page", {
+  const { data, error } = await (admin.rpc as any)("admin_customer_page", {
     p_search: normalizedTerm,
     p_lifecycle: lifecycle,
     p_accounts_filter: accountsFilter,
@@ -767,7 +767,7 @@ export async function loadAdminCustomerDossier(
     });
   }
 
-  const { data: attentionRows, error: attentionError } = await admin.rpc("admin_customer_page", {
+  const { data: attentionRows, error: attentionError } = await (admin.rpc as any)("admin_customer_page", {
     p_search: "",
     p_lifecycle: "ALL",
     p_accounts_filter: "ALL",
@@ -780,7 +780,7 @@ export async function loadAdminCustomerDossier(
 
   if (attentionError) throw new AdminAccessError("CUSTOMER_DOSSIER_UNAVAILABLE");
 
-  const attentionRow = (attentionRows ?? [])[0] as {
+  const attentionRow = ((attentionRows ?? []) as any[])[0] as {
     attention_reasons?: unknown;
     attention_count?: unknown;
     oldest_attention_at?: string | null;
