@@ -132,7 +132,7 @@ export async function loadCustomerContext(
 export async function saveProfileStep(userId: string, input: unknown) {
   const data = profileStepSchema.parse(input);
   await requireEditableLifecycle(userId, PROFILE_EDITABLE_LIFECYCLE_STATES);
-  const { error } = await supabaseAdmin
+  const { data: updatedProfile, error } = await supabaseAdmin
     .from("profiles")
     .update({
       first_name: data.firstName,
@@ -152,7 +152,7 @@ export async function saveProfileStep(userId: string, input: unknown) {
     .select("id")
     .maybeSingle();
   if (error) throw new OnboardingError(error.message);
-  if (!data) throw new OnboardingError("ONBOARDING_STATE_LOCKED");
+  if (!updatedProfile) throw new OnboardingError("ONBOARDING_STATE_LOCKED");
   return { ok: true as const };
 }
 
@@ -360,7 +360,7 @@ export async function submitForVerification(userId: string) {
     // Compensate if the lifecycle became protected between validation and write.
     await supabaseAdmin
       .from("identity_verifications")
-      .update({ status: verification.status, submitted_at: null })
+      .update({ status: verification.status, submitted_at: verification.submitted_at ?? null })
       .eq("id", verification.id)
       .eq("status", "SUBMITTED")
       .eq("submitted_at", submittedAt);
@@ -389,7 +389,7 @@ export async function submitForVerification(userId: string) {
 async function requireVerification(userId: string) {
   const { data, error } = await supabaseAdmin
     .from("identity_verifications")
-    .select("id, status")
+    .select("id, status, submitted_at")
     .eq("user_id", userId)
     .maybeSingle();
   if (error) throw new OnboardingError(error.message);
@@ -398,7 +398,7 @@ async function requireVerification(userId: string) {
   const { data: created, error: insertError } = await supabaseAdmin
     .from("identity_verifications")
     .insert({ user_id: userId })
-    .select("id, status")
+    .select("id, status, submitted_at")
     .single();
   if (insertError) throw new OnboardingError(insertError.message);
   return created;
