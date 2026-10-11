@@ -924,24 +924,24 @@ test("B1 — les mutations onboarding refusent les états bancaires protégés",
   assert.ok(profileStates.includes('"PROFILE_INCOMPLETE"'));
   assert.ok(editableStates.includes('"ADDITIONAL_DOCUMENT_REQUIRED"'));
   for (const protectedState of ['"ACTIVE"', '"RESTRICTED"', '"SUSPENDED"', '"CLOSED"', '"BANKING_REVIEW"', '"IDENTITY_VERIFIED"']) {
-    assert.doesNotMatch(profileStates, new RegExp(protectedState.replaceAll('"', '\\\"')));
-    assert.doesNotMatch(editableStates, new RegExp(protectedState.replaceAll('"', '\\\"')));
+    assert.ok(!profileStates.includes(protectedState), `profile edits must not allow ${protectedState}`);
+    assert.ok(!editableStates.includes(protectedState), `onboarding edits must not allow ${protectedState}`);
   }
 
   const functionBody = (name) => {
     const start = onboarding.indexOf(`export async function ${name}`);
-    const next = onboarding.indexOf("\\nexport async function ", start + 1);
+    const next = onboarding.indexOf("\nexport async function ", start + 1);
     assert.ok(start >= 0, `missing ${name}`);
     return onboarding.slice(start, next < 0 ? onboarding.length : next);
   };
 
-  assert.match(functionBody("saveProfileStep"), /requireEditableLifecycle\\(userId, PROFILE_EDITABLE_LIFECYCLE_STATES\\)/);
-  assert.match(functionBody("saveProfileStep"), /\\.in\\("lifecycle_state", PROFILE_EDITABLE_LIFECYCLE_STATES\\)/);
-  assert.match(functionBody("saveAddressStep"), /requireEditableLifecycle\\(userId\\)/);
-  assert.match(functionBody("registerDocument"), /requireEditableLifecycle\\(userId\\)/);
-  assert.match(functionBody("removeDocument"), /requireEditableLifecycle\\(userId\\)/);
-  assert.match(functionBody("submitForVerification"), /requireEditableLifecycle\\(userId\\)/);
-  assert.match(functionBody("submitForVerification"), /\\.in\\("lifecycle_state", ONBOARDING_EDITABLE_LIFECYCLE_STATES\\)/);
-  assert.match(functionBody("submitForVerification"), /VERIFICATION_STATE_CHANGED/);
-  assert.match(functionBody("submitForVerification"), /ONBOARDING_STATE_LOCKED/);
+  assert.ok(functionBody("saveProfileStep").includes("requireEditableLifecycle(userId, PROFILE_EDITABLE_LIFECYCLE_STATES)"));
+  assert.ok(functionBody("saveProfileStep").includes('.in("lifecycle_state", PROFILE_EDITABLE_LIFECYCLE_STATES)'));
+  assert.ok(functionBody("saveAddressStep").includes("requireEditableLifecycle(userId)"));
+  assert.ok(functionBody("registerDocument").includes("requireEditableLifecycle(userId)"));
+  assert.ok(functionBody("removeDocument").includes("requireEditableLifecycle(userId)"));
+  assert.ok(functionBody("submitForVerification").includes("requireEditableLifecycle(userId)"));
+  assert.ok(functionBody("submitForVerification").includes('.in("lifecycle_state", ONBOARDING_EDITABLE_LIFECYCLE_STATES)'));
+  assert.ok(functionBody("submitForVerification").includes("VERIFICATION_STATE_CHANGED"));
+  assert.ok(functionBody("submitForVerification").includes("ONBOARDING_STATE_LOCKED"));
 });
