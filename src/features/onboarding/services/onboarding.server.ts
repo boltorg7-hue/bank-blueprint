@@ -17,6 +17,43 @@ const PROFILE_COLUMNS =
 
 export class OnboardingError extends Error {}
 
+const PROFILE_EDITABLE_LIFECYCLE_STATES = [
+  "REGISTERED",
+  "EMAIL_VERIFICATION_REQUIRED",
+  "CONTACT_VERIFICATION_REQUIRED",
+  "PROFILE_INCOMPLETE",
+  "IDENTITY_REQUIRED",
+] as const;
+
+const ONBOARDING_EDITABLE_LIFECYCLE_STATES = [
+  ...PROFILE_EDITABLE_LIFECYCLE_STATES,
+  "ADDITIONAL_DOCUMENT_REQUIRED",
+] as const;
+
+/**
+ * Reject onboarding mutations for protected/terminal customer states.
+ * The caller identity is supplied by requireSupabaseAuth; this check is
+ * repeated in conditional UPDATE predicates wherever lifecycle is changed.
+ */
+async function requireEditableLifecycle(
+  userId: string,
+  allowedStates: readonly string[] = ONBOARDING_EDITABLE_LIFECYCLE_STATES,
+) {
+  const { data: profile, error } = await supabaseAdmin
+    .from("profiles")
+    .select("lifecycle_state")
+    .eq("id", userId)
+    .maybeSingle();
+
+  if (error) throw new OnboardingError("CUSTOMER_STATE_UNAVAILABLE");
+  if (!profile) throw new OnboardingError("CUSTOMER_PROFILE_NOT_FOUND");
+  if (!allowedStates.includes(profile.lifecycle_state)) {
+    throw new OnboardingError("ONBOARDING_STATE_LOCKED");
+  }
+
+  return profile.lifecycle_state as string;
+}
+
 export async function loadCustomerContext(
   userId: string,
   email: string | null,
@@ -94,6 +131,7 @@ export async function loadCustomerContext(
 
 export async function saveProfileStep(userId: string, input: unknown) {
   const data = profileStepSchema.parse(input);
+  await requireEditableLifecycle(userId, PROFILE_EDITABLE_LIFECYCLE_STATES);
   const { error } = await supabaseAdmin
     .from("profiles")
     .update({
@@ -109,13 +147,18 @@ export async function saveProfileStep(userId: string, input: unknown) {
       lifecycle_state: data.phone ? "CONTACT_VERIFICATION_REQUIRED" : "PROFILE_INCOMPLETE",
       onboarding_step: data.phone ? "CONTACT" : "ADDRESS",
     })
-    .eq("id", userId);
+    .eq("id", userId)
+    .in("lifecycle_state", PROFILE_EDITABLE_LIFECYCLE_STATES)
+    .select("id")
+    .maybeSingle();
   if (error) throw new OnboardingError(error.message);
+  if (!data) throw new OnboardingError("ONBOARDING_STATE_LOCKED");
   return { ok: true as const };
 }
 
 export async function saveAddressStep(userId: string, input: unknown) {
   const data = addressStepSchema.parse(input);
+  await requireEditableLifecycle(userId);
   const payload = {
     user_id: userId,
     country: data.country,
@@ -158,6 +201,7 @@ const EDITABLE_VERIFICATION_STATUSES = [
 
 export async function registerDocument(userId: string, input: unknown) {
   const data = documentUploadSchema.parse(input);
+  await requireEditableLifecycle(userId);
   if (!data.storagePath.startsWith(`${userId}/`)) {
     throw new OnboardingError("Chemin de document invalide.");
   }
@@ -194,6 +238,7 @@ export async function registerDocument(userId: string, input: unknown) {
 }
 
 export async function removeDocument(userId: string, documentId: string) {
+  await requireEditableLifecycle(userId);
   const verification = await requireVerification(userId);
   if (!(EDITABLE_VERIFICATION_STATUSES as readonly string[]).includes(verification.status)) {
     throw new OnboardingError("Ce document ne peut plus être retiré.");
@@ -239,6 +284,7 @@ export async function submitForVerification(userId: string) {
   if (["SUBMITTED", "UNDER_REVIEW", "VERIFIED"].includes(verification.status)) {
     return { status: verification.status, alreadySubmitted: true as const };
   }
+  await requireEditableLifecycle(userId);
 
   const { data: profile } = await supabaseAdmin
     .from("profiles")
@@ -285,7 +331,7 @@ export async function submitForVerification(userId: string) {
   }
 
   const submittedAt = new Date().toISOString();
-  const { error } = await supabaseAdmin
+  const { data: updatedVerification, error } = await supabaseAdmin
     .from("identity_verifications")
     .update({
       status: "SUBMITTED",
@@ -294,8 +340,33 @@ export async function submitForVerification(userId: string) {
       decision_reason: null,
     })
     .eq("id", verification.id)
-    .in("status", EDITABLE_VERIFICATION_STATUSES);
+    .in("status", EDITABLE_VERIFICATION_STATUSES)
+    .select("id")
+    .maybeSingle();
   if (error) throw new OnboardingError(error.message);
+  if (!updatedVerification) {
+    throw new OnboardingError("VERIFICATION_STATE_CHANGED");
+  }
+
+  const { data: updatedProfile, error: profileUpdateError } = await supabaseAdmin
+    .from("profiles")
+    .update({ lifecycle_state: "IDENTITY_SUBMITTED", onboarding_step: "COMPLETED" })
+    .eq("id", userId)
+    .in("lifecycle_state", ONBOARDING_EDITABLE_LIFECYCLE_STATES)
+    .select("id")
+    .maybeSingle();
+
+  if (profileUpdateError || !updatedProfile) {
+    // Compensate if the lifecycle became protected between validation and write.
+    await supabaseAdmin
+      .from("identity_verifications")
+      .update({ status: verification.status, submitted_at: null })
+      .eq("id", verification.id)
+      .eq("status", "SUBMITTED")
+      .eq("submitted_at", submittedAt);
+    if (profileUpdateError) throw new OnboardingError(profileUpdateError.message);
+    throw new OnboardingError("ONBOARDING_STATE_LOCKED");
+  }
 
   await supabaseAdmin.from("verification_status_history").insert({
     verification_id: verification.id,
@@ -311,11 +382,6 @@ export async function submitForVerification(userId: string) {
     .update({ status: "UNDER_REVIEW" })
     .eq("user_id", userId)
     .eq("status", "UPLOADED");
-
-  await supabaseAdmin
-    .from("profiles")
-    .update({ lifecycle_state: "IDENTITY_SUBMITTED", onboarding_step: "COMPLETED" })
-    .eq("id", userId);
 
   return { status: "SUBMITTED" as const, alreadySubmitted: false as const };
 }
