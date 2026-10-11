@@ -923,7 +923,7 @@ test("B1 — les mutations onboarding refusent les états bancaires protégés",
 
   assert.ok(profileStates.includes('"PROFILE_INCOMPLETE"'));
   assert.ok(editableStates.includes('"ADDITIONAL_DOCUMENT_REQUIRED"'));
-  for (const protectedState of ['"ACTIVE"', '"RESTRICTED"', '"SUSPENDED"', '"CLOSED"', '"BANKING_REVIEW"', '"IDENTITY_VERIFIED"']) {
+  for (const protectedState of ['"REGISTERED"', '"EMAIL_VERIFICATION_REQUIRED"', '"ACTIVE"', '"RESTRICTED"', '"SUSPENDED"', '"CLOSED"', '"BANKING_REVIEW"', '"IDENTITY_VERIFIED"']) {
     assert.ok(!profileStates.includes(protectedState), `profile edits must not allow ${protectedState}`);
     assert.ok(!editableStates.includes(protectedState), `onboarding edits must not allow ${protectedState}`);
   }
