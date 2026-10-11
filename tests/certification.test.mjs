@@ -98,8 +98,8 @@ test("les collections admin Customers et Accounts utilisent un curseur serveur s
   assert.doesNotMatch(server, /loadAdminAccounts[\s\S]*?\.limit\(100\)/);
   assert.match(functions, /listAdminCustomers[\s\S]*?data\.cursor/);
   assert.match(functions, /listAdminAccounts[\s\S]*?data\.cursor/);
-  assert.match(hooks, /useAdminCustomers\\(search: string, cursor/);
-  assert.match(hooks, /useAdminAccounts\\(search = \\"\\", cursor/);
+  assert.match(hooks, /useAdminCustomers\(search: string, cursor/);
+  assert.match(hooks, /useAdminAccounts\(search = "", cursor/);
 });
 
 
@@ -126,8 +126,8 @@ test("le funding ne dépend plus de la collection Accounts paginée", () => {
   const functions = read("src/features/admin/services/admin.functions.ts");
   const hooks = read("src/features/admin/hooks/useAdmin.ts");
   const ui = read("src/features/admin/components/FundingConsole.tsx");
-  assert.match(server, /searchFundingAccounts[\\s\\S]*?\.eq\("status", "ACTIVE"\)/);
-  assert.match(server, /searchFundingAccounts[\\s\\S]*?\.limit\(20\)/);
+  assert.match(server, /searchFundingAccounts[\s\S]*?\.eq\("status", "ACTIVE"\)/);
+  assert.match(server, /searchFundingAccounts[\s\S]*?\.limit\(20\)/);
   assert.match(functions, /searchFundingAccounts/);
   assert.match(hooks, /useFundingAccountSearch/);
   assert.doesNotMatch(ui, /useAdminAccounts/);
@@ -152,8 +152,8 @@ test("l'historique transactions utilise un curseur serveur", () => {
   const server = read("src/features/transactions/services/transactions.server.ts");
   const types = read("src/features/transactions/types/transaction.ts");
   const ui = read("src/features/transactions/components/TransactionHistory.tsx");
-  assert.match(server, /decodeTransactionCursor\\(request.cursor\\)/);
-  assert.match(server, /limit\\(pageSize \\+ 1\\)/);
+  assert.match(server, /decodeTransactionCursor\(request.cursor\)/);
+  assert.match(server, /limit\(pageSize \+ 1\)/);
   assert.doesNotMatch(server, /getTransactions[\s\S]*?\.range\(/);
   assert.doesNotMatch(server, /getTransactions[\s\S]*?count: "exact"/);
   assert.match(types, /cursor\?: string \| null/);
@@ -176,24 +176,24 @@ test("documents et support utilisent la pagination serveur", () => {
   assert.doesNotMatch(support, /loadAdminSupport[\s\S]*?\.limit\(100\)/);
   assert.match(support, /messagesByThread/);
   assert.doesNotMatch(support, /messages.*\.filter\(.*thread_id/);
-  assert.match(supportUi, /useCustomerSupport\\(cursor\\)/);
-  assert.match(adminSupportUi, /useAdminSupport\\(cursor\\)/);
+  assert.match(supportUi, /useCustomerSupport\(cursor\)/);
+  assert.match(adminSupportUi, /useAdminSupport\(cursor\)/);
 });
 
 test("notifications utilise pagination et filtre serveur", () => {
   const server = read("src/features/notifications/services/notifications.server.ts");
   const ui = read("src/features/notifications/components/NotificationCenter.tsx");
-  assert.match(server, /decodeNotificationCursor\\(options.cursor\\)/);
+  assert.match(server, /decodeNotificationCursor\(options.cursor\)/);
   assert.match(server, /NOTIFICATION_PAGE_SIZE\\+1/);
   assert.match(server, /category!=="ALL"/);
-  assert.match(ui, /useNotifications\\(filter, cursor\\)/);
-  assert.doesNotMatch(ui, /q\\.data\\?\\.items \\?\\? \\[\\]\\)\\.filter/);
+  assert.match(ui, /useNotifications\(filter, cursor\)/);
+  assert.doesNotMatch(ui, /q\.data\?\.items \?\? \[\]\)\.filter/);
 });
 
 test("la matrice DB certifie la version finale des fonctions", () => {
   const audit = read("scripts/audit-migration-functions.mjs");
   assert.match(audit, /entry\.finalDefinition = match\[0\]/);
-  assert.match(audit, /entry\.securityDefiner = \/SECURITY\\s\+DEFINER/);
+  assert.match(audit, /entry\.securityDefiner = \/SECURITY\s\+DEFINER/);
   assert.match(audit, /entry\.searchPath = \/search_path/);
   assert.doesNotMatch(audit, /securityDefiner \\|\\|=/);
   assert.doesNotMatch(audit, /searchPath \\|\\|=/);
@@ -204,7 +204,7 @@ test("les policies sensibles ne peuvent pas ouvrir une surface anon/public et le
   const sql = read("supabase/tests/full_security_certification.sql");
   assert.match(sql, /SENSITIVE_POLICY_EXPOSES_ANON_OR_PUBLIC/);
   assert.match(sql, /AUTHENTICATED_POLICY_NOT_SCOPED/);
-  assert.match(sql, /auth\\\\\.uid/);
+  assert.match(sql, /auth\.uid/);
   assert.match(sql, /has_permission/);
   assert.match(sql, /is_staff/);
 });
@@ -502,10 +502,10 @@ test("le budget statique du shell protège LCP/CLS et évite les gros modules au
 
   assert.doesNotMatch(root, /from ["']recharts["']|from ["']pdf-lib["']|from ["']react-day-picker["']/);
   assert.doesNotMatch(router, /from ["']recharts["']|from ["']pdf-lib["']/);
-  assert.match(home, /width=\{1280\}[\\s\\S]*?height=\{960\}/);
+  assert.match(home, /width=\{1280\}[\s\S]*?height=\{960\}/);
   assert.match(home, /priority/);
   assert.match(section, /content-auto/);
-  assert.match(styles, /content-visibility:\\s*auto/);
+  assert.match(styles, /content-visibility:\s*auto/);
 });
 
 
@@ -658,7 +658,7 @@ test("5.8.8.1 standardise les primitives de contrôle sur une même grammaire vi
   assert.match(textarea, /min-h-\[60px\]/);
   assert.match(select, /min-h-11 w-full/);
   assert.match(select, /focus-visible:outline-none/);
-  assert.match(tabs, /TabsTrigger[\\s\\S]*min-h-11/);
+  assert.match(tabs, /TabsTrigger[\s\S]*min-h-11/);
 });
 
 test("5.8.8.1 conserve le reduced-motion sur les primitives animées", () => {
@@ -704,7 +704,7 @@ test("5.8.8.4 aligne les surfaces et la motion de la console administrative", ()
   assert.match(sidebar, /text-overline text-muted-foreground/);
   assert.match(layout, /text-caption font-medium/);
   assert.match(dashboard, /native-surface p-4 sm:p-5/);
-  assert.match(funding, /<PageSection>[\\s\\S]*<PageHeader/);
+  assert.match(funding, /<PageSection>[\s\S]*<PageHeader/);
   assert.match(onboarding, /native-surface mb-5/);
 });
 
@@ -726,8 +726,8 @@ test("5.8.8.6 renforce la responsivité des overlays sur petits écrans", () => 
   const sheet = read("src/components/ui/sheet.tsx");
   const banking = read("src/components/layout/BankingAppLayout.tsx");
   const admin = read("src/components/layout/AdminLayout.tsx");
-  assert.match(dialog, /w-\\[calc\\(100vw-2rem\\)\\]/);
-  assert.match(dialog, /max-h-\\[calc\\(100dvh-2rem\\)\\]/);
+  assert.match(dialog, /w-\[calc\(100vw-2rem\)\]/);
+  assert.match(dialog, /max-h-\[calc\(100dvh-2rem\)\]/);
   assert.match(dialog, /overflow-y-auto/);
   assert.match(sheet, /max-w-full overflow-y-auto overscroll-contain/);
   assert.match(sheet, /bottom:.*max-h-\\\[92dvh\\\]/s);
