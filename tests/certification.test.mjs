@@ -914,3 +914,34 @@ test("5.8.9 certifie la modernisation UI/UX 2026 de bout en bout", () => {
   // La certification 5.8.8 globale doit elle-même rester dans la suite.
   assert.match(read("tests/certification.test.mjs"), /5\.8\.8\.8 certifie la cohérence globale/);
 });
+
+
+test("B1 — les mutations onboarding refusent les états bancaires protégés", () => {
+  const onboarding = read("src/features/onboarding/services/onboarding.server.ts");
+  const profileStates = onboarding.match(/const PROFILE_EDITABLE_LIFECYCLE_STATES = \[([\s\S]*?)\] as const/)?.[1] ?? "";
+  const editableStates = onboarding.match(/const ONBOARDING_EDITABLE_LIFECYCLE_STATES = \[([\s\S]*?)\] as const/)?.[1] ?? "";
+
+  assert.ok(profileStates.includes('"PROFILE_INCOMPLETE"'));
+  assert.ok(editableStates.includes('"ADDITIONAL_DOCUMENT_REQUIRED"'));
+  for (const protectedState of ['"ACTIVE"', '"RESTRICTED"', '"SUSPENDED"', '"CLOSED"', '"BANKING_REVIEW"', '"IDENTITY_VERIFIED"']) {
+    assert.doesNotMatch(profileStates, new RegExp(protectedState.replaceAll('"', '\\\"')));
+    assert.doesNotMatch(editableStates, new RegExp(protectedState.replaceAll('"', '\\\"')));
+  }
+
+  const functionBody = (name) => {
+    const start = onboarding.indexOf(`export async function ${name}`);
+    const next = onboarding.indexOf("\\nexport async function ", start + 1);
+    assert.ok(start >= 0, `missing ${name}`);
+    return onboarding.slice(start, next < 0 ? onboarding.length : next);
+  };
+
+  assert.match(functionBody("saveProfileStep"), /requireEditableLifecycle\\(userId, PROFILE_EDITABLE_LIFECYCLE_STATES\\)/);
+  assert.match(functionBody("saveProfileStep"), /\\.in\\("lifecycle_state", PROFILE_EDITABLE_LIFECYCLE_STATES\\)/);
+  assert.match(functionBody("saveAddressStep"), /requireEditableLifecycle\\(userId\\)/);
+  assert.match(functionBody("registerDocument"), /requireEditableLifecycle\\(userId\\)/);
+  assert.match(functionBody("removeDocument"), /requireEditableLifecycle\\(userId\\)/);
+  assert.match(functionBody("submitForVerification"), /requireEditableLifecycle\\(userId\\)/);
+  assert.match(functionBody("submitForVerification"), /\\.in\\("lifecycle_state", ONBOARDING_EDITABLE_LIFECYCLE_STATES\\)/);
+  assert.match(functionBody("submitForVerification"), /VERIFICATION_STATE_CHANGED/);
+  assert.match(functionBody("submitForVerification"), /ONBOARDING_STATE_LOCKED/);
+});
