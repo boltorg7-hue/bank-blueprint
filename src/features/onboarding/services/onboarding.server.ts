@@ -358,7 +358,7 @@ export async function submitForVerification(userId: string) {
     // Compensate if the lifecycle became protected between validation and write.
     await supabaseAdmin
       .from("identity_verifications")
-      .update({ status: verification.status, submitted_at: verification.submitted_at ?? null })
+      .update({ status: verification.status, submitted_at: verification.submitted_at ?? null, requested_information: verification.requested_information ?? null, decision_reason: verification.decision_reason ?? null })
       .eq("id", verification.id)
       .eq("status", "SUBMITTED")
       .eq("submitted_at", submittedAt);
@@ -387,7 +387,7 @@ export async function submitForVerification(userId: string) {
 async function requireVerification(userId: string) {
   const { data, error } = await supabaseAdmin
     .from("identity_verifications")
-    .select("id, status, submitted_at")
+    .select("id, status, submitted_at, requested_information, decision_reason")
     .eq("user_id", userId)
     .maybeSingle();
   if (error) throw new OnboardingError(error.message);
@@ -396,7 +396,7 @@ async function requireVerification(userId: string) {
   const { data: created, error: insertError } = await supabaseAdmin
     .from("identity_verifications")
     .insert({ user_id: userId })
-    .select("id, status, submitted_at")
+    .select("id, status, submitted_at, requested_information, decision_reason")
     .single();
   if (insertError) throw new OnboardingError(insertError.message);
   return created;
