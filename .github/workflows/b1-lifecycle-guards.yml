@@ -1,0 +1,43 @@
+name: B1 lifecycle guard checks
+
+on:
+  push:
+    branches:
+      - fix/b1-lifecycle-transition-guards
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: b1-lifecycle-guards-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: Certification, build and lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Run certification tests
+        run: node --test tests/certification.test.mjs tests/admin-ui-certification.test.mjs
+
+      - name: Build application
+        run: npm run build
+
+      - name: Run lint
+        run: npm run lint
