@@ -4,11 +4,32 @@ import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
-function requestOrigin(): string {
-  const origin = getRequestHeader("origin");
-  if (origin && /^https?:\/\//.test(origin)) return origin;
-  const host = getRequestHeader("host");
-  return host ? `https://${host}` : "https://rfbank.lovable.app";
+function confirmationBaseUrl(): string {
+  const configured = process.env["APP_BASE_URL"];
+  if (!configured) {
+    throw new Error("APP_BASE_URL must be configured to the official HTTPS bank origin.");
+  }
+
+  let url: URL;
+  try {
+    url = new URL(configured);
+  } catch {
+    throw new Error("APP_BASE_URL must be a valid absolute URL.");
+  }
+
+  if (
+    url.protocol !== "https:" ||
+    !url.hostname ||
+    url.username ||
+    url.password ||
+    (url.pathname !== "/" && url.pathname !== "") ||
+    url.search ||
+    url.hash
+  ) {
+    throw new Error("APP_BASE_URL must be an HTTPS origin without credentials, path, query, or fragment.");
+  }
+
+  return url.origin;
 }
 
 const email = z.string().trim().email().max(254);
@@ -17,7 +38,7 @@ export const resendConfirmationEmail = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => z.object({ email }).parse(input))
   .handler(async ({ data }) => {
     const { resendConfirmation } = await import("./email-confirmation.server");
-    return resendConfirmation(data.email, requestOrigin());
+    return resendConfirmation(data.email, confirmationBaseUrl());
   });
 
 export const changePendingEmail = createServerFn({ method: "POST" })
@@ -26,7 +47,7 @@ export const changePendingEmail = createServerFn({ method: "POST" })
   )
   .handler(async ({ data }) => {
     const { changeUnverifiedEmail } = await import("./email-confirmation.server");
-    return changeUnverifiedEmail(data, requestOrigin());
+    return changeUnverifiedEmail(data, confirmationBaseUrl());
   });
 
 export const checkConfirmationLink = createServerFn({ method: "POST" })
