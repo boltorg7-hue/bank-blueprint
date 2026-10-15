@@ -37,7 +37,9 @@ jobs:
         run: node --test tests/certification.test.mjs tests/admin-ui-certification.test.mjs
 
       - name: Build application
+        if: always()
         run: npm run build
 
       - name: Run lint
+        if: always()
         run: npm run lint
