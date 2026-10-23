@@ -55,7 +55,7 @@ function ContactPage() {
   const { language } = useLanguage();
   const en = language === "en";
   return (
-    <PublicLayout>
+    <PublicLayout showFooter={false}>
       <PageHero
         eyebrow="Contact"
         title={en ? "How can we help?" : "Parlons de votre demande"}
