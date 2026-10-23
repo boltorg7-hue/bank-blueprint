@@ -29,7 +29,7 @@ export function AuthShell({
   const { language } = useLanguage();
 
   return (
-    <PublicLayout>
+    <PublicLayout showFooter={false}>
       <section className="mx-auto w-full max-w-md px-4 py-10 sm:px-6 sm:py-16">
         <header className="space-y-3">
           <h1 className="text-heading-lg text-foreground">{title}</h1>

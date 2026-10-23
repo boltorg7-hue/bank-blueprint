@@ -914,3 +914,18 @@ test("5.8.9 certifie la modernisation UI/UX 2026 de bout en bout", () => {
   // La certification 5.8.8 globale doit elle-même rester dans la suite.
   assert.match(read("tests/certification.test.mjs"), /5\.8\.8\.8 certifie la cohérence globale/);
 });
+
+test("la référence documentaire respecte exactement le format DOC-AAAA-NNNNNNNN", () => {
+  const source = read("src/domain/documents/types/index.ts");
+  const declaration = source.match(/DOCUMENT_REFERENCE_PATTERN\s*=\s*(\/[^\n]+\/);/);
+  assert.ok(declaration, "la constante DOCUMENT_REFERENCE_PATTERN doit être déclarée avec une regex littérale");
+
+  const pattern = new RegExp(declaration[1].slice(1, -1));
+  assert.equal(pattern.test("DOC-2026-12345678"), true, "accepte une référence valide");
+  assert.equal(pattern.test("DOC-0000-00000000"), true, "accepte les limites de longueur attendues");
+  assert.equal(pattern.test("DOC-26-12345678"), false, "rejette une année à deux chiffres");
+  assert.equal(pattern.test("DOC-2026-1234"), false, "rejette un numéro trop court");
+  assert.equal(pattern.test("DOC-2026-123456789"), false, "rejette un numéro trop long");
+  assert.equal(pattern.test("X-DOC-2026-12345678"), false, "rejette un préfixe supplémentaire");
+});
+
