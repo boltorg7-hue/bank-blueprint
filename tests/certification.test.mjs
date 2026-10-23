@@ -917,7 +917,7 @@ test("5.8.9 certifie la modernisation UI/UX 2026 de bout en bout", () => {
 
 test("la référence documentaire respecte exactement le format DOC-AAAA-NNNNNNNN", () => {
   const source = read("src/domain/documents/types/index.ts");
-  const declaration = source.match(/DOCUMENT_REFERENCE_PATTERN\\s*=\\s*(\\/[^\\n]+\\/);/);
+  const declaration = source.match(/DOCUMENT_REFERENCE_PATTERN\s*=\s*(\/[^\n]+\/);/);
   assert.ok(declaration, "la constante DOCUMENT_REFERENCE_PATTERN doit être déclarée avec une regex littérale");
 
   const pattern = new RegExp(declaration[1].slice(1, -1));
