@@ -22,14 +22,14 @@ import { formatDateTime } from "@/lib/format/date";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/components/providers/LanguageProvider";
 
-const FILTERS: Array<{ id: TransferListFilter; label: string }> = [
-  { id: "ALL", label: "Tous" },
-  { id: "ACTION_REQUIRED", label: "Action requise" },
-  { id: "PENDING", label: "En cours" },
-  { id: "INTERNAL", label: "Notre banque" },
-  { id: "EXTERNAL", label: "Autre banque" },
-  { id: "COMPLETED", label: "Exécutés" },
-  { id: "FAILED", label: "Non aboutis" },
+const FILTERS: Array<{ id: TransferListFilter; label: { fr: string; en: string } }> = [
+  { id: "ALL", label: { fr: "Tous", en: "All" } },
+  { id: "ACTION_REQUIRED", label: { fr: "Action requise", en: "Action required" } },
+  { id: "PENDING", label: { fr: "En cours", en: "Pending" } },
+  { id: "INTERNAL", label: { fr: "Notre banque", en: "Within our bank" } },
+  { id: "EXTERNAL", label: { fr: "Autre banque", en: "Other bank" } },
+  { id: "COMPLETED", label: { fr: "Exécutés", en: "Completed" } },
+  { id: "FAILED", label: { fr: "Non aboutis", en: "Unsuccessful" } },
 ];
 
 function matches(transfer: TransferDto, filter: TransferListFilter): boolean {
@@ -65,8 +65,8 @@ export function TransferList({ action }: { action?: React.ReactNode }) {
   if (transfers.length === 0) {
     return (
       <EmptyState
-        title="Aucun virement"
-        description="Vos virements apparaîtront ici dès votre première opération."
+        title={language === "en" ? "No transfers yet" : "Aucun virement"}
+        description={language === "en" ? "Your transfers will appear here after your first transaction." : "Vos virements apparaîtront ici dès votre première opération."}
         action={action}
       />
     );
@@ -78,7 +78,7 @@ export function TransferList({ action }: { action?: React.ReactNode }) {
     <div className="space-y-4">
       <div
         role="group"
-        aria-label="Filtrer les virements"
+        aria-label={language === "en" ? "Filter transfers" : "Filtrer les virements"}
         className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1"
       >
         {FILTERS.map((item) => {
@@ -96,7 +96,7 @@ export function TransferList({ action }: { action?: React.ReactNode }) {
                   : "border-border text-muted-foreground hover:bg-surface-sunken",
               )}
             >
-              {item.label}
+              {item.label[language === "en" ? "en" : "fr"]}
             </button>
           );
         })}
@@ -104,8 +104,8 @@ export function TransferList({ action }: { action?: React.ReactNode }) {
 
       {visible.length === 0 ? (
         <EmptyState
-          title="Aucun virement pour ce filtre"
-          description="Modifiez le filtre pour retrouver vos autres virements."
+          title={language === "en" ? "No transfers match this filter" : "Aucun virement pour ce filtre"}
+          description={language === "en" ? "Change the filter to find your other transfers." : "Modifiez le filtre pour retrouver vos autres virements."}
         />
       ) : (
         <ul className="space-y-3" role="list">
