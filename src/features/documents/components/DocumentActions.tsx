@@ -12,6 +12,14 @@ import { documentErrorMessage } from "@/features/documents/types/document";
  * Each click asks the server for a new short-lived authorised URL: nothing is
  * cached client-side, and the storage path is never known to the browser.
  */
+function documentErrorMessageEn(code: string): string {
+  if (code.includes("DOCUMENT_NOT_FOUND")) return "Document not found.";
+  if (code.includes("DOCUMENT_NOT_READY")) return "This document is still being prepared.";
+  if (code.includes("DOCUMENT_ACCESS_DENIED")) return "You do not have access to this document.";
+  if (code.includes("DOCUMENT_FILE_UNAVAILABLE")) return "The document file is not available yet.";
+  return "The document could not be opened. Please try again.";
+}
+
 export function DocumentActions({
   reference,
   disabled = false,
@@ -39,7 +47,7 @@ export function DocumentActions({
             toast.info(en ? "Use the print function in the opened PDF viewer." : "Utilisez la fonction d'impression du lecteur PDF ouvert.");
           }
         },
-        onError: (error) => toast.error(documentErrorMessage(error.message)),
+        onError: (error) => toast.error(en ? documentErrorMessageEn(error.message) : documentErrorMessage(error.message)),
       },
     );
   };
