@@ -60,13 +60,27 @@ test("un virement exige et consomme un step-up avant le service privilégié", (
   assert.match(fn, /RECENT_AUTHENTICATION_REQUIRED/);
 });
 
-test("aucun composant ou route n’importe le client Supabase service-role", () => {
+test("les composants et routes n’utilisent le client service-role que dans le cron authentifié", () => {
+  const cronPath = "src/routes/api/public/cron/monthly-statements.ts";
+
   for (const directory of ["src/components", "src/routes"]) {
     const walk = (path) => {
       for (const entry of readdirSync(new URL(`${path}/`, root), { withFileTypes: true })) {
         const child = join(path, entry.name);
         if (entry.isDirectory()) walk(child);
-        else if (/\.(?:ts|tsx)$/.test(entry.name)) assert.doesNotMatch(read(child), /client\.server/, child);
+        else if (/\.(?:ts|tsx)$/.test(entry.name)) {
+          const source = read(child);
+          if (child === cronPath) {
+            assert.match(source, /timingSafeEqual/);
+            assert.match(source, /if \(!authorized\)[\s\S]*?status: 401/);
+            assert.ok(
+              source.indexOf("if (!authorized)") < source.indexOf('import("@/integrations/supabase/client.server")'),
+              "le cron doit authentifier la requête avant de charger le client service-role",
+            );
+          } else {
+            assert.doesNotMatch(source, /client\.server/, child);
+          }
+        }
       }
     };
     walk(directory);
