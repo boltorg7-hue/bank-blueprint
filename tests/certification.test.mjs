@@ -92,14 +92,14 @@ test("les collections admin Customers et Accounts utilisent un curseur serveur s
   const server = read("src/features/admin/services/admin.server.ts");
   const functions = read("src/features/admin/services/admin.functions.ts");
   const hooks = read("src/features/admin/hooks/useAdmin.ts");
-  assert.match(server, /loadAdminCustomers[\\s\\S]*?decodeAdminCursor\\(cursor\\)/);
-  assert.match(server, /loadAdminAccounts[\\s\\S]*?decodeAdminCursor\\(cursor\\)/);
-  assert.doesNotMatch(server, /loadAdminCustomers[\\s\\S]*?\\.range\\(/);
-  assert.doesNotMatch(server, /loadAdminAccounts[\\s\\S]*?\\.limit\\(100\\)/);
-  assert.match(functions, /listAdminCustomers[\\s\\S]*?data\\.cursor/);
-  assert.match(functions, /listAdminAccounts[\\s\\S]*?data\\.cursor/);
-  assert.match(hooks, /useAdminCustomers\\(search: string, cursor/);
-  assert.match(hooks, /useAdminAccounts\\(search = \\"\\", cursor/);
+  assert.match(server, /loadAdminCustomers[\s\S]*?decodeAdminCursor\(cursor\)/);
+  assert.match(server, /loadAdminAccounts[\s\S]*?decodeAdminCursor\(cursor\)/);
+  assert.doesNotMatch(server, /loadAdminCustomers[\s\S]*?\.range\(/);
+  assert.doesNotMatch(server, /loadAdminAccounts[\s\S]*?\.limit\(100\)/);
+  assert.match(functions, /listAdminCustomers[\s\S]*?data\.cursor/);
+  assert.match(functions, /listAdminAccounts[\s\S]*?data\.cursor/);
+  assert.match(hooks, /useAdminCustomers\(search: string, cursor/);
+  assert.match(hooks, /useAdminAccounts\(search = "", cursor/);
 });
 
 
