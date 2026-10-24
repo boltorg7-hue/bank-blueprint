@@ -926,11 +926,11 @@ test("PR 54 — les erreurs de formulaire et la navigation client sont accessibl
   assert.match(form, /role="alert"/);
   assert.doesNotMatch(form, /aria-live="polite"/);
   assert.match(form, /aria-describedby=/);
-  assert.match(form, /aria-invalid=\\{!!error\\}/);
+  assert.match(form, /aria-invalid=\{!!error\}/);
   assert.match(customerSidebar, /min-h-11/);
   assert.match(customerSidebar, /focus-visible:ring-2 focus-visible:ring-ring/);
   assert.match(adminSidebar, /focus-visible:ring-2 focus-visible:ring-ring/);
   assert.match(button, /role="status" aria-live="polite"/);
-  assert.match(button, /aria-busy=\\{loading \\|\\| undefined\\}/);
+  assert.match(button, /aria-busy=\{loading \|\| undefined\}/);
   assert.match(select, /focus-visible:ring-2 focus-visible:ring-ring/);
 });
