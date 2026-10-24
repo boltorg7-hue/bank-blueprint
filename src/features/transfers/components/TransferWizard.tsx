@@ -110,10 +110,6 @@ export function TransferWizard({ initialBeneficiary }: { initialBeneficiary?: st
   const confirmLock = useRef(false);
   const idempotencyKeyRef = useRef<string | null>(null);
 
-  useEffect(() => {
-    idempotencyKeyRef.current = null;
-  }, [source?.reference, beneficiary?.reference, amountMinor, note]);
-
   const accounts = useMemo(
     () => (accountsQuery.data ?? []).filter((account) => account.status === "ACTIVE"),
     [accountsQuery.data],
@@ -134,6 +130,11 @@ export function TransferWizard({ initialBeneficiary }: { initialBeneficiary?: st
   const enteredMinor = toMinorUnits(amountRaw, unit === "USDT" ? USDT_MINOR_UNIT : minorUnit);
   /** Amount actually debited: the account is always held in USD. */
   const amountMinor = enteredMinor === null ? null : quoteToSettlementMinor(enteredMinor, unit);
+
+  useEffect(() => {
+    idempotencyKeyRef.current = null;
+  }, [source?.reference, beneficiary?.reference, amountMinor, note]);
+
   /** Mirror figure shown live in the other unit, with no action from the user. */
   const mirrorLabel =
     amountMinor === null
