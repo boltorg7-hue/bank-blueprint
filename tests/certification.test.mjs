@@ -922,7 +922,7 @@ test("PR 54 — les erreurs de formulaire et la navigation client sont accessibl
   const adminSidebar = read("src/components/navigation/AdminSidebar.tsx");
 
   assert.match(form, /role="alert"/);
-  assert.match(form, /aria-live="polite"/);
+  assert.doesNotMatch(form, /aria-live="polite"/);
   assert.match(form, /aria-describedby=/);
   assert.match(form, /aria-invalid=\{!!error\}/);
   assert.match(customerSidebar, /min-h-11/);
