@@ -100,11 +100,7 @@ test("aucun composant ou route n’importe le client Supabase service-role", () 
         if (child === "scripts/audit-migration-functions.mjs") continue;
         if (entry.isDirectory()) walk(child);
         else if (/\.(?:ts|tsx)$/.test(entry.name)) {
-          assert.doesNotMatch(
-            read(child),
-            /from\s+["'][^"']*client\.server["']/,
-            child,
-          );
+          assert.doesNotMatch(read(child), /from\s+["'][^"']*client\.server["']/, child);
         }
       }
     };
