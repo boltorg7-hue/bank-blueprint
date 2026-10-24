@@ -226,7 +226,7 @@ test("les policies sensibles ne peuvent pas ouvrir une surface anon/public et le
   const sql = read("supabase/tests/full_security_certification.sql");
   assert.match(sql, /SENSITIVE_POLICY_EXPOSES_ANON_OR_PUBLIC/);
   assert.match(sql, /AUTHENTICATED_POLICY_NOT_SCOPED/);
-  assert.match(sql, /auth\.uid/);
+  assert.ok(sql.includes(String.raw`auth\\.uid`));
   assert.match(sql, /has_permission/);
   assert.match(sql, /is_staff/);
 });
