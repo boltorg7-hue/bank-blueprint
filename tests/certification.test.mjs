@@ -92,14 +92,14 @@ test("les collections admin Customers et Accounts utilisent un curseur serveur s
   const server = read("src/features/admin/services/admin.server.ts");
   const functions = read("src/features/admin/services/admin.functions.ts");
   const hooks = read("src/features/admin/hooks/useAdmin.ts");
-  assert.match(server, /loadAdminCustomers[\\s\\S]*?decodeAdminCursor\\(cursor\\)/);
-  assert.match(server, /loadAdminAccounts[\\s\\S]*?decodeAdminCursor\\(cursor\\)/);
-  assert.doesNotMatch(server, /loadAdminCustomers[\\s\\S]*?\\.range\\(/);
-  assert.doesNotMatch(server, /loadAdminAccounts[\\s\\S]*?\\.limit\\(100\\)/);
-  assert.match(functions, /listAdminCustomers[\\s\\S]*?data\\.cursor/);
-  assert.match(functions, /listAdminAccounts[\\s\\S]*?data\\.cursor/);
-  assert.match(hooks, /useAdminCustomers\\(search: string, cursor/);
-  assert.match(hooks, /useAdminAccounts\\(search = \\"\\", cursor/);
+  assert.match(server, /loadAdminCustomers[\s\S]*?decodeAdminCursor\(cursor\)/);
+  assert.match(server, /loadAdminAccounts[\s\S]*?decodeAdminCursor\(cursor\)/);
+  assert.doesNotMatch(server, /loadAdminCustomers[\s\S]*?\.range\(/);
+  assert.doesNotMatch(server, /loadAdminAccounts[\s\S]*?\.limit\(100\)/);
+  assert.match(functions, /listAdminCustomers[\s\S]*?data\.cursor/);
+  assert.match(functions, /listAdminAccounts[\s\S]*?data\.cursor/);
+  assert.match(hooks, /useAdminCustomers\(search: string, cursor/);
+  assert.match(hooks, /useAdminAccounts\(search = "", cursor/);
 });
 
 
@@ -726,11 +726,11 @@ test("5.8.8.6 renforce la responsivité des overlays sur petits écrans", () => 
   const sheet = read("src/components/ui/sheet.tsx");
   const banking = read("src/components/layout/BankingAppLayout.tsx");
   const admin = read("src/components/layout/AdminLayout.tsx");
-  assert.match(dialog, /w-\\[calc\\(100vw-2rem\\)\\]/);
-  assert.match(dialog, /max-h-\\[calc\\(100dvh-2rem\\)\\]/);
+  assert.match(dialog, /w-\[calc\(100vw-2rem\)\]/);
+  assert.match(dialog, /max-h-\[calc\(100dvh-2rem\)\]/);
   assert.match(dialog, /overflow-y-auto/);
   assert.match(sheet, /max-w-full overflow-y-auto overscroll-contain/);
-  assert.match(sheet, /bottom:.*max-h-\\\[92dvh\\\]/s);
+  assert.match(sheet, /bottom:.*max-h-\[92dvh\]/s);
   assert.match(banking, /min-w-0 flex-1 overscroll-x-none/);
   assert.match(admin, /min-w-0 flex-1 overscroll-x-none/);
 });
