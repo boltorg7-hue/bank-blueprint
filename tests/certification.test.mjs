@@ -132,7 +132,7 @@ test("les collections admin Customers et Accounts utilisent un curseur serveur s
   assert.match(hooks, /useAdminCustomers\(search: string, cursor/);
   assert.match(
     hooks,
-    /useAdminAccounts\\(search = "", cursor/,
+    /useAdminAccounts\(search = "", cursor/,
   );
 });
 
