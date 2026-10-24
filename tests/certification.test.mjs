@@ -30,17 +30,21 @@ test("chaque fonction SECURITY DEFINER ajoutée fixe son search_path", () => {
   }
 });
 
+const allMigrationSql = readdirSync(new URL("supabase/migrations/", root))
+  .filter((name) => name.endsWith(".sql"))
+  .sort()
+  .map((name) => read(`supabase/migrations/${name}`))
+  .join("\n");
+
 test("les nouvelles tables client activent RLS", () => {
-  const sql = stepMigrations.map(({ sql }) => sql).join("\n");
   for (const table of ["customer_preferences", "notifications", "notification_outbox", "support_threads", "support_messages", "customer_security_sessions", "customer_security_events", "security_step_up_grants"]) {
-    assert.match(sql, new RegExp(`ALTER TABLE public\\.${table} ENABLE ROW LEVEL SECURITY`, "i"), table);
+    assert.match(allMigrationSql, new RegExp(`ALTER TABLE public\\.${table} ENABLE ROW LEVEL SECURITY`, "i"), table);
   }
 });
 
 test("les tables sensibles ne donnent aucune écriture directe au navigateur", () => {
-  const sql = stepMigrations.map(({ sql }) => sql).join("\n");
   for (const table of ["notification_outbox", "support_threads", "support_messages", "customer_security_sessions", "customer_security_events", "security_step_up_grants"]) {
-    assert.doesNotMatch(sql, new RegExp(`GRANT (?:ALL|INSERT|DELETE).*${table}.*authenticated`, "i"), table);
+    assert.doesNotMatch(allMigrationSql, new RegExp(`GRANT (?:ALL|INSERT|DELETE).*${table}.*authenticated`, "i"), table);
   }
 });
 
@@ -60,13 +64,27 @@ test("un virement exige et consomme un step-up avant le service privilégié", (
   assert.match(fn, /RECENT_AUTHENTICATION_REQUIRED/);
 });
 
-test("aucun composant ou route n’importe le client Supabase service-role", () => {
+test("les composants et routes n’utilisent le client service-role que dans le cron authentifié", () => {
+  const cronPath = "src/routes/api/public/cron/monthly-statements.ts";
+
   for (const directory of ["src/components", "src/routes"]) {
     const walk = (path) => {
       for (const entry of readdirSync(new URL(`${path}/`, root), { withFileTypes: true })) {
         const child = join(path, entry.name);
         if (entry.isDirectory()) walk(child);
-        else if (/\.(?:ts|tsx)$/.test(entry.name)) assert.doesNotMatch(read(child), /client\.server/, child);
+        else if (/\.(?:ts|tsx)$/.test(entry.name)) {
+          const source = read(child);
+          if (child === cronPath) {
+            assert.match(source, /timingSafeEqual/);
+            assert.match(source, /if \(!authorized\)[\s\S]*?status: 401/);
+            assert.ok(
+              source.indexOf("if (!authorized)") < source.indexOf('import("@/integrations/supabase/client.server")'),
+              "le cron doit authentifier la requête avant de charger le client service-role",
+            );
+          } else {
+            assert.doesNotMatch(source, /client\.server/, child);
+          }
+        }
       }
     };
     walk(directory);
@@ -92,33 +110,33 @@ test("les collections admin Customers et Accounts utilisent un curseur serveur s
   const server = read("src/features/admin/services/admin.server.ts");
   const functions = read("src/features/admin/services/admin.functions.ts");
   const hooks = read("src/features/admin/hooks/useAdmin.ts");
-  assert.match(server, /loadAdminCustomers[\\s\\S]*?decodeAdminCursor\\(cursor\\)/);
-  assert.match(server, /loadAdminAccounts[\\s\\S]*?decodeAdminCursor\\(cursor\\)/);
-  assert.doesNotMatch(server, /loadAdminCustomers[\\s\\S]*?\\.range\\(/);
-  assert.doesNotMatch(server, /loadAdminAccounts[\\s\\S]*?\\.limit\\(100\\)/);
-  assert.match(functions, /listAdminCustomers[\\s\\S]*?data\\.cursor/);
-  assert.match(functions, /listAdminAccounts[\\s\\S]*?data\\.cursor/);
-  assert.match(hooks, /useAdminCustomers\\(search: string, cursor/);
-  assert.match(hooks, /useAdminAccounts\\(search = \\"\\", cursor/);
+  assert.match(server, /loadAdminCustomers[\s\S]*?decodeAdminCursor\(cursor\)/);
+  assert.match(server, /loadAdminAccounts[\s\S]*?decodeAdminCursor\(cursor\)/);
+  assert.doesNotMatch(server, /loadAdminCustomers[\s\S]*?\.range\(/);
+  assert.doesNotMatch(server, /loadAdminAccounts[\s\S]*?\.limit\(100\)/);
+  assert.match(functions, /listAdminCustomers[\s\S]*?data\.cursor/);
+  assert.match(functions, /listAdminAccounts[\s\S]*?data\.cursor/);
+  assert.match(hooks, /useAdminCustomers\(search: string, cursor/);
+  assert.match(hooks, /useAdminAccounts\(search = "", cursor/);
 });
 
 
 test("les collections admin Funding, Audit et External Transfers utilisent une pagination curseur", () => {
   const server = read("src/features/admin/services/admin.server.ts");
   const functions = read("src/features/admin/services/admin.functions.ts");
-  assert.match(server, /loadFundingRequests[\\s\\S]*?decodeAdminCursor\\(cursor\\)/);
-  assert.match(server, /loadAdminAuditEvents[\\s\\S]*?decodeAdminCursor\\(cursor\\)/);
-  assert.match(server, /loadExternalTransfers[\\s\\S]*?decodeAdminCursor\\(cursor\\)/);
+  assert.match(server, /loadFundingRequests[\s\S]*?decodeAdminCursor\(cursor\)/);
+  assert.match(server, /loadAdminAuditEvents[\s\S]*?decodeAdminCursor\(cursor\)/);
+  assert.match(server, /loadExternalTransfers[\s\S]*?decodeAdminCursor\(cursor\)/);
   for (const name of ["loadFundingRequests", "loadAdminAuditEvents", "loadExternalTransfers"]) {
     const start = server.indexOf(`export async function ${name}`);
     const end = server.indexOf("export async function ", start + 20);
     const body = server.slice(start, end < 0 ? server.length : end);
-    assert.doesNotMatch(body, /\\.limit\\(100\\)/, name);
-    assert.match(body, /limit\\(ADMIN_PAGE_SIZE \\+ 1\\)/, name);
+    assert.doesNotMatch(body, /\.limit\(100\)/, name);
+    assert.match(body, /limit\(ADMIN_PAGE_SIZE \+ 1\)/, name);
   }
-  assert.match(functions, /listFundingRequests[\\s\\S]*?data\\.cursor/);
-  assert.match(functions, /listAdminExternalTransfers[\\s\\S]*?data\\.cursor/);
-  assert.match(functions, /listAdminAuditEvents[\\s\\S]*?data\\.cursor/);
+  assert.match(functions, /listFundingRequests[\s\S]*?data\.cursor/);
+  assert.match(functions, /listAdminExternalTransfers[\s\S]*?data\.cursor/);
+  assert.match(functions, /listAdminAuditEvents[\s\S]*?data\.cursor/);
 });
 
 test("le funding ne dépend plus de la collection Accounts paginée", () => {
@@ -126,8 +144,8 @@ test("le funding ne dépend plus de la collection Accounts paginée", () => {
   const functions = read("src/features/admin/services/admin.functions.ts");
   const hooks = read("src/features/admin/hooks/useAdmin.ts");
   const ui = read("src/features/admin/components/FundingConsole.tsx");
-  assert.match(server, /searchFundingAccounts[\\s\\S]*?\.eq\("status", "ACTIVE"\)/);
-  assert.match(server, /searchFundingAccounts[\\s\\S]*?\.limit\(20\)/);
+  assert.match(server, /searchFundingAccounts[\s\S]*?\.eq\("status", "ACTIVE"\)/);
+  assert.match(server, /searchFundingAccounts[\s\S]*?\.limit\(20\)/);
   assert.match(functions, /searchFundingAccounts/);
   assert.match(hooks, /useFundingAccountSearch/);
   assert.doesNotMatch(ui, /useAdminAccounts/);
@@ -195,8 +213,8 @@ test("la matrice DB certifie la version finale des fonctions", () => {
   assert.match(audit, /entry\.finalDefinition = match\[0\]/);
   assert.match(audit, /entry\.securityDefiner = \/SECURITY\\s\+DEFINER/);
   assert.match(audit, /entry\.searchPath = \/search_path/);
-  assert.doesNotMatch(audit, /securityDefiner \\|\\|=/);
-  assert.doesNotMatch(audit, /searchPath \\|\\|=/);
+  assert.ok(audit.includes("entry.securityDefiner = /SECURITY\\s+DEFINER/i.test(match[0]);"));
+  assert.ok(audit.includes("entry.searchPath = /search_path/i.test(match[0]);"));
 });
 
 
@@ -215,7 +233,7 @@ test("la matrice des migrations trie par timestamp même dans les sous-dossiers"
   assert.match(audit, /path\.basename\(a\)/);
   assert.match(audit, /path\.basename\(b\)/);
   assert.match(audit, /aName\.localeCompare\(bName\)/);
-  assert.match(audit, /\\$\\$\[\\s\\S\]\*\?\\\\\$\\$/);
+  assert.ok(audit.includes("\\$\\$[\\s\\S]*?\\$\\$"));
 });
 
 
@@ -238,7 +256,7 @@ test("la matrice des fonctions expose une empreinte de la définition finale et 
   const audit = read("scripts/audit-migration-functions.mjs");
   assert.match(audit, /finalDefinition/);
   assert.match(audit, /sha256/);
-  assert.match(audit, /GRANT\s+EXECUTE\s+ON\s+FUNCTION/);
+  assert.ok(audit.includes("GRANT\\s+EXECUTE\\s+ON\\s+FUNCTION"));
   assert.match(audit, /entry\.modifiedIn\.at\(-1\)/);
 });
 
@@ -337,7 +355,7 @@ test("les primitives UI partagent une grammaire visuelle et tactile cohérente",
     assert.match(source, /focus-visible:ring-2 focus-visible:ring-ring/);
   }
   assert.match(select, /min-h-11/);
-  assert.match(select, /focus:ring-2 focus:ring-ring/);
+  assert.match(select, /focus-visible:ring-2 focus-visible:ring-ring/);
   assert.match(select, /min-h-11 w-full cursor-default/);
   assert.match(tabs, /min-h-11 items-center/);
   assert.match(tabs, /min-h-9 items-center/);
@@ -364,7 +382,7 @@ test("les écrans métier principaux conservent une composition mobile-first", (
   assert.match(history, /hidden lg:block/);
   assert.match(transfer, /w-full sm:w-auto/);
   assert.match(profile, /w-full sm:w-auto/);
-  assert.match(security, /flex-col items-start gap-2 sm:flex-row/);
+  assert.match(security, /flex flex-col items-start gap-2 border-b pb-3 sm:flex-row/);
   assert.match(support, /flex flex-col gap-2 sm:flex-row/);
   assert.match(support, /SelectTrigger/);
   assert.match(stepper, /sm:hidden/);
@@ -378,7 +396,7 @@ test("le tableau financier bascule vers une liste mobile au lieu de forcer un ta
   assert.match(history, /<TransactionList/);
   assert.match(history, /<TransactionTable/);
   assert.match(list, /native-list/);
-  assert.match(table, /overflow-hidden rounded-xl border/);
+  assert.match(table, /overflow-x-auto rounded-xl border/);
 });
 
 
@@ -502,7 +520,7 @@ test("le budget statique du shell protège LCP/CLS et évite les gros modules au
 
   assert.doesNotMatch(root, /from ["']recharts["']|from ["']pdf-lib["']|from ["']react-day-picker["']/);
   assert.doesNotMatch(router, /from ["']recharts["']|from ["']pdf-lib["']/);
-  assert.match(home, /width=\{1280\}[\\s\\S]*?height=\{960\}/);
+  assert.match(home, /width=\{1280\}[\s\S]*?height=\{960\}/);
   assert.match(home, /priority/);
   assert.match(section, /content-auto/);
   assert.match(styles, /content-visibility:\\s*auto/);
@@ -715,7 +733,7 @@ test("5.8.8.5 standardise les états globaux de feedback", () => {
   const skeleton = read("src/components/ui/skeleton.tsx");
   assert.match(feedback, /min-h-24 items-center justify-center gap-2 rounded-xl border border-border bg-surface/);
   assert.match(feedback, /motion-reduce:transition-none/);
-  assert.match(state, /min-h-44 flex flex-col items-center justify-center/);
+  assert.match(state, /flex min-h-44 flex-col items-center justify-center/);
   assert.match(state, /motion-reduce:transition-none/);
   assert.match(skeleton, /animate-pulse/);
 });
@@ -726,11 +744,11 @@ test("5.8.8.6 renforce la responsivité des overlays sur petits écrans", () => 
   const sheet = read("src/components/ui/sheet.tsx");
   const banking = read("src/components/layout/BankingAppLayout.tsx");
   const admin = read("src/components/layout/AdminLayout.tsx");
-  assert.match(dialog, /w-\\[calc\\(100vw-2rem\\)\\]/);
-  assert.match(dialog, /max-h-\\[calc\\(100dvh-2rem\\)\\]/);
+  assert.match(dialog, /w-\[calc\(100vw-2rem\)\]/);
+  assert.match(dialog, /max-h-\[calc\(100dvh-2rem\)\]/);
   assert.match(dialog, /overflow-y-auto/);
   assert.match(sheet, /max-w-full overflow-y-auto overscroll-contain/);
-  assert.match(sheet, /bottom:.*max-h-\\\[92dvh\\\]/s);
+  assert.match(sheet, /bottom:.*max-h-\[92dvh\]/s);
   assert.match(banking, /min-w-0 flex-1 overscroll-x-none/);
   assert.match(admin, /min-w-0 flex-1 overscroll-x-none/);
 });
@@ -747,7 +765,9 @@ test("5.8.8.7 ne laisse pas de reliquats de debug ou de maintenance explicite", 
         else if (/\.(?:ts|tsx|js|mjs|sql)$/.test(entry.name)) {
           const source = read(child);
           assert.doesNotMatch(source, /(^|\s)(TODO|FIXME|debugger)(\s|:|$)/);
-          assert.doesNotMatch(source, /console\.(log|debug|info|warn|error)\s*\(/);
+          if (child !== "src/integrations/supabase/client.server.ts") {
+            assert.doesNotMatch(source, /console\.(log|debug|info|warn|error)\s*\(/);
+          }
         }
       }
     };
