@@ -40,7 +40,7 @@ function AppTransfersIndexRoute() {
     <Button asChild>
       <Link to="/app/transfers/new">
         <Plus className="size-4" aria-hidden="true" />
-        Nouveau virement
+        {en ? "New transfer" : "Nouveau virement"}
       </Link>
     </Button>
   );
@@ -66,8 +66,7 @@ function AppTransfersIndexRoute() {
       />
       {allowed ? (
         <PageSection>
-          
-        <TransferList action={newTransferButton} />
+          <TransferList action={newTransferButton} />
         </PageSection>
       ) : (
         <PermissionDeniedState description={blockedReason ?? undefined} />

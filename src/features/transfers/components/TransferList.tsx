@@ -22,14 +22,14 @@ import { formatDateTime } from "@/lib/format/date";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/components/providers/LanguageProvider";
 
-const FILTERS: Array<{ id: TransferListFilter; label: string }> = [
-  { id: "ALL", label: "Tous" },
-  { id: "ACTION_REQUIRED", label: "Action requise" },
-  { id: "PENDING", label: "En cours" },
-  { id: "INTERNAL", label: "Notre banque" },
-  { id: "EXTERNAL", label: "Autre banque" },
-  { id: "COMPLETED", label: "Exécutés" },
-  { id: "FAILED", label: "Non aboutis" },
+const FILTERS: Array<{ id: TransferListFilter; label: { fr: string; en: string } }> = [
+  { id: "ALL", label: { fr: "Tous", en: "All" } },
+  { id: "ACTION_REQUIRED", label: { fr: "Action requise", en: "Action required" } },
+  { id: "PENDING", label: { fr: "En cours", en: "Pending" } },
+  { id: "INTERNAL", label: { fr: "Notre banque", en: "Within our bank" } },
+  { id: "EXTERNAL", label: { fr: "Autre banque", en: "Other bank" } },
+  { id: "COMPLETED", label: { fr: "Exécutés", en: "Completed" } },
+  { id: "FAILED", label: { fr: "Non aboutis", en: "Unsuccessful" } },
 ];
 
 function matches(transfer: TransferDto, filter: TransferListFilter): boolean {
@@ -54,6 +54,7 @@ function matches(transfer: TransferDto, filter: TransferListFilter): boolean {
 /** Transfer list, most recent first (§76 – §79 ; PROMPT 08 §77 – §80). */
 export function TransferList({ action }: { action?: React.ReactNode }) {
   const { language } = useLanguage();
+  const en = language === "en";
   const { data, isPending, isError, refetch } = useTransfers();
   const [filter, setFilter] = useState<TransferListFilter>("ALL");
 
@@ -65,8 +66,12 @@ export function TransferList({ action }: { action?: React.ReactNode }) {
   if (transfers.length === 0) {
     return (
       <EmptyState
-        title="Aucun virement"
-        description="Vos virements apparaîtront ici dès votre première opération."
+        title={en ? "No transfers yet" : "Aucun virement"}
+        description={
+          en
+            ? "Your transfers will appear here after your first transaction."
+            : "Vos virements apparaîtront ici dès votre première opération."
+        }
         action={action}
       />
     );
@@ -78,7 +83,7 @@ export function TransferList({ action }: { action?: React.ReactNode }) {
     <div className="space-y-4">
       <div
         role="group"
-        aria-label="Filtrer les virements"
+        aria-label={en ? "Filter transfers" : "Filtrer les virements"}
         className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1"
       >
         {FILTERS.map((item) => {
@@ -96,7 +101,7 @@ export function TransferList({ action }: { action?: React.ReactNode }) {
                   : "border-border text-muted-foreground hover:bg-surface-sunken",
               )}
             >
-              {item.label}
+              {item.label[en ? "en" : "fr"]}
             </button>
           );
         })}
@@ -104,8 +109,12 @@ export function TransferList({ action }: { action?: React.ReactNode }) {
 
       {visible.length === 0 ? (
         <EmptyState
-          title="Aucun virement pour ce filtre"
-          description="Modifiez le filtre pour retrouver vos autres virements."
+          title={en ? "No transfers match this filter" : "Aucun virement pour ce filtre"}
+          description={
+            en
+              ? "Change the filter to find your other transfers."
+              : "Modifiez le filtre pour retrouver vos autres virements."
+          }
         />
       ) : (
         <ul className="space-y-3" role="list">
@@ -132,11 +141,11 @@ export function TransferList({ action }: { action?: React.ReactNode }) {
                       </p>
                       <p className="text-caption truncate text-muted-foreground">
                         {formatDateTime(transfer.createdAt)} ·{" "}
-                        {transferKindShortLabel(transfer.kind, language === "en" ? "en" : "fr")}
+                        {transferKindShortLabel(transfer.kind, en ? "en" : "fr")}
                       </p>
                       <div className="mt-1 flex flex-wrap items-center gap-2">
                         <StatusBadge
-                          label={transferStatusLabel(transfer.status, language === "en" ? "en" : "fr")}
+                          label={transferStatusLabel(transfer.status, en ? "en" : "fr")}
                           tone={transferStatusTone(transfer.status)}
                         />
                         {!TERMINAL_TRANSFER_STATUSES.includes(transfer.status) ? (
