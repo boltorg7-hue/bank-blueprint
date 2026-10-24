@@ -226,3 +226,9 @@ REVOKE ALL ON FUNCTION public.review_transfer_document(uuid, uuid, boolean, text
 
 REVOKE ALL ON FUNCTION public.decide_transfer_compliance(uuid, text, text, text)
   FROM PUBLIC, anon, authenticated;
+
+GRANT EXECUTE ON FUNCTION public.review_transfer_document(uuid, uuid, boolean, text)
+  TO service_role;
+
+GRANT EXECUTE ON FUNCTION public.decide_transfer_compliance(uuid, text, text, text)
+  TO service_role;
