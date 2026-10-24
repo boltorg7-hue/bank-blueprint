@@ -57,7 +57,7 @@ function DesignSystemPage() {
   const [confirmOpen, setConfirmOpen] = useState(false);
 
   return (
-    <PublicLayout>
+    <PublicLayout showFooter={false}>
       <div className="mx-auto w-full max-w-5xl px-4 py-8 sm:px-6">
         <header className="flex flex-wrap items-center justify-between gap-3">
           <div>
