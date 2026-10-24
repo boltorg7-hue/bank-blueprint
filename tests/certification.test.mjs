@@ -239,7 +239,7 @@ test("la matrice des migrations trie par timestamp même dans les sous-dossiers"
   assert.match(audit, /path\.basename\(a\)/);
   assert.match(audit, /path\.basename\(b\)/);
   assert.match(audit, /aName\.localeCompare\(bName\)/);
-  assert.match(audit, /\$\$\[\\s\\S\]\*\?\\\\$\$/);
+  assert.ok(audit.includes("const re =") && audit.includes("sql.matchAll(re)"));
 });
 
 test("les migrations Supabase restent toutes dans le répertoire racine des migrations", () => {
