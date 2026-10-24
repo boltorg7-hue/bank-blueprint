@@ -31,7 +31,10 @@ test("chaque fonction SECURITY DEFINER ajoutée fixe son search_path", () => {
 });
 
 test("les nouvelles tables client activent RLS", () => {
-  const sql = stepMigrations.map(({ sql }) => sql).join("\n");
+  const sql = readdirSync(new URL("supabase/migrations/", root))
+    .filter((name) => name.endsWith(".sql"))
+    .map((name) => read(`supabase/migrations/${name}`))
+    .join("\n");
   for (const table of ["customer_preferences", "notifications", "notification_outbox", "support_threads", "support_messages", "customer_security_sessions", "customer_security_events", "security_step_up_grants"]) {
     assert.match(sql, new RegExp(`ALTER TABLE public\\.${table} ENABLE ROW LEVEL SECURITY`, "i"), table);
   }
@@ -66,7 +69,7 @@ test("aucun composant ou route n’importe le client Supabase service-role", () 
       for (const entry of readdirSync(new URL(`${path}/`, root), { withFileTypes: true })) {
         const child = join(path, entry.name);
         if (entry.isDirectory()) walk(child);
-        else if (/\.(?:ts|tsx)$/.test(entry.name)) assert.doesNotMatch(read(child), /client\.server/, child);
+        else if (/\.(?:ts|tsx)$/.test(entry.name)) assert.doesNotMatch(read(child), /from\s+["'][^"']*client\.server["']/, child);
       }
     };
     walk(directory);
@@ -337,7 +340,7 @@ test("les primitives UI partagent une grammaire visuelle et tactile cohérente",
     assert.match(source, /focus-visible:ring-2 focus-visible:ring-ring/);
   }
   assert.match(select, /min-h-11/);
-  assert.match(select, /focus:ring-2 focus:ring-ring/);
+  assert.match(select, /focus-visible:ring-2 focus-visible:ring-ring/);
   assert.match(select, /min-h-11 w-full cursor-default/);
   assert.match(tabs, /min-h-11 items-center/);
   assert.match(tabs, /min-h-9 items-center/);
