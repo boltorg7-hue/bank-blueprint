@@ -195,8 +195,8 @@ test("la matrice DB certifie la version finale des fonctions", () => {
   assert.match(audit, /entry\.finalDefinition = match\[0\]/);
   assert.match(audit, /entry\.securityDefiner = \/SECURITY\\s\+DEFINER/);
   assert.match(audit, /entry\.searchPath = \/search_path/);
-  assert.doesNotMatch(audit, /securityDefiner \\|\\|=/);
-  assert.doesNotMatch(audit, /searchPath \\|\\|=/);
+  assert.doesNotMatch(audit, /securityDefiner \|\|=/);
+  assert.doesNotMatch(audit, /searchPath \|\|=/);
 });
 
 
@@ -204,7 +204,7 @@ test("les policies sensibles ne peuvent pas ouvrir une surface anon/public et le
   const sql = read("supabase/tests/full_security_certification.sql");
   assert.match(sql, /SENSITIVE_POLICY_EXPOSES_ANON_OR_PUBLIC/);
   assert.match(sql, /AUTHENTICATED_POLICY_NOT_SCOPED/);
-  assert.match(sql, /auth\\\\\.uid/);
+  assert.match(sql, /auth\\\\.uid/);
   assert.match(sql, /has_permission/);
   assert.match(sql, /is_staff/);
 });
@@ -215,7 +215,7 @@ test("la matrice des migrations trie par timestamp même dans les sous-dossiers"
   assert.match(audit, /path\.basename\(a\)/);
   assert.match(audit, /path\.basename\(b\)/);
   assert.match(audit, /aName\.localeCompare\(bName\)/);
-  assert.match(audit, /\\$\\$\[\\s\\S\]\*\?\\\\\$\\$/);
+  assert.match(audit, /\$\$\[\\s\\S\]\*\?\\\\$\$/);
 });
 
 
@@ -699,7 +699,7 @@ test("5.8.8.4 aligne les surfaces et la motion de la console administrative", ()
   const funding = read("src/routes/admin.funding.tsx");
   const onboarding = read("src/routes/admin.onboarding-cases.tsx");
 
-  assert.match(table, /motion-safe:transition-\\[background-color,border-color\\]/);
+  assert.match(table, /motion-safe:transition-\[background-color,border-color\]/);
   assert.match(table, /motion-reduce:transition-none/);
   assert.match(sidebar, /text-overline text-muted-foreground/);
   assert.match(layout, /text-caption font-medium/);
@@ -730,7 +730,7 @@ test("5.8.8.6 renforce la responsivité des overlays sur petits écrans", () => 
   assert.match(dialog, /max-h-\[calc\(100dvh-2rem\)\]/);
   assert.match(dialog, /overflow-y-auto/);
   assert.match(sheet, /max-w-full overflow-y-auto overscroll-contain/);
-  assert.match(sheet, /bottom:.*max-h-\\\[92dvh\\\]/s);
+  assert.match(sheet, /bottom:.*max-h-\\[92dvh\\]/s);
   assert.match(banking, /min-w-0 flex-1 overscroll-x-none/);
   assert.match(admin, /min-w-0 flex-1 overscroll-x-none/);
 });
