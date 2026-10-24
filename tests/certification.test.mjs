@@ -603,7 +603,7 @@ test("les cinq dépendances lourdes restent documentées comme modules ciblés d
   ]) {
     assert.match(
       packageJson,
-      new RegExp('"' + dependency.replace(/[.*+?^$()|[\\]\\\\]/g, "\\\\$&") + '"\\\\s*:'),
+      new RegExp('"' + dependency + '"\\s*:'),
     );
   }
 });
