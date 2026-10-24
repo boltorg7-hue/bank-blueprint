@@ -33,7 +33,7 @@ test("chaque fonction SECURITY DEFINER ajoutée fixe son search_path", () => {
 test("les nouvelles tables client activent RLS", () => {
   const sql = stepMigrations.map(({ sql }) => sql).join("\n");
   for (const table of ["customer_preferences", "notifications", "notification_outbox", "support_threads", "support_messages", "customer_security_sessions", "customer_security_events", "security_step_up_grants"]) {
-    assert.match(sql, new RegExp(`ALTER TABLE public\\.${table} ENABLE ROW LEVEL SECURITY`, "i"), table);
+    assert.match(sql, new RegExp(`ALTER TABLE public\.${table} ENABLE ROW LEVEL SECURITY`, "i"), table);
   }
 });
 
@@ -92,33 +92,33 @@ test("les collections admin Customers et Accounts utilisent un curseur serveur s
   const server = read("src/features/admin/services/admin.server.ts");
   const functions = read("src/features/admin/services/admin.functions.ts");
   const hooks = read("src/features/admin/hooks/useAdmin.ts");
-  assert.match(server, /loadAdminCustomers[\\s\\S]*?decodeAdminCursor\\(cursor\\)/);
-  assert.match(server, /loadAdminAccounts[\\s\\S]*?decodeAdminCursor\\(cursor\\)/);
+  assert.match(server, /loadAdminCustomers[\s\S]*?decodeAdminCursor\(cursor\)/);
+  assert.match(server, /loadAdminAccounts[\s\S]*?decodeAdminCursor\(cursor\)/);
   assert.doesNotMatch(server, /loadAdminCustomers[\s\S]*?\.range\(/);
   assert.doesNotMatch(server, /loadAdminAccounts[\s\S]*?\.limit\(100\)/);
-  assert.match(functions, /listAdminCustomers[\\s\\S]*?data\\.cursor/);
-  assert.match(functions, /listAdminAccounts[\\s\\S]*?data\\.cursor/);
-  assert.match(hooks, /useAdminCustomers\\(search: string, cursor/);
-  assert.match(hooks, /useAdminAccounts\\(search = \\"\\", cursor/);
+  assert.match(functions, /listAdminCustomers[\s\S]*?data\.cursor/);
+  assert.match(functions, /listAdminAccounts[\s\S]*?data\.cursor/);
+  assert.match(hooks, /useAdminCustomers\(search: string, cursor/);
+  assert.match(hooks, /useAdminAccounts\(search = \"\", cursor/);
 });
 
 
 test("les collections admin Funding, Audit et External Transfers utilisent une pagination curseur", () => {
   const server = read("src/features/admin/services/admin.server.ts");
   const functions = read("src/features/admin/services/admin.functions.ts");
-  assert.match(server, /loadFundingRequests[\\s\\S]*?decodeAdminCursor\\(cursor\\)/);
-  assert.match(server, /loadAdminAuditEvents[\\s\\S]*?decodeAdminCursor\\(cursor\\)/);
-  assert.match(server, /loadExternalTransfers[\\s\\S]*?decodeAdminCursor\\(cursor\\)/);
+  assert.match(server, /loadFundingRequests[\s\S]*?decodeAdminCursor\(cursor\)/);
+  assert.match(server, /loadAdminAuditEvents[\s\S]*?decodeAdminCursor\(cursor\)/);
+  assert.match(server, /loadExternalTransfers[\s\S]*?decodeAdminCursor\(cursor\)/);
   for (const name of ["loadFundingRequests", "loadAdminAuditEvents", "loadExternalTransfers"]) {
     const start = server.indexOf(`export async function ${name}`);
     const end = server.indexOf("export async function ", start + 20);
     const body = server.slice(start, end < 0 ? server.length : end);
-    assert.doesNotMatch(body, /\\.limit\\(100\\)/, name);
-    assert.match(body, /limit\\(ADMIN_PAGE_SIZE \\+ 1\\)/, name);
+    assert.doesNotMatch(body, /\.limit\(100\)/, name);
+    assert.match(body, /limit\(ADMIN_PAGE_SIZE \+ 1\)/, name);
   }
-  assert.match(functions, /listFundingRequests[\\s\\S]*?data\\.cursor/);
-  assert.match(functions, /listAdminExternalTransfers[\\s\\S]*?data\\.cursor/);
-  assert.match(functions, /listAdminAuditEvents[\\s\\S]*?data\\.cursor/);
+  assert.match(functions, /listFundingRequests[\s\S]*?data\.cursor/);
+  assert.match(functions, /listAdminExternalTransfers[\s\S]*?data\.cursor/);
+  assert.match(functions, /listAdminAuditEvents[\s\S]*?data\.cursor/);
 });
 
 test("le funding ne dépend plus de la collection Accounts paginée", () => {
@@ -126,8 +126,8 @@ test("le funding ne dépend plus de la collection Accounts paginée", () => {
   const functions = read("src/features/admin/services/admin.functions.ts");
   const hooks = read("src/features/admin/hooks/useAdmin.ts");
   const ui = read("src/features/admin/components/FundingConsole.tsx");
-  assert.match(server, /searchFundingAccounts[\\s\\S]*?\.eq\("status", "ACTIVE"\)/);
-  assert.match(server, /searchFundingAccounts[\\s\\S]*?\.limit\(20\)/);
+  assert.match(server, /searchFundingAccounts[\s\S]*?\.eq\("status", "ACTIVE"\)/);
+  assert.match(server, /searchFundingAccounts[\s\S]*?\.limit\(20\)/);
   assert.match(functions, /searchFundingAccounts/);
   assert.match(hooks, /useFundingAccountSearch/);
   assert.doesNotMatch(ui, /useAdminAccounts/);
@@ -138,25 +138,25 @@ test("Onboarding utilise recherche, statut et pagination serveur", () => {
   const functions = read("src/features/admin/services/admin.functions.ts");
   const hooks = read("src/features/admin/hooks/useAdmin.ts");
   const route = read("src/routes/admin.onboarding-cases.tsx");
-  assert.match(server, /loadAdminOnboardingCases[\\s\\S]*?decodeAdminCursor\\(cursor\\)/);
-  assert.match(server, /loadAdminOnboardingCases[\\s\\S]*?limit\\(ADMIN_PAGE_SIZE \\+ 1\\)/);
-  assert.doesNotMatch(server, /loadAdminOnboardingCases[\\s\\S]*?\\.limit\\(100\\)/);
+  assert.match(server, /loadAdminOnboardingCases[\s\S]*?decodeAdminCursor\(cursor\)/);
+  assert.match(server, /loadAdminOnboardingCases[\s\S]*?limit\(ADMIN_PAGE_SIZE \+ 1\)/);
+  assert.doesNotMatch(server, /loadAdminOnboardingCases[\s\S]*?\.limit\(100\)/);
   assert.match(functions, /onboardingSearchInput/);
-  assert.match(functions, /listAdminOnboardingCases[\\s\\S]*?data\\.cursor/);
-  assert.match(hooks, /useAdminOnboardingCases\\(search: string, status = "ALL", cursor/);
-  assert.doesNotMatch(route, /useMemo|\\.filter\\(\\(item\\) => item\\.verificationStatus/);
-  assert.match(route, /query\\.data\\.hasNext/);
+  assert.match(functions, /listAdminOnboardingCases[\s\S]*?data\.cursor/);
+  assert.match(hooks, /useAdminOnboardingCases\(search: string, status = "ALL", cursor/);
+  assert.doesNotMatch(route, /useMemo|\.filter\(\(item\) => item\.verificationStatus/);
+  assert.match(route, /query\.data\.hasNext/);
 });
 
 test("l'historique transactions utilise un curseur serveur", () => {
   const server = read("src/features/transactions/services/transactions.server.ts");
   const types = read("src/features/transactions/types/transaction.ts");
   const ui = read("src/features/transactions/components/TransactionHistory.tsx");
-  assert.match(server, /decodeTransactionCursor\\(request.cursor\\)/);
-  assert.match(server, /limit\\(pageSize \\+ 1\\)/);
+  assert.match(server, /decodeTransactionCursor\(request.cursor\)/);
+  assert.match(server, /limit\(pageSize \+ 1\)/);
   assert.doesNotMatch(server, /getTransactions[\s\S]*?\.range\(/);
-  assert.doesNotMatch(server, /getTransactions[\\s\\S]*?count: "exact"/);
-  assert.match(types, /cursor\\?: string \\| null/);
+  assert.doesNotMatch(server, /getTransactions[\s\S]*?count: "exact"/);
+  assert.match(types, /cursor\?: string \| null/);
   assert.match(ui, /cursorHistory/);
   assert.doesNotMatch(ui, /totalCount|totalPages/);
 });
@@ -167,36 +167,36 @@ test("documents et support utilisent la pagination serveur", () => {
   const support = read("src/features/support/services/support.server.ts");
   const supportUi = read("src/features/support/components/SupportCenter.tsx");
   const adminSupportUi = read("src/features/support/components/AdminSupportConsole.tsx");
-  assert.match(documents, /decodeDocumentCursor\\(options.cursor\\)/);
-  assert.match(documents, /limit\\(DOCUMENT_PAGE_SIZE \\+ 1\\)/);
-  assert.doesNotMatch(documents, /listDocuments[\\s\\S]*?\\.limit\\(40\\)/);
+  assert.match(documents, /decodeDocumentCursor\(options.cursor\)/);
+  assert.match(documents, /limit\(DOCUMENT_PAGE_SIZE \+ 1\)/);
+  assert.doesNotMatch(documents, /listDocuments[\s\S]*?\.limit\(40\)/);
   assert.match(documentUi, /hasNext/);
-  assert.match(support, /decodeSupportCursor\\(cursor\\)/);
-  assert.match(support, /SUPPORT_PAGE_SIZE \\+ 1/);
-  assert.doesNotMatch(support, /loadAdminSupport[\\s\\S]*?\\.limit\\(100\\)/);
+  assert.match(support, /decodeSupportCursor\(cursor\)/);
+  assert.match(support, /SUPPORT_PAGE_SIZE \+ 1/);
+  assert.doesNotMatch(support, /loadAdminSupport[\s\S]*?\.limit\(100\)/);
   assert.match(support, /messagesByThread/);
-  assert.doesNotMatch(support, /messages.*\\.filter\\(.*thread_id/);
-  assert.match(supportUi, /useCustomerSupport\\(cursor\\)/);
-  assert.match(adminSupportUi, /useAdminSupport\\(cursor\\)/);
+  assert.doesNotMatch(support, /messages.*\.filter\(.*thread_id/);
+  assert.match(supportUi, /useCustomerSupport\(cursor\)/);
+  assert.match(adminSupportUi, /useAdminSupport\(cursor\)/);
 });
 
 test("notifications utilise pagination et filtre serveur", () => {
   const server = read("src/features/notifications/services/notifications.server.ts");
   const ui = read("src/features/notifications/components/NotificationCenter.tsx");
-  assert.match(server, /decodeNotificationCursor\\(options.cursor\\)/);
-  assert.match(server, /NOTIFICATION_PAGE_SIZE\\+1/);
+  assert.match(server, /decodeNotificationCursor\(options.cursor\)/);
+  assert.match(server, /NOTIFICATION_PAGE_SIZE\+1/);
   assert.match(server, /category!=="ALL"/);
-  assert.match(ui, /useNotifications\\(filter, cursor\\)/);
-  assert.doesNotMatch(ui, /q\\.data\\?\\.items \\?\\? \\[\\]\\)\\.filter/);
+  assert.match(ui, /useNotifications\(filter, cursor\)/);
+  assert.doesNotMatch(ui, /q\.data\?\.items \?\? \[\]\)\.filter/);
 });
 
 test("la matrice DB certifie la version finale des fonctions", () => {
   const audit = read("scripts/audit-migration-functions.mjs");
   assert.match(audit, /entry\.finalDefinition = match\[0\]/);
-  assert.match(audit, /entry\.securityDefiner = \/SECURITY\\s\+DEFINER/);
+  assert.match(audit, /entry\.securityDefiner = \/SECURITY\s\+DEFINER/);
   assert.match(audit, /entry\.searchPath = \/search_path/);
-  assert.doesNotMatch(audit, /securityDefiner \\|\\|=/);
-  assert.doesNotMatch(audit, /searchPath \\|\\|=/);
+  assert.doesNotMatch(audit, /securityDefiner \|\|=/);
+  assert.doesNotMatch(audit, /searchPath \|\|=/);
 });
 
 
@@ -204,7 +204,7 @@ test("les policies sensibles ne peuvent pas ouvrir une surface anon/public et le
   const sql = read("supabase/tests/full_security_certification.sql");
   assert.match(sql, /SENSITIVE_POLICY_EXPOSES_ANON_OR_PUBLIC/);
   assert.match(sql, /AUTHENTICATED_POLICY_NOT_SCOPED/);
-  assert.match(sql, /auth\\\\\.uid/);
+  assert.match(sql, /auth\\\.uid/);
   assert.match(sql, /has_permission/);
   assert.match(sql, /is_staff/);
 });
@@ -215,7 +215,7 @@ test("la matrice des migrations trie par timestamp même dans les sous-dossiers"
   assert.match(audit, /path\.basename\(a\)/);
   assert.match(audit, /path\.basename\(b\)/);
   assert.match(audit, /aName\.localeCompare\(bName\)/);
-  assert.match(audit, /\\$\\$\[\\s\\S\]\*\?\\\\\$\\$/);
+  assert.match(audit, /\$\$\[\s\S\]\*\?\\\$\$/);
 });
 
 
@@ -305,7 +305,7 @@ test("la navigation secondaire garde Plus actif sans voler l’état aux parcour
     "/app/security",
     "/app/settings",
   ]) {
-    assert.match(navigation, new RegExp('"' + route.replace(/[.*+?^$()|[\]\\]/g, "\\test("la navigation mobile client reste limitée à cinq destinations primaires", () => {") + '"'));
+    assert.match(navigation, new RegExp('"' + route.replace(/[.*+?^$()|[\]\]/g, "\test("la navigation mobile client reste limitée à cinq destinations primaires", () => {") + '"'));
   }
   assert.match(bottomNav, /isCustomerMoreRoute\(pathname\)/);
   assert.match(more, /aria-current=\{pathname === item\.to \|\| pathname\.startsWith\(item\.to \+ "\/"\) \? "page" : undefined\}/);
@@ -456,9 +456,9 @@ test("les écrans admin lourds chargent leurs tableaux métier à la demande", (
   for (const [path, component] of routes) {
     const source = read(path);
     assert.match(source, /import \{ lazy, Suspense \} from "react";/, path);
-    assert.match(source, new RegExp(`const ${component} = lazy\\(\\(\\) => import`), path);
-    assert.doesNotMatch(source, new RegExp(`import \\{ ${component} \\} from "@/features/admin/components/${component}"`), path);
-    assert.match(source, new RegExp(`<Suspense fallback=\\{<LoadingState />\\}>[\\s\\S]*<${component}`), path);
+    assert.match(source, new RegExp(`const ${component} = lazy\(\(\) => import`), path);
+    assert.doesNotMatch(source, new RegExp(`import \{ ${component} \} from "@/features/admin/components/${component}"`), path);
+    assert.match(source, new RegExp(`<Suspense fallback=\{<LoadingState />\}>[\s\S]*<${component}`), path);
   }
 });
 
@@ -502,10 +502,10 @@ test("le budget statique du shell protège LCP/CLS et évite les gros modules au
 
   assert.doesNotMatch(root, /from ["']recharts["']|from ["']pdf-lib["']|from ["']react-day-picker["']/);
   assert.doesNotMatch(router, /from ["']recharts["']|from ["']pdf-lib["']/);
-  assert.match(home, /width=\{1280\}[\\s\\S]*?height=\{960\}/);
+  assert.match(home, /width=\{1280\}[\s\S]*?height=\{960\}/);
   assert.match(home, /priority/);
   assert.match(section, /content-auto/);
-  assert.match(styles, /content-visibility:\\s*auto/);
+  assert.match(styles, /content-visibility:\s*auto/);
 });
 
 
@@ -563,7 +563,7 @@ test("les cinq dépendances lourdes restent documentées comme modules ciblés d
     "embla-carousel-react",
     "react-resizable-panels",
   ]) {
-    assert.match(packageJson, new RegExp('"' + dependency.replace(/[.*+?^$()|[\]\\]/g, "\\$&") + '"\\s*:'));
+    assert.match(packageJson, new RegExp('"' + dependency.replace(/[.*+?^$()|[\]\]/g, "\$&") + '"\s*:'));
   }
 });
 
@@ -658,7 +658,7 @@ test("5.8.8.1 standardise les primitives de contrôle sur une même grammaire vi
   assert.match(textarea, /min-h-\[60px\]/);
   assert.match(select, /min-h-11 w-full/);
   assert.match(select, /focus-visible:outline-none/);
-  assert.match(tabs, /TabsTrigger[\\s\\S]*min-h-11/);
+  assert.match(tabs, /TabsTrigger[\s\S]*min-h-11/);
 });
 
 test("5.8.8.1 conserve le reduced-motion sur les primitives animées", () => {
@@ -699,12 +699,12 @@ test("5.8.8.4 aligne les surfaces et la motion de la console administrative", ()
   const funding = read("src/routes/admin.funding.tsx");
   const onboarding = read("src/routes/admin.onboarding-cases.tsx");
 
-  assert.match(table, /motion-safe:transition-\\[background-color,border-color\\]/);
+  assert.match(table, /motion-safe:transition-\[background-color,border-color\]/);
   assert.match(table, /motion-reduce:transition-none/);
   assert.match(sidebar, /text-overline text-muted-foreground/);
   assert.match(layout, /text-caption font-medium/);
   assert.match(dashboard, /native-surface p-4 sm:p-5/);
-  assert.match(funding, /<PageSection>[\\s\\S]*<PageHeader/);
+  assert.match(funding, /<PageSection>[\s\S]*<PageHeader/);
   assert.match(onboarding, /native-surface mb-5/);
 });
 
@@ -726,11 +726,11 @@ test("5.8.8.6 renforce la responsivité des overlays sur petits écrans", () => 
   const sheet = read("src/components/ui/sheet.tsx");
   const banking = read("src/components/layout/BankingAppLayout.tsx");
   const admin = read("src/components/layout/AdminLayout.tsx");
-  assert.match(dialog, /w-\\[calc\\(100vw-2rem\\)\\]/);
-  assert.match(dialog, /max-h-\\[calc\\(100dvh-2rem\\)\\]/);
+  assert.match(dialog, /w-\[calc\(100vw-2rem\)\]/);
+  assert.match(dialog, /max-h-\[calc\(100dvh-2rem\)\]/);
   assert.match(dialog, /overflow-y-auto/);
   assert.match(sheet, /max-w-full overflow-y-auto overscroll-contain/);
-  assert.match(sheet, /bottom:.*max-h-\\\[92dvh\\\]/s);
+  assert.match(sheet, /bottom:.*max-h-\\[92dvh\\]/s);
   assert.match(banking, /min-w-0 flex-1 overscroll-x-none/);
   assert.match(admin, /min-w-0 flex-1 overscroll-x-none/);
 });
@@ -738,7 +738,7 @@ test("5.8.8.6 renforce la responsivité des overlays sur petits écrans", () => 
 test("5.8.8.7 ne laisse pas de reliquats de debug ou de maintenance explicite", () => {
   const feedback = read("src/components/feedback/index.tsx");
   const state = read("src/components/feedback/StateBlock.tsx");
-  for (const source of [feedback, state]) assert.doesNotMatch(source, /\\n/);
+  for (const source of [feedback, state]) assert.doesNotMatch(source, /\n/);
   for (const directory of ["src", "scripts", "supabase"]) {
     const walk = (path) => {
       for (const entry of readdirSync(new URL(`${path}/`, root), { withFileTypes: true })) {
