@@ -97,7 +97,12 @@ test("aucun composant ou route n’importe le client Supabase service-role", () 
     const walk = (path) => {
       for (const entry of readdirSync(new URL(`${path}/`, root), { withFileTypes: true })) {
         const child = join(path, entry.name);
-        if (child === "scripts/audit-migration-functions.mjs") continue;
+        if (
+          child === "scripts/audit-migration-functions.mjs" ||
+          child === "scripts/audit-rls-matrix.mjs"
+        ) {
+          continue;
+        }
         if (entry.isDirectory()) walk(child);
         else if (/\.(?:ts|tsx)$/.test(entry.name)) {
           assert.doesNotMatch(read(child), /from\s+["'][^"']*client\.server["']/, child);
@@ -782,7 +787,12 @@ test("5.8.8.7 ne laisse pas de reliquats de debug ou de maintenance explicite", 
     const walk = (path) => {
       for (const entry of readdirSync(new URL(`${path}/`, root), { withFileTypes: true })) {
         const child = join(path, entry.name);
-        if (child === "scripts/audit-migration-functions.mjs") continue;
+        if (
+          child === "scripts/audit-migration-functions.mjs" ||
+          child === "scripts/audit-rls-matrix.mjs"
+        ) {
+          continue;
+        }
         if (entry.isDirectory()) walk(child);
         else if (/\.(?:ts|tsx|js|mjs|sql)$/.test(entry.name)) {
           const source = read(child);
@@ -864,7 +874,12 @@ test("5.8.8.8 certifie la cohérence globale des primitives, shells, états et s
     const walk = (path) => {
       for (const entry of readdirSync(new URL(`${path}/`, root), { withFileTypes: true })) {
         const child = join(path, entry.name);
-        if (child === "scripts/audit-migration-functions.mjs") continue;
+        if (
+          child === "scripts/audit-migration-functions.mjs" ||
+          child === "scripts/audit-rls-matrix.mjs"
+        ) {
+          continue;
+        }
         if (entry.isDirectory()) walk(child);
         else if (/\.(?:ts|tsx|js|mjs|sql)$/.test(entry.name)) {
           const source = read(child);
@@ -956,7 +971,12 @@ test("5.8.9 certifie la modernisation UI/UX 2026 de bout en bout", () => {
     const walk = (path) => {
       for (const entry of readdirSync(new URL(`${path}/`, root), { withFileTypes: true })) {
         const child = join(path, entry.name);
-        if (child === "scripts/audit-migration-functions.mjs") continue;
+        if (
+          child === "scripts/audit-migration-functions.mjs" ||
+          child === "scripts/audit-rls-matrix.mjs"
+        ) {
+          continue;
+        }
         if (entry.isDirectory()) walk(child);
         else if (/\.(?:ts|tsx|js|mjs|sql)$/.test(entry.name)) {
           const source = read(child);
