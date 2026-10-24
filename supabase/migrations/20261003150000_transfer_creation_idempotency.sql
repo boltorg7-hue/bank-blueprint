@@ -47,6 +47,11 @@ BEGIN
     RAISE EXCEPTION 'INVALID_IDEMPOTENCY_KEY';
   END IF;
 
+  IF _user_id IS NULL OR _source_account_reference IS NULL OR btrim(_source_account_reference) = ''
+     OR _beneficiary_reference IS NULL OR btrim(_beneficiary_reference) = '' THEN
+    RAISE EXCEPTION 'INVALID_TRANSFER_INPUT';
+  END IF;
+
   IF _amount_minor IS NULL OR _amount_minor <= 0 THEN
     RAISE EXCEPTION 'INVALID_AMOUNT';
   END IF;
@@ -77,11 +82,12 @@ BEGIN
      AND idempotency_key = _key
    FOR UPDATE;
 
-  IF _existing.source_account_reference <> _source_account_reference
-     OR _existing.beneficiary_reference <> _beneficiary_reference
-     OR _existing.amount_minor <> _amount_minor
-     OR COALESCE(_existing.customer_reference, '') <>
-        COALESCE(NULLIF(trim(COALESCE(_customer_reference, '')), ''), '') THEN
+  -- IS DISTINCT FROM is null-safe: NULL input must never bypass the payload check.
+  IF _existing.source_account_reference IS DISTINCT FROM _source_account_reference
+     OR _existing.beneficiary_reference IS DISTINCT FROM _beneficiary_reference
+     OR _existing.amount_minor IS DISTINCT FROM _amount_minor
+     OR _existing.customer_reference IS DISTINCT FROM
+        NULLIF(trim(COALESCE(_customer_reference, '')), '') THEN
     RAISE EXCEPTION 'IDEMPOTENCY_KEY_REUSED';
   END IF;
 
