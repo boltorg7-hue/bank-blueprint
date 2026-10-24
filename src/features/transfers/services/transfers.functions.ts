@@ -64,6 +64,7 @@ export const initiateTransfer = createServerFn({ method: "POST" })
       beneficiaryReference?: string;
       amountMinor?: number;
       customerReference?: string;
+      idempotencyKey?: string;
     }) => {
       const sourceAccountReference = String(input?.sourceAccountReference ?? "").trim();
       if (!ACCOUNT_PATTERN.test(sourceAccountReference)) throw new Error("INVALID_ACCOUNT_REFERENCE");
@@ -77,11 +78,16 @@ export const initiateTransfer = createServerFn({ method: "POST" })
       if (!Number.isInteger(amountMinor) || amountMinor <= 0) throw new Error("INVALID_AMOUNT");
 
       const note = typeof input?.customerReference === "string" ? input.customerReference.trim() : "";
+      const idempotencyKey = String(input?.idempotencyKey ?? "").trim();
+      if (idempotencyKey.length < 16 || idempotencyKey.length > 100) {
+        throw new Error("INVALID_IDEMPOTENCY_KEY");
+      }
       return {
         sourceAccountReference,
         beneficiaryReference,
         amountMinor,
         customerReference: note.length > 0 ? note.slice(0, 140) : null,
+        idempotencyKey,
       };
     },
   )
