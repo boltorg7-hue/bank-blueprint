@@ -23,11 +23,9 @@ const migrationFiles = walk(migrationsDir)
     const bName = path.basename(b);
     return aName.localeCompare(bName) || a.localeCompare(b);
   });
-const sourceFiles = sourceDirs
-  .flatMap(walk)
-  .filter(function (file) {
-    return /\.(ts|tsx|sql)$/.test(file);
-  });
+const sourceFiles = sourceDirs.flatMap(walk).filter(function (file) {
+  return /\.(ts|tsx|sql)$/.test(file);
+});
 const functions = new Map();
 
 function getEntry(name) {
@@ -72,9 +70,7 @@ for (const file of migrationFiles) {
 for (const file of sourceFiles) {
   const relative = path.relative(root, file).replaceAll(path.sep, "/");
   const source = fs.readFileSync(file, "utf8");
-  for (const match of source.matchAll(
-    /\.(?:rpc|call)\(\s*["']([a-zA-Z0-9_]+)["']/g,
-  )) {
+  for (const match of source.matchAll(/\.(?:rpc|call)\(\s*["']([a-zA-Z0-9_]+)["']/g)) {
     getEntry(match[1]).callers.add(relative);
   }
 }
@@ -91,11 +87,7 @@ for (const entry of [...functions.values()].sort(function (a, b) {
   const callers = [...entry.callers].join("<br>") || "—";
   const signatures = [...entry.signatures].join(" / ") || "—";
   const finalHash = entry.finalDefinition
-    ? crypto
-        .createHash("sha256")
-        .update(entry.finalDefinition)
-        .digest("hex")
-        .slice(0, 12)
+    ? crypto.createHash("sha256").update(entry.finalDefinition).digest("hex").slice(0, 12)
     : "—";
   console.log(
     "| " +
@@ -118,9 +110,7 @@ for (const entry of [...functions.values()].sort(function (a, b) {
       (entry.securityDefiner ? "oui" : "non") +
       " | " +
       (entry.securityDefiner
-        ? entry.searchPath
-          ? "présent"
-          : "ABSENT"
+        ? (entry.searchPath ? "présent" : "ABSENT")
         : "n/a") +
       " |",
   );
