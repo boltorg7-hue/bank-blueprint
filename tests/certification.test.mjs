@@ -106,19 +106,19 @@ test("les collections admin Customers et Accounts utilisent un curseur serveur s
 test("les collections admin Funding, Audit et External Transfers utilisent une pagination curseur", () => {
   const server = read("src/features/admin/services/admin.server.ts");
   const functions = read("src/features/admin/services/admin.functions.ts");
-  assert.match(server, /loadFundingRequests[\\s\\S]*?decodeAdminCursor\\(cursor\\)/);
-  assert.match(server, /loadAdminAuditEvents[\\s\\S]*?decodeAdminCursor\\(cursor\\)/);
-  assert.match(server, /loadExternalTransfers[\\s\\S]*?decodeAdminCursor\\(cursor\\)/);
+  assert.match(server, /loadFundingRequests[\s\S]*?decodeAdminCursor\(cursor\)/);
+  assert.match(server, /loadAdminAuditEvents[\s\S]*?decodeAdminCursor\(cursor\)/);
+  assert.match(server, /loadExternalTransfers[\s\S]*?decodeAdminCursor\(cursor\)/);
   for (const name of ["loadFundingRequests", "loadAdminAuditEvents", "loadExternalTransfers"]) {
     const start = server.indexOf(`export async function ${name}`);
     const end = server.indexOf("export async function ", start + 20);
     const body = server.slice(start, end < 0 ? server.length : end);
-    assert.doesNotMatch(body, /\\.limit\\(100\\)/, name);
-    assert.match(body, /limit\\(ADMIN_PAGE_SIZE \\+ 1\\)/, name);
+    assert.doesNotMatch(body, /\.limit\(100\)/, name);
+    assert.match(body, /limit\(ADMIN_PAGE_SIZE \+ 1\)/, name);
   }
-  assert.match(functions, /listFundingRequests[\\s\\S]*?data\\.cursor/);
-  assert.match(functions, /listAdminExternalTransfers[\\s\\S]*?data\\.cursor/);
-  assert.match(functions, /listAdminAuditEvents[\\s\\S]*?data\\.cursor/);
+  assert.match(functions, /listFundingRequests[\s\S]*?data\.cursor/);
+  assert.match(functions, /listAdminExternalTransfers[\s\S]*?data\.cursor/);
+  assert.match(functions, /listAdminAuditEvents[\s\S]*?data\.cursor/);
 });
 
 test("le funding ne dépend plus de la collection Accounts paginée", () => {
@@ -126,8 +126,8 @@ test("le funding ne dépend plus de la collection Accounts paginée", () => {
   const functions = read("src/features/admin/services/admin.functions.ts");
   const hooks = read("src/features/admin/hooks/useAdmin.ts");
   const ui = read("src/features/admin/components/FundingConsole.tsx");
-  assert.match(server, /searchFundingAccounts[\\s\\S]*?\.eq\("status", "ACTIVE"\)/);
-  assert.match(server, /searchFundingAccounts[\\s\\S]*?\.limit\(20\)/);
+  assert.match(server, /searchFundingAccounts[\s\S]*?\.eq\("status", "ACTIVE"\)/);
+  assert.match(server, /searchFundingAccounts[\s\S]*?\.limit\(20\)/);
   assert.match(functions, /searchFundingAccounts/);
   assert.match(hooks, /useFundingAccountSearch/);
   assert.doesNotMatch(ui, /useAdminAccounts/);
@@ -138,25 +138,25 @@ test("Onboarding utilise recherche, statut et pagination serveur", () => {
   const functions = read("src/features/admin/services/admin.functions.ts");
   const hooks = read("src/features/admin/hooks/useAdmin.ts");
   const route = read("src/routes/admin.onboarding-cases.tsx");
-  assert.match(server, /loadAdminOnboardingCases[\\s\\S]*?decodeAdminCursor\\(cursor\\)/);
-  assert.match(server, /loadAdminOnboardingCases[\\s\\S]*?limit\\(ADMIN_PAGE_SIZE \\+ 1\\)/);
-  assert.doesNotMatch(server, /loadAdminOnboardingCases[\\s\\S]*?\\.limit\\(100\\)/);
+  assert.match(server, /loadAdminOnboardingCases[\s\S]*?decodeAdminCursor\(cursor\)/);
+  assert.match(server, /loadAdminOnboardingCases[\s\S]*?limit\(ADMIN_PAGE_SIZE \+ 1\)/);
+  assert.doesNotMatch(server, /loadAdminOnboardingCases[\s\S]*?\.limit\(100\)/);
   assert.match(functions, /onboardingSearchInput/);
-  assert.match(functions, /listAdminOnboardingCases[\\s\\S]*?data\\.cursor/);
-  assert.match(hooks, /useAdminOnboardingCases\\(search: string, status = "ALL", cursor/);
-  assert.doesNotMatch(route, /useMemo|\\.filter\\(\\(item\\) => item\\.verificationStatus/);
-  assert.match(route, /query\\.data\\.hasNext/);
+  assert.match(functions, /listAdminOnboardingCases[\s\S]*?data\.cursor/);
+  assert.match(hooks, /useAdminOnboardingCases\(search: string, status = "ALL", cursor/);
+  assert.doesNotMatch(route, /useMemo|\.filter\(\(item\) => item\.verificationStatus/);
+  assert.match(route, /query\.data\.hasNext/);
 });
 
 test("l'historique transactions utilise un curseur serveur", () => {
   const server = read("src/features/transactions/services/transactions.server.ts");
   const types = read("src/features/transactions/types/transaction.ts");
   const ui = read("src/features/transactions/components/TransactionHistory.tsx");
-  assert.match(server, /decodeTransactionCursor\\(request.cursor\\)/);
-  assert.match(server, /limit\\(pageSize \\+ 1\\)/);
-  assert.doesNotMatch(server, /getTransactions[\\s\\S]*?\\.range\\(/);
-  assert.doesNotMatch(server, /getTransactions[\\s\\S]*?count: "exact"/);
-  assert.match(types, /cursor\\?: string \\| null/);
+  assert.match(server, /decodeTransactionCursor\(request.cursor\)/);
+  assert.match(server, /limit\(pageSize \+ 1\)/);
+  assert.doesNotMatch(server, /getTransactions[\s\S]*?\.range\(/);
+  assert.doesNotMatch(server, /getTransactions[\s\S]*?count: "exact"/);
+  assert.match(types, /cursor\?: string \| null/);
   assert.match(ui, /cursorHistory/);
   assert.doesNotMatch(ui, /totalCount|totalPages/);
 });
@@ -167,27 +167,27 @@ test("documents et support utilisent la pagination serveur", () => {
   const support = read("src/features/support/services/support.server.ts");
   const supportUi = read("src/features/support/components/SupportCenter.tsx");
   const adminSupportUi = read("src/features/support/components/AdminSupportConsole.tsx");
-  assert.match(documents, /decodeDocumentCursor\\(options.cursor\\)/);
-  assert.match(documents, /limit\\(DOCUMENT_PAGE_SIZE \\+ 1\\)/);
-  assert.doesNotMatch(documents, /listDocuments[\\s\\S]*?\\.limit\\(40\\)/);
+  assert.match(documents, /decodeDocumentCursor\(options.cursor\)/);
+  assert.match(documents, /limit\(DOCUMENT_PAGE_SIZE \+ 1\)/);
+  assert.doesNotMatch(documents, /listDocuments[\s\S]*?\.limit\(40\)/);
   assert.match(documentUi, /hasNext/);
-  assert.match(support, /decodeSupportCursor\\(cursor\\)/);
-  assert.match(support, /SUPPORT_PAGE_SIZE \\+ 1/);
-  assert.doesNotMatch(support, /loadAdminSupport[\\s\\S]*?\\.limit\\(100\\)/);
+  assert.match(support, /decodeSupportCursor\(cursor\)/);
+  assert.match(support, /SUPPORT_PAGE_SIZE \+ 1/);
+  assert.doesNotMatch(support, /loadAdminSupport[\s\S]*?\.limit\(100\)/);
   assert.match(support, /messagesByThread/);
-  assert.doesNotMatch(support, /messages.*\\.filter\\(.*thread_id/);
-  assert.match(supportUi, /useCustomerSupport\\(cursor\\)/);
-  assert.match(adminSupportUi, /useAdminSupport\\(cursor\\)/);
+  assert.doesNotMatch(support, /messages.*\.filter\(.*thread_id/);
+  assert.match(supportUi, /useCustomerSupport\(cursor\)/);
+  assert.match(adminSupportUi, /useAdminSupport\(cursor\)/);
 });
 
 test("notifications utilise pagination et filtre serveur", () => {
   const server = read("src/features/notifications/services/notifications.server.ts");
   const ui = read("src/features/notifications/components/NotificationCenter.tsx");
-  assert.match(server, /decodeNotificationCursor\\(options.cursor\\)/);
-  assert.match(server, /NOTIFICATION_PAGE_SIZE\\+1/);
+  assert.match(server, /decodeNotificationCursor\(options.cursor\)/);
+  assert.match(server, /NOTIFICATION_PAGE_SIZE\+1/);
   assert.match(server, /category!=="ALL"/);
-  assert.match(ui, /useNotifications\\(filter, cursor\\)/);
-  assert.doesNotMatch(ui, /q\\.data\\?\\.items \\?\\? \\[\\]\\)\\.filter/);
+  assert.match(ui, /useNotifications\(filter, cursor\)/);
+  assert.doesNotMatch(ui, /q\.data\?\.items \?\? \[\]\)\.filter/);
 });
 
 test("la matrice DB certifie la version finale des fonctions", () => {
