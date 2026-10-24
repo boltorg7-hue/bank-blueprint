@@ -142,6 +142,10 @@ REVOKE ALL ON FUNCTION public.apply_external_settlement_result(
   text, public.external_settlement_status, text
 ) FROM PUBLIC, anon, authenticated;
 
+GRANT EXECUTE ON FUNCTION public.apply_external_settlement_result(
+  text, public.external_settlement_status, text
+) TO service_role;
+
 CREATE OR REPLACE FUNCTION public.submit_transfer_document(
   _user_id uuid,
   _reference text,
