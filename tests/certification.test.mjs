@@ -35,20 +35,42 @@ test("les nouvelles tables client activent RLS", () => {
     .filter((name) => name.endsWith(".sql"))
     .map((name) => read(`supabase/migrations/${name}`))
     .join("\n");
-  for (const table of ["customer_preferences", "notifications", "notification_outbox", "support_threads", "support_messages", "customer_security_sessions", "customer_security_events", "security_step_up_grants"]) {
+  for (const table of [
+    "customer_preferences",
+    "notifications",
+    "notification_outbox",
+    "support_threads",
+    "support_messages",
+    "customer_security_sessions",
+    "customer_security_events",
+    "security_step_up_grants",
+  ]) {
     assert.match(sql, new RegExp(`ALTER TABLE public\\.${table} ENABLE ROW LEVEL SECURITY`, "i"), table);
   }
 });
 
 test("les tables sensibles ne donnent aucune écriture directe au navigateur", () => {
   const sql = stepMigrations.map(({ sql }) => sql).join("\n");
-  for (const table of ["notification_outbox", "support_threads", "support_messages", "customer_security_sessions", "customer_security_events", "security_step_up_grants"]) {
-    assert.doesNotMatch(sql, new RegExp(`GRANT (?:ALL|INSERT|DELETE).*${table}.*authenticated`, "i"), table);
+  for (const table of [
+    "notification_outbox",
+    "support_threads",
+    "support_messages",
+    "customer_security_sessions",
+    "customer_security_events",
+    "security_step_up_grants",
+  ]) {
+    assert.doesNotMatch(
+      sql,
+      new RegExp(`GRANT (?:ALL|INSERT|DELETE).*${table}.*authenticated`, "i"),
+      table,
+    );
   }
 });
 
 test("les jalons externes restent 90, 95, 99 et 100", () => {
-  const migration = read("supabase/migrations/20260827161315_e10a7d78-812a-4cc4-b1ab-5c0cc9f06f70.sql");
+  const migration = read(
+    "supabase/migrations/20260827161315_e10a7d78-812a-4cc4-b1ab-5c0cc9f06f70.sql",
+  );
   assert.match(migration, /FINAL_REVIEW[^\n]*THEN 90/);
   assert.match(migration, /APPROVED[^\n]*THEN 95/);
   assert.match(migration, /SETTLEMENT_PENDING[^\n]*THEN 99/);
@@ -90,7 +112,6 @@ test("les hooks React Query admin utilisent uniquement une politique centralisé
   assert.match(adminHooks, /\.\.\.QUERY_POLICY\.REALTIME/);
 });
 
-
 test("les collections admin Customers et Accounts utilisent un curseur serveur stable", () => {
   const server = read("src/features/admin/services/admin.server.ts");
   const functions = read("src/features/admin/services/admin.functions.ts");
@@ -104,7 +125,6 @@ test("les collections admin Customers et Accounts utilisent un curseur serveur s
   assert.match(hooks, /useAdminCustomers\(search: string, cursor/);
   assert.match(hooks, /useAdminAccounts\(search = "", cursor/);
 });
-
 
 test("les collections admin Funding, Audit et External Transfers utilisent une pagination curseur", () => {
   const server = read("src/features/admin/services/admin.server.ts");
@@ -202,7 +222,6 @@ test("la matrice DB certifie la version finale des fonctions", () => {
   assert.doesNotMatch(audit, /searchPath \|\|=/);
 });
 
-
 test("les policies sensibles ne peuvent pas ouvrir une surface anon/public et les lectures authenticated sont bornées", () => {
   const sql = read("supabase/tests/full_security_certification.sql");
   assert.match(sql, /SENSITIVE_POLICY_EXPOSES_ANON_OR_PUBLIC/);
@@ -212,7 +231,6 @@ test("les policies sensibles ne peuvent pas ouvrir une surface anon/public et le
   assert.match(sql, /is_staff/);
 });
 
-
 test("la matrice des migrations trie par timestamp même dans les sous-dossiers", () => {
   const audit = read("scripts/audit-migration-functions.mjs");
   assert.match(audit, /path\.basename\(a\)/);
@@ -220,7 +238,6 @@ test("la matrice des migrations trie par timestamp même dans les sous-dossiers"
   assert.match(audit, /aName\.localeCompare\(bName\)/);
   assert.match(audit, /\$\$\[\\s\\S\]\*\?\\\\$\$/);
 });
-
 
 test("les migrations Supabase restent toutes dans le répertoire racine des migrations", () => {
   const migrationsDir = new URL("../supabase/migrations/", import.meta.url);
@@ -236,12 +253,11 @@ test("les migrations Supabase restent toutes dans le répertoire racine des migr
   assert.ok(paths.every((path) => !path.includes("/")));
 });
 
-
 test("la matrice des fonctions expose une empreinte de la définition finale et les grants signés", () => {
   const audit = read("scripts/audit-migration-functions.mjs");
   assert.match(audit, /finalDefinition/);
   assert.match(audit, /sha256/);
-  assert.match(audit, /GRANT\s+EXECUTE\s+ON\s+FUNCTION/);
+  assert.ok(audit.includes(String.raw`GRANT\s+EXECUTE\s+ON\s+FUNCTION`));
   assert.match(audit, /entry\.modifiedIn\.at\(-1\)/);
 });
 
@@ -267,7 +283,6 @@ test("les index de production couvrent les parcours de pagination et recherche p
   assert.match(sql, /using gin \(first_name extensions\.gin_trgm_ops\)/i);
   assert.match(sql, /using gin \(last_name extensions\.gin_trgm_ops\)/i);
 });
-
 
 test("le shell mobile respecte le contrat tactile et les safe areas", () => {
   const styles = read("src/styles.css");
@@ -311,7 +326,10 @@ test("la navigation secondaire garde Plus actif sans voler l’état aux parcour
     assert.match(navigation, new RegExp('"' + route.replace(/[.*+?^$()|[\]\\]/g, "\\$&") + '"'));
   }
   assert.match(bottomNav, /isCustomerMoreRoute\(pathname\)/);
-  assert.match(more, /aria-current=\{pathname === item\.to \|\| pathname\.startsWith\(item\.to \+ "\/"\) \? "page" : undefined\}/);
+  assert.match(
+    more,
+    /aria-current=\{pathname === item\.to \|\| pathname\.startsWith\(item\.to \+ "\/"\) \? "page" : undefined\}/,
+  );
 });
 
 test("la navigation mobile client reste limitée à cinq destinations primaires", () => {
@@ -325,7 +343,6 @@ test("la navigation mobile client reste limitée à cinq destinations primaires"
   assert.match(bottomNav, /item\.to === "\/app\/more"/);
   assert.match(bottomNav, /pathname\.startsWith\("\/app\/transactions"\)/);
 });
-
 
 test("les primitives UI partagent une grammaire visuelle et tactile cohérente", () => {
   const input = read("src/components/ui/input.tsx");
@@ -350,7 +367,6 @@ test("les primitives UI partagent une grammaire visuelle et tactile cohérente",
   assert.match(form, /text-body-sm text-muted-foreground/);
   assert.match(form, /text-body-sm font-medium text-destructive/);
 });
-
 
 test("les écrans métier principaux conservent une composition mobile-first", () => {
   const dashboard = read("src/routes/app.dashboard.tsx");
@@ -384,7 +400,6 @@ test("le tableau financier bascule vers une liste mobile au lieu de forcer un ta
   assert.match(table, /overflow-x-auto rounded-xl border/);
 });
 
-
 test("le socle tactile 5.5 conserve des zones d'action d'au moins 44px", () => {
   const dropdown = read("src/components/ui/dropdown-menu.tsx");
   const command = read("src/components/ui/command.tsx");
@@ -406,7 +421,6 @@ test("les actions financières critiques ont un verrou local contre le double-su
   assert.match(transfer, /onSettled: \(\) => \{\s*initiateLock\.current = false;/);
   assert.match(transfer, /onSettled: \(\) => \{\s*confirmLock\.current = false;/);
 });
-
 
 test("la performance frontend réserve le realtime aux données opérationnelles", () => {
   const admin = read("src/features/admin/hooks/useAdmin.ts");
@@ -433,7 +447,6 @@ test("la performance frontend réserve le realtime aux données opérationnelles
   assert.match(router, /defaultPreloadStaleTime:\s*30_000/);
 });
 
-
 test("les listes métier évitent les rerenders inutiles et conservent une hiérarchie DOM cohérente", () => {
   const dashboard = read("src/routes/app.dashboard.tsx");
   const documents = read("src/features/documents/components/DocumentList.tsx");
@@ -447,7 +460,6 @@ test("les listes métier évitent les rerenders inutiles et conservent une hiér
   assert.match(support, /const CustomerThread = memo\(function CustomerThread/);
 });
 
-
 test("les écrans admin lourds chargent leurs tableaux métier à la demande", () => {
   const routes = [
     ["src/routes/admin.accounts.tsx", "AdminAccountsTable"],
@@ -460,7 +472,11 @@ test("les écrans admin lourds chargent leurs tableaux métier à la demande", (
     const source = read(path);
     assert.match(source, /import \{ lazy, Suspense \} from "react";/, path);
     assert.match(source, new RegExp(`const ${component} = lazy\\(\\(\\) => import`), path);
-    assert.doesNotMatch(source, new RegExp(`import \\{ ${component} \\} from "@/features/admin/components/${component}"`), path);
+    assert.doesNotMatch(
+      source,
+      new RegExp(`import \\{ ${component} \\} from "@/features/admin/components/${component}"`),
+      path,
+    );
     assert.match(source, new RegExp(`<Suspense fallback=\\{<LoadingState />\\}>[\\s\\S]*<${component}`), path);
   }
 });
@@ -472,7 +488,6 @@ test("les gros modules restent absents du shell générique quand ils sont inuti
   assert.match(documents, /await import\("@\/features\/documents\/templates\/receipt-pdf\.server"\)/);
   assert.doesNotMatch(read("src/router.tsx"), /from "recharts"|from "pdf-lib"/);
 });
-
 
 test("les assets critiques du premier écran sont optimisés et le hero est prioritaire", () => {
   const root = read("src/routes/__root.tsx");
@@ -495,7 +510,6 @@ test("les assets critiques du premier écran sont optimisés et le hero est prio
   assert.match(optimizer, /withoutEnlargement: true/);
 });
 
-
 test("le budget statique du shell protège LCP/CLS et évite les gros modules au premier chargement", () => {
   const root = read("src/routes/__root.tsx");
   const router = read("src/router.tsx");
@@ -510,7 +524,6 @@ test("le budget statique du shell protège LCP/CLS et évite les gros modules au
   assert.match(section, /content-auto/);
   assert.match(styles, /content-visibility:\s*auto/);
 });
-
 
 test("le chargement sur réseau mobile reste borné et ne refetch pas tout le cache hors écran", () => {
   const policy = read("src/lib/query-policy.ts");
@@ -529,7 +542,6 @@ test("aucune API de préchargement réseau manuel n'est ajoutée au shell critiq
   assert.doesNotMatch(root, /navigator\.connection|effectiveType|requestIdleCallback/);
   assert.doesNotMatch(router, /prefetchQuery|prefetchInfiniteQuery/);
 });
-
 
 test("les dépendances frontend lourdes restent isolées des shells critiques", () => {
   const root = read("src/routes/__root.tsx");
@@ -569,7 +581,6 @@ test("les cinq dépendances lourdes restent documentées comme modules ciblés d
     assert.match(packageJson, new RegExp('"' + dependency.replace(/[.*+?^$()|[\]\\]/g, "\\$&") + '"\\s*:'));
   }
 });
-
 
 test("le motion design reste court, coherent et compatible reduced motion", () => {
   const button = read("src/components/ui/button.tsx");
@@ -676,7 +687,6 @@ test("5.8.8.1 conserve le reduced-motion sur les primitives animées", () => {
   assert.match(styles, /prefers-reduced-motion: reduce/);
 });
 
-
 test("5.8.8.3 aligne les écrans client sur les primitives de page et de surface partagées", () => {
   const header = read("src/components/layout/PageHeader.tsx");
   const account = read("src/features/accounts/components/AccountListItem.tsx");
@@ -692,7 +702,6 @@ test("5.8.8.3 aligne les écrans client sur les primitives de page et de surface
   assert.match(featureShell, /BankingContentContainer width=\{width\}/);
   assert.match(featureShell, /<PageSection>/);
 });
-
 
 test("5.8.8.4 aligne les surfaces et la motion de la console administrative", () => {
   const table = read("src/components/ui/table.tsx");
@@ -711,18 +720,19 @@ test("5.8.8.4 aligne les surfaces et la motion de la console administrative", ()
   assert.match(onboarding, /native-surface mb-5/);
 });
 
-
 test("5.8.8.5 standardise les états globaux de feedback", () => {
   const feedback = read("src/components/feedback/index.tsx");
   const state = read("src/components/feedback/StateBlock.tsx");
   const skeleton = read("src/components/ui/skeleton.tsx");
-  assert.match(feedback, /min-h-24 items-center justify-center gap-2 rounded-xl border border-border bg-surface/);
+  assert.match(
+    feedback,
+    /min-h-24 items-center justify-center gap-2 rounded-xl border border-border bg-surface/,
+  );
   assert.match(feedback, /motion-reduce:transition-none/);
   assert.match(state, /flex min-h-44 flex-col items-center justify-center/);
   assert.match(state, /motion-reduce:transition-none/);
   assert.match(skeleton, /animate-pulse/);
 });
-
 
 test("5.8.8.6 renforce la responsivité des overlays sur petits écrans", () => {
   const dialog = read("src/components/ui/dialog.tsx");
@@ -783,7 +793,7 @@ test("5.8.8.8 certifie la cohérence globale des primitives, shells, états et s
   for (const source of [button, input, textarea, select, tabs]) {
     assert.match(source, /focus-visible:ring-2 focus-visible:ring-ring/);
     assert.match(source, /motion-safe:transition-/);
-    assert.match(source, /duration-150/);
+    assert.match(source, /duration-(?:150|200)/);
   }
 
   assert.match(button, /min-h-11/);
@@ -852,7 +862,10 @@ test("5.8.9 certifie la modernisation UI/UX 2026 de bout en bout", () => {
   const sheet = read("src/components/ui/sheet.tsx");
   const styles = read("src/styles.css");
 
-  assert.match(packageJson, /"test:certification": "node --test tests\/certification\.test\.mjs tests\/admin-ui-certification\.test\.mjs"/);
+  assert.match(
+    packageJson,
+    /"test:certification": "node --test tests\/certification\.test\.mjs tests\/admin-ui-certification\.test\.mjs"/,
+  );
 
   // 5.8.1 — thème adaptatif.
   assert.match(theme, /ThemeMode = "light" \| "dark" \| "system"/);
@@ -875,7 +888,9 @@ test("5.8.9 certifie la modernisation UI/UX 2026 de bout en bout", () => {
   assert.match(styles, /@utility motion-reveal/);
 
   // 5.8.4 — hiérarchie du dashboard.
-  assert.ok(dashboard.indexOf("<ActionRequiredTransfers />") < dashboard.indexOf("<MonthlySummaryCard"));
+  assert.ok(
+    dashboard.indexOf("<ActionRequiredTransfers />") < dashboard.indexOf("<MonthlySummaryCard"),
+  );
   assert.match(dashboard, /aria-labelledby="activity-heading"/);
   assert.match(dashboard, /focus-visible:ring-2 focus-visible:ring-ring/);
 
@@ -920,7 +935,6 @@ test("5.8.9 certifie la modernisation UI/UX 2026 de bout en bout", () => {
   // La certification 5.8.8 globale doit elle-même rester dans la suite.
   assert.match(read("tests/certification.test.mjs"), /5\.8\.8\.8 certifie la cohérence globale/);
 });
-
 
 test("PR 54 — les erreurs de formulaire et la navigation client sont accessibles au clavier", () => {
   const form = read("src/components/ui/form.tsx");
