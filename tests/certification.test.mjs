@@ -131,7 +131,7 @@ test("les collections admin Funding, Audit et External Transfers utilisent une p
     const start = server.indexOf(`export async function ${name}`);
     const end = server.indexOf("export async function ", start + 20);
     const body = server.slice(start, end < 0 ? server.length : end);
-    assert.doesNotMatch(body, /\\.limit\\(100\\)/, name);
+    assert.doesNotMatch(body, /\.limit\(100\)/, name);
     assert.match(body, /limit\\(ADMIN_PAGE_SIZE \\+ 1\\)/, name);
   }
   assert.match(functions, /listFundingRequests[\\s\\S]*?data\\.cursor/);
