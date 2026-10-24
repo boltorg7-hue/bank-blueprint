@@ -5,6 +5,19 @@ import test from "node:test";
 
 const root = new URL("../", import.meta.url);
 const read = (path) => readFileSync(new URL(path, root), "utf8");
+test("email confirmation links use only a canonical configured HTTPS origin", () => {
+  const service = read("src/features/auth/services/email-confirmation.functions.ts");
+  assert.match(service, /process\.env\["APP_BASE_URL"\]/);
+  assert.match(service, /url\.protocol !== "https:"/);
+  assert.match(service, /url\.username/);
+  assert.match(service, /url\.password/);
+  assert.match(service, /url\.search/);
+  assert.match(service, /url\.hash/);
+  assert.match(service, /return url\.origin/);
+  assert.doesNotMatch(service, /getRequestHeader\(["']origin["']\)/);
+  assert.doesNotMatch(service, /getRequestHeader\(["']host["']\)/);
+});
+
 const stepMigrations = readdirSync(new URL("supabase/migrations/", root))
   .filter((name) => /^20260924.*\.sql$/.test(name))
   .map((name) => ({ name, sql: read(`supabase/migrations/${name}`) }));
