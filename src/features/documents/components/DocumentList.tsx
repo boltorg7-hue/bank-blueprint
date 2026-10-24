@@ -24,6 +24,21 @@ const FILTERS: Array<{ value: DocumentFilter; label: string; labelEn: string }> 
   { value: "LETTERS", label: "Courriers", labelEn: "Letters" },
 ];
 
+const DOCUMENT_TYPE_LABELS_EN: Record<CustomerDocumentDto["documentType"], string> = {
+  ACCOUNT_STATEMENT: "Account statement",
+  TRANSFER_RECEIPT: "Transfer receipt",
+  TRANSACTION_RECEIPT: "Transaction receipt",
+  BANK_LETTER: "Bank letter",
+  ACCOUNT_CERTIFICATE: "Account certificate",
+};
+
+const DOCUMENT_STATUS_LABELS_EN: Record<DocumentLifecycleStatus, string> = {
+  READY: "Available",
+  GENERATING: "Preparing",
+  FAILED: "Failed",
+  SUPERSEDED: "Replaced",
+};
+
 const STATUS_TONE: Record<DocumentLifecycleStatus, "success" | "pending" | "failed" | "neutral"> = {
   READY: "success",
   GENERATING: "pending",
@@ -48,14 +63,14 @@ const DocumentRow = memo(function DocumentRow({ document }: { document: Customer
         <div className="min-w-0">
           <p className="text-sm font-semibold text-foreground">{document.title}</p>
           <p className="text-caption text-muted-foreground">
-            {DOCUMENT_TYPE_LABELS[document.documentType]}
+            {en ? DOCUMENT_TYPE_LABELS_EN[document.documentType] : DOCUMENT_TYPE_LABELS[document.documentType]}
             {document.accountReference ? ` · ${document.accountReference}` : ""}
             {size ? ` · ${size}` : ""}
           </p>
           <p className="text-numeric text-caption text-muted-foreground">{document.reference}</p>
         </div>
         <StatusBadge
-          label={DOCUMENT_STATUS_LABELS[document.status]}
+          label={en ? DOCUMENT_STATUS_LABELS_EN[document.status] : DOCUMENT_STATUS_LABELS[document.status]}
           tone={STATUS_TONE[document.status]}
         />
       </div>
