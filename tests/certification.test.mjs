@@ -98,7 +98,13 @@ test("aucun composant ou route n’importe le client Supabase service-role", () 
       for (const entry of readdirSync(new URL(`${path}/`, root), { withFileTypes: true })) {
         const child = join(path, entry.name);
         if (entry.isDirectory()) walk(child);
-        else if (/\.(?:ts|tsx)$/.test(entry.name)) assert.doesNotMatch(read(child), /from\s+["'][^"']*client\.server["']/, child);
+        else if (/\.(?:ts|tsx)$/.test(entry.name)) {
+          assert.doesNotMatch(
+            read(child),
+            /from\s+["'][^"']*client\.server["']/,
+            child,
+          );
+        }
       }
     };
     walk(directory);
@@ -130,10 +136,7 @@ test("les collections admin Customers et Accounts utilisent un curseur serveur s
   assert.match(functions, /listAdminCustomers[\s\S]*?data\.cursor/);
   assert.match(functions, /listAdminAccounts[\s\S]*?data\.cursor/);
   assert.match(hooks, /useAdminCustomers\(search: string, cursor/);
-  assert.match(
-    hooks,
-    /useAdminAccounts\(search = "", cursor/,
-  );
+  assert.match(hooks, /useAdminAccounts\(search = "", cursor/);
 });
 
 test("les collections admin Funding, Audit et External Transfers utilisent une pagination curseur", () => {
@@ -601,10 +604,7 @@ test("les cinq dépendances lourdes restent documentées comme modules ciblés d
     "embla-carousel-react",
     "react-resizable-panels",
   ]) {
-    assert.match(
-      packageJson,
-      new RegExp('"' + dependency + '"\\s*:'),
-    );
+    assert.match(packageJson, new RegExp('"' + dependency + '"\\s*:'));
   }
 });
 
