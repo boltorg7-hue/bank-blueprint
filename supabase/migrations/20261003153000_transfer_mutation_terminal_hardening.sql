@@ -200,7 +200,9 @@ BEGIN
     RAISE EXCEPTION 'REQUIREMENT_NOT_OPEN';
   END IF;
 
-  IF position((_user_id::text || '/') in _storage_path) <> 1 THEN
+  -- Explicitly reject NULL/blank paths; SQL NULL comparisons are not true in IF.
+  IF _storage_path IS NULL OR btrim(_storage_path) = ''
+     OR position((_user_id::text || '/') in _storage_path) <> 1 THEN
     RAISE EXCEPTION 'INVALID_DOCUMENT_PATH';
   END IF;
 
