@@ -109,9 +109,7 @@ for (const entry of [...functions.values()].sort(function (a, b) {
       " | " +
       (entry.securityDefiner ? "oui" : "non") +
       " | " +
-      (entry.securityDefiner
-        ? (entry.searchPath ? "présent" : "ABSENT")
-        : "n/a") +
+      (entry.securityDefiner ? (entry.searchPath ? "présent" : "ABSENT") : "n/a") +
       " |",
   );
 }
