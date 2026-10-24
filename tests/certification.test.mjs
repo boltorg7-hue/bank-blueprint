@@ -33,18 +33,18 @@ test("chaque fonction SECURITY DEFINER ajoutée fixe son search_path", () => {
 const allMigrationSql = readdirSync(new URL("supabase/migrations/", root))
   .filter((name) => name.endsWith(".sql"))
   .sort()
-  .map((name) => read(\`supabase/migrations/\${name}\`))
+  .map((name) => read(`supabase/migrations/${name}`))
   .join("\n");
 
 test("les nouvelles tables client activent RLS", () => {
   for (const table of ["customer_preferences", "notifications", "notification_outbox", "support_threads", "support_messages", "customer_security_sessions", "customer_security_events", "security_step_up_grants"]) {
-    assert.match(allMigrationSql, new RegExp(\`ALTER TABLE public\\.\${table} ENABLE ROW LEVEL SECURITY\`, "i"), table);
+    assert.match(allMigrationSql, new RegExp(`ALTER TABLE public\\.${table} ENABLE ROW LEVEL SECURITY`, "i"), table);
   }
 });
 
 test("les tables sensibles ne donnent aucune écriture directe au navigateur", () => {
   for (const table of ["notification_outbox", "support_threads", "support_messages", "customer_security_sessions", "customer_security_events", "security_step_up_grants"]) {
-    assert.doesNotMatch(allMigrationSql, new RegExp(\`GRANT (?:ALL|INSERT|DELETE).*\${table}.*authenticated\`, "i"), table);
+    assert.doesNotMatch(allMigrationSql, new RegExp(`GRANT (?:ALL|INSERT|DELETE).*${table}.*authenticated`, "i"), table);
   }
 });
 
