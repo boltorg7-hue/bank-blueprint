@@ -502,7 +502,7 @@ test("le budget statique du shell protège LCP/CLS et évite les gros modules au
 
   assert.doesNotMatch(root, /from ["']recharts["']|from ["']pdf-lib["']|from ["']react-day-picker["']/);
   assert.doesNotMatch(router, /from ["']recharts["']|from ["']pdf-lib["']/);
-  assert.match(home, /width=\{1280\}[\\s\\S]*?height=\{960\}/);
+  assert.match(home, /width=\{1280\}[\s\S]*?height=\{960\}/);
   assert.match(home, /priority/);
   assert.match(section, /content-auto/);
   assert.match(styles, /content-visibility:\\s*auto/);
@@ -658,7 +658,7 @@ test("5.8.8.1 standardise les primitives de contrôle sur une même grammaire vi
   assert.match(textarea, /min-h-\[60px\]/);
   assert.match(select, /min-h-11 w-full/);
   assert.match(select, /focus-visible:outline-none/);
-  assert.match(tabs, /TabsTrigger[\\s\\S]*min-h-11/);
+  assert.match(tabs, /TabsTrigger[\s\S]*min-h-11/);
 });
 
 test("5.8.8.1 conserve le reduced-motion sur les primitives animées", () => {
@@ -704,7 +704,7 @@ test("5.8.8.4 aligne les surfaces et la motion de la console administrative", ()
   assert.match(sidebar, /text-overline text-muted-foreground/);
   assert.match(layout, /text-caption font-medium/);
   assert.match(dashboard, /native-surface p-4 sm:p-5/);
-  assert.match(funding, /<PageSection>[\\s\\S]*<PageHeader/);
+  assert.match(funding, /<PageSection>[\s\S]*<PageHeader/);
   assert.match(onboarding, /native-surface mb-5/);
 });
 
@@ -726,8 +726,8 @@ test("5.8.8.6 renforce la responsivité des overlays sur petits écrans", () => 
   const sheet = read("src/components/ui/sheet.tsx");
   const banking = read("src/components/layout/BankingAppLayout.tsx");
   const admin = read("src/components/layout/AdminLayout.tsx");
-  assert.match(dialog, /w-\\[calc\\(100vw-2rem\\)\\]/);
-  assert.match(dialog, /max-h-\\[calc\\(100dvh-2rem\\)\\]/);
+  assert.match(dialog, /w-\[calc\(100vw-2rem\)\]/);
+  assert.match(dialog, /max-h-\[calc\(100dvh-2rem\)\]/);
   assert.match(dialog, /overflow-y-auto/);
   assert.match(sheet, /max-w-full overflow-y-auto overscroll-contain/);
   assert.match(sheet, /bottom:.*max-h-\\\[92dvh\\\]/s);
