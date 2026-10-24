@@ -730,7 +730,7 @@ test("5.8.8.6 renforce la responsivité des overlays sur petits écrans", () => 
   assert.match(dialog, /max-h-\[calc\(100dvh-2rem\)\]/);
   assert.match(dialog, /overflow-y-auto/);
   assert.match(sheet, /max-w-full overflow-y-auto overscroll-contain/);
-  assert.match(sheet, /bottom:.*max-h-\\[92dvh\\]/s);
+  assert.match(sheet, /bottom:.*max-h-\[92dvh\]/s);
   assert.match(banking, /min-w-0 flex-1 overscroll-x-none/);
   assert.match(admin, /min-w-0 flex-1 overscroll-x-none/);
 });
