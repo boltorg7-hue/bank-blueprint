@@ -699,7 +699,7 @@ test("5.8.8.4 aligne les surfaces et la motion de la console administrative", ()
   const funding = read("src/routes/admin.funding.tsx");
   const onboarding = read("src/routes/admin.onboarding-cases.tsx");
 
-  assert.match(table, /motion-safe:transition-\\[background-color,border-color\\]/);
+  assert.match(table, /motion-safe:transition-\[background-color,border-color\]/);
   assert.match(table, /motion-reduce:transition-none/);
   assert.match(sidebar, /text-overline text-muted-foreground/);
   assert.match(layout, /text-caption font-medium/);
