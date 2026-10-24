@@ -3,7 +3,11 @@ import { LifeBuoy } from "lucide-react";
 
 import { BrandMark } from "@/components/navigation/BrandMark";
 import { useLanguage } from "@/components/providers/LanguageProvider";
-import { CUSTOMER_DESKTOP_NAV, CUSTOMER_SECONDARY_NAV, type NavItem } from "@/config/navigation";
+import {
+  CUSTOMER_DESKTOP_NAV,
+  CUSTOMER_SECONDARY_NAV,
+  type NavItem,
+} from "@/config/navigation";
 
 function SidebarItem({ item }: { item: NavItem }) {
   const { language } = useLanguage();
@@ -17,7 +21,9 @@ function SidebarItem({ item }: { item: NavItem }) {
         className="flex min-h-11 items-center gap-3 rounded-lg px-3 py-2 text-sm text-muted-foreground/60"
       >
         <Icon className="size-4 shrink-0" aria-hidden="true" />
-        <span className="min-w-0 truncate">{language === "en" ? englishNavLabel(item.label) : item.label}</span>
+        <span className="min-w-0 truncate">
+          {language === "en" ? englishNavLabel(item.label) : item.label}
+        </span>
       </span>
     );
   }
@@ -32,7 +38,9 @@ function SidebarItem({ item }: { item: NavItem }) {
       className="flex min-h-11 items-center gap-3 rounded-lg px-3 py-2 text-sm text-sidebar-foreground/80 transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
     >
       <Icon className="size-4 shrink-0" aria-hidden="true" />
-      <span className="min-w-0 truncate">{language === "en" ? englishNavLabel(item.label) : item.label}</span>
+      <span className="min-w-0 truncate">
+        {language === "en" ? englishNavLabel(item.label) : item.label}
+      </span>
     </Link>
   );
 }
@@ -47,7 +55,11 @@ export function CustomerSidebar() {
       </div>
 
       <nav
-        aria-label={language === "en" ? "Customer navigation (sidebar)" : "Navigation client (latérale)"}
+        aria-label={
+          language === "en"
+            ? "Customer navigation (sidebar)"
+            : "Navigation client (latérale)"
+        }
         className="min-h-0 flex-1 space-y-1 overflow-y-auto px-3 py-2"
       >
         {CUSTOMER_DESKTOP_NAV.map((item) => (
@@ -74,6 +86,32 @@ export function CustomerSidebar() {
 }
 
 export function englishNavLabel(label: string): string {
-  const labels: Record<string, string> = { Accueil: "Home", Comptes: "Accounts", Virement: "Transfer", Virements: "Transfers", Activité: "Activity", Bénéficiaires: "Beneficiaries", Relevés: "Statements", Documents: "Documents", Messages: "Messages", Notifications: "Notifications", Profil: "Profile", Sécurité: "Security", Préférences: "Settings", Aide: "Help", Plus: "More", Opérations: "Transactions", Clients: "Customers", "Dossiers d’ouverture": "Account applications", Approvisionnements: "Funding", "Transferts externes": "External transfers", "Service client": "Customer support", "KYC & conformité": "KYC & compliance", Audit: "Audit", "Parité & tarifs": "Exchange rate & fees", "Tableau de bord": "Dashboard" };
+  const labels: Record<string, string> = {
+    Accueil: "Home",
+    Comptes: "Accounts",
+    Virement: "Transfer",
+    Virements: "Transfers",
+    Activité: "Activity",
+    Bénéficiaires: "Beneficiaries",
+    Relevés: "Statements",
+    Documents: "Documents",
+    Messages: "Messages",
+    Notifications: "Notifications",
+    Profil: "Profile",
+    Sécurité: "Security",
+    Préférences: "Settings",
+    Aide: "Help",
+    Plus: "More",
+    Opérations: "Transactions",
+    Clients: "Customers",
+    "Dossiers d’ouverture": "Account applications",
+    Approvisionnements: "Funding",
+    "Transferts externes": "External transfers",
+    "Service client": "Customer support",
+    "KYC & conformité": "KYC & compliance",
+    Audit: "Audit",
+    "Parité & tarifs": "Exchange rate & fees",
+    "Tableau de bord": "Dashboard",
+  };
   return labels[label] ?? label;
 }
