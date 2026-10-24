@@ -693,7 +693,7 @@ test("5.8.8.1 standardise les primitives de contrôle sur une même grammaire vi
     assert.match(source, /focus-visible:ring-2 focus-visible:ring-ring/);
     assert.match(source, /focus-visible:ring-offset-2/);
     assert.match(source, /motion-safe:transition-/);
-    assert.match(source, /duration-(?:150|200)/g);
+    assert.match(source, /duration-(?:150|200)/);
   }
 
   assert.match(button, /min-h-11/);
