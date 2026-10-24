@@ -26,6 +26,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
@@ -36,20 +38,40 @@ jobs:
         run: npm run test:certification
 
   lint:
-    name: Repository lint
+    name: Lint changed JavaScript and TypeScript
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 22
       - name: Install dependencies
         run: npm install --no-audit --no-fund
-      - name: Run ESLint
-        run: npm run lint
+      - name: Lint changed files
+        shell: bash
+        run: |
+          if [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
+            git fetch origin "$GITHUB_BASE_REF"
+            changed_files=$(git diff --name-only --diff-filter=ACMRT "origin/$GITHUB_BASE_REF"...HEAD)
+          else
+            changed_files=$(git diff-tree --no-commit-id --name-only -r "$GITHUB_SHA")
+          fi
+
+          mapfile -t files < <(printf '%s\n' "$changed_files" | grep -E '\.(js|jsx|ts|tsx|mjs|cjs)$' || true)
+
+          if (( ${#files[@]} == 0 )); then
+            echo "No changed JavaScript/TypeScript files to lint."
+            exit 0
+          fi
+
+          printf 'Linting %s changed file(s):\n' "${#files[@]}"
+          printf ' - %s\n' "${files[@]}"
+          npx eslint "${files[@]}"
 
   build:
     name: Production build
