@@ -213,8 +213,8 @@ test("la matrice DB certifie la version finale des fonctions", () => {
   assert.match(audit, /entry\.finalDefinition = match\[0\]/);
   assert.match(audit, /entry\.securityDefiner = \/SECURITY\\s\+DEFINER/);
   assert.match(audit, /entry\.searchPath = \/search_path/);
-  assert.doesNotMatch(audit, /securityDefiner \\|\\|=/);
-  assert.doesNotMatch(audit, /searchPath \\|\\|=/);
+  assert.ok(audit.includes("entry.securityDefiner = /SECURITY\\s+DEFINER/i.test(match[0]);"));
+  assert.ok(audit.includes("entry.searchPath = /search_path/i.test(match[0]);"));
 });
 
 
@@ -233,7 +233,7 @@ test("la matrice des migrations trie par timestamp même dans les sous-dossiers"
   assert.match(audit, /path\.basename\(a\)/);
   assert.match(audit, /path\.basename\(b\)/);
   assert.match(audit, /aName\.localeCompare\(bName\)/);
-  assert.match(audit, /\\$\\$\[\\s\\S\]\*\?\\\\\$\\$/);
+  assert.ok(audit.includes("\\$\\$[\\s\\S]*?\\$\\$"));
 });
 
 
