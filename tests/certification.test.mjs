@@ -94,8 +94,8 @@ test("les collections admin Customers et Accounts utilisent un curseur serveur s
   const hooks = read("src/features/admin/hooks/useAdmin.ts");
   assert.match(server, /loadAdminCustomers[\\s\\S]*?decodeAdminCursor\\(cursor\\)/);
   assert.match(server, /loadAdminAccounts[\\s\\S]*?decodeAdminCursor\\(cursor\\)/);
-  assert.doesNotMatch(server, /loadAdminCustomers[\\s\\S]*?\\.range\\(/);
-  assert.doesNotMatch(server, /loadAdminAccounts[\\s\\S]*?\\.limit\\(100\\)/);
+  assert.doesNotMatch(server, /loadAdminCustomers[\s\S]*?\.range\(/);
+  assert.doesNotMatch(server, /loadAdminAccounts[\s\S]*?\.limit\(100\)/);
   assert.match(functions, /listAdminCustomers[\\s\\S]*?data\\.cursor/);
   assert.match(functions, /listAdminAccounts[\\s\\S]*?data\\.cursor/);
   assert.match(hooks, /useAdminCustomers\\(search: string, cursor/);
@@ -154,7 +154,7 @@ test("l'historique transactions utilise un curseur serveur", () => {
   const ui = read("src/features/transactions/components/TransactionHistory.tsx");
   assert.match(server, /decodeTransactionCursor\\(request.cursor\\)/);
   assert.match(server, /limit\\(pageSize \\+ 1\\)/);
-  assert.doesNotMatch(server, /getTransactions[\\s\\S]*?\\.range\\(/);
+  assert.doesNotMatch(server, /getTransactions[\s\S]*?\.range\(/);
   assert.doesNotMatch(server, /getTransactions[\\s\\S]*?count: "exact"/);
   assert.match(types, /cursor\\?: string \\| null/);
   assert.match(ui, /cursorHistory/);
