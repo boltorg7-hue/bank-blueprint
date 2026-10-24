@@ -305,7 +305,7 @@ test("la navigation secondaire garde Plus actif sans voler l’état aux parcour
     "/app/security",
     "/app/settings",
   ]) {
-    assert.match(navigation, new RegExp('"' + route.replace(/[.*+?^$()|[\]\]/g, "\test("la navigation mobile client reste limitée à cinq destinations primaires", () => {") + '"'));
+    assert.match(navigation, new RegExp('"' + route.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + '"'));
   }
   assert.match(bottomNav, /isCustomerMoreRoute\(pathname\)/);
   assert.match(more, /aria-current=\{pathname === item\.to \|\| pathname\.startsWith\(item\.to \+ "\/"\) \? "page" : undefined\}/);
