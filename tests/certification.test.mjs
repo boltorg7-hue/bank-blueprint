@@ -588,7 +588,7 @@ test("les dépendances frontend lourdes restent isolées des shells critiques", 
   assert.match(resizable, /from "react-resizable-panels"/);
   assert.match(
     documents,
-    /await import\\("@\\/features\\/documents\\/templates\\/receipt-pdf\\.server"\\)/,
+    /await import\("@\/features\/documents\/templates\/receipt-pdf\.server"\)/,
   );
 });
 
