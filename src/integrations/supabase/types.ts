@@ -1105,6 +1105,51 @@ export type Database = {
           },
         ]
       }
+      notification_outbox: {
+        Row: {
+          attempts: number
+          channel: string
+          created_at: string
+          id: string
+          last_error_code: string | null
+          payload: Json
+          processed_at: string | null
+          provider_reference: string | null
+          recipient: string
+          status: string
+          template_key: string
+          user_id: string
+        }
+        Insert: {
+          attempts?: number
+          channel: string
+          created_at?: string
+          id?: string
+          last_error_code?: string | null
+          payload?: Json
+          processed_at?: string | null
+          provider_reference?: string | null
+          recipient: string
+          status?: string
+          template_key: string
+          user_id: string
+        }
+        Update: {
+          attempts?: number
+          channel?: string
+          created_at?: string
+          id?: string
+          last_error_code?: string | null
+          payload?: Json
+          processed_at?: string | null
+          provider_reference?: string | null
+          recipient?: string
+          status?: string
+          template_key?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           archived_at: string | null
@@ -1234,6 +1279,39 @@ export type Database = {
         Update: {
           created_at?: string
           id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      phone_verification_codes: {
+        Row: {
+          attempts: number
+          code_hash: string
+          consumed_at: string | null
+          created_at: string
+          expires_at: string
+          id: string
+          phone: string
+          user_id: string
+        }
+        Insert: {
+          attempts?: number
+          code_hash: string
+          consumed_at?: string | null
+          created_at?: string
+          expires_at: string
+          id?: string
+          phone: string
+          user_id: string
+        }
+        Update: {
+          attempts?: number
+          code_hash?: string
+          consumed_at?: string | null
+          created_at?: string
+          expires_at?: string
+          id?: string
+          phone?: string
           user_id?: string
         }
         Relationships: []
