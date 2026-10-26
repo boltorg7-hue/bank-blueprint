@@ -18,6 +18,14 @@ for (const [key, value] of Object.entries(PUBLIC_ENV)) {
 }
 
 export default defineConfig({
+  vite: {
+    define: Object.fromEntries(
+      Object.keys(PUBLIC_ENV).map((key) => [
+        `import.meta.env.${key}`,
+        JSON.stringify(process.env[key]),
+      ]),
+    ),
+  },
   tanstackStart: {
     // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
     // nitro/vite builds from this
