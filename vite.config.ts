@@ -6,6 +6,17 @@
 // You can pass additional config via defineConfig({ vite: { ... }, etc... }) if needed.
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 
+// Public, browser-safe backend values. Fallback used when .env is absent from the
+// build (it is excluded by .gitignore, so GitHub-based publishes would otherwise ship without it).
+const PUBLIC_ENV = {
+  VITE_SUPABASE_URL: "https://cxaztezhwrzzxlafrbvd.supabase.co",
+  VITE_SUPABASE_PUBLISHABLE_KEY: "sb_publishable_qMYRknRu4-UF35PmENhmPA_deMhwx_0",
+  VITE_SUPABASE_PROJECT_ID: "cxaztezhwrzzxlafrbvd",
+};
+for (const [key, value] of Object.entries(PUBLIC_ENV)) {
+  if (!process.env[key]) process.env[key] = value;
+}
+
 export default defineConfig({
   tanstackStart: {
     // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
