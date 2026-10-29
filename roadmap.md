@@ -38,3 +38,6 @@
 - Parcours d’un nouveau client validé de bout en bout sur mobile : inscription, confirmation d’e-mail, reconnexion, étapes 1 à 4, envoi du dossier et arrivée dans l’espace limité avec opérations verrouillées. Progression et dernière relecture harmonisées en FR/EN.
 - Registre administrateur des dossiers d’ouverture ajouté : recherche, filtre de statut, progression, documents reçus et dates de soumission/décision, avec vue mobile dédiée et accès protégé par l’autorisation clients.
 - Parcours administratif d’ouverture complet ajouté : invitation sécurisée, examen KYC, seconde validation par un autre agent, ouverture USD limitée puis activation bancaire séparée.
+
+- [ ] Modèles e-mail de confirmation bilingues aux couleurs RFC (bloqué : domaine e-mail non relié)
+- [ ] Envoi réel du code SMS (bloqué : clé Africa's Talking)
