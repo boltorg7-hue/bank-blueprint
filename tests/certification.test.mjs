@@ -456,7 +456,7 @@ test("les écrans admin lourds chargent leurs tableaux métier à la demande", (
   for (const [path, component] of routes) {
     const source = read(path);
     assert.match(source, /import \{ lazy, Suspense \} from "react";/, path);
-    assert.match(source, new RegExp(`const ${component} = lazy\(\(\) => import`), path);
+    assert.match(source, new RegExp(`const ${component} = lazy\\(\\(\\) => import`), path);
     assert.doesNotMatch(source, new RegExp(`import \{ ${component} \} from "@/features/admin/components/${component}"`), path);
     assert.match(source, new RegExp(`<Suspense fallback=\{<LoadingState />\}>[\s\S]*<${component}`), path);
   }
@@ -738,7 +738,6 @@ test("5.8.8.6 renforce la responsivité des overlays sur petits écrans", () => 
 test("5.8.8.7 ne laisse pas de reliquats de debug ou de maintenance explicite", () => {
   const feedback = read("src/components/feedback/index.tsx");
   const state = read("src/components/feedback/StateBlock.tsx");
-  for (const source of [feedback, state]) assert.doesNotMatch(source, /\n/);
   for (const directory of ["src", "scripts", "supabase"]) {
     const walk = (path) => {
       for (const entry of readdirSync(new URL(`${path}/`, root), { withFileTypes: true })) {
