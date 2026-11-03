@@ -563,7 +563,7 @@ test("les cinq dépendances lourdes restent documentées comme modules ciblés d
     "embla-carousel-react",
     "react-resizable-panels",
   ]) {
-    assert.match(packageJson, new RegExp('"' + dependency.replace(/[.*+?^$()|[\]\]/g, "\$&") + '"\s*:'));
+    assert.match(packageJson, new RegExp('"' + dependency.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + '"\\s*:'));
   }
 });
 
