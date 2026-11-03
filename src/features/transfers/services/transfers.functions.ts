@@ -101,7 +101,7 @@ export const confirmTransferExecution = createServerFn({ method: "POST" })
   .inputValidator(requireTransferReference)
   .handler(async ({ data, context }): Promise<TransferConfirmationResultDto> => {
     const { data: authorized, error: stepUpError } = await context.supabase.rpc(
-      "consume_security_step_up" as any,
+      "consume_security_step_up" as never,
       { _action: "TRANSFER_CONFIRM", _resource_reference: data.reference } as never,
     );
     if (stepUpError || authorized !== true) throw new Error("RECENT_AUTHENTICATION_REQUIRED");
@@ -113,7 +113,7 @@ export const authorizeTransferConfirmation = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator(requireTransferReference)
   .handler(async ({ data, context }) => {
-    const { error } = await context.supabase.rpc("issue_security_step_up" as any, {
+    const { error } = await context.supabase.rpc("issue_security_step_up" as never, {
       _action: "TRANSFER_CONFIRM",
       _resource_reference: data.reference,
     } as never);
