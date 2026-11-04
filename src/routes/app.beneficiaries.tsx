@@ -30,7 +30,7 @@ function AppBeneficiariesRoute() {
     <BankingContentContainer width="default">
       <PageHeader
         title={en ? "Beneficiaries" : "Bénéficiaires"}
-        description={en ? "Accounts you can send money to. Only the final digits of account numbers are shown." : "Les comptes vers lesquels vous pouvez envoyer de l'argent. Seules les dernières décimales du compte sont affichées."}
+        description={en ? "Accounts you can send money to. Only the final digits of account numbers are shown." : "Les comptes vers lesquels vous pouvez envoyer de l'argent. Seuls les derniers chiffres des numéros de compte sont affichés."}
         action={allowed ? (
           <div className="action-row">
             <AddBeneficiaryDialog />
