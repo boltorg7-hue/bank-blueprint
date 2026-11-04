@@ -41,7 +41,7 @@ for (const country of [
   "Mali", "Morocco", "Mozambique", "Nigeria", "Rwanda", "Senegal",
   "South Africa", "Tanzania", "Tunisia", "Uganda", "Zambia", "Zimbabwe",
 ]) {
-  assert.ok(choices.includes(\`value: "\${country}"\`));
+  assert.ok(choices.includes(`value: "${country}"`));
 }
 
 console.log("STEP 09 INTERNATIONAL PHONE + OTP FLOW STATIC CERTIFICATION: PASS");

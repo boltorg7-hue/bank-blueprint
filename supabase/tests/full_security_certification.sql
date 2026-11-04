@@ -144,7 +144,7 @@ BEGIN
          AND EXISTS (SELECT 1 FROM unnest(coalesce(_policy.roles, ARRAY[]::name[])) AS role_name WHERE role_name='authenticated')
       THEN
         _qual := coalesce(_policy.qual,'') || ' ' || coalesce(_policy.with_check,'');
-        IF _qual !~* 'auth\\.uid\\s*\\(\\)|has_permission\\s*\\(|is_staff\\s*\\(' THEN
+        IF _qual !~* 'auth\.uid\s*\(\)|has_permission\s*\(|is_staff\s*\(' THEN
           RAISE EXCEPTION 'AUTHENTICATED_POLICY_NOT_SCOPED:%:%', _table, _policy.policyname;
         END IF;
       END IF;
