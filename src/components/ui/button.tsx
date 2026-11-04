@@ -48,7 +48,16 @@ export interface ButtonProps
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   (
-    { className, variant, size, asChild = false, loading = false, loadingLabel, children, ...props },
+    {
+      className,
+      variant,
+      size,
+      asChild = false,
+      loading = false,
+      loadingLabel,
+      children,
+      ...props
+    },
     ref,
   ) => {
     const Comp = asChild ? Slot : "button";
@@ -72,7 +81,9 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         {loading ? (
           <>
             <Loader2 className="animate-spin" aria-hidden="true" />
-            <span role="status" aria-live="polite">{loadingLabel ?? children}</span>
+            <span role="status" aria-live="polite">
+              {loadingLabel ?? children}
+            </span>
           </>
         ) : (
           children
