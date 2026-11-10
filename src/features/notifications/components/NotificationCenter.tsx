@@ -110,7 +110,7 @@ export function NotificationCenter() {
       ) : (
         <div className="space-y-3">
           {items.map((n) => (
-            <Card`motion-safe:transition-[border-color,box-shadow,transform] motion-safe:duration-200 hover:shadow-sm ${n.readAt ? "" : "border-info/40"}`}><CardContent className="p-4">
+            <Card className={`motion-safe:transition-[border-color,box-shadow,transform] motion-safe:duration-200 hover:shadow-sm ${n.readAt ? "" : "border-info/40"}`}><CardContent className="p-4">
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <div className="flex flex-wrap items-center gap-2">
