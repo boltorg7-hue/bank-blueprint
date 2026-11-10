@@ -29,7 +29,7 @@ function SidebarItem({ item }: { item: NavItem }) {
         className: "bg-sidebar-accent text-sidebar-accent-foreground font-medium",
         "aria-current": "page",
       }}
-      className="flex min-h-10 items-center gap-3 rounded-lg px-3 py-2 text-sm text-sidebar-foreground/80 transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+      className="flex min-h-11 items-center gap-3 rounded-lg px-3 py-2 text-sm text-sidebar-foreground/80 transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
     >
       <Icon className="size-4 shrink-0" aria-hidden="true" />
       <span className="min-w-0 truncate">{language === "en" ? englishNavLabel(item.label) : item.label}</span>
