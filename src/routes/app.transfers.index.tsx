@@ -40,7 +40,7 @@ function AppTransfersIndexRoute() {
     <Button asChild>
       <Link to="/app/transfers/new">
         <Plus className="size-4" aria-hidden="true" />
-        Nouveau virement
+        {en ? "New transfer" : "Nouveau virement"}
       </Link>
     </Button>
   );
