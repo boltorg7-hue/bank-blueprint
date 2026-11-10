@@ -1060,6 +1060,10 @@ test("5.9.9.9 — la création de virement est idempotente et les règlements on
 
   assert.match(wizard, /idempotencyKeyRef/);
   assert.match(wizard, /crypto\.randomUUID\(\)/);
+  assert.match(wizard, /crypto\.subtle\.digest/);
+  assert.match(wizard, /sessionStorage\.getItem/);
+  assert.match(wizard, /sessionStorage\.setItem/);
+  assert.match(wizard, /sessionStorage\.removeItem/);
   assert.match(wizard, /idempotencyKey,/);
   assert.match(input, /idempotencyKey\?: string/);
   assert.match(input, /INVALID_IDEMPOTENCY_KEY/);
@@ -1075,7 +1079,7 @@ test("5.9.9.9 — la création de virement est idempotente et les règlements on
   assert.match(types, /NOT_SUBMITTED/);
   assert.match(settlement, /_provider_status IS NULL/);
   assert.match(settlement, /_provider_status <> 'SUCCEEDED'/);
-  assert.match(settlement, /GRANT EXECUTE ON FUNCTION public\\.submit_transfer_document/);
+  assert.match(settlement, /GRANT EXECUTE ON FUNCTION public\.submit_transfer_document/);
   assert.match(settlement, /SETTLEMENT_ALREADY_FINALIZED/);
   assert.match(settlement, /INVALID_SETTLEMENT_STATE/);
   assert.match(review, /DOCUMENT_ALREADY_FINALIZED/);

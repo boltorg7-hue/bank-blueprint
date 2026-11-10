@@ -75,6 +75,25 @@ function toMinorUnits(raw: string, minorUnit: number): number | null {
  * The client only collects intent: validation, reservation and posting are
  * server-side and atomic.
  */
+async function transferIntentStorageKey(input: {
+  sourceAccountReference: string;
+  beneficiaryReference: string;
+  amountMinor: number;
+  customerReference: string;
+}): Promise<string> {
+  const payload = JSON.stringify([
+    input.sourceAccountReference,
+    input.beneficiaryReference,
+    input.amountMinor,
+    input.customerReference,
+  ]);
+  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(payload));
+  const fingerprint = Array.from(new Uint8Array(digest), (byte) =>
+    byte.toString(16).padStart(2, "0"),
+  ).join("");
+  return `rfbank:transfer-idempotency:${fingerprint}`;
+}
+
 export function TransferWizard({ initialBeneficiary }: { initialBeneficiary?: string | undefined }) {
   const { language } = useLanguage();
   const en = language === "en";
@@ -358,12 +377,35 @@ export function TransferWizard({ initialBeneficiary }: { initialBeneficiary?: st
               disabled={amountMinor === null || overBalance || overLimit}
               loading={initiate.isPending}
               loadingLabel={en ? "Preparing transfer…" : "Préparation du virement…"}
-              onClick={() => {
+              onClick={async () => {
                 if (initiateLock.current || amountMinor === null || !source || !beneficiary) return;
                 initiateLock.current = true;
                 setError(null);
-                const idempotencyKey = idempotencyKeyRef.current ?? crypto.randomUUID();
+
+                let storageKey: string | null = null;
+                let cachedKey: string | null = null;
+                try {
+                  storageKey = await transferIntentStorageKey({
+                    sourceAccountReference: source.reference,
+                    beneficiaryReference: beneficiary.reference,
+                    amountMinor,
+                    customerReference: note.trim(),
+                  });
+                  cachedKey = sessionStorage.getItem(storageKey);
+                } catch {
+                  storageKey = null;
+                }
+
+                const idempotencyKey = idempotencyKeyRef.current ?? cachedKey ?? crypto.randomUUID();
                 idempotencyKeyRef.current = idempotencyKey;
+                if (storageKey) {
+                  try {
+                    sessionStorage.setItem(storageKey, idempotencyKey);
+                  } catch {
+                    storageKey = null;
+                  }
+                }
+
                 initiate.mutate(
                   {
                     sourceAccountReference: source.reference,
@@ -374,6 +416,14 @@ export function TransferWizard({ initialBeneficiary }: { initialBeneficiary?: st
                   },
                   {
                     onSuccess: (created) => {
+                      idempotencyKeyRef.current = null;
+                      if (storageKey) {
+                        try {
+                          sessionStorage.removeItem(storageKey);
+                        } catch {
+                          // The server has committed the transfer; storage cleanup is best effort.
+                        }
+                      }
                       setTransfer(created);
                       setStepIndex(2);
                     },
