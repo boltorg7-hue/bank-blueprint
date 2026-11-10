@@ -12,10 +12,14 @@ import { BeneficiaryList } from "@/features/beneficiaries/components/Beneficiary
 
 export const Route = createFileRoute("/app/beneficiaries")({
   head: () => ({ meta: [
-    { name: "robots", content: "noindex, nofollow" },
+      { name: "robots", content: "noindex, nofollow" },
     { title: "Bénéficiaires — RFC Royal FINANCE Bank" },
-    { name: "description", content: "Gérez les comptes vers lesquels vous pouvez envoyer de l'argent." },
-  ]}),
+      {
+        name: "description",
+        content: "Gérez les comptes vers lesquels vous pouvez envoyer de l'argent.",
+      },
+    ],
+  }),
   component: AppBeneficiariesRoute,
 });
 
@@ -30,16 +34,25 @@ function AppBeneficiariesRoute() {
     <BankingContentContainer width="default">
       <PageHeader
         title={en ? "Beneficiaries" : "Bénéficiaires"}
-        description={en ? "Accounts you can send money to. Only the final digits of account numbers are shown." : "Les comptes vers lesquels vous pouvez envoyer de l'argent. Seuls les derniers chiffres des numéros de compte sont affichés."}
+        description={
+          en
+            ? "Accounts you can send money to. Only the final digits of account numbers are shown."
+            : "Les comptes vers lesquels vous pouvez envoyer de l'argent. Seuls les derniers chiffres des numéros de compte sont affichés."
+        }
         action={allowed ? (
           <div className="action-row">
             <AddBeneficiaryDialog />
-            <AddExternalBeneficiaryDialog />
+              <AddExternalBeneficiaryDialog />
           </div>
-        ) : undefined}
+          ) : undefined
+        }
       />
       <PageSection>
-        {allowed ? <BeneficiaryList action={<AddBeneficiaryDialog />} /> : <PermissionDeniedState description={blockedReason ?? undefined} />}
+        {allowed ? (
+          <BeneficiaryList action={<AddBeneficiaryDialog />} />
+        ) : (
+          <PermissionDeniedState description={blockedReason ?? undefined} />
+        )}
       </PageSection>
     </BankingContentContainer>
   );

@@ -40,14 +40,25 @@ export function DocumentActions({
         onSuccess: ({ url }) => {
           const opened = window.open(url, "_blank", "noopener,noreferrer");
           if (!opened) {
-            toast.error(en ? "Allow pop-ups to view this document." : "Autorisez l'ouverture des fenêtres pour afficher ce document.");
+            toast.error(
+              en
+                ? "Allow pop-ups to view this document."
+                : "Autorisez l'ouverture des fenêtres pour afficher ce document.",
+            );
             return;
           }
           if (print) {
-            toast.info(en ? "Use the print function in the opened PDF viewer." : "Utilisez la fonction d'impression du lecteur PDF ouvert.");
+            toast.info(
+              en
+                ? "Use the print function in the opened PDF viewer."
+                : "Utilisez la fonction d'impression du lecteur PDF ouvert.",
+            );
           }
         },
-        onError: (error) => toast.error(en ? documentErrorMessageEn(error.message) : documentErrorMessage(error.message)),
+        onError: (error) =>
+          toast.error(
+            en ? documentErrorMessageEn(error.message) : documentErrorMessage(error.message),
+          ),
       },
     );
   };

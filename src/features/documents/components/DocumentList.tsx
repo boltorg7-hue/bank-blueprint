@@ -63,14 +63,20 @@ const DocumentRow = memo(function DocumentRow({ document }: { document: Customer
         <div className="min-w-0">
           <p className="text-sm font-semibold text-foreground">{document.title}</p>
           <p className="text-caption text-muted-foreground">
-            {en ? DOCUMENT_TYPE_LABELS_EN[document.documentType] : DOCUMENT_TYPE_LABELS[document.documentType]}
+            {en
+              ? DOCUMENT_TYPE_LABELS_EN[document.documentType]
+              : DOCUMENT_TYPE_LABELS[document.documentType]}
             {document.accountReference ? ` · ${document.accountReference}` : ""}
             {size ? ` · ${size}` : ""}
           </p>
           <p className="text-numeric text-caption text-muted-foreground">{document.reference}</p>
         </div>
         <StatusBadge
-          label={en ? DOCUMENT_STATUS_LABELS_EN[document.status] : DOCUMENT_STATUS_LABELS[document.status]}
+          label={
+            en
+              ? DOCUMENT_STATUS_LABELS_EN[document.status]
+              : DOCUMENT_STATUS_LABELS[document.status]
+          }
           tone={STATUS_TONE[document.status]}
         />
       </div>
@@ -97,7 +103,11 @@ export function DocumentList() {
 
   return (
     <div className="space-y-4">
-      <div role="tablist" aria-label={en ? "Filter documents" : "Filtrer les documents"} className="flex flex-wrap gap-2">
+      <div
+        role="tablist"
+        aria-label={en ? "Filter documents" : "Filtrer les documents"}
+        className="flex flex-wrap gap-2"
+      >
         {FILTERS.map((entry) => (
           <Button
             key={entry.value}
@@ -106,7 +116,11 @@ export function DocumentList() {
             aria-selected={filter === entry.value}
             size="sm"
             variant={filter === entry.value ? "default" : "outline"}
-            onClick={() => { setFilter(entry.value); setCursor(null); setHistory([]); }}
+            onClick={() => {
+              setFilter(entry.value);
+              setCursor(null);
+              setHistory([]);
+            }}
           >
             {en ? entry.labelEn : entry.label}
           </Button>
@@ -120,15 +134,43 @@ export function DocumentList() {
       ) : !data || data.items.length === 0 ? (
         <EmptyState
           title={en ? "No documents yet" : "Aucun document pour le moment"}
-          description={en ? "Your statements, receipts and letters will appear here when they are issued." : "Vos relevés, reçus et courriers apparaîtront ici dès leur émission."}
+          description={
+            en
+              ? "Your statements, receipts and letters will appear here when they are issued."
+              : "Vos relevés, reçus et courriers apparaîtront ici dès leur émission."
+          }
         />
       ) : (
         <>
-          {data.items.map((document) => <DocumentRow key={document.reference} document={document} />)}
-          {(history.length > 0 || data.hasNext) ? (
+          {data.items.map((document) => (
+            <DocumentRow key={document.reference} document={document} />
+          ))}
+          {history.length > 0 || data.hasNext ? (
             <div className="flex justify-end gap-2">
-              <Button variant="outline" disabled={!history.length} onClick={() => setHistory((items) => { const next = [...items]; setCursor(next.pop() || null); return next; })}>{en ? "Previous" : "Précédent"}</Button>
-              <Button variant="outline" disabled={!data.hasNext} onClick={() => { if (!data.nextCursor) return; setHistory((items) => [...items, cursor ?? ""]); setCursor(data.nextCursor); }}>{en ? "Next" : "Suivant"}</Button>
+              <Button
+                variant="outline"
+                disabled={!history.length}
+                onClick={() =>
+                  setHistory((items) => {
+                    const next = [...items];
+                    setCursor(next.pop() || null);
+                    return next;
+                  })
+                }
+              >
+                {en ? "Previous" : "Précédent"}
+              </Button>
+              <Button
+                variant="outline"
+                disabled={!data.hasNext}
+                onClick={() => {
+                  if (!data.nextCursor) return;
+                  setHistory((items) => [...items, cursor ?? ""]);
+                  setCursor(data.nextCursor);
+                }}
+              >
+                {en ? "Next" : "Suivant"}
+              </Button>
             </div>
           ) : null}
         </>

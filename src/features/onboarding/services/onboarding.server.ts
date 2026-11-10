@@ -76,7 +76,12 @@ export async function loadCustomerContext(
   if (emailVerified && profile.lifecycle_state === "EMAIL_VERIFICATION_REQUIRED") {
     const { data } = await supabaseAdmin
       .from("profiles")
-      .update({ lifecycle_state: profile.phone && !profile.phone_verified_at ? "CONTACT_VERIFICATION_REQUIRED" : "PROFILE_INCOMPLETE" })
+      .update({
+        lifecycle_state:
+          profile.phone && !profile.phone_verified_at
+            ? "CONTACT_VERIFICATION_REQUIRED"
+            : "PROFILE_INCOMPLETE",
+      })
       .eq("id", userId)
       .select(PROFILE_COLUMNS)
       .single();
@@ -221,7 +226,8 @@ export async function submitForVerification(userId: string) {
   const result = (data as unknown as Array<{
     status: "SUBMITTED" | "UNDER_REVIEW" | "VERIFIED";
     already_submitted: boolean;
-  }> | null)?.[0];
+    }> | null
+  )?.[0];
 
   if (!result) throw new OnboardingError("PROCESSING_ERROR");
   return {
@@ -229,4 +235,3 @@ export async function submitForVerification(userId: string) {
     alreadySubmitted: result.already_submitted,
   };
 }
-

@@ -56,7 +56,12 @@ function toDomainError(raw: unknown): TransferError {
   if (message.includes("REQUIREMENT_NOT_OPEN")) return new TransferError("REQUIREMENT_NOT_OPEN");
   if (message.includes("REQUIREMENT_UNAVAILABLE"))
     return new TransferError("REQUIREMENT_UNAVAILABLE");
-  if (message.includes("INVALID_IDEMPOTENCY_KEY") || message.includes("INVALID_TRANSFER_INPUT") || message.includes("INVALID_SETTLEMENT_STATUS")) return new TransferError("PROCESSING_ERROR");
+  if (
+    message.includes("INVALID_IDEMPOTENCY_KEY") ||
+    message.includes("INVALID_TRANSFER_INPUT") ||
+    message.includes("INVALID_SETTLEMENT_STATUS")
+  )
+    return new TransferError("PROCESSING_ERROR");
   if (message.includes("IDEMPOTENCY_KEY_REUSED")) return new TransferError("IDEMPOTENCY_KEY_REUSED");
   if (message.includes("INVALID_DOCUMENT_PATH")) return new TransferError("INVALID_DOCUMENT_PATH");
   return new TransferError("UNEXPECTED_ERROR");
@@ -305,10 +310,11 @@ export async function getTransferDetail(
     .order("created_at", { ascending: true });
 
   const timeline: TransferStatusEventDto[] = ((history ?? []) as unknown as HistoryRow[]).map((row) => ({
-    status: row.to_status as TransferStatus,
+      status: row.to_status as TransferStatus,
     reasonCode: (row.reason_code as string | null) ?? null,
     occurredAt: row.created_at as string,
-  }));
+    }),
+  );
 
   const [requirements, documents] = await Promise.all([
     loadRequirements(client, userId, reference),
@@ -501,9 +507,8 @@ export async function submitSettlement(userId: string, reference: string): Promi
   const row = await loadSettlementRow(supabaseAdmin, userId, reference);
   if (!row || row.status !== "APPROVED") return;
 
-  const { getSettlementProvider } = await import(
-    "@/features/transfers/services/settlement/provider"
-  );
+  const { getSettlementProvider } =
+    await import("@/features/transfers/services/settlement/provider");
   const provider = getSettlementProvider(row.rail?.provider_key ?? "");
   if (!provider) return;
 
@@ -538,9 +543,8 @@ export async function syncSettlement(
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const row = await loadSettlementRow(supabaseAdmin, userId, reference);
   if (row && row.status === "SETTLEMENT_PENDING" && row.external_provider_reference) {
-    const { getSettlementProvider } = await import(
-      "@/features/transfers/services/settlement/provider"
-    );
+    const { getSettlementProvider } =
+      await import("@/features/transfers/services/settlement/provider");
     const provider = getSettlementProvider(row.rail?.provider_key ?? "");
     if (provider) {
       const outcome = await provider.getTransferStatus(row.external_provider_reference);

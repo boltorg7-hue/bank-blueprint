@@ -25,7 +25,9 @@ function confirmationBaseUrl(): string {
     url.search ||
     url.hash
   ) {
-    throw new Error("APP_BASE_URL must be an HTTPS origin without credentials, path, query, or fragment.");
+    throw new Error(
+      "APP_BASE_URL must be an HTTPS origin without credentials, path, query, or fragment.",
+    );
   }
 
   return url.origin;
@@ -42,7 +44,9 @@ export const resendConfirmationEmail = createServerFn({ method: "POST" })
 
 export const changePendingEmail = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) =>
-    z.object({ currentEmail: email, newEmail: email, password: z.string().min(1).max(200) }).parse(input),
+    z
+      .object({ currentEmail: email, newEmail: email, password: z.string().min(1).max(200) })
+      .parse(input),
   )
   .handler(async ({ data }) => {
     const { changeUnverifiedEmail } = await import("./email-confirmation.server");
@@ -51,7 +55,9 @@ export const changePendingEmail = createServerFn({ method: "POST" })
 
 export const checkConfirmationLink = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => z.object({ nonce: z.string().max(64).optional() }).parse(input))
+  .inputValidator((input: unknown) =>
+    z.object({ nonce: z.string().max(64).optional() }).parse(input),
+  )
   .handler(async ({ data, context }) => {
     const { data: userData } = await context.supabase.auth.getUser();
     const mail = userData.user?.email;

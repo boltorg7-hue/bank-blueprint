@@ -20,7 +20,9 @@ import {
 const ACCOUNT_PATTERN = /^ACC-\d{4}-\d{6}$/;
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-function requireTransferReference(input: { reference?: string } | undefined): { reference: string } {
+function requireTransferReference(input: { reference?: string } | undefined): {
+  reference: string;
+} {
   const reference = String(input?.reference ?? "").trim();
   if (!TRANSFER_REFERENCE_PATTERN.test(reference)) throw new Error("INVALID_TRANSFER_REFERENCE");
   return { reference };
@@ -113,10 +115,13 @@ export const authorizeTransferConfirmation = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator(requireTransferReference)
   .handler(async ({ data, context }) => {
-    const { error } = await context.supabase.rpc("issue_security_step_up" as never, {
+    const { error } = await context.supabase.rpc(
+      "issue_security_step_up" as never,
+      {
       _action: "TRANSFER_CONFIRM",
       _resource_reference: data.reference,
-    } as never);
+      } as never,
+    );
     if (error) throw new Error("RECENT_AUTHENTICATION_REQUIRED");
     return { ok: true };
   });
@@ -156,8 +161,12 @@ export const registerTransferDocument = createServerFn({ method: "POST" })
         throw new Error("INVALID_DOCUMENT_PATH");
       }
 
-      const filename = String(input?.originalFilename ?? "").trim().slice(0, 200);
-      const mimeType = String(input?.mimeType ?? "").trim().slice(0, 100);
+      const filename = String(input?.originalFilename ?? "")
+        .trim()
+        .slice(0, 200);
+      const mimeType = String(input?.mimeType ?? "")
+        .trim()
+        .slice(0, 100);
       const size = Number(input?.sizeBytes);
 
       return {

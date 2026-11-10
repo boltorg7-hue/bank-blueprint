@@ -67,7 +67,11 @@ export function TransferList({ action }: { action?: React.ReactNode }) {
     return (
       <EmptyState
         title={en ? "No transfers yet" : "Aucun virement"}
-        description={en ? "Your transfers will appear here after your first transaction." : "Vos virements apparaîtront ici dès votre première opération."}
+        description={
+          en
+            ? "Your transfers will appear here after your first transaction."
+            : "Vos virements apparaîtront ici dès votre première opération."
+        }
         action={action}
       />
     );
@@ -106,7 +110,11 @@ export function TransferList({ action }: { action?: React.ReactNode }) {
       {visible.length === 0 ? (
         <EmptyState
           title={en ? "No transfers match this filter" : "Aucun virement pour ce filtre"}
-          description={en ? "Change the filter to find your other transfers." : "Modifiez le filtre pour retrouver vos autres virements."}
+          description={
+            en
+              ? "Change the filter to find your other transfers."
+              : "Modifiez le filtre pour retrouver vos autres virements."
+          }
         />
       ) : (
         <ul className="space-y-3" role="list">

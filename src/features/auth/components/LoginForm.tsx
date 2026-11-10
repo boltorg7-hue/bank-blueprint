@@ -53,9 +53,7 @@ export function LoginForm({ redirectTo }: { redirectTo?: string | undefined }) {
       const target = await resolvePostLoginRoute(redirectTo);
       await navigate({ to: target, replace: true });
     } catch (error) {
-      setFormError(
-        authenticated ? genericErrorMessage(lang) : signInErrorMessage(error, lang),
-      );
+      setFormError(authenticated ? genericErrorMessage(lang) : signInErrorMessage(error, lang));
     } finally {
       setPending(false);
     }
@@ -64,7 +62,9 @@ export function LoginForm({ redirectTo }: { redirectTo?: string | undefined }) {
   return (
     <form onSubmit={handleSubmit} noValidate className="space-y-5">
       <div className="space-y-2">
-        <Label htmlFor="login-email">{language === "en" ? "Email address" : "Adresse e-mail"}</Label>
+        <Label htmlFor="login-email">
+          {language === "en" ? "Email address" : "Adresse e-mail"}
+        </Label>
         <Input
           id="login-email"
           name="email"
@@ -90,7 +90,10 @@ export function LoginForm({ redirectTo }: { redirectTo?: string | undefined }) {
       />
 
       {formError ? (
-        <p role="alert" className="text-body-sm rounded-lg bg-destructive/10 px-3 py-2 text-destructive">
+        <p
+          role="alert"
+          className="text-body-sm rounded-lg bg-destructive/10 px-3 py-2 text-destructive"
+        >
           {formError}
         </p>
       ) : null}

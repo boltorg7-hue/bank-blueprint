@@ -47,9 +47,21 @@ const CHANNELS = [
 ];
 
 const CHANNELS_EN = [
-  { title: "Already a customer?", description: "Use secure messaging in your account so your request is linked to your records.", label: "Go to my account" },
-  { title: "Looking for a quick answer?", description: "The help center covers account opening, sign-in, transfers and documents.", label: "Help center" },
-  { title: "Cannot access your account?", description: "Use the form below. Never send a password or verification code.", label: "" },
+  {
+    title: "Already a customer?",
+    description: "Use secure messaging in your account so your request is linked to your records.",
+    label: "Go to my account",
+  },
+  {
+    title: "Looking for a quick answer?",
+    description: "The help center covers account opening, sign-in, transfers and documents.",
+    label: "Help center",
+  },
+  {
+    title: "Cannot access your account?",
+    description: "Use the form below. Never send a password or verification code.",
+    label: "",
+  },
 ];
 function ContactPage() {
   const { language } = useLanguage();
@@ -59,7 +71,11 @@ function ContactPage() {
       <PageHero
         eyebrow="Contact"
         title={en ? "How can we help?" : "Parlons de votre demande"}
-        description={en ? "Choose the right way to reach us. For existing accounts, use secure messaging." : "Choisissez le canal adapté à votre situation. Les demandes liées à un compte existant passent par la messagerie sécurisée."}
+        description={
+          en
+            ? "Choose the right way to reach us. For existing accounts, use secure messaging."
+            : "Choisissez le canal adapté à votre situation. Les demandes liées à un compte existant passent par la messagerie sécurisée."
+        }
       />
 
       <PublicSection>
@@ -72,8 +88,12 @@ function ContactPage() {
                 className="flex flex-col rounded-2xl border border-border bg-surface p-5"
               >
                 <Icon className="size-6 text-brand" aria-hidden="true" />
-                <h2 className="text-heading-sm mt-4 text-foreground">{en ? CHANNELS_EN[index]?.title : channel.title}</h2>
-                <p className="text-body-sm mt-2 flex-1 text-muted-foreground">{en ? CHANNELS_EN[index]?.description : channel.description}</p>
+                <h2 className="text-heading-sm mt-4 text-foreground">
+                  {en ? CHANNELS_EN[index]?.title : channel.title}
+                </h2>
+                <p className="text-body-sm mt-2 flex-1 text-muted-foreground">
+                  {en ? CHANNELS_EN[index]?.description : channel.description}
+                </p>
                 {channel.action && (
                   <Link
                     to={channel.action.to}
@@ -95,7 +115,11 @@ function ContactPage() {
               as="h2"
               eyebrow={en ? "Public form" : "Formulaire public"}
               title={en ? "Write to the bank" : "Écrire à la banque"}
-              description={en ? "We only ask for what is needed: your name, email, topic and message." : "Nous ne demandons que le strict nécessaire : nom, e-mail, sujet et message."}
+              description={
+                en
+                  ? "We only ask for what is needed: your name, email, topic and message."
+                  : "Nous ne demandons que le strict nécessaire : nom, e-mail, sujet et message."
+              }
             />
             <div className="mt-6">
               <PublicContactForm />
@@ -103,14 +127,15 @@ function ContactPage() {
           </div>
 
           <aside className="min-w-0">
-            <h2 className="text-heading-sm text-foreground">{en ? "Bank contact details" : "Coordonnées de la banque"}</h2>
+            <h2 className="text-heading-sm text-foreground">
+              {en ? "Bank contact details" : "Coordonnées de la banque"}
+            </h2>
             <LegalIdentityList
               variant="summary"
               className="mt-4 rounded-2xl border border-border bg-surface p-5"
             />
             <p className="text-caption mt-4 text-muted-foreground">{LEGAL_IDENTITY_NOTICE}</p>
           </aside>
-
         </div>
       </PublicSection>
     </PublicLayout>
