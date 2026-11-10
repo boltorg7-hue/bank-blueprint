@@ -73,6 +73,7 @@ const FAILURE_MESSAGES: Record<TransferFailureCode, string> = {
     "Ce virement n'a pas été autorisé après vérification. Les fonds réservés ont été rendus disponibles.",
   PROCESSING_ERROR:
     "Le virement n'a pas pu être exécuté. Aucun montant n'a été débité ; vous pouvez réessayer.",
+  IDEMPOTENCY_KEY_REUSED: "Cette demande de virement a déjà été utilisée avec d’autres détails. Recommencez une nouvelle demande.",
   UNEXPECTED_ERROR:
     "Le virement n'a pas pu être traité. Aucun montant n'a été débité ; vous pouvez réessayer.",
 };
@@ -107,6 +108,7 @@ const FAILURE_MESSAGES_EN: Record<TransferFailureCode, string> = {
   SETTLEMENT_FAILED: "The receiving bank could not receive this transfer. Reserved funds have been released.",
   COMPLIANCE_REJECTED: "This transfer was not authorized after review. Reserved funds have been released.",
   PROCESSING_ERROR: "The transfer could not be executed. No amount was debited; you can try again.",
+  IDEMPOTENCY_KEY_REUSED: "This transfer request key was already used with different details. Start a new transfer request.",
   UNEXPECTED_ERROR: "The transfer could not be processed. No amount was debited; you can try again.",
 };
 export function transferFailureMessage(code: TransferFailureCode | null, language: "fr" | "en" = "fr"): string | null {

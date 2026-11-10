@@ -222,7 +222,7 @@ test("les policies sensibles ne peuvent pas ouvrir une surface anon/public et le
   const sql = read("supabase/tests/full_security_certification.sql");
   assert.match(sql, /SENSITIVE_POLICY_EXPOSES_ANON_OR_PUBLIC/);
   assert.match(sql, /AUTHENTICATED_POLICY_NOT_SCOPED/);
-  assert.match(sql, /auth\\\\\.uid/);
+  assert.match(sql, /auth\\\.uid/);
   assert.match(sql, /has_permission/);
   assert.match(sql, /is_staff/);
 });
@@ -1044,4 +1044,43 @@ test("B1 — les mutations onboarding verrouillent l'état client dans la transa
   assert.ok(migration.includes("REVOKE ALL ON FUNCTION public.customer_submit_onboarding_for_verification(uuid) FROM PUBLIC, anon, authenticated;"));
   assert.ok(migration.includes("GRANT EXECUTE ON FUNCTION public.customer_submit_onboarding_for_verification(uuid) TO service_role;"));
   assert.doesNotMatch(migration, /GRANT EXECUTE ON FUNCTION public.customer_submit_onboarding_for_verification\(uuid\) TO authenticated/);
+});
+
+
+test("5.9.9.9 — la création de virement est idempotente et les règlements ont une issue explicite", () => {
+  const wizard = read("src/features/transfers/components/TransferWizard.tsx");
+  const input = read("src/features/transfers/services/transfers.functions.ts");
+  const server = read("src/features/transfers/services/transfers.server.ts");
+  const types = read("src/domain/transfers/types/index.ts");
+  const display = read("src/features/transfers/utils/transfer-display.ts");
+  const creation = read("supabase/migrations/20261110100000_transfer_creation_idempotency.sql");
+  const settlement = read("supabase/migrations/20261110101000_transfer_mutation_terminal_hardening.sql");
+  const review = read("supabase/migrations/20261110102000_transfer_review_compliance_terminal_hardening.sql");
+
+  assert.match(wizard, /idempotencyKeyRef/);
+  assert.match(wizard, /crypto\.randomUUID\(\)/);
+  assert.match(wizard, /idempotencyKey,/);
+  assert.match(input, /idempotencyKey\?: string/);
+  assert.match(input, /INVALID_IDEMPOTENCY_KEY/);
+  assert.match(server, /create_customer_transfer_idempotent/);
+  assert.match(server, /_idempotency_key: input\.idempotencyKey/);
+
+  assert.match(creation, /PRIMARY KEY \(user_id, idempotency_key\)/);
+  assert.match(creation, /FOR UPDATE/);
+  assert.match(creation, /IS DISTINCT FROM/);
+  assert.match(creation, /IDEMPOTENCY_KEY_REUSED/);
+  assert.match(creation, /GRANT EXECUTE[\s\S]*TO service_role/);
+
+  assert.match(types, /NOT_SUBMITTED/);
+  assert.match(settlement, /_provider_status IS NULL/);
+  assert.match(settlement, /_provider_status <> 'SUCCEEDED'/);
+  assert.match(settlement, /GRANT EXECUTE ON FUNCTION public\\.submit_transfer_document/);
+  assert.match(settlement, /SETTLEMENT_ALREADY_FINALIZED/);
+  assert.match(settlement, /INVALID_SETTLEMENT_STATE/);
+  assert.match(review, /DOCUMENT_ALREADY_FINALIZED/);
+  assert.match(review, /COMPLIANCE_ALREADY_FINALIZED/);
+  assert.match(review, /FOR UPDATE/);
+
+  assert.match(display, /IDEMPOTENCY_KEY_REUSED/);
+  assert.match(display, /Start a new transfer request/);
 });

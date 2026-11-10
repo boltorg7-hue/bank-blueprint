@@ -1,6 +1,6 @@
 import { useLanguage } from "@/components/providers/LanguageProvider";
 import { useLiveFinancialSettings } from "@/features/settings/useLiveFinancialSettings";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { AlertTriangle, ArrowRight, CheckCircle2, Loader2 } from "lucide-react";
 
@@ -108,6 +108,7 @@ export function TransferWizard({ initialBeneficiary }: { initialBeneficiary?: st
   const confirm = useConfirmTransfer();
   const initiateLock = useRef(false);
   const confirmLock = useRef(false);
+  const idempotencyKeyRef = useRef<string | null>(null);
 
   const accounts = useMemo(
     () => (accountsQuery.data ?? []).filter((account) => account.status === "ACTIVE"),
@@ -130,6 +131,10 @@ export function TransferWizard({ initialBeneficiary }: { initialBeneficiary?: st
   /** Amount actually debited: the account is always held in USD. */
   const amountMinor = enteredMinor === null ? null : quoteToSettlementMinor(enteredMinor, unit);
   /** Mirror figure shown live in the other unit, with no action from the user. */
+  useEffect(() => {
+    idempotencyKeyRef.current = null;
+  }, [source?.reference, beneficiary?.reference, amountMinor, note]);
+
   const mirrorLabel =
     amountMinor === null
       ? null
@@ -357,12 +362,15 @@ export function TransferWizard({ initialBeneficiary }: { initialBeneficiary?: st
                 if (initiateLock.current || amountMinor === null || !source || !beneficiary) return;
                 initiateLock.current = true;
                 setError(null);
+                const idempotencyKey = idempotencyKeyRef.current ?? crypto.randomUUID();
+                idempotencyKeyRef.current = idempotencyKey;
                 initiate.mutate(
                   {
                     sourceAccountReference: source.reference,
                     beneficiaryReference: beneficiary.reference,
                     amountMinor,
                     customerReference: note.trim(),
+                    idempotencyKey,
                   },
                   {
                     onSuccess: (created) => {
