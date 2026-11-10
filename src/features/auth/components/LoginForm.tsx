@@ -35,12 +35,19 @@ export function LoginForm({ redirectTo }: { redirectTo?: string | undefined }) {
 
     setErrors({});
     setPending(true);
-    const { error } = await supabase.auth.signInWithPassword({
-      email: parsed.data.email,
-      password: parsed.data.password,
-    });
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email: parsed.data.email,
+        password: parsed.data.password,
+      });
 
-    if (error) {
+      if (error) {
+        setPending(false);
+        setFormError(signInErrorMessage(error, language === "en" ? "en" : "fr"));
+        return;
+      }
+    } catch (error) {
+      // Network failures and client initialization errors must not leave the form pending.
       setPending(false);
       setFormError(signInErrorMessage(error, language === "en" ? "en" : "fr"));
       return;
