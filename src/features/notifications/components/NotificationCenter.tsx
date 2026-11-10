@@ -17,6 +17,8 @@ const FILTERS = [
   { key: "TRANSFER", label: "Opérations" },
   { key: "FUNDING", label: "Approvisionnements" },
   { key: "PRICING", label: "Tarifs" },
+  { key: "SECURITY", label: "Sécurité" },
+  { key: "SERVICE", label: "Service" },
 ] as const;
 
 const CATEGORY_LABEL: Record<string, string> = {
@@ -47,7 +49,7 @@ export function NotificationCenter() {
       <div className="action-row mb-4" role="tablist">
         {FILTERS.map((f) => (
           <Button key={f.key} size="sm" role="tab" aria-selected={filter === f.key} variant={filter === f.key ? "default" : "outline"} onClick={() => { setFilter(f.key); setCursor(null); setHistory([]); }}>
-            {en ? ({ ALL: "All", ACCOUNT: "Accounts", TRANSFER: "Transactions", FUNDING: "Funding", PRICING: "Pricing" } as Record<string,string>)[f.key] : f.label}
+            {en ? ({ ALL: "All", ACCOUNT: "Accounts", TRANSFER: "Transactions", FUNDING: "Funding", PRICING: "Pricing", SECURITY: "Security", SERVICE: "Service" } as Record<string,string>)[f.key] : f.label}
           </Button>
         ))}
       </div>
