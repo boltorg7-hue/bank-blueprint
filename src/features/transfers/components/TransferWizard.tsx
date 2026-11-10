@@ -638,7 +638,7 @@ export function TransferWizard({
             ) : null}
             <p className="text-caption text-muted-foreground">
               {en ? "Transfer reference" : "Référence du virement"} : {transfer.reference}
-              {result.transactionReference` · ${en ? "Transaction" : "Opération"} ${result.transactionReference}` : ""}
+              {result.transactionReference ? ` · ${en ? "Transaction" : "Opération"} ${result.transactionReference}` : ""}
             </p>
           </div>
 
