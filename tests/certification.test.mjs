@@ -485,8 +485,8 @@ test("les écrans admin lourds chargent leurs tableaux métier à la demande", (
     const source = read(path);
     assert.match(source, /import \{ lazy, Suspense \} from "react";/, path);
     assert.match(source, new RegExp(`const ${component} = lazy\\(\\(\\) => import`), path);
-    assert.doesNotMatch(`import \\{ ${component} \\} from "@/features/admin/components/${component}"`), path);
-    assert.match(`<Suspense fallback=\\{<LoadingState />\\}>[\\s\\S]*<${component}`), path);
+    assert.doesNotMatch(source, new RegExp(`import \\{ ${component} \\} from "@/features/admin/components/${component}"`), path);
+    assert.match(source, new RegExp(`<Suspense fallback=\\{<LoadingState />\\}>[\\s\\S]*<${component}`), path);
   }
 });
 
