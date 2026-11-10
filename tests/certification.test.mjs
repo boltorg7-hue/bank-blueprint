@@ -50,7 +50,7 @@ test("les nouvelles tables client activent RLS", () => {
     "customer_security_events",
     "security_step_up_grants",
   ]) {
-    assert.match(`ALTER TABLE public\\.${table} ENABLE ROW LEVEL SECURITY`, "i"), table);
+    assert.match(`ALTER TABLE public.${table} ENABLE ROW LEVEL SECURITY`, new RegExp(`ALTER TABLE public\\\\.${table} ENABLE ROW LEVEL SECURITY`, "i"), table);
   }
 });
 
