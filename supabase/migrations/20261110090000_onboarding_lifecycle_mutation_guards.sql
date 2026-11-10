@@ -18,19 +18,21 @@ SET search_path = public
 AS $$
 DECLARE
   _lifecycle public.customer_lifecycle_state;
+  _phone_verified_at timestamptz;
   _address_id uuid;
 BEGIN
-  SELECT lifecycle_state INTO _lifecycle
+  SELECT lifecycle_state, phone_verified_at INTO _lifecycle, _phone_verified_at
     FROM public.profiles
    WHERE id = _user_id
    FOR UPDATE;
 
   IF NOT FOUND THEN RAISE EXCEPTION 'CUSTOMER_PROFILE_NOT_FOUND'; END IF;
   IF _lifecycle NOT IN (
-    'CONTACT_VERIFICATION_REQUIRED','PROFILE_INCOMPLETE','IDENTITY_REQUIRED','ADDITIONAL_DOCUMENT_REQUIRED'
+    'PROFILE_INCOMPLETE','IDENTITY_REQUIRED','ADDITIONAL_DOCUMENT_REQUIRED'
   ) THEN
     RAISE EXCEPTION 'ONBOARDING_STATE_LOCKED';
   END IF;
+  IF _phone_verified_at IS NULL THEN RAISE EXCEPTION 'PHONE_VERIFICATION_REQUIRED'; END IF;
 
   IF NULLIF(btrim(_country), '') IS NULL
      OR NULLIF(btrim(_address_line1), '') IS NULL
@@ -83,18 +85,23 @@ SET search_path = public
 AS $$
 DECLARE
   _lifecycle public.customer_lifecycle_state;
+  _phone_verified_at timestamptz;
   _verification public.identity_verifications;
 BEGIN
-  SELECT lifecycle_state INTO _lifecycle
+  SELECT lifecycle_state, phone_verified_at INTO _lifecycle, _phone_verified_at
     FROM public.profiles
    WHERE id = _user_id
    FOR UPDATE;
 
   IF NOT FOUND THEN RAISE EXCEPTION 'CUSTOMER_PROFILE_NOT_FOUND'; END IF;
   IF _lifecycle NOT IN (
-    'CONTACT_VERIFICATION_REQUIRED','PROFILE_INCOMPLETE','IDENTITY_REQUIRED','ADDITIONAL_DOCUMENT_REQUIRED'
+    'PROFILE_INCOMPLETE','IDENTITY_REQUIRED','ADDITIONAL_DOCUMENT_REQUIRED'
   ) THEN
     RAISE EXCEPTION 'ONBOARDING_STATE_LOCKED';
+  END IF;
+  IF _phone_verified_at IS NULL THEN RAISE EXCEPTION 'PHONE_VERIFICATION_REQUIRED'; END IF;
+  IF NOT EXISTS (SELECT 1 FROM public.customer_addresses WHERE user_id = _user_id AND is_primary = true) THEN
+    RAISE EXCEPTION 'ADDRESS_REQUIRED';
   END IF;
 
   IF _storage_path IS NULL OR btrim(_storage_path) = ''
@@ -152,20 +159,22 @@ SET search_path = public
 AS $$
 DECLARE
   _lifecycle public.customer_lifecycle_state;
+  _phone_verified_at timestamptz;
   _verification public.identity_verifications;
   _storage_path text;
 BEGIN
-  SELECT lifecycle_state INTO _lifecycle
+  SELECT lifecycle_state, phone_verified_at INTO _lifecycle, _phone_verified_at
     FROM public.profiles
    WHERE id = _user_id
    FOR UPDATE;
 
   IF NOT FOUND THEN RAISE EXCEPTION 'CUSTOMER_PROFILE_NOT_FOUND'; END IF;
   IF _lifecycle NOT IN (
-    'CONTACT_VERIFICATION_REQUIRED','PROFILE_INCOMPLETE','IDENTITY_REQUIRED','ADDITIONAL_DOCUMENT_REQUIRED'
+    'PROFILE_INCOMPLETE','IDENTITY_REQUIRED','ADDITIONAL_DOCUMENT_REQUIRED'
   ) THEN
     RAISE EXCEPTION 'ONBOARDING_STATE_LOCKED';
   END IF;
+  IF _phone_verified_at IS NULL THEN RAISE EXCEPTION 'PHONE_VERIFICATION_REQUIRED'; END IF;
 
   SELECT * INTO _verification
     FROM public.identity_verifications
@@ -237,7 +246,7 @@ BEGIN
     RAISE EXCEPTION 'ONBOARDING_STATE_LOCKED';
   END IF;
 
-  IF _profile.phone_verified_at IS NULL THEN
+  IF _profile.phone IS NULL OR _profile.phone_verified_at IS NULL THEN
     RAISE EXCEPTION 'PHONE_VERIFICATION_REQUIRED';
   END IF;
 

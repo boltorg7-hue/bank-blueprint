@@ -1039,7 +1039,8 @@ test("B1 — les mutations onboarding verrouillent l'état client dans la transa
 
   assert.ok((migration.match(/FOR UPDATE/g) ?? []).length >= 6);
   assert.match(migration, /ONBOARDING_STATE_LOCKED/);
-  assert.match(migration, /phone_verified_at IS NULL/);
+  assert.ok((migration.match(/phone_verified_at IS NULL/g) ?? []).length >= 4);
+  assert.match(migration, /ADDRESS_REQUIRED/);
   assert.match(migration, /IDENTITY_SUBMITTED/);
   assert.ok(migration.includes("REVOKE ALL ON FUNCTION public.customer_submit_onboarding_for_verification(uuid) FROM PUBLIC, anon, authenticated;"));
   assert.ok(migration.includes("GRANT EXECUTE ON FUNCTION public.customer_submit_onboarding_for_verification(uuid) TO service_role;"));
