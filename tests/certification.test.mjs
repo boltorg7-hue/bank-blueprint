@@ -63,7 +63,7 @@ test("les tables sensibles ne donnent aucune écriture directe au navigateur", (
     "customer_security_events",
     "security_step_up_grants",
   ]) {
-    assert.doesNotMatch(`GRANT (?:ALL|INSERT|DELETE).*${table}.*authenticated`, "i"), table);
+    assert.doesNotMatch(allMigrationSql, new RegExp(`GRANT (?:ALL|INSERT|DELETE).*${table}.*authenticated`, "i"), table);
   }
 });
 
