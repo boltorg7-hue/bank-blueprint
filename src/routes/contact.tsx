@@ -34,7 +34,8 @@ const CHANNELS = [
   {
     icon: LifeBuoy,
     title: "Vous cherchez une réponse rapide",
-    description: "Le centre d'aide couvre l'ouverture de compte, la connexion, les virements et les documents.",
+    description:
+      "Le centre d'aide couvre l'ouverture de compte, la connexion, les virements et les documents.",
     action: { label: "Centre d'aide", to: "/help" as const },
   },
   {

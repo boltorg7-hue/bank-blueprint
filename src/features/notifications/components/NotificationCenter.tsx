@@ -43,7 +43,8 @@ export function NotificationCenter() {
   const q = useNotifications(filter, cursor),
     update = useUpdateNotification(),
     all = useMarkAllRead();
-  if (q.isPending) return <LoadingState label={en ? "Loading notifications…" : "Chargement des notifications…"} />;
+  if (q.isPending)
+    return <LoadingState label={en ? "Loading notifications…" : "Chargement des notifications…"} />;
   if (q.isError) return <ErrorState onRetry={() => q.refetch()} />;
   const items = q.data?.items ?? [];
   return (
@@ -55,7 +56,8 @@ export function NotificationCenter() {
             ? "Important changes to your accounts, fees and approved transactions."
             : "Changements importants sur vos comptes, les tarifs et vos opérations approuvées."
         }
-        action={q.data?.unreadCount ? (
+        action={
+          q.data?.unreadCount ? (
             <Button
               variant="outline"
               loading={all.isPending}
@@ -64,7 +66,7 @@ export function NotificationCenter() {
             >
               <CheckCheck className="mr-2 size-4" />
               {en ? "Mark all as read" : "Tout marquer comme lu"}
-          </Button>
+            </Button>
           ) : undefined
         }
       />
@@ -110,11 +112,14 @@ export function NotificationCenter() {
       ) : (
         <div className="space-y-3">
           {items.map((n) => (
-            <Card className={`motion-safe:transition-[border-color,box-shadow,transform] motion-safe:duration-200 hover:shadow-sm ${n.readAt ? "" : "border-info/40"}`}><CardContent className="p-4">
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <div className="flex flex-wrap items-center gap-2">
-                    <h2 className="font-semibold">{n.title}</h2>
+            <Card
+              className={`motion-safe:transition-[border-color,box-shadow,transform] motion-safe:duration-200 hover:shadow-sm ${n.readAt ? "" : "border-info/40"}`}
+            >
+              <CardContent className="p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h2 className="font-semibold">{n.title}</h2>
                       <StatusBadge
                         label={
                           (en
@@ -139,22 +144,22 @@ export function NotificationCenter() {
                       {!n.readAt ? (
                         <StatusBadge label={en ? "New" : "Nouveau"} tone="info" />
                       ) : null}
-                  </div>
-                  <p className="mt-1 text-sm text-muted-foreground">{n.body}</p>
+                    </div>
+                    <p className="mt-1 text-sm text-muted-foreground">{n.body}</p>
                     <p className="mt-2 text-xs text-muted-foreground">
                       {formatDateTime(n.createdAt)}
                     </p>
-                </div>
+                  </div>
                   <Button
                     size="icon"
                     variant="ghost"
                     aria-label={en ? "Archive" : "Archiver"}
                     onClick={() => update.mutate({ id: n.id, action: "ARCHIVE" })}
                   >
-                  <Archive className="size-4" />
-                </Button>
+                    <Archive className="size-4" />
+                  </Button>
                 </div>
-              <div className="mt-3 flex gap-2">
+                <div className="mt-3 flex gap-2">
                   {!n.readAt ? (
                     <Button
                       size="sm"
@@ -164,7 +169,7 @@ export function NotificationCenter() {
                       {en ? "Mark as read" : "Marquer comme lu"}
                     </Button>
                   ) : null}
-                {n.resourcePath ? (
+                  {n.resourcePath ? (
                     <Button
                       size="sm"
                       asChild
@@ -175,9 +180,9 @@ export function NotificationCenter() {
                       <Link to={n.resourcePath as AppPath}>
                         {en ? "View details" : "Voir le détail"}
                       </Link>
-                  </Button>
-                ) : null}
-              </div>
+                    </Button>
+                  ) : null}
+                </div>
               </CardContent>
             </Card>
           ))}

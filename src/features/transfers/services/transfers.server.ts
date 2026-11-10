@@ -62,7 +62,8 @@ function toDomainError(raw: unknown): TransferError {
     message.includes("INVALID_SETTLEMENT_STATUS")
   )
     return new TransferError("PROCESSING_ERROR");
-  if (message.includes("IDEMPOTENCY_KEY_REUSED")) return new TransferError("IDEMPOTENCY_KEY_REUSED");
+  if (message.includes("IDEMPOTENCY_KEY_REUSED"))
+    return new TransferError("IDEMPOTENCY_KEY_REUSED");
   if (message.includes("INVALID_DOCUMENT_PATH")) return new TransferError("INVALID_DOCUMENT_PATH");
   return new TransferError("UNEXPECTED_ERROR");
 }
@@ -309,10 +310,11 @@ export async function getTransferDetail(
     .eq("transfers.public_reference", reference)
     .order("created_at", { ascending: true });
 
-  const timeline: TransferStatusEventDto[] = ((history ?? []) as unknown as HistoryRow[]).map((row) => ({
+  const timeline: TransferStatusEventDto[] = ((history ?? []) as unknown as HistoryRow[]).map(
+    (row) => ({
       status: row.to_status as TransferStatus,
-    reasonCode: (row.reason_code as string | null) ?? null,
-    occurredAt: row.created_at as string,
+      reasonCode: (row.reason_code as string | null) ?? null,
+      occurredAt: row.created_at as string,
     }),
   );
 

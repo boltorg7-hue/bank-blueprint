@@ -443,7 +443,8 @@ export function TransferWizard({
                   storageKey = null;
                 }
 
-                const idempotencyKey = idempotencyKeyRef.current ?? cachedKey ?? crypto.randomUUID();
+                const idempotencyKey =
+                  idempotencyKeyRef.current ?? cachedKey ?? crypto.randomUUID();
                 idempotencyKeyRef.current = idempotencyKey;
                 if (storageKey) {
                   try {
@@ -474,7 +475,8 @@ export function TransferWizard({
                       setTransfer(created);
                       setStepIndex(2);
                     },
-                    onError: (mutationError) => setError(transferErrorMessage(mutationError, en ? "en" : "fr")),
+                    onError: (mutationError) =>
+                      setError(transferErrorMessage(mutationError, en ? "en" : "fr")),
                     onSettled: () => {
                       initiateLock.current = false;
                     },
@@ -566,23 +568,23 @@ export function TransferWizard({
                 confirm.mutate(
                   { reference: transfer.reference, password: confirmationPassword },
                   {
-                  onSuccess: (outcome) => {
+                    onSuccess: (outcome) => {
                       setConfirmationPassword("");
-                    setResult({
-                      status: outcome.status,
-                      kind: outcome.kind,
-                      progressState:
+                      setResult({
+                        status: outcome.status,
+                        kind: outcome.kind,
+                        progressState:
                           outcome.status === "COMPLETED" ? "COMPLETED" : transfer.progressState,
-                      progressPercent: outcome.progressPercent,
-                      failureCode: outcome.failureCode,
+                        progressPercent: outcome.progressPercent,
+                        failureCode: outcome.failureCode,
                         transactionReference: outcome.transactionReference,
-                    });
-                    setStepIndex(3);
-                  },
+                      });
+                      setStepIndex(3);
+                    },
                     onError: (mutationError) =>
                       setError(transferErrorMessage(mutationError, en ? "en" : "fr")),
-                  onSettled: () => {
-                    confirmLock.current = false;
+                    onSettled: () => {
+                      confirmLock.current = false;
                     },
                   },
                 );
@@ -638,7 +640,9 @@ export function TransferWizard({
             ) : null}
             <p className="text-caption text-muted-foreground">
               {en ? "Transfer reference" : "Référence du virement"} : {transfer.reference}
-              {result.transactionReference ? ` · ${en ? "Transaction" : "Opération"} ${result.transactionReference}` : ""}
+              {result.transactionReference
+                ? ` · ${en ? "Transaction" : "Opération"} ${result.transactionReference}`
+                : ""}
             </p>
           </div>
 

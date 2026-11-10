@@ -11,9 +11,10 @@ import { AddExternalBeneficiaryDialog } from "@/features/beneficiaries/component
 import { BeneficiaryList } from "@/features/beneficiaries/components/BeneficiaryList";
 
 export const Route = createFileRoute("/app/beneficiaries")({
-  head: () => ({ meta: [
+  head: () => ({
+    meta: [
       { name: "robots", content: "noindex, nofollow" },
-    { title: "Bénéficiaires — RFC Royal FINANCE Bank" },
+      { title: "Bénéficiaires — RFC Royal FINANCE Bank" },
       {
         name: "description",
         content: "Gérez les comptes vers lesquels vous pouvez envoyer de l'argent.",
@@ -39,11 +40,12 @@ function AppBeneficiariesRoute() {
             ? "Accounts you can send money to. Only the final digits of account numbers are shown."
             : "Les comptes vers lesquels vous pouvez envoyer de l'argent. Seuls les derniers chiffres des numéros de compte sont affichés."
         }
-        action={allowed ? (
-          <div className="action-row">
-            <AddBeneficiaryDialog />
+        action={
+          allowed ? (
+            <div className="action-row">
+              <AddBeneficiaryDialog />
               <AddExternalBeneficiaryDialog />
-          </div>
+            </div>
           ) : undefined
         }
       />

@@ -73,7 +73,8 @@ const FAILURE_MESSAGES: Record<TransferFailureCode, string> = {
     "Ce virement n'a pas été autorisé après vérification. Les fonds réservés ont été rendus disponibles.",
   PROCESSING_ERROR:
     "Le virement n'a pas pu être exécuté. Aucun montant n'a été débité ; vous pouvez réessayer.",
-  IDEMPOTENCY_KEY_REUSED: "Cette demande de virement a déjà été utilisée avec d’autres détails. Recommencez une nouvelle demande.",
+  IDEMPOTENCY_KEY_REUSED:
+    "Cette demande de virement a déjà été utilisée avec d’autres détails. Recommencez une nouvelle demande.",
   UNEXPECTED_ERROR:
     "Le virement n'a pas pu être traité. Aucun montant n'a été débité ; vous pouvez réessayer.",
 };
@@ -92,7 +93,8 @@ const STATUS_LABELS_EN: Record<TransferStatus, string> = {
   FAILED: "Failed",
   REJECTED: "Declined",
   CANCELLED: "Cancelled",
-  BLOCKED: "Suspended", REVERSED: "Reversed",
+  BLOCKED: "Suspended",
+  REVERSED: "Reversed",
 };
 export function transferStatusLabel(status: TransferStatus, language: "fr" | "en" = "fr"): string {
   return language === "en"
@@ -108,19 +110,29 @@ const FAILURE_MESSAGES_EN: Record<TransferFailureCode, string> = {
   INSUFFICIENT_FUNDS: "Your available balance is insufficient. No amount was debited.",
   LIMIT_EXCEEDED: "This transfer exceeds an applicable account limit. No amount was debited.",
   ACCOUNT_RESTRICTED: "Transfers are unavailable with your account's current status.",
-  DESTINATION_UNAVAILABLE: "The recipient account cannot receive this transfer. Check the saved beneficiary.",
-  DESTINATION_NOT_SUPPORTED: "This destination is not currently supported. No transfer was initiated.",
-  DESTINATION_IS_INTERNAL: "This account is held with us. Save it as an internal beneficiary for an immediate transfer.",
-  CURRENCY_MISMATCH: "The recipient account uses a different currency. This transfer is not possible.",
+  DESTINATION_UNAVAILABLE:
+    "The recipient account cannot receive this transfer. Check the saved beneficiary.",
+  DESTINATION_NOT_SUPPORTED:
+    "This destination is not currently supported. No transfer was initiated.",
+  DESTINATION_IS_INTERNAL:
+    "This account is held with us. Save it as an internal beneficiary for an immediate transfer.",
+  CURRENCY_MISMATCH:
+    "The recipient account uses a different currency. This transfer is not possible.",
   BENEFICIARY_UNAVAILABLE: "This beneficiary is no longer available for transfers.",
   SOURCE_ACCOUNT_UNAVAILABLE: "The source account is unavailable for transfers.",
-  INVALID_AMOUNT: "The amount entered is not valid.", INVALID_DESTINATION: "The beneficiary details are not valid.",
-  INVALID_TRANSITION: "This transfer can no longer be modified at this stage.", TRANSFER_UNAVAILABLE: "This transfer is unavailable.",
-  SETTLEMENT_FAILED: "The receiving bank could not receive this transfer. Reserved funds have been released.",
-  COMPLIANCE_REJECTED: "This transfer was not authorized after review. Reserved funds have been released.",
+  INVALID_AMOUNT: "The amount entered is not valid.",
+  INVALID_DESTINATION: "The beneficiary details are not valid.",
+  INVALID_TRANSITION: "This transfer can no longer be modified at this stage.",
+  TRANSFER_UNAVAILABLE: "This transfer is unavailable.",
+  SETTLEMENT_FAILED:
+    "The receiving bank could not receive this transfer. Reserved funds have been released.",
+  COMPLIANCE_REJECTED:
+    "This transfer was not authorized after review. Reserved funds have been released.",
   PROCESSING_ERROR: "The transfer could not be executed. No amount was debited; you can try again.",
-  IDEMPOTENCY_KEY_REUSED: "This transfer request key was already used with different details. Start a new transfer request.",
-  UNEXPECTED_ERROR: "The transfer could not be processed. No amount was debited; you can try again.",
+  IDEMPOTENCY_KEY_REUSED:
+    "This transfer request key was already used with different details. Start a new transfer request.",
+  UNEXPECTED_ERROR:
+    "The transfer could not be processed. No amount was debited; you can try again.",
 };
 export function transferFailureMessage(
   code: TransferFailureCode | null,
@@ -190,10 +202,14 @@ export function transferProgressLabel(
 ): string {
   if (language === "en") {
     switch (status) {
-      case "CONFIRMED": return "Verifying your transfer…";
-      case "FUNDS_RESERVED": return "Reserving funds…";
-      case "PROCESSING": return "Processing the transfer…";
-      default: return "Processing…";
+      case "CONFIRMED":
+        return "Verifying your transfer…";
+      case "FUNDS_RESERVED":
+        return "Reserving funds…";
+      case "PROCESSING":
+        return "Processing the transfer…";
+      default:
+        return "Processing…";
     }
   }
   switch (status) {

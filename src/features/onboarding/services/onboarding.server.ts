@@ -223,9 +223,10 @@ export async function submitForVerification(userId: string) {
   );
 
   if (error) throw new OnboardingError(error.message);
-  const result = (data as unknown as Array<{
-    status: "SUBMITTED" | "UNDER_REVIEW" | "VERIFIED";
-    already_submitted: boolean;
+  const result = (
+    data as unknown as Array<{
+      status: "SUBMITTED" | "UNDER_REVIEW" | "VERIFIED";
+      already_submitted: boolean;
     }> | null
   )?.[0];
 

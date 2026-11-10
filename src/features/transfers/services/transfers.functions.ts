@@ -69,7 +69,8 @@ export const initiateTransfer = createServerFn({ method: "POST" })
       idempotencyKey?: string;
     }) => {
       const sourceAccountReference = String(input?.sourceAccountReference ?? "").trim();
-      if (!ACCOUNT_PATTERN.test(sourceAccountReference)) throw new Error("INVALID_ACCOUNT_REFERENCE");
+      if (!ACCOUNT_PATTERN.test(sourceAccountReference))
+        throw new Error("INVALID_ACCOUNT_REFERENCE");
 
       const beneficiaryReference = String(input?.beneficiaryReference ?? "").trim();
       if (!BENEFICIARY_REFERENCE_PATTERN.test(beneficiaryReference)) {
@@ -79,7 +80,8 @@ export const initiateTransfer = createServerFn({ method: "POST" })
       const amountMinor = Number(input?.amountMinor);
       if (!Number.isInteger(amountMinor) || amountMinor <= 0) throw new Error("INVALID_AMOUNT");
 
-      const note = typeof input?.customerReference === "string" ? input.customerReference.trim() : "";
+      const note =
+        typeof input?.customerReference === "string" ? input.customerReference.trim() : "";
       const idempotencyKey = String(input?.idempotencyKey ?? "").trim();
       if (idempotencyKey.length < 16 || idempotencyKey.length > 100) {
         throw new Error("INVALID_IDEMPOTENCY_KEY");
@@ -118,8 +120,8 @@ export const authorizeTransferConfirmation = createServerFn({ method: "POST" })
     const { error } = await context.supabase.rpc(
       "issue_security_step_up" as never,
       {
-      _action: "TRANSFER_CONFIRM",
-      _resource_reference: data.reference,
+        _action: "TRANSFER_CONFIRM",
+        _resource_reference: data.reference,
       } as never,
     );
     if (error) throw new Error("RECENT_AUTHENTICATION_REQUIRED");
