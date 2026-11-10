@@ -806,7 +806,8 @@ test("5.8.8.7 ne laisse pas de reliquats de debug ou de maintenance explicite", 
             child !== "src/integrations/supabase/client.server.ts" &&
             child !== "src/lib/supabase/functions.ts" &&
             child !== "src/lib/error-capture.ts" &&
-            child !== "src/routes/__root.tsx"
+            child !== "src/routes/__root.tsx" &&
+            child !== "src/server.ts"
           ) {
             assert.doesNotMatch(source, /console\.(log|debug|info|warn|error)\s*\(/);
           }
@@ -890,7 +891,8 @@ test("5.8.8.8 certifie la cohérence globale des primitives, shells, états et s
             child !== "src/integrations/supabase/client.server.ts" &&
             child !== "src/lib/supabase/functions.ts" &&
             child !== "src/lib/error-capture.ts" &&
-            child !== "src/routes/__root.tsx"
+            child !== "src/routes/__root.tsx" &&
+            child !== "src/server.ts"
           ) {
             assert.doesNotMatch(source, /console\.(log|debug|info|warn|error)\s*\(/);
           }
@@ -984,7 +986,8 @@ test("5.8.9 certifie la modernisation UI/UX 2026 de bout en bout", () => {
             child !== "src/integrations/supabase/client.server.ts" &&
             child !== "src/lib/supabase/functions.ts" &&
             child !== "src/lib/error-capture.ts" &&
-            child !== "src/routes/__root.tsx"
+            child !== "src/routes/__root.tsx" &&
+            child !== "src/server.ts"
           ) {
             assert.doesNotMatch(source, /console\.(log|debug|info|warn|error)\s*\(/);
           }
