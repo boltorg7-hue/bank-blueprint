@@ -938,3 +938,84 @@ test("5.8.9 certifie la modernisation UI/UX 2026 de bout en bout", () => {
   // La certification 5.8.8 globale doit elle-même rester dans la suite.
   assert.match(read("tests/certification.test.mjs"), /5\.8\.8\.8 certifie la cohérence globale/);
 });
+
+
+test("les liens de confirmation e-mail utilisent uniquement l'origine HTTPS officielle configurée", () => {
+  const service = read("src/features/auth/services/email-confirmation.functions.ts");
+  const env = read(".env.example");
+  assert.match(env, /APP_BASE_URL="https:\/\/rfbank\.lovable\.app"/);
+  assert.match(service, /process\.env\[["']APP_BASE_URL["']\]/);
+  assert.match(service, /url\.protocol !== ["']https:["']/);
+  assert.match(service, /url\.username/);
+  assert.match(service, /url\.password/);
+  assert.match(service, /url\.search/);
+  assert.match(service, /url\.hash/);
+  assert.match(service, /return url\.origin/);
+  assert.doesNotMatch(service, /getRequestHeader\(["']origin["']\)/);
+  assert.doesNotMatch(service, /getRequestHeader\(["']host["']\)/);
+});
+
+test("la connexion libère toujours son état pending en cas d'erreur réseau", () => {
+  const login = read("src/features/auth/components/LoginForm.tsx");
+  assert.match(login, /try \{/);
+  assert.match(login, /catch \(error\)/);
+  assert.match(login, /finally \{/);
+  assert.match(login, /genericErrorMessage/);
+});
+
+test("les pages secondaires peuvent masquer le footer public", () => {
+  const layout = read("src/components/layout/PublicLayout.tsx");
+  assert.match(layout, /showFooter = true/);
+  assert.match(layout, /showFooter \? <PublicFooter \/> : null/);
+  for (const path of [
+    "src/features/auth/components/AuthShell.tsx",
+    "src/routes/contact.tsx",
+    "src/routes/dev.design-system.tsx",
+  ]) {
+    assert.match(read(path), /<PublicLayout showFooter=\{false\}>/);
+  }
+});
+
+test("la référence documentaire respecte strictement DOC-AAAA-NNNNNNNN", () => {
+  const source = read("src/domain/documents/types/index.ts");
+  const declaration = source.match(/DOCUMENT_REFERENCE_PATTERN\s*=\s*(\/[^\n]+\/);/);
+  assert.ok(declaration, "la constante DOCUMENT_REFERENCE_PATTERN doit être déclarée avec une regex littérale");
+  const pattern = new RegExp(declaration[1].slice(1, -1));
+  assert.equal(pattern.test("DOC-2026-12345678"), true);
+  assert.equal(pattern.test("DOC-0000-00000000"), true);
+  assert.equal(pattern.test("DOC-26-12345678"), false);
+  assert.equal(pattern.test("DOC-2026-1234"), false);
+  assert.equal(pattern.test("DOC-2026-123456789"), false);
+  assert.equal(pattern.test("X-DOC-2026-12345678"), false);
+  assert.equal(pattern.test("DOC-2026-12345678\n"), false);
+  assert.equal(pattern.test("DOC-2026-12345678 "), false);
+  assert.match(source, /DOCUMENT_FILE_UNAVAILABLE/);
+});
+
+test("les notifications exposent les filtres Sécurité et Service en français et en anglais", () => {
+  const source = read("src/features/notifications/components/NotificationCenter.tsx");
+  assert.match(source, /key: "SECURITY"/);
+  assert.match(source, /key: "SERVICE"/);
+  assert.match(source, /SECURITY: "Security"/);
+  assert.match(source, /SERVICE: "Service"/);
+});
+
+test("les listes de virements ont des filtres et états vides bilingues", () => {
+  const list = read("src/features/transfers/components/TransferList.tsx");
+  const route = read("src/routes/app.transfers.index.tsx");
+  assert.match(list, /label: \{ fr: string; en: string \}/);
+  assert.match(list, /item\.label\[en \? "en" : "fr"\]/);
+  assert.match(list, /No transfers yet/);
+  assert.match(list, /No transfers match this filter/);
+  assert.match(route, /en \? "New transfer" : "Nouveau virement"/);
+});
+
+test("les erreurs de formulaire et la navigation client sont accessibles au clavier", () => {
+  const form = read("src/components/ui/form.tsx");
+  const customerSidebar = read("src/components/navigation/CustomerSidebar.tsx");
+  assert.match(form, /role="alert"/);
+  assert.match(form, /aria-describedby=/);
+  assert.match(form, /aria-invalid=\{!!error\}/);
+  assert.match(customerSidebar, /min-h-11/);
+  assert.match(customerSidebar, /focus-visible:ring-2 focus-visible:ring-ring/);
+});

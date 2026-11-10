@@ -6,6 +6,14 @@ import { Button } from "@/components/ui/button";
 import { useDocumentAccess } from "@/features/documents/hooks/useDocuments";
 import { documentErrorMessage } from "@/features/documents/types/document";
 
+function documentErrorMessageEn(code: string): string {
+  if (code.includes("DOCUMENT_NOT_FOUND")) return "Document not found.";
+  if (code.includes("DOCUMENT_NOT_READY")) return "This document is still being prepared.";
+  if (code.includes("DOCUMENT_ACCESS_DENIED")) return "You do not have access to this document.";
+  if (code.includes("DOCUMENT_FILE_UNAVAILABLE")) return "The document file is not available yet.";
+  return "The document could not be opened. Please try again.";
+}
+
 /**
  * Download / preview / print actions for a stored document (§63, §69 – §73).
  *
@@ -39,7 +47,7 @@ export function DocumentActions({
             toast.info(en ? "Use the print function in the opened PDF viewer." : "Utilisez la fonction d'impression du lecteur PDF ouvert.");
           }
         },
-        onError: (error) => toast.error(documentErrorMessage(error.message)),
+        onError: (error) => toast.error(en ? documentErrorMessageEn(error.message) : documentErrorMessage(error.message)),
       },
     );
   };

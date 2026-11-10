@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PasswordField } from "@/features/auth/components/PasswordField";
 import { fieldErrorsFrom, loginSchema } from "@/features/auth/schemas/auth.schemas";
-import { signInErrorMessage } from "@/features/auth/lib/auth-errors";
+import { genericErrorMessage, signInErrorMessage } from "@/features/auth/lib/auth-errors";
 import { supabase } from "@/integrations/supabase/client";
 import { resolvePostLoginRoute } from "@/features/auth/lib/post-login";
 import { useLanguage } from "@/components/providers/LanguageProvider";
@@ -35,19 +35,30 @@ export function LoginForm({ redirectTo }: { redirectTo?: string | undefined }) {
 
     setErrors({});
     setPending(true);
-    const { error } = await supabase.auth.signInWithPassword({
-      email: parsed.data.email,
-      password: parsed.data.password,
-    });
+    const lang = language === "en" ? "en" : "fr";
+    let authenticated = false;
 
-    if (error) {
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email: parsed.data.email,
+        password: parsed.data.password,
+      });
+
+      if (error) {
+        setFormError(signInErrorMessage(error, lang));
+        return;
+      }
+
+      authenticated = true;
+      const target = await resolvePostLoginRoute(redirectTo);
+      await navigate({ to: target, replace: true });
+    } catch (error) {
+      setFormError(
+        authenticated ? genericErrorMessage(lang) : signInErrorMessage(error, lang),
+      );
+    } finally {
       setPending(false);
-      setFormError(signInErrorMessage(error, language === "en" ? "en" : "fr"));
-      return;
     }
-
-    const target = await resolvePostLoginRoute(redirectTo);
-    await navigate({ to: target, replace: true });
   }
 
   return (
