@@ -1019,3 +1019,29 @@ test("les erreurs de formulaire et la navigation client sont accessibles au clav
   assert.match(customerSidebar, /min-h-11/);
   assert.match(customerSidebar, /focus-visible:ring-2 focus-visible:ring-ring/);
 });
+
+
+test("B1 — les mutations onboarding verrouillent l'état client dans la transaction d'écriture", () => {
+  const server = read("src/features/onboarding/services/onboarding.server.ts");
+  const migration = read("supabase/migrations/20261110090000_onboarding_lifecycle_mutation_guards.sql");
+
+  assert.match(server, /PROFILE_EDITABLE_LIFECYCLE_STATES/);
+  assert.match(server, /ONBOARDING_STATE_LOCKED/);
+  for (const name of [
+    "customer_save_onboarding_address",
+    "customer_register_onboarding_document",
+    "customer_remove_onboarding_document",
+    "customer_submit_onboarding_for_verification",
+  ]) {
+    assert.ok(server.includes(name));
+    assert.ok(migration.includes(`FUNCTION public.${name}(`));
+  }
+
+  assert.ok((migration.match(/FOR UPDATE/g) ?? []).length >= 6);
+  assert.match(migration, /ONBOARDING_STATE_LOCKED/);
+  assert.match(migration, /phone_verified_at IS NULL/);
+  assert.match(migration, /IDENTITY_SUBMITTED/);
+  assert.ok(migration.includes("REVOKE ALL ON FUNCTION public.customer_submit_onboarding_for_verification(uuid) FROM PUBLIC, anon, authenticated;"));
+  assert.ok(migration.includes("GRANT EXECUTE ON FUNCTION public.customer_submit_onboarding_for_verification(uuid) TO service_role;"));
+  assert.doesNotMatch(migration, /GRANT EXECUTE ON FUNCTION public.customer_submit_onboarding_for_verification\(uuid\) TO authenticated/);
+});
