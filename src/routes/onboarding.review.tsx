@@ -55,8 +55,8 @@ function ReviewStepPage() {
 
   const profile = context.profile;
   const address = context.address;
-  const complete =
-    isProfileComplete(context) && hasIdentityDocument(context) && hasProofOfAddress(context);
+  const documentsProvided = hasIdentityDocument(context) && hasProofOfAddress(context);
+  const complete = isProfileComplete(context) && Boolean(address);
 
   async function handleSubmit() {
     setError(null);
@@ -131,8 +131,15 @@ await navigate({
         {!complete ? (
           <p className="text-body-sm rounded-xl border border-warning/30 bg-warning-muted px-4 py-3 text-foreground">
             {en
-              ? "Some required information or documents are still missing. Use the Edit buttons above to complete them."
-              : "Des informations ou documents obligatoires manquent encore. Utilisez les boutons Modifier ci-dessus pour les compléter."}
+              ? "Required profile information or your residential address is missing. Use the Edit buttons above to complete them."
+              : "Des informations personnelles ou votre adresse de résidence manquent encore. Utilisez les boutons Modifier ci-dessus pour les compléter."}
+          </p>
+        ) : null}
+        {complete && !documentsProvided ? (
+          <p className="text-body-sm rounded-xl border border-warning/30 bg-warning-muted px-4 py-3 text-foreground">
+            {en
+              ? "You can finish registration now and provide your identity documents later. Identity verification and banking access will remain unavailable until the required documents are reviewed."
+              : "Vous pouvez terminer votre inscription maintenant et transmettre vos justificatifs plus tard. La vérification d'identité et l'accès bancaire resteront indisponibles jusqu'à l'examen des documents requis."}
           </p>
         ) : null}
         <Button
@@ -142,7 +149,9 @@ await navigate({
           disabled={!complete}
           onClick={() => void handleSubmit()}
         >
-          {en ? "Submit my application" : "Transmettre mon dossier"}
+          {documentsProvided
+            ? en ? "Submit my application for verification" : "Transmettre mon dossier pour vérification"
+            : en ? "Finish my registration" : "Terminer mon inscription"}
         </Button>
       </div>
     </OnboardingShell>
