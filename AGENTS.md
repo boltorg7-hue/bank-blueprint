@@ -19,3 +19,5 @@ The admin account-opening register joins profiles, identity verification and rec
 Customer onboarding decisions use a two-person workflow: `kyc.review` recommends, a distinct `kyc.approve` actor decides, and only the privileged server opens the pending USD account; approval notes are disclosed only to KYC-authorized staff.
 Recoverable admin conflicts return typed action results instead of thrown server errors; this keeps stale or duplicate actions inside the dialog without blanking the admin screen.
 RFC is presented as a traditional bank founded in 1972, never as a digital bank; online access is a service channel, not the institution's identity.
+Keep missing migrated RPC contracts in narrowly scoped local database type extensions until generated types catch up; this preserves argument checking without editing managed files.
+Identity-document previews check the authenticated owner's row and storage prefix before issuing a short-lived private URL; this prevents cross-customer access.
