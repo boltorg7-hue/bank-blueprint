@@ -106,7 +106,7 @@ function VerifyContactPage() {
       <form onSubmit={handleVerify} className="space-y-5">
         <div className="space-y-2">
           <Label htmlFor="contact-code">{en ? "6-digit code" : "Code à 6 chiffres"}</Label>
-          <Input id="contact-code" inputMode="numeric" autoComplete="one-time-code" maxLength={6} value={code} onChange={(e) => setCode(e.target.value.replace(/\\D/g, "").slice(0, 6))} required />
+          <Input id="contact-code" inputMode="numeric" autoComplete="one-time-code" maxLength={6} value={code} onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))} required />
         </div>
         {error ? <p role="alert" className="text-body-sm rounded-lg bg-destructive/10 px-3 py-2 text-destructive">{error}</p> : null}
         {message ? <p role="status" className="text-body-sm rounded-lg bg-success-muted px-3 py-2 text-foreground">{message}</p> : null}
