@@ -2,6 +2,28 @@ import { createClient } from "@supabase/supabase-js";
 
 import type { RegisterInput } from "@/features/auth/schemas/auth.schemas";
 
+function createSupabaseFetch(supabaseKey: string): typeof fetch {
+  return (input, init) => {
+    const headers = new Headers(
+      typeof Request !== "undefined" && input instanceof Request ? input.headers : undefined,
+    );
+
+    if (init?.headers) {
+      new Headers(init.headers).forEach((value, key) => headers.set(key, value));
+    }
+
+    if (
+      (supabaseKey.startsWith("sb_publishable_") || supabaseKey.startsWith("sb_secret_")) &&
+      headers.get("Authorization") === `Bearer ${supabaseKey}`
+    ) {
+      headers.delete("Authorization");
+    }
+
+    headers.set("apikey", supabaseKey);
+    return fetch(input, { ...init, headers });
+  };
+}
+
 function registrationRedirectUrl(): string {
   const configured = process.env["APP_BASE_URL"] ?? "https://rfbank.lovable.app";
   let url: URL;
@@ -37,6 +59,7 @@ export async function createCustomerRegistration(input: RegisterInput) {
 
   // Use only the publishable key. Account creation must never require service-role access.
   const authClient = createClient(url, key, {
+    global: { fetch: createSupabaseFetch(key) },
     auth: { persistSession: false, autoRefreshToken: false },
   });
 
