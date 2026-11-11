@@ -20,7 +20,7 @@ SET
 
 -- Sensitive onboarding records are read only through their owner or a
 -- specifically assigned KYC/compliance role. Generic staff membership is too broad.
-CREATE OR REPLACE FUNCTION public.can_access_kyc_documents(_user_id uuid)
+CREATE OR REPLACE FUNCTION public.can_access_kyc_documents()
 RETURNS boolean
 LANGUAGE sql
 STABLE
@@ -28,7 +28,7 @@ SECURITY DEFINER
 SET search_path = public
 AS $$
   SELECT
-    public.has_role(_user_id, 'kyc_agent'::public.app_role)
+    public.has_role(auth.uid(), 'kyc_agent'::public.app_role)
     OR public.has_role(_user_id, 'compliance_officer'::public.app_role)
     OR public.has_role(_user_id, 'supervisor'::public.app_role)
     OR public.has_role(_user_id, 'administrator'::public.app_role)
@@ -36,7 +36,7 @@ AS $$
     OR public.has_role(_user_id, 'auditor'::public.app_role);
 $$;
 
-REVOKE ALL ON FUNCTION public.can_access_kyc_documents(uuid) FROM PUBLIC, anon;
+REVOKE ALL ON FUNCTION public.can_access_kyc_documents() FROM PUBLIC, anon;
 GRANT EXECUTE ON FUNCTION public.can_access_kyc_documents(uuid) TO authenticated, service_role;
 
 -- Address changes must pass through customer_save_onboarding_address(), which
@@ -52,7 +52,7 @@ ON public.customer_addresses
 FOR SELECT TO authenticated
 USING (
   auth.uid() = user_id
-  OR public.can_access_kyc_documents(auth.uid())
+  OR public.can_access_kyc_documents()
 );
 
 -- Document rows may only be created/deleted through server-side RPCs.
@@ -119,7 +119,7 @@ FOR INSERT TO authenticated
 WITH CHECK (
   bucket_id = 'identity-documents'
   AND auth.uid()::text = (storage.foldername(name))[1]
-  AND name ~ ('^' || auth.uid()::text || '/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\\.(jpg|jpeg|png|heic|webp|pdf)$')
+  AND name ~ ('^' || auth.uid()::text || '/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.(jpg|jpeg|png|heic|webp|pdf)$')
   AND metadata->>'mimetype' IN ('image/jpeg', 'image/png', 'image/heic', 'image/webp', 'application/pdf')
   AND CASE
     WHEN metadata->>'size' ~ '^[0-9]+$' THEN (metadata->>'size')::bigint BETWEEN 1 AND 10485760
