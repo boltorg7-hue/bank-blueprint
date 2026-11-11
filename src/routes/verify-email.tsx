@@ -98,8 +98,8 @@ function VerifyEmailPage() {
       if (result.ok) {
         setCooldown(result.retryAfter);
         setNotice({ tone: "ok", text: en
-          ? `A new link has been sent. Previous links no longer work. ${result.remaining} resend(s) left this hour.`
-          : `Un nouveau lien a été envoyé. Les liens précédents ne fonctionnent plus. ${result.remaining} renvoi(s) restant(s) cette heure.` });
+          ? "If this address can receive a confirmation link, an email will arrive shortly. Check your inbox and spam folder."
+          : "Si cette adresse peut recevoir un lien de confirmation, un e-mail arrivera sous peu. Vérifiez votre boîte de réception et vos courriers indésirables." });
       } else if (result.code === "RATE_LIMITED") {
         setCooldown(result.retryAfter ?? RESEND_COOLDOWN_SECONDS);
         setNotice({ tone: "error", text: rateMessage(result.retryAfter) });
