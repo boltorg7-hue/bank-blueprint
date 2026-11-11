@@ -6,15 +6,24 @@ import { genericErrorMessage } from "@/features/auth/lib/auth-errors";
 import { useLanguage } from "@/components/providers/LanguageProvider";
 
 /**
- * Apple sign-in entry point.
- * The callback resolves trusted customer lifecycle state before any banking route,
- * so a new OAuth customer is not dropped directly into the banking app.
+ * Apple sign-in entry point. Provider activity is coordinated with Google so
+ * only one OAuth redirect can be started from the registration page at a time.
  */
-export function AppleSignInButton({ onError }: { onError: (message: string) => void }) {
+export function AppleSignInButton({
+  onError,
+  onStart,
+  disabled = false,
+}: {
+  onError: (message: string) => void;
+  onStart?: () => void;
+  disabled?: boolean;
+}) {
   const { language } = useLanguage();
   const [pending, setPending] = useState(false);
 
   async function handleClick() {
+    if (pending || disabled) return;
+    onStart?.();
     setPending(true);
     try {
       const result = await lovable.auth.signInWithOAuth("apple", {
@@ -37,8 +46,9 @@ export function AppleSignInButton({ onError }: { onError: (message: string) => v
     <Button
       type="button"
       variant="outline"
-      className="w-full touch-target"
+      className="w-full touch-target bg-background"
       loading={pending}
+      disabled={disabled}
       onClick={handleClick}
     >
       {language === "en" ? "Continue with Apple" : "Continuer avec Apple"}
