@@ -1,9 +1,23 @@
-import { createHmac, randomInt } from "node:crypto";
+import { createCipheriv, createHmac, randomBytes, randomInt } from "node:crypto";
 import { supabaseAdmin as typedAdmin } from "@/integrations/supabase/client.server";
 import { internationalPhoneSchema } from "@/features/onboarding/schemas/onboarding.schemas";
 
 const supabaseAdmin = typedAdmin as any;
 const OTP_TTL_MINUTES = 10;
+
+function encryptOtpPayload(code: string) {
+  const encodedKey = process.env["SMS_PAYLOAD_ENCRYPTION_KEY"]?.trim();
+  if (!encodedKey) throw new Error("SMS_PAYLOAD_ENCRYPTION_KEY_NOT_CONFIGURED");
+  const key = Buffer.from(encodedKey, "base64");
+  if (key.length !== 32) throw new Error("SMS_PAYLOAD_ENCRYPTION_KEY_INVALID");
+  const iv = randomBytes(12);
+  const cipher = createCipheriv("aes-256-gcm", key, iv);
+  const ciphertext = Buffer.concat([
+    cipher.update(JSON.stringify({ code, expires_in_minutes: OTP_TTL_MINUTES }), "utf8"),
+    cipher.final(),
+  ]);
+  return { v: "1", iv: iv.toString("base64"), tag: cipher.getAuthTag().toString("base64"), ciphertext: ciphertext.toString("base64") };
+}
 
 function otpHash(userId: string, phone: string, code: string) {
   const secret = process.env["PHONE_OTP_SECRET"]?.trim() || process.env["SUPABASE_SERVICE_ROLE_KEY"]?.trim();
@@ -16,7 +30,7 @@ function rpcError(error: { message?: string } | null, fallback: string): never {
   for (const code of [
     "OTP_COOLDOWN", "PHONE_REQUIRED", "PHONE_ALREADY_VERIFIED",
     "CUSTOMER_PROFILE_NOT_FOUND", "ONBOARDING_STATE_LOCKED", "PHONE_UNCHANGED",
-    "INVALID_PHONE",
+    "INVALID_PHONE", "OTP_USER_DAILY_LIMIT", "OTP_PHONE_DAILY_LIMIT",
   ]) {
     if (message.includes(code)) throw new Error(code);
   }
@@ -49,10 +63,11 @@ export async function sendContactVerificationCode(userId: string) {
 
   const code = String(randomInt(0, 1_000_000)).padStart(6, "0");
   const expiresAt = new Date(Date.now() + OTP_TTL_MINUTES * 60_000).toISOString();
+  const encryptedPayload = encryptOtpPayload(code);
   const { data, error } = await supabaseAdmin.rpc("customer_create_phone_verification", {
     _user_id: userId,
     _code_hash: otpHash(userId, profile.phone, code),
-    _code: code,
+    _payload: encryptedPayload,
     _expires_at: expiresAt,
   });
   if (error) rpcError(error, "OTP_CREATE_FAILED");
@@ -96,9 +111,9 @@ export async function sendContactVerificationCode(userId: string) {
     await invalidateFailedChallenge();
     throw new Error("SMS_STATUS_UNAVAILABLE");
   }
-  if (notification?.status !== "SENT") {
+  if (notification?.status !== "ACCEPTED") {
     await invalidateFailedChallenge();
-    throw new Error(notification?.status === "SIMULATED" ? "SMS_SIMULATED_NOT_DELIVERED" : "SMS_DELIVERY_FAILED");
+    throw new Error(notification?.status === "SIMULATED" ? "SMS_SIMULATED_NOT_DELIVERED" : "SMS_PROVIDER_NOT_ACCEPTED");
   }
 
   return { alreadyVerified: false as const, phone: profile.phone, expiresAt };
