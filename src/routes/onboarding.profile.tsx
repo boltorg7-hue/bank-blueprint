@@ -68,7 +68,7 @@ function ProfileStepPage() {
       await save({ data: parsed.data });
       await invalidate();
       setDirty(false);
-      await navigate({ to: "/verify-contact" });
+      await navigate({ to: "/onboarding", replace: true });
     } catch {
       setFormError((en ? "We could not save your details. Please try again." : "Nous n'avons pas pu enregistrer vos informations. Réessayez."));
     } finally {
@@ -105,7 +105,7 @@ function ProfileStepPage() {
         <ChoiceField id="profile-nationality" name="nationality" label={en ? "Nationality" : "Nationalité"} options={COUNTRIES} en={en} defaultValue={profile.nationality ?? ""} error={errors["nationality"]} />
         <ChoiceField id="profile-countryOfResidence" name="countryOfResidence" label={en ? "Country of residence" : "Pays de résidence"} options={COUNTRIES} en={en} defaultValue={profile.country_of_residence ?? ""} error={errors["countryOfResidence"]} />
         <ChoiceField id="profile-occupation" name="occupation" label={en ? "Occupation" : "Profession"} options={OCCUPATIONS} en={en} allowOther defaultValue={profile.occupation} error={errors["occupation"]} />
-        <Field name="phone" label={en ? "Phone number" : "Numéro de téléphone"} type="tel" autoComplete="tel" defaultValue={profile.phone ?? ""} error={errors["phone"]} />
+        <Field name="phone" label={en ? "Phone number (required)" : "Numéro de téléphone (obligatoire)"} type="tel" autoComplete="tel" defaultValue={profile.phone ?? ""} error={errors["phone"]} required />
 
         {formError ? (
           <p role="alert" className="text-body-sm rounded-lg bg-destructive/10 px-3 py-2 text-destructive">
@@ -128,6 +128,7 @@ function Field({
   autoComplete,
   defaultValue,
   error,
+  required = false,
 }: {
   name: string;
   label: string;
@@ -135,6 +136,7 @@ function Field({
   autoComplete: string;
   defaultValue?: string | null;
   error?: string | undefined;
+  required?: boolean;
 }) {
   const id = `profile-${name}`;
   return (
@@ -146,6 +148,7 @@ function Field({
         type={type}
         autoComplete={autoComplete}
         defaultValue={defaultValue ?? ""}
+        required={required}
         aria-invalid={error ? true : undefined}
         aria-describedby={error ? `${id}-error` : undefined}
       />
