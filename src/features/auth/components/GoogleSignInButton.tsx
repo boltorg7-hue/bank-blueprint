@@ -15,7 +15,7 @@ export function GoogleSignInButton({
   disabled = false,
 }: {
   onError: (message: string) => void;
-  onStart?: () => void;
+  onStart?: () => boolean | void;
   disabled?: boolean;
 }) {
   const { language } = useLanguage();
