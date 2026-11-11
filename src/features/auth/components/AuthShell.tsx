@@ -33,7 +33,7 @@ export function AuthShell({
   return (
     <PublicLayout showFooter={false}>
       <section
-        className={`mx-auto w-full px-4 py-8 sm:px-6 sm:py-12 ${wide ? "max-w-5xl" : "max-w-md"}`}
+        className={wide ? "mx-auto w-full max-w-5xl px-4 py-8 sm:px-6 sm:py-12" : "mx-auto w-full max-w-md px-4 py-10 sm:px-6 sm:py-16"}
       >
         <header className={`space-y-3 ${wide ? "mx-auto max-w-2xl text-center" : ""}`}>
           {eyebrow ? (
@@ -51,7 +51,7 @@ export function AuthShell({
           ) : null}
         </header>
 
-        <Card className="mt-7 overflow-hidden sm:mt-9">
+        <Card className={wide ? "mt-7 overflow-hidden sm:mt-9" : "mt-8"}>
           <CardContent
             className={
               wide
@@ -76,7 +76,7 @@ export function AuthShell({
           </CardContent>
         </Card>
 
-        <p className="text-caption mt-6 flex items-start justify-center gap-2 text-muted-foreground sm:mt-8">
+        <p className={wide ? "text-caption mt-6 flex items-start justify-center gap-2 text-muted-foreground sm:mt-8" : "text-caption mt-8 flex items-start gap-2 text-muted-foreground"}>
           <ShieldCheck className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
           <span className={wide ? "max-w-xl" : ""}>
             {language === "en"
@@ -85,7 +85,7 @@ export function AuthShell({
           </span>
         </p>
 
-        {footer ? <div className="mt-6 text-center">{footer}</div> : null}
+        {footer ? <div className={wide ? "mt-6 text-center" : "mt-6"}>{footer}</div> : null}
       </section>
     </PublicLayout>
   );
