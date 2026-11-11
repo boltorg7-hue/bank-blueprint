@@ -25,7 +25,7 @@ assert.match(profileRoute, /defaultValue=\{profile\.phone \?\? ""\}/);
 assert.doesNotMatch(profileRoute, /\+1 868/);
 assert.doesNotMatch(profileRoute, /Trinidad and Tobago/);
 assert.match(onboardingServer, /customer_change_pending_phone/);
-assert.doesNotMatch(onboardingServer, /phone: data\.phone/);
+assert.doesNotMatch(onboardingServer, /\bphone:\s*data\.phone/);
 assert.match(onboardingServer, /const onboardingStep = phoneUnchanged/);
 assert.match(contactServer, /profile\.phone/);
 assert.match(profileRoute, /navigate\(\{ to: "\/onboarding", replace: true \}\)/);
