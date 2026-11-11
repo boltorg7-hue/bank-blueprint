@@ -27,12 +27,13 @@ function publicClient() {
 async function checkQuota(email: string): Promise<{ allowed: boolean; retryAfter: number; remaining: number }> {
   const db = await admin();
   const since = new Date(Date.now() - 3600_000).toISOString();
-  const { data } = await db
+  const { data, error } = await db
     .from("email_confirmation_sends")
     .select("created_at")
     .eq("email", email)
     .gte("created_at", since)
     .order("created_at", { ascending: false });
+  if (error) throw new Error("Email confirmation quota could not be checked.");
   const rows = data ?? [];
   if (rows.length >= MAX_SENDS_PER_HOUR) {
     const oldest = new Date(rows[rows.length - 1]!.created_at).getTime();
@@ -50,7 +51,10 @@ async function checkQuota(email: string): Promise<{ allowed: boolean; retryAfter
 async function rotateNonce(email: string, userId: string | null): Promise<string> {
   const db = await admin();
   const nonce = crypto.randomUUID();
-  await db.from("email_confirmation_links").upsert({ email, user_id: userId, current_nonce: nonce, updated_at: new Date().toISOString() });
+  const { error } = await db
+    .from("email_confirmation_links")
+    .upsert({ email, user_id: userId, current_nonce: nonce, updated_at: new Date().toISOString() });
+  if (error) throw new Error("Email confirmation link could not be recorded.");
   return nonce;
 }
 
@@ -58,7 +62,8 @@ async function sendSignupLink(email: string, userId: string | null, origin: stri
   const quota = await checkQuota(email);
   if (!quota.allowed) return { ok: false, code: "RATE_LIMITED", retryAfter: quota.retryAfter };
   const db = await admin();
-  await db.from("email_confirmation_sends").insert({ email, kind });
+  const { error: logError } = await db.from("email_confirmation_sends").insert({ email, kind });
+  if (logError) throw new Error("Email confirmation send could not be recorded.");
   const nonce = await rotateNonce(email, userId);
   const { error } = await publicClient().auth.resend({
     type: "signup",
@@ -74,7 +79,8 @@ async function sendSignupLink(email: string, userId: string | null, origin: stri
 
 async function lookupUser(email: string) {
   const db = await admin();
-  const { data } = await db.rpc("auth_user_for_email", { _email: email });
+  const { data, error } = await db.rpc("auth_user_for_email", { _email: email });
+  if (error) throw new Error("Email account lookup failed.");
   const row = Array.isArray(data) ? data[0] : null;
   return row as { id: string; email_confirmed_at: string | null } | null;
 }
@@ -82,13 +88,23 @@ async function lookupUser(email: string) {
 export async function resendConfirmation(emailRaw: string, origin: string): Promise<SendResult> {
   const email = emailRaw.trim().toLowerCase();
   const user = await lookupUser(email);
-  if (user?.email_confirmed_at) return { ok: false, code: "ALREADY_VERIFIED" };
-  // Unknown addresses get the same neutral answer (no account enumeration), but still count against quota.
+  // Keep the response indistinguishable for unknown and already-verified addresses.
+  // This prevents the public resend endpoint from becoming an account-enumeration oracle.
+  if (user?.email_confirmed_at) {
+    const quota = await checkQuota(email);
+    if (!quota.allowed) return { ok: false, code: "RATE_LIMITED", retryAfter: quota.retryAfter };
+    const db = await admin();
+    const { error } = await db.from("email_confirmation_sends").insert({ email, kind: "resend_verified" });
+    if (error) throw new Error("Email confirmation send could not be recorded.");
+    return { ok: true, retryAfter: RESEND_SPACING_SECONDS, remaining: quota.remaining };
+  }
+  // Unknown addresses receive the same neutral result and are also rate limited.
   if (!user) {
     const quota = await checkQuota(email);
     if (!quota.allowed) return { ok: false, code: "RATE_LIMITED", retryAfter: quota.retryAfter };
     const db = await admin();
-    await db.from("email_confirmation_sends").insert({ email, kind: "resend_unknown" });
+    const { error } = await db.from("email_confirmation_sends").insert({ email, kind: "resend_unknown" });
+    if (error) throw new Error("Email confirmation send could not be recorded.");
     return { ok: true, retryAfter: RESEND_SPACING_SECONDS, remaining: quota.remaining };
   }
   return sendSignupLink(email, user.id, origin, "resend");
