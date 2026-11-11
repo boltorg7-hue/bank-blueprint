@@ -1,4 +1,4 @@
-import { createHash, randomInt } from "node:crypto";
+import { createHmac, randomInt } from "node:crypto";
 import { supabaseAdmin as typedAdmin } from "@/integrations/supabase/client.server";
 import { internationalPhoneSchema } from "@/features/onboarding/schemas/onboarding.schemas";
 
@@ -6,9 +6,9 @@ const supabaseAdmin = typedAdmin as any;
 const OTP_TTL_MINUTES = 10;
 
 function otpHash(userId: string, phone: string, code: string) {
-  const secret = process.env["PHONE_OTP_SECRET"]?.trim();
+  const secret = process.env["PHONE_OTP_SECRET"]?.trim() || process.env["SUPABASE_SERVICE_ROLE_KEY"]?.trim();
   if (!secret || secret.length < 32) throw new Error("OTP_SECRET_NOT_CONFIGURED");
-  return createHash("sha256").update(`${secret}:${userId}:${phone}:${code}`).digest("hex");
+  return createHmac("sha256", secret).update(`${userId}:${phone}:${code}`).digest("hex");
 }
 
 function rpcError(error: { message?: string } | null, fallback: string): never {
@@ -34,7 +34,7 @@ export async function changePendingPhone(userId: string, phoneInput: unknown) {
 }
 
 export async function sendContactVerificationCode(userId: string) {
-  const secret = process.env["PHONE_OTP_SECRET"]?.trim();
+  const secret = process.env["PHONE_OTP_SECRET"]?.trim() || process.env["SUPABASE_SERVICE_ROLE_KEY"]?.trim();
   if (!secret || secret.length < 32) throw new Error("OTP_SECRET_NOT_CONFIGURED");
 
   const { data: profile, error: profileError } = await supabaseAdmin
