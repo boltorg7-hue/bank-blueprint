@@ -88,6 +88,8 @@ test("email callback requires GoTrue confirmation and the latest issued nonce", 
   assert.ok(functions.includes("isLatestConfirmationLink(user.email, data.nonce)"));
   assert.ok(server.includes("data.current_nonce === nonce"));
   assert.ok(server.includes("Boolean(nonce)"));
+  assert.ok(server.includes("Email confirmation link could not be verified."));
+  assert.ok(server.includes("Previous email confirmation links could not be invalidated."));
 });
 
 test("email confirmation sends use a strict HTTPS application origin", () => {
