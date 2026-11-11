@@ -11,6 +11,7 @@ import { resolvePostLoginRoute } from "@/features/auth/lib/post-login";
 import { useLanguage } from "@/components/providers/LanguageProvider";
 
 export const Route = createFileRoute("/auth/consent")({
+  ssr: false,
   beforeLoad: async () => {
     const status = await getOAuthConsentStatus();
     if (!status.required) throw redirect({ to: "/onboarding", replace: true });
