@@ -43,6 +43,7 @@ export async function dispatchPendingSms(userId: string) {
         status: result.state,
         provider_reference: result.providerReference,
         processed_at: new Date().toISOString(),
+        claimed_at: null,
         last_error_code: result.errorCode,
       })
       .eq("id", row.id)
