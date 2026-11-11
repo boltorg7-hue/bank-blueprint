@@ -6,6 +6,10 @@ import type { CustomerContext } from "@/domain/onboarding/types";
 export const getCustomerContext = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<CustomerContext> => {
+    const { assertCustomerConsent } = await import(
+      "@/features/auth/services/oauth-consent.server"
+    );
+    await assertCustomerConsent(context.userId);
     const { loadCustomerContext } = await import(
       "@/features/onboarding/services/onboarding.server"
     );
