@@ -127,3 +127,28 @@ test("profile context fails closed instead of treating database read failures as
   assert.ok(server.includes("if (addressError) throw new OnboardingError"));
   assert.ok(server.includes("if (documentsError) throw new OnboardingError"));
 });
+
+test("phone OTP and phone/email change controls are part of certification", () => {
+  const server = read("src/features/onboarding/services/contact-verification.server.ts");
+  const functions = read("src/features/onboarding/services/onboarding.functions.ts");
+  const phonePage = read("src/routes/verify-contact.tsx");
+  const emailServer = read("src/features/auth/services/email-confirmation.server.ts");
+  const emailPage = read("src/routes/verify-email.tsx");
+  const migration = read("supabase/migrations/20261111120000_phone_change_and_otp_hardening.sql");
+  const sms = read("src/features/notifications/services/notifications.server.ts");
+  assert.ok(server.includes("PHONE_OTP_SECRET"));
+  assert.ok(server.includes("OTP_SECRET_NOT_CONFIGURED"));
+  assert.ok(server.includes("customer_create_phone_verification"));
+  assert.ok(server.includes("customer_verify_phone_code"));
+  assert.ok(functions.includes("changePendingPhone"));
+  assert.ok(phonePage.includes("Modifier mon numéro"));
+  assert.ok(migration.includes("customer_change_pending_phone"));
+  assert.ok(migration.includes("attempts = LEAST(attempts + 1, 5)"));
+  assert.ok(migration.includes("OTP_SUPERSEDED"));
+  assert.ok(emailServer.includes("signInWithPassword"));
+  assert.ok(emailServer.includes("lookupUser(newEmail)"));
+  assert.ok(emailServer.includes("Previous email confirmation links could not be invalidated."));
+  assert.ok(emailPage.includes("Adresse incorrecte ? Modifier mon e-mail"));
+  assert.ok(sms.includes('|| "africastalking"'));
+  assert.ok(sms.includes("SMS_PROVIDER_UNSUPPORTED"));
+});
