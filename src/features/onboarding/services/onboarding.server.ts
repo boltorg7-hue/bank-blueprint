@@ -29,6 +29,28 @@ const ONBOARDING_EDITABLE_LIFECYCLE_STATES = [
   "ADDITIONAL_DOCUMENT_REQUIRED",
 ] as const;
 
+function metadataName(value: unknown): string | null {
+  if (typeof value !== "string") return null;
+  const normalized = value.trim().replace(/\\s+/g, " ");
+  return normalized.length >= 2 && normalized.length <= 60 ? normalized : null;
+}
+
+function profileNameHints(metadata: Record<string, unknown> | null | undefined) {
+  const source = metadata ?? {};
+  const fullName = metadataName(source["full_name"] ?? source["name"]);
+  const parts = fullName?.split(" ") ?? [];
+  return {
+    first_name:
+      metadataName(source["first_name"]) ??
+      metadataName(source["given_name"]) ??
+      (parts.length > 1 ? parts[0] : null),
+    last_name:
+      metadataName(source["last_name"]) ??
+      metadataName(source["family_name"]) ??
+      (parts.length > 1 ? parts.slice(1).join(" ") : null),
+  };
+}
+
 async function requireEditableLifecycle(
   userId: string,
   allowedStates: readonly string[] = ONBOARDING_EDITABLE_LIFECYCLE_STATES,
@@ -53,30 +75,52 @@ export async function loadCustomerContext(
   userId: string,
   email: string | null,
   emailVerified: boolean,
+  authMetadata?: Record<string, unknown> | null,
 ): Promise<CustomerContext> {
-  const { data: existingProfile } = await supabaseAdmin
+  const { data: existingProfile, error: profileReadError } = await supabaseAdmin
     .from("profiles")
     .select(PROFILE_COLUMNS)
     .eq("id", userId)
     .maybeSingle();
 
+  if (profileReadError) throw new OnboardingError("CUSTOMER_PROFILE_UNAVAILABLE");
+
+  const nameHints = profileNameHints(authMetadata);
   let profile = existingProfile;
   if (!profile) {
     const { data, error } = await supabaseAdmin
       .from("profiles")
       .insert({
         id: userId,
+        ...nameHints,
         lifecycle_state: emailVerified ? "PROFILE_INCOMPLETE" : "EMAIL_VERIFICATION_REQUIRED",
       })
       .select(PROFILE_COLUMNS)
       .single();
-    if (error) throw new OnboardingError(error.message);
+    if (error) throw new OnboardingError("CUSTOMER_PROFILE_CREATE_FAILED");
     profile = data;
+  } else {
+    // Provider names are suggestions only. Never overwrite details already
+    // entered or verified by the customer.
+    const missingNameHints = {
+      ...(profile.first_name ? {} : { first_name: nameHints.first_name }),
+      ...(profile.last_name ? {} : { last_name: nameHints.last_name }),
+    };
+    if (Object.values(missingNameHints).some(Boolean)) {
+      const { data, error } = await supabaseAdmin
+        .from("profiles")
+        .update(missingNameHints)
+        .eq("id", userId)
+        .select(PROFILE_COLUMNS)
+        .single();
+      if (error) throw new OnboardingError("CUSTOMER_PROFILE_PREFILL_FAILED");
+      profile = data;
+    }
   }
 
   // Keep the lifecycle consistent with the trusted authentication state.
   if (emailVerified && profile.lifecycle_state === "EMAIL_VERIFICATION_REQUIRED") {
-    const { data } = await supabaseAdmin
+    const { data, error } = await supabaseAdmin
       .from("profiles")
       .update({
         lifecycle_state:
@@ -87,14 +131,17 @@ export async function loadCustomerContext(
       .eq("id", userId)
       .select(PROFILE_COLUMNS)
       .single();
-    if (data) profile = data;
+    if (error || !data) throw new OnboardingError("CUSTOMER_LIFECYCLE_SYNC_FAILED");
+    profile = data;
   }
 
-  let { data: verification } = await supabaseAdmin
+  let { data: verification, error: verificationReadError } = await supabaseAdmin
     .from("identity_verifications")
     .select("id, status, submitted_at, decided_at, decision_reason, requested_information")
     .eq("user_id", userId)
     .maybeSingle();
+
+  if (verificationReadError) throw new OnboardingError("IDENTITY_STATUS_UNAVAILABLE");
 
   if (!verification) {
     const { data, error } = await supabaseAdmin
@@ -106,18 +153,22 @@ export async function loadCustomerContext(
     verification = data;
   }
 
-  const { data: address } = await supabaseAdmin
+  const { data: address, error: addressError } = await supabaseAdmin
     .from("customer_addresses")
     .select("id, country, address_line1, address_line2, city, region, postal_code")
     .eq("user_id", userId)
     .eq("is_primary", true)
     .maybeSingle();
 
-  const { data: documents } = await supabaseAdmin
+  if (addressError) throw new OnboardingError("CUSTOMER_ADDRESS_UNAVAILABLE");
+
+  const { data: documents, error: documentsError } = await supabaseAdmin
     .from("verification_documents")
     .select("id, document_type, original_filename, status, rejection_reason, created_at")
     .eq("user_id", userId)
     .order("created_at", { ascending: true });
+
+  if (documentsError) throw new OnboardingError("CUSTOMER_DOCUMENTS_UNAVAILABLE");
 
   return {
     email,
@@ -133,6 +184,19 @@ export async function saveProfileStep(userId: string, input: unknown) {
   const data = profileStepSchema.parse(input);
   await requireEditableLifecycle(userId, PROFILE_EDITABLE_LIFECYCLE_STATES);
 
+  const { data: currentProfile, error: currentProfileError } = await supabaseAdmin
+    .from("profiles")
+    .select("phone, phone_verified_at")
+    .eq("id", userId)
+    .maybeSingle();
+
+  if (currentProfileError) throw new OnboardingError("CUSTOMER_PROFILE_UNAVAILABLE");
+  if (!currentProfile) throw new OnboardingError("CUSTOMER_PROFILE_NOT_FOUND");
+
+  const phoneUnchanged = currentProfile.phone === data.phone;
+  const phoneVerifiedAt = phoneUnchanged ? currentProfile.phone_verified_at : null;
+  const contactVerified = Boolean(phoneVerifiedAt);
+
   const { data: updatedProfile, error } = await supabaseAdmin
     .from("profiles")
     .update({
@@ -143,10 +207,10 @@ export async function saveProfileStep(userId: string, input: unknown) {
       nationality: data.nationality,
       country_of_residence: data.countryOfResidence,
       occupation: data.occupation,
-      phone: data.phone ? data.phone : null,
-      phone_verified_at: null,
-      lifecycle_state: data.phone ? "CONTACT_VERIFICATION_REQUIRED" : "PROFILE_INCOMPLETE",
-      onboarding_step: data.phone ? "CONTACT" : "ADDRESS",
+      phone: data.phone,
+      phone_verified_at: phoneVerifiedAt,
+      lifecycle_state: contactVerified ? "PROFILE_INCOMPLETE" : "CONTACT_VERIFICATION_REQUIRED",
+      onboarding_step: contactVerified ? "ADDRESS" : "CONTACT",
     })
     .eq("id", userId)
     .in("lifecycle_state", PROFILE_EDITABLE_LIFECYCLE_STATES)
