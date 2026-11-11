@@ -25,7 +25,7 @@ export const sendContactVerificationCode = createServerFn({ method: "POST" })
 
 export const verifyContactCode = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => z.object({ code: z.string().regex(/^\\d{6}$/) }).parse(input))
+  .inputValidator((input: unknown) => z.object({ code: z.string().regex(/^\d{6}$/) }).parse(input))
   .handler(async ({ data, context }) => {
     const { assertCustomerConsent } = await import("@/features/auth/services/oauth-consent.server");
     await assertCustomerConsent(context.userId);
