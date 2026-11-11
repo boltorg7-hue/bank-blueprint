@@ -925,7 +925,7 @@ test("5.8.9 certifie la modernisation UI/UX 2026 de bout en bout", () => {
 
   assert.match(
     packageJson,
-    /"test:certification": "node --test tests\/certification\.test\.mjs tests\/admin-ui-certification\.test\.mjs"/,
+    /"test:certification": "node --test tests\/certification\.test\.mjs tests\/admin-ui-certification\.test\.mjs tests\/auth-registration-certification\.test\.mjs"/,
   );
 
   // 5.8.1 — thème adaptatif.
