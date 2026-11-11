@@ -417,7 +417,7 @@ export async function submitForVerification(userId: string) {
   if (error) throw new OnboardingError(error.message);
   const result = (
     data as unknown as Array<{
-      status: "SUBMITTED" | "UNDER_REVIEW" | "VERIFIED";
+      status: "NOT_STARTED" | "IN_PROGRESS" | "SUBMITTED" | "UNDER_REVIEW" | "ADDITIONAL_INFORMATION_REQUIRED" | "VERIFIED" | "REJECTED" | "EXPIRED";
       already_submitted: boolean;
     }> | null
   )?.[0];
