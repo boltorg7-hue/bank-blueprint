@@ -9,6 +9,7 @@
  * chooses a transfer kind and never sets a progress value.
  */
 import type { SupabaseClient } from "@supabase/supabase-js";
+import type { Database } from "@/integrations/supabase/types";
 
 import type {
   ExternalSettlementState,
@@ -26,6 +27,25 @@ import type {
 } from "@/domain/transfers/types";
 
 type Client = SupabaseClient;
+
+// Local schema extension for a migrated RPC not yet in the generated types.
+type TransferCreationDatabase = Omit<Database, "public"> & {
+  public: Omit<Database["public"], "Functions"> & {
+    Functions: Database["public"]["Functions"] & {
+      create_customer_transfer_idempotent: {
+        Args: {
+          _user_id: string;
+          _source_account_reference: string;
+          _beneficiary_reference: string;
+          _amount_minor: number;
+          _customer_reference: string | null;
+          _idempotency_key: string;
+        };
+        Returns: string;
+      };
+    };
+  };
+};
 
 export class TransferError extends Error {}
 
@@ -361,14 +381,15 @@ export async function createTransfer(
   },
 ): Promise<TransferDetailDto> {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  const { data, error } = await supabaseAdmin.rpc("create_customer_transfer_idempotent", {
+  const transferAdmin = supabaseAdmin as SupabaseClient<TransferCreationDatabase>;
+  const { data, error } = await transferAdmin.rpc("create_customer_transfer_idempotent", {
     _user_id: userId,
     _source_account_reference: input.sourceAccountReference,
     _beneficiary_reference: input.beneficiaryReference,
     _amount_minor: input.amountMinor,
     _customer_reference: input.customerReference,
     _idempotency_key: input.idempotencyKey,
-  } as never);
+  });
   if (error) throw toDomainError(error);
 
   const reference = String(data ?? "");

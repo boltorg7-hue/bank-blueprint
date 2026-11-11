@@ -216,6 +216,28 @@ export async function removeDocument(userId: string, documentId: string) {
   return { ok: true as const };
 }
 
+export async function createDocumentPreviewUrl(userId: string, documentId: string) {
+  const { data: document, error } = await supabaseAdmin
+    .from("verification_documents")
+    .select("storage_path")
+    .eq("id", documentId)
+    .eq("user_id", userId)
+    .maybeSingle();
+
+  if (error || !document?.storage_path?.startsWith(`${userId}/`)) {
+    throw new OnboardingError("DOCUMENT_NOT_FOUND");
+  }
+
+  const { data, error: signingError } = await supabaseAdmin.storage
+    .from("identity-documents")
+    .createSignedUrl(document.storage_path, 60);
+  if (signingError || !data?.signedUrl) {
+    throw new OnboardingError("DOCUMENT_PREVIEW_UNAVAILABLE");
+  }
+
+  return { url: data.signedUrl, expiresInSeconds: 60 };
+}
+
 export async function submitForVerification(userId: string) {
   const { data, error } = await supabaseAdmin.rpc(
     "customer_submit_onboarding_for_verification" as never,
