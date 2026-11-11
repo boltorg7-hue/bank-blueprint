@@ -20,7 +20,9 @@ import {
 const ACCOUNT_PATTERN = /^ACC-\d{4}-\d{6}$/;
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-function requireTransferReference(input: { reference?: string } | undefined): { reference: string } {
+function requireTransferReference(input: { reference?: string } | undefined): {
+  reference: string;
+} {
   const reference = String(input?.reference ?? "").trim();
   if (!TRANSFER_REFERENCE_PATTERN.test(reference)) throw new Error("INVALID_TRANSFER_REFERENCE");
   return { reference };
@@ -64,9 +66,11 @@ export const initiateTransfer = createServerFn({ method: "POST" })
       beneficiaryReference?: string;
       amountMinor?: number;
       customerReference?: string;
+      idempotencyKey?: string;
     }) => {
       const sourceAccountReference = String(input?.sourceAccountReference ?? "").trim();
-      if (!ACCOUNT_PATTERN.test(sourceAccountReference)) throw new Error("INVALID_ACCOUNT_REFERENCE");
+      if (!ACCOUNT_PATTERN.test(sourceAccountReference))
+        throw new Error("INVALID_ACCOUNT_REFERENCE");
 
       const beneficiaryReference = String(input?.beneficiaryReference ?? "").trim();
       if (!BENEFICIARY_REFERENCE_PATTERN.test(beneficiaryReference)) {
@@ -76,12 +80,18 @@ export const initiateTransfer = createServerFn({ method: "POST" })
       const amountMinor = Number(input?.amountMinor);
       if (!Number.isInteger(amountMinor) || amountMinor <= 0) throw new Error("INVALID_AMOUNT");
 
-      const note = typeof input?.customerReference === "string" ? input.customerReference.trim() : "";
+      const note =
+        typeof input?.customerReference === "string" ? input.customerReference.trim() : "";
+      const idempotencyKey = String(input?.idempotencyKey ?? "").trim();
+      if (idempotencyKey.length < 16 || idempotencyKey.length > 100) {
+        throw new Error("INVALID_IDEMPOTENCY_KEY");
+      }
       return {
         sourceAccountReference,
         beneficiaryReference,
         amountMinor,
         customerReference: note.length > 0 ? note.slice(0, 140) : null,
+        idempotencyKey,
       };
     },
   )
@@ -95,7 +105,7 @@ export const confirmTransferExecution = createServerFn({ method: "POST" })
   .inputValidator(requireTransferReference)
   .handler(async ({ data, context }): Promise<TransferConfirmationResultDto> => {
     const { data: authorized, error: stepUpError } = await context.supabase.rpc(
-      "consume_security_step_up" as any,
+      "consume_security_step_up" as never,
       { _action: "TRANSFER_CONFIRM", _resource_reference: data.reference } as never,
     );
     if (stepUpError || authorized !== true) throw new Error("RECENT_AUTHENTICATION_REQUIRED");
@@ -107,10 +117,13 @@ export const authorizeTransferConfirmation = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator(requireTransferReference)
   .handler(async ({ data, context }) => {
-    const { error } = await context.supabase.rpc("issue_security_step_up" as any, {
-      _action: "TRANSFER_CONFIRM",
-      _resource_reference: data.reference,
-    } as never);
+    const { error } = await context.supabase.rpc(
+      "issue_security_step_up" as never,
+      {
+        _action: "TRANSFER_CONFIRM",
+        _resource_reference: data.reference,
+      } as never,
+    );
     if (error) throw new Error("RECENT_AUTHENTICATION_REQUIRED");
     return { ok: true };
   });
@@ -150,8 +163,12 @@ export const registerTransferDocument = createServerFn({ method: "POST" })
         throw new Error("INVALID_DOCUMENT_PATH");
       }
 
-      const filename = String(input?.originalFilename ?? "").trim().slice(0, 200);
-      const mimeType = String(input?.mimeType ?? "").trim().slice(0, 100);
+      const filename = String(input?.originalFilename ?? "")
+        .trim()
+        .slice(0, 200);
+      const mimeType = String(input?.mimeType ?? "")
+        .trim()
+        .slice(0, 100);
       const size = Number(input?.sizeBytes);
 
       return {

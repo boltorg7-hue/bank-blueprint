@@ -57,7 +57,7 @@ function DesignSystemPage() {
   const [confirmOpen, setConfirmOpen] = useState(false);
 
   return (
-    <PublicLayout>
+    <PublicLayout showFooter={false}>
       <div className="mx-auto w-full max-w-5xl px-4 py-8 sm:px-6">
         <header className="flex flex-wrap items-center justify-between gap-3">
           <div>
@@ -87,7 +87,9 @@ function DesignSystemPage() {
             <Button variant="outline">Secondaire</Button>
             <Button variant="ghost">Discret</Button>
             <Button variant="destructive">Irréversible</Button>
-            <Button loading loadingLabel="Traitement…">Envoyer</Button>
+            <Button loading loadingLabel="Traitement…">
+              Envoyer
+            </Button>
             <Button disabled>Indisponible</Button>
             <Spinner label="Chargement" />
           </div>
@@ -119,9 +121,24 @@ function DesignSystemPage() {
           </div>
 
           <div className="mt-4 grid grid-cols-[minmax(0,1fr)] gap-4 sm:grid-cols-3">
-            <KpiCard label="Entrées du mois" value="+ 3 210,00 €" icon={Wallet} trend={{ direction: "up", label: "+8,2 %" }} />
-            <KpiCard label="Sorties du mois" value="- 1 940,20 €" icon={Send} trend={{ direction: "down", label: "-3,1 %", tone: "negative" }} />
-            <KpiCard label="Virements en attente" value="2" icon={Lock} hint="Traitement sous 24 h" />
+            <KpiCard
+              label="Entrées du mois"
+              value="+ 3 210,00 €"
+              icon={Wallet}
+              trend={{ direction: "up", label: "+8,2 %" }}
+            />
+            <KpiCard
+              label="Sorties du mois"
+              value="- 1 940,20 €"
+              icon={Send}
+              trend={{ direction: "down", label: "-3,1 %", tone: "negative" }}
+            />
+            <KpiCard
+              label="Virements en attente"
+              value="2"
+              icon={Lock}
+              hint="Traitement sous 24 h"
+            />
           </div>
 
           <div className="mt-4 divide-y divide-border rounded-xl border border-border bg-surface p-2">
@@ -152,7 +169,10 @@ function DesignSystemPage() {
               toLabel="Marie Lefèvre"
               toIdentifier="FR7630004000031234567890143"
               reference="Loyer août"
-              rows={[{ label: "Frais", value: "0,00 €" }, { label: "Exécution", value: "Immédiate" }]}
+              rows={[
+                { label: "Frais", value: "0,00 €" },
+                { label: "Exécution", value: "Immédiate" },
+              ]}
             />
             <div className="rounded-xl border border-border bg-surface p-4">
               <TransferProgress
@@ -231,7 +251,11 @@ function DesignSystemPage() {
         onOpenChange={setSheetOpen}
         title="Options du virement"
         description="Choix secondaires présentés au format natif mobile."
-        footer={<Button size="block" onClick={() => setSheetOpen(false)}>Fermer</Button>}
+        footer={
+          <Button size="block" onClick={() => setSheetOpen(false)}>
+            Fermer
+          </Button>
+        }
       >
         <p className="text-body-sm text-muted-foreground">Contenu de la feuille.</p>
       </BottomSheet>

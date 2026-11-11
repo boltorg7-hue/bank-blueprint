@@ -25,7 +25,7 @@ import type {
   TransferStatusEventDto,
 } from "@/domain/transfers/types";
 
-type Client = SupabaseClient<any, any, any>;
+type Client = SupabaseClient;
 
 export class TransferError extends Error {}
 
@@ -46,6 +46,7 @@ const KNOWN_CODES: readonly TransferFailureCode[] = [
   "SETTLEMENT_FAILED",
   "COMPLIANCE_REJECTED",
   "PROCESSING_ERROR",
+  "IDEMPOTENCY_KEY_REUSED",
 ];
 
 function toDomainError(raw: unknown): TransferError {
@@ -55,6 +56,14 @@ function toDomainError(raw: unknown): TransferError {
   if (message.includes("REQUIREMENT_NOT_OPEN")) return new TransferError("REQUIREMENT_NOT_OPEN");
   if (message.includes("REQUIREMENT_UNAVAILABLE"))
     return new TransferError("REQUIREMENT_UNAVAILABLE");
+  if (
+    message.includes("INVALID_IDEMPOTENCY_KEY") ||
+    message.includes("INVALID_TRANSFER_INPUT") ||
+    message.includes("INVALID_SETTLEMENT_STATUS")
+  )
+    return new TransferError("PROCESSING_ERROR");
+  if (message.includes("IDEMPOTENCY_KEY_REUSED"))
+    return new TransferError("IDEMPOTENCY_KEY_REUSED");
   if (message.includes("INVALID_DOCUMENT_PATH")) return new TransferError("INVALID_DOCUMENT_PATH");
   return new TransferError("UNEXPECTED_ERROR");
 }
@@ -118,6 +127,57 @@ type Row = {
   } | null;
   journal: { public_reference: string } | null;
   rail: { is_simulation: boolean } | null;
+};
+
+type RequirementRow = {
+  id: string;
+  requirement_type: TransferRequirementDto["requirementType"];
+  title: string;
+  description: string | null;
+  status: TransferRequirementDto["status"];
+  is_mandatory: boolean;
+  rejection_reason_code: string | null;
+  requested_at: string;
+  submitted_at: string | null;
+  reviewed_at: string | null;
+};
+
+type DocumentRow = {
+  id: string;
+  requirement_id: string | null;
+  document_type: TransferDocumentDto["documentType"];
+  original_filename: string | null;
+  status: TransferDocumentDto["status"];
+  rejection_reason_code: string | null;
+  uploaded_at: string;
+  reviewed_at: string | null;
+};
+
+type HistoryRow = {
+  to_status: TransferStatus;
+  reason_code: string | null;
+  created_at: string;
+};
+
+type TransferLimitsRow = {
+  currency: string;
+  max_per_transfer_minor: number | string;
+  daily_limit_minor: number | string;
+  monthly_limit_minor: number | string;
+};
+
+type ConfirmationRow = {
+  status: TransferStatus;
+  progress_percent: number | null;
+  failure_code: string | null;
+  transaction_reference: string | null;
+};
+
+type RefreshedTransferRow = {
+  status: TransferStatus;
+  transfer_kind: TransferKind;
+  progress_percent: number | null;
+  failure_code: string | null;
 };
 
 const HOLD_RELEASED_STATUSES: readonly TransferStatus[] = [
@@ -187,7 +247,7 @@ async function loadRequirements(
     .eq("transfers.public_reference", reference)
     .order("requested_at", { ascending: true });
 
-  return ((data ?? []) as any[]).map((row) => ({
+  return ((data ?? []) as unknown as RequirementRow[]).map((row) => ({
     id: row.id as string,
     requirementType: row.requirement_type,
     title: row.title as string,
@@ -216,7 +276,7 @@ async function loadDocuments(
     .eq("transfers.public_reference", reference)
     .order("uploaded_at", { ascending: false });
 
-  return ((data ?? []) as any[]).map((row) => ({
+  return ((data ?? []) as unknown as DocumentRow[]).map((row) => ({
     id: row.id as string,
     requirementId: (row.requirement_id as string | null) ?? null,
     documentType: row.document_type,
@@ -250,11 +310,13 @@ export async function getTransferDetail(
     .eq("transfers.public_reference", reference)
     .order("created_at", { ascending: true });
 
-  const timeline: TransferStatusEventDto[] = ((history ?? []) as any[]).map((row) => ({
-    status: row.to_status as TransferStatus,
-    reasonCode: (row.reason_code as string | null) ?? null,
-    occurredAt: row.created_at as string,
-  }));
+  const timeline: TransferStatusEventDto[] = ((history ?? []) as unknown as HistoryRow[]).map(
+    (row) => ({
+      status: row.to_status as TransferStatus,
+      reasonCode: (row.reason_code as string | null) ?? null,
+      occurredAt: row.created_at as string,
+    }),
+  );
 
   const [requirements, documents] = await Promise.all([
     loadRequirements(client, userId, reference),
@@ -274,7 +336,7 @@ export async function getTransferLimits(
     .eq("currency", currency)
     .maybeSingle();
   if (error || !data) return null;
-  const row = data as any;
+  const row = data as unknown as TransferLimitsRow;
   return {
     currency: row.currency as string,
     maxPerTransferMinor: Number(row.max_per_transfer_minor),
@@ -295,15 +357,17 @@ export async function createTransfer(
     beneficiaryReference: string;
     amountMinor: number;
     customerReference: string | null;
+    idempotencyKey: string;
   },
 ): Promise<TransferDetailDto> {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  const { data, error } = await supabaseAdmin.rpc("create_customer_transfer", {
+  const { data, error } = await supabaseAdmin.rpc("create_customer_transfer_idempotent", {
     _user_id: userId,
     _source_account_reference: input.sourceAccountReference,
     _beneficiary_reference: input.beneficiaryReference,
     _amount_minor: input.amountMinor,
     _customer_reference: input.customerReference,
+    _idempotency_key: input.idempotencyKey,
   } as never);
   if (error) throw toDomainError(error);
 
@@ -330,7 +394,7 @@ export async function confirmTransfer(
   } as never);
   if (error) throw toDomainError(error);
 
-  const row = (data as any[] | null)?.[0];
+  const row = (data as unknown as ConfirmationRow[] | null)?.[0];
   if (!row) throw new TransferError("PROCESSING_ERROR");
 
   const status = row.status as TransferStatus;
@@ -357,7 +421,7 @@ export async function confirmTransfer(
     .maybeSingle();
 
   if (refreshed) {
-    const fresh = refreshed as any;
+    const fresh = refreshed as unknown as RefreshedTransferRow;
     return {
       ...result,
       status: fresh.status as TransferStatus,
@@ -423,7 +487,7 @@ type SettlementRow = {
 };
 
 async function loadSettlementRow(
-  admin: any,
+  admin: Client,
   userId: string,
   reference: string,
 ): Promise<SettlementRow | null> {
@@ -445,9 +509,8 @@ export async function submitSettlement(userId: string, reference: string): Promi
   const row = await loadSettlementRow(supabaseAdmin, userId, reference);
   if (!row || row.status !== "APPROVED") return;
 
-  const { getSettlementProvider } = await import(
-    "@/features/transfers/services/settlement/provider"
-  );
+  const { getSettlementProvider } =
+    await import("@/features/transfers/services/settlement/provider");
   const provider = getSettlementProvider(row.rail?.provider_key ?? "");
   if (!provider) return;
 
@@ -482,9 +545,8 @@ export async function syncSettlement(
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const row = await loadSettlementRow(supabaseAdmin, userId, reference);
   if (row && row.status === "SETTLEMENT_PENDING" && row.external_provider_reference) {
-    const { getSettlementProvider } = await import(
-      "@/features/transfers/services/settlement/provider"
-    );
+    const { getSettlementProvider } =
+      await import("@/features/transfers/services/settlement/provider");
     const provider = getSettlementProvider(row.rail?.provider_key ?? "");
     if (provider) {
       const outcome = await provider.getTransferStatus(row.external_provider_reference);

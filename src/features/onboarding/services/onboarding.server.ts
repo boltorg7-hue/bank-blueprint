@@ -17,6 +17,36 @@ const PROFILE_COLUMNS =
 
 export class OnboardingError extends Error {}
 
+const PROFILE_EDITABLE_LIFECYCLE_STATES = [
+  "CONTACT_VERIFICATION_REQUIRED",
+  "PROFILE_INCOMPLETE",
+  "IDENTITY_REQUIRED",
+] as const;
+
+const ONBOARDING_EDITABLE_LIFECYCLE_STATES = [
+  ...PROFILE_EDITABLE_LIFECYCLE_STATES,
+  "ADDITIONAL_DOCUMENT_REQUIRED",
+] as const;
+
+async function requireEditableLifecycle(
+  userId: string,
+  allowedStates: readonly string[] = ONBOARDING_EDITABLE_LIFECYCLE_STATES,
+) {
+  const { data: profile, error } = await supabaseAdmin
+    .from("profiles")
+    .select("lifecycle_state")
+    .eq("id", userId)
+    .maybeSingle();
+
+  if (error) throw new OnboardingError("CUSTOMER_STATE_UNAVAILABLE");
+  if (!profile) throw new OnboardingError("CUSTOMER_PROFILE_NOT_FOUND");
+  if (!allowedStates.includes(profile.lifecycle_state)) {
+    throw new OnboardingError("ONBOARDING_STATE_LOCKED");
+  }
+
+  return profile.lifecycle_state as string;
+}
+
 export async function loadCustomerContext(
   userId: string,
   email: string | null,
@@ -46,7 +76,12 @@ export async function loadCustomerContext(
   if (emailVerified && profile.lifecycle_state === "EMAIL_VERIFICATION_REQUIRED") {
     const { data } = await supabaseAdmin
       .from("profiles")
-      .update({ lifecycle_state: profile.phone && !profile.phone_verified_at ? "CONTACT_VERIFICATION_REQUIRED" : "PROFILE_INCOMPLETE" })
+      .update({
+        lifecycle_state:
+          profile.phone && !profile.phone_verified_at
+            ? "CONTACT_VERIFICATION_REQUIRED"
+            : "PROFILE_INCOMPLETE",
+      })
       .eq("id", userId)
       .select(PROFILE_COLUMNS)
       .single();
@@ -94,7 +129,9 @@ export async function loadCustomerContext(
 
 export async function saveProfileStep(userId: string, input: unknown) {
   const data = profileStepSchema.parse(input);
-  const { error } = await supabaseAdmin
+  await requireEditableLifecycle(userId, PROFILE_EDITABLE_LIFECYCLE_STATES);
+
+  const { data: updatedProfile, error } = await supabaseAdmin
     .from("profiles")
     .update({
       first_name: data.firstName,
@@ -109,52 +146,34 @@ export async function saveProfileStep(userId: string, input: unknown) {
       lifecycle_state: data.phone ? "CONTACT_VERIFICATION_REQUIRED" : "PROFILE_INCOMPLETE",
       onboarding_step: data.phone ? "CONTACT" : "ADDRESS",
     })
-    .eq("id", userId);
+    .eq("id", userId)
+    .in("lifecycle_state", PROFILE_EDITABLE_LIFECYCLE_STATES)
+    .select("id")
+    .maybeSingle();
+
   if (error) throw new OnboardingError(error.message);
+  if (!updatedProfile) throw new OnboardingError("ONBOARDING_STATE_LOCKED");
   return { ok: true as const };
 }
 
 export async function saveAddressStep(userId: string, input: unknown) {
   const data = addressStepSchema.parse(input);
-  const payload = {
-    user_id: userId,
-    country: data.country,
-    address_line1: data.addressLine1,
-    address_line2: data.addressLine2 ? data.addressLine2 : null,
-    city: data.city,
-    region: data.region ? data.region : null,
-    postal_code: data.postalCode ? data.postalCode : null,
-    is_primary: true,
-  };
+  const { error } = await supabaseAdmin.rpc(
+    "customer_save_onboarding_address" as never,
+    {
+      _user_id: userId,
+      _country: data.country,
+      _address_line1: data.addressLine1,
+      _address_line2: data.addressLine2 ? data.addressLine2 : null,
+      _city: data.city,
+      _region: data.region ? data.region : null,
+      _postal_code: data.postalCode ? data.postalCode : null,
+    } as never,
+  );
 
-  const { data: existing } = await supabaseAdmin
-    .from("customer_addresses")
-    .select("id")
-    .eq("user_id", userId)
-    .eq("is_primary", true)
-    .maybeSingle();
-
-  const { error } = existing
-    ? await supabaseAdmin.from("customer_addresses").update(payload).eq("id", existing.id)
-    : await supabaseAdmin.from("customer_addresses").insert(payload);
   if (error) throw new OnboardingError(error.message);
-
-  await supabaseAdmin
-    .from("profiles")
-    .update({ onboarding_step: "IDENTITY" })
-    .eq("id", userId)
-    .in("onboarding_step", ["NOT_STARTED", "CONTACT", "PERSONAL_DETAILS", "ADDRESS"]);
-
   return { ok: true as const };
 }
-
-const EDITABLE_VERIFICATION_STATUSES = [
-  "NOT_STARTED",
-  "IN_PROGRESS",
-  "ADDITIONAL_INFORMATION_REQUIRED",
-  "REJECTED",
-] as const;
-
 
 export async function registerDocument(userId: string, input: unknown) {
   const data = documentUploadSchema.parse(input);
@@ -162,178 +181,58 @@ export async function registerDocument(userId: string, input: unknown) {
     throw new OnboardingError("Chemin de document invalide.");
   }
 
-  const verification = await requireVerification(userId);
-  if (!(EDITABLE_VERIFICATION_STATUSES as readonly string[]).includes(verification.status)) {
-    throw new OnboardingError("Votre dossier est en cours de vérification.");
-  }
+  const { error } = await supabaseAdmin.rpc(
+    "customer_register_onboarding_document" as never,
+    {
+      _user_id: userId,
+      _document_type: data.documentType,
+      _storage_path: data.storagePath,
+      _original_filename: data.originalFilename,
+      _mime_type: data.mimeType,
+      _size_bytes: data.sizeBytes,
+    } as never,
+  );
 
-  const { error } = await supabaseAdmin.from("verification_documents").insert({
-    verification_id: verification.id,
-    user_id: userId,
-    document_type: data.documentType,
-    storage_path: data.storagePath,
-    original_filename: data.originalFilename,
-    mime_type: data.mimeType,
-    size_bytes: data.sizeBytes,
-  });
   if (error) throw new OnboardingError(error.message);
-
-  if (verification.status === "NOT_STARTED") {
-    await supabaseAdmin
-      .from("identity_verifications")
-      .update({ status: "IN_PROGRESS" })
-      .eq("id", verification.id);
-  }
-  await supabaseAdmin
-    .from("profiles")
-    .update({ onboarding_step: "DOCUMENTS" })
-    .eq("id", userId)
-    .in("onboarding_step", ["NOT_STARTED", "CONTACT", "PERSONAL_DETAILS", "ADDRESS", "IDENTITY"]);
-
   return { ok: true as const };
 }
 
 export async function removeDocument(userId: string, documentId: string) {
-  const verification = await requireVerification(userId);
-  if (!(EDITABLE_VERIFICATION_STATUSES as readonly string[]).includes(verification.status)) {
-    throw new OnboardingError("Ce document ne peut plus être retiré.");
+  const { data: storagePath, error } = await supabaseAdmin.rpc(
+    "customer_remove_onboarding_document" as never,
+    { _user_id: userId, _document_id: documentId } as never,
+  );
+
+  if (error) throw new OnboardingError(error.message);
+  if (typeof storagePath !== "string" || !storagePath) {
+    throw new OnboardingError("DOCUMENT_NOT_FOUND");
   }
 
-  const { data: document } = await supabaseAdmin
-    .from("verification_documents")
-    .select("id, storage_path")
-    .eq("id", documentId)
-    .eq("user_id", userId)
-    .maybeSingle();
-  if (!document) throw new OnboardingError("Document introuvable.");
+  const { error: storageError } = await supabaseAdmin.storage
+    .from("identity-documents")
+    .remove([storagePath]);
+  if (storageError) throw new OnboardingError("DOCUMENT_STORAGE_DELETE_FAILED");
 
-  await supabaseAdmin.storage.from("identity-documents").remove([document.storage_path]);
-  const { error } = await supabaseAdmin
-    .from("verification_documents")
-    .delete()
-    .eq("id", document.id);
-  if (error) throw new OnboardingError(error.message);
   return { ok: true as const };
 }
 
-export async function createDocumentPreviewUrl(userId: string, documentId: string) {
-  const { data: document } = await supabaseAdmin
-    .from("verification_documents")
-    .select("storage_path")
-    .eq("id", documentId)
-    .eq("user_id", userId)
-    .maybeSingle();
-  if (!document) throw new OnboardingError("Document introuvable.");
-
-  const { data, error } = await supabaseAdmin.storage
-    .from("identity-documents")
-    .createSignedUrl(document.storage_path, 60);
-  if (error || !data) throw new OnboardingError("Aperçu indisponible.");
-  return { url: data.signedUrl };
-}
-
-/** Idempotent, server-controlled submission (§50, §51). */
 export async function submitForVerification(userId: string) {
-  const verification = await requireVerification(userId);
+  const { data, error } = await supabaseAdmin.rpc(
+    "customer_submit_onboarding_for_verification" as never,
+    { _user_id: userId } as never,
+  );
 
-  if (["SUBMITTED", "UNDER_REVIEW", "VERIFIED"].includes(verification.status)) {
-    return { status: verification.status, alreadySubmitted: true as const };
-  }
-
-  const { data: profile } = await supabaseAdmin
-    .from("profiles")
-    .select(
-      "first_name, last_name, date_of_birth, nationality, country_of_residence, occupation, lifecycle_state, phone_verified_at",
-    )
-    .eq("id", userId)
-    .single();
-
-  if (!profile?.phone_verified_at) {
-    throw new OnboardingError("Vérifiez votre numéro de téléphone avant l'envoi du dossier.");
-  }
-
-  if (
-    !profile?.first_name ||
-    !profile.last_name ||
-    !profile.date_of_birth ||
-    !profile.nationality ||
-    !profile.country_of_residence ||
-    !profile.occupation
-  ) {
-    throw new OnboardingError("Complétez vos informations personnelles avant l'envoi.");
-  }
-
-  const { data: address } = await supabaseAdmin
-    .from("customer_addresses")
-    .select("id")
-    .eq("user_id", userId)
-    .eq("is_primary", true)
-    .maybeSingle();
-  if (!address) throw new OnboardingError("Ajoutez votre adresse avant l'envoi.");
-
-  const { data: documents } = await supabaseAdmin
-    .from("verification_documents")
-    .select("document_type")
-    .eq("user_id", userId);
-
-  const types = new Set((documents ?? []).map((document) => document.document_type));
-  const hasIdentity =
-    types.has("IDENTITY_CARD") || types.has("PASSPORT") || types.has("RESIDENCE_PERMIT");
-  if (!hasIdentity) throw new OnboardingError("Ajoutez une pièce d'identité avant l'envoi.");
-  if (!types.has("PROOF_OF_ADDRESS")) {
-    throw new OnboardingError("Ajoutez un justificatif de domicile avant l'envoi.");
-  }
-
-  const submittedAt = new Date().toISOString();
-  const { error } = await supabaseAdmin
-    .from("identity_verifications")
-    .update({
-      status: "SUBMITTED",
-      submitted_at: submittedAt,
-      requested_information: null,
-      decision_reason: null,
-    })
-    .eq("id", verification.id)
-    .in("status", EDITABLE_VERIFICATION_STATUSES);
   if (error) throw new OnboardingError(error.message);
+  const result = (
+    data as unknown as Array<{
+      status: "SUBMITTED" | "UNDER_REVIEW" | "VERIFIED";
+      already_submitted: boolean;
+    }> | null
+  )?.[0];
 
-  await supabaseAdmin.from("verification_status_history").insert({
-    verification_id: verification.id,
-    user_id: userId,
-    previous_status: verification.status,
-    new_status: "SUBMITTED",
-    changed_by: userId,
-    note: "Dossier envoyé par le client.",
-  });
-
-  await supabaseAdmin
-    .from("verification_documents")
-    .update({ status: "UNDER_REVIEW" })
-    .eq("user_id", userId)
-    .eq("status", "UPLOADED");
-
-  await supabaseAdmin
-    .from("profiles")
-    .update({ lifecycle_state: "IDENTITY_SUBMITTED", onboarding_step: "COMPLETED" })
-    .eq("id", userId);
-
-  return { status: "SUBMITTED" as const, alreadySubmitted: false as const };
-}
-
-async function requireVerification(userId: string) {
-  const { data, error } = await supabaseAdmin
-    .from("identity_verifications")
-    .select("id, status")
-    .eq("user_id", userId)
-    .maybeSingle();
-  if (error) throw new OnboardingError(error.message);
-  if (data) return data;
-
-  const { data: created, error: insertError } = await supabaseAdmin
-    .from("identity_verifications")
-    .insert({ user_id: userId })
-    .select("id, status")
-    .single();
-  if (insertError) throw new OnboardingError(insertError.message);
-  return created;
+  if (!result) throw new OnboardingError("PROCESSING_ERROR");
+  return {
+    status: result.status,
+    alreadySubmitted: result.already_submitted,
+  };
 }

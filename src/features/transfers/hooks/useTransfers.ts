@@ -84,6 +84,7 @@ export function useInitiateTransfer() {
       beneficiaryReference: string;
       amountMinor: number;
       customerReference: string;
+      idempotencyKey: string;
     }
   >({
     mutationFn: (input) => initiate({ data: input }),
@@ -95,18 +96,23 @@ export function useConfirmTransfer() {
   const invalidate = useInvalidateFinancialState();
   const confirm = useServerFn(confirmTransferExecution);
   const authorize = useServerFn(authorizeTransferConfirmation);
-  return useMutation<TransferConfirmationResultDto, Error, { reference: string; password: string }>({
-    mutationFn: async ({ reference, password }) => {
-      const { supabase } = await import("@/integrations/supabase/client");
-      const { data: userData } = await supabase.auth.getUser();
-      if (!userData.user?.email || !password) throw new Error("RECENT_AUTHENTICATION_REQUIRED");
-      const { error } = await supabase.auth.signInWithPassword({ email: userData.user.email, password });
-      if (error) throw new Error("RECENT_AUTHENTICATION_REQUIRED");
-      await authorize({ data: { reference } });
-      return confirm({ data: { reference } });
+  return useMutation<TransferConfirmationResultDto, Error, { reference: string; password: string }>(
+    {
+      mutationFn: async ({ reference, password }) => {
+        const { supabase } = await import("@/integrations/supabase/client");
+        const { data: userData } = await supabase.auth.getUser();
+        if (!userData.user?.email || !password) throw new Error("RECENT_AUTHENTICATION_REQUIRED");
+        const { error } = await supabase.auth.signInWithPassword({
+          email: userData.user.email,
+          password,
+        });
+        if (error) throw new Error("RECENT_AUTHENTICATION_REQUIRED");
+        await authorize({ data: { reference } });
+        return confirm({ data: { reference } });
+      },
+      onSettled: invalidate,
     },
-    onSettled: invalidate,
-  });
+  );
 }
 
 export function useCancelTransfer() {

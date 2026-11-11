@@ -9,10 +9,7 @@ import { Button } from "@/components/ui/button";
 import { PageSection } from "@/components/ui/page-section";
 import { PermissionDeniedState } from "@/components/feedback";
 import { useCustomerSummary } from "@/features/customer-shell/hooks/useCustomerSummary";
-import {
-  isAllowed,
-  transactionalBlockedReason,
-} from "@/features/customer-shell/lib/route-access";
+import { isAllowed, transactionalBlockedReason } from "@/features/customer-shell/lib/route-access";
 import { TransferList } from "@/features/transfers/components/TransferList";
 
 export const Route = createFileRoute("/app/transfers/")({
@@ -40,7 +37,7 @@ function AppTransfersIndexRoute() {
     <Button asChild>
       <Link to="/app/transfers/new">
         <Plus className="size-4" aria-hidden="true" />
-        Nouveau virement
+        {en ? "New transfer" : "Nouveau virement"}
       </Link>
     </Button>
   );
@@ -49,7 +46,11 @@ function AppTransfersIndexRoute() {
     <BankingContentContainer width="default">
       <PageHeader
         title={en ? "Transfers" : "Virements"}
-        description={en ? "Your pending and completed transfers, newest first." : "Vos virements en préparation et exécutés, du plus récent au plus ancien."}
+        description={
+          en
+            ? "Your pending and completed transfers, newest first."
+            : "Vos virements en préparation et exécutés, du plus récent au plus ancien."
+        }
         action={
           allowed ? (
             <>
@@ -66,8 +67,7 @@ function AppTransfersIndexRoute() {
       />
       {allowed ? (
         <PageSection>
-          
-        <TransferList action={newTransferButton} />
+          <TransferList action={newTransferButton} />
         </PageSection>
       ) : (
         <PermissionDeniedState description={blockedReason ?? undefined} />
