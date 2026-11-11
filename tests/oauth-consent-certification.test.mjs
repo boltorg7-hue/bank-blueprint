@@ -31,15 +31,15 @@ test("OAuth consent is stored by the server with provider identity and versioned
   assert.ok(migration.includes("terms_version"));
   assert.ok(migration.includes("privacy_version"));
   assert.ok(migration.includes("raw_app_meta_data ->> 'provider'"));
-  assert.ok(migration.includes("GRANT EXECUTE ON FUNCTION public.record_oauth_registration_consent"));
+  assert.ok(
+    migration.includes("GRANT EXECUTE ON FUNCTION public.record_oauth_registration_consent"),
+  );
   assert.ok(migration.includes("TO service_role"));
   assert.ok(migration.includes("REVOKE ALL ON FUNCTION public.record_oauth_registration_consent"));
 });
 
 test("customers cannot forge or alter consent through direct profile updates", () => {
-  const migration = read(
-    "supabase/migrations/20261111110000_oauth_consent_security.sql",
-  );
+  const migration = read("supabase/migrations/20261111110000_oauth_consent_security.sql");
 
   assert.ok(migration.includes("NEW.terms_accepted_at := OLD.terms_accepted_at"));
   assert.ok(migration.includes("NEW.privacy_accepted_at := OLD.privacy_accepted_at"));
