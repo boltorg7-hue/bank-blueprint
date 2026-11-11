@@ -23,7 +23,8 @@ export const Route = createFileRoute("/auth/consent")({
   beforeLoad: async () => {
     const status = await getOAuthConsentStatus();
     if (!status.required) {
-      throw redirect({ to: "/onboarding", replace: true });
+      const target = await resolvePostLoginRoute();
+      throw redirect({ to: target, replace: true });
     }
   },
   head: () => ({
