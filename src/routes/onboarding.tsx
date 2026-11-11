@@ -6,6 +6,7 @@ import { BrandMark } from "@/components/navigation/BrandMark";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useSignOut } from "@/features/auth/hooks/useSessionUser";
+import { getOAuthConsentStatus } from "@/features/auth/services/oauth-consent.functions";
 
 /**
  * Protected onboarding namespace (§24).
@@ -19,6 +20,8 @@ export const Route = createFileRoute("/onboarding")({
     if (error || !data.user) {
       throw redirect({ to: "/login", search: { redirect: location.href } });
     }
+    const consent = await getOAuthConsentStatus();
+    if (consent.required) throw redirect({ to: "/auth/consent", replace: true });
     return { user: data.user };
   },
   head: () => ({
