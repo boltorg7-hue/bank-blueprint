@@ -59,6 +59,9 @@ export const africaTalkingSmsProvider: SmsProvider = {
       const username = process.env["AFRICASTALKING_USERNAME"]?.trim() || "sandbox";
       const senderId = requiredEnv("AFRICASTALKING_SENDER_ID");
       const environment = process.env["AFRICASTALKING_ENV"]?.trim().toLowerCase() || "sandbox";
+      if (!["sandbox", "production", "live"].includes(environment)) {
+        throw new Error("SMS_PROVIDER_ENV_UNSUPPORTED");
+      }
       const endpoint = environment === "production" || environment === "live" ? LIVE_URL : SANDBOX_URL;
       const text = renderMessage(message);
 
