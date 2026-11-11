@@ -73,82 +73,24 @@ async function validateTransferDocumentUpload(
     sizeBytes: number | null;
   },
 ) {
-  const prefix = `${userId}/${input.reference}/${input.requirementId}-`;
+  const prefix = userId + "/" + input.reference + "/" + input.requirementId + "-";
   const segments = input.storagePath.split("/");
   const filename = segments[2] ?? "";
-  if (
-    segments.length !== 3 ||
-    !input.storagePath.startsWith(prefix) ||
-    !new RegExp(`^${input.requirementId}-[0-9]{13}\\.(jpg|png|heic|pdf)/**
- * Server-only transfer service (PROMPT 07 §64 – §135 ; PROMPT 08 §17 – §56).
- *
- * Reads use the request-scoped client (RLS as the customer). Every financial
- * command is a privileged SQL routine, revoked from signed-in roles, executed
- * through the trusted server client for a verified user id. The routine itself
- * classifies the destination (internal vs external), revalidates, reserves,
- * posts the balanced journal and moves the progress state. The client never
- * chooses a transfer kind and never sets a progress value.
- */
-import type { SupabaseClient } from "@supabase/supabase-js";
-import type { Database } from "@/integrations/supabase/types";
-
-import type {
-  ExternalSettlementState,
-  TransferConfirmationResultDto,
-  TransferDetailDto,
-  TransferDocumentDto,
-  TransferDto,
-  TransferFailureCode,
-  TransferKind,
-  TransferLimitsDto,
-  TransferProgressState,
-  TransferRequirementDto,
-  TransferStatus,
-  TransferStatusEventDto,
-} from "@/domain/transfers/types";
-
-type Client = SupabaseClient;
-
-// Local schema extension for a migrated RPC not yet in the generated types.
-type TransferCreationDatabase = Omit<Database, "public"> & {
-  public: Omit<Database["public"], "Functions"> & {
-    Functions: Database["public"]["Functions"] & {
-      create_customer_transfer_idempotent: {
-        Args: {
-          _user_id: string;
-          _source_account_reference: string;
-          _beneficiary_reference: string;
-          _amount_minor: number;
-          _customer_reference: string | null;
-          _idempotency_key: string;
-        };
-        Returns: string;
-      };
-    };
-  };
-};
-
-, "i").test(filename)
-  ) {
+  const filenamePattern = new RegExp(
+    "^" + input.requirementId + "-[0-9]{13}\\.(jpg|png|heic|pdf)$",
+    "i",
+  );
+  if (segments.length !== 3 || !input.storagePath.startsWith(prefix) || !filenamePattern.test(filename)) {
     throw new TransferError("INVALID_DOCUMENT_PATH");
   }
 
-  const { data: file, error } = await admin.storage
-    .from("transfer-documents")
-    .download(input.storagePath);
+  const { data: file, error } = await admin.storage.from("transfer-documents").download(input.storagePath);
   if (error || !file) throw new TransferError("DOCUMENT_OBJECT_NOT_FOUND");
 
   const bytes = new Uint8Array(await file.arrayBuffer());
   const actualMimeType = detectTransferDocumentMimeType(bytes);
   const allowedMimeTypes = ["image/jpeg", "image/png", "image/heic", "application/pdf"];
-  if (
-    !actualMimeType ||
-    !allowedMimeTypes.includes(actualMimeType) ||
-    actualMimeType !== input.mimeType ||
-    input.sizeBytes !== bytes.byteLength ||
-    bytes.byteLength < 1 ||
-    bytes.byteLength > MAX_TRANSFER_DOCUMENT_BYTES
-  ) {
+  if (!actualMimeType || !allowedMimeTypes.includes(actualMimeType) || actualMimeType !== input.mimeType || input.sizeBytes !== bytes.byteLength || bytes.byteLength < 1 || bytes.byteLength > MAX_TRANSFER_DOCUMENT_BYTES) {
     await admin.storage.from("transfer-documents").remove([input.storagePath]);
     throw new TransferError("INVALID_DOCUMENT_CONTENT");
   }
@@ -165,7 +107,6 @@ type TransferCreationDatabase = Omit<Database, "public"> & {
     throw new TransferError("DOCUMENT_EXTENSION_MISMATCH");
   }
 }
-
 const KNOWN_CODES: readonly TransferFailureCode[] = [
   "INSUFFICIENT_FUNDS",
   "LIMIT_EXCEEDED",
