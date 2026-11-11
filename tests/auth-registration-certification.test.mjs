@@ -115,7 +115,7 @@ test("profile onboarding preserves progress and reuses verified contact across a
   assert.ok(server.includes("customer_change_pending_phone"));
   assert.ok(server.includes("const contactVerified = phoneUnchanged"));
   assert.ok(server.includes("const onboardingStep = phoneUnchanged"));
-  assert.ok(!server.includes("phone: data.phone"));
+  assert.doesNotMatch(server, /\bphone:\s*data\.phone/);
   assert.ok(server.includes("CUSTOMER_DOCUMENTS_UNAVAILABLE"));
   assert.ok(page.includes('navigate({ to: "/onboarding", replace: true })'));
   assert.ok(page.includes("required={required}"));
