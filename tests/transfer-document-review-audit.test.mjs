@@ -27,7 +27,7 @@ test("Lot 1 — review history is durable and records the authenticated actor an
 test("Lot 1 — replacement requests require a meaningful reason and valid review state", () => {
   assert.match(migration, /DOCUMENT_REJECTION_REASON_REQUIRED/);
   assert.match(migration, /char_length\(COALESCE\(_reason, ''\)\) NOT BETWEEN 8 AND 500/);
-  assert.match(migration, /IF _doc\.status <> 'UNDER_REVIEW'/);
+  assert.match(migration, /IF _doc\.status NOT IN \('UPLOADED', 'UNDER_REVIEW'\)/);
   assert.match(migration, /REPLACEMENT_REQUIRED/);
   assert.match(migration, /CUSTOMER_ACTION_REQUIRED/);
 });
