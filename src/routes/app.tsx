@@ -9,6 +9,7 @@ import { useCustomerContext } from "@/features/onboarding/hooks/useCustomerConte
 import { nextRouteForLifecycle } from "@/types/customer-lifecycle";
 import { LimitedAccessBanner } from "@/features/customer-shell/components/LimitedAccessBanner";
 import { canEnterBankingShell } from "@/features/customer-shell/lib/route-access";
+import { getOAuthConsentStatus } from "@/features/auth/services/oauth-consent.functions";
 
 /**
  * Customer banking namespace (/app) — §24, §26.
@@ -22,6 +23,8 @@ export const Route = createFileRoute("/app")({
     if (error || !data.user) {
       throw redirect({ to: "/login", search: { redirect: location.href } });
     }
+    const consent = await getOAuthConsentStatus();
+    if (consent.required) throw redirect({ to: "/auth/consent", replace: true });
     return { user: data.user };
   },
   head: () => ({
