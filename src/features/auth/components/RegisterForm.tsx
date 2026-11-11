@@ -144,7 +144,10 @@ export function RegisterForm() {
               {en ? "terms" : "conditions générales"}
             </Link>{" "}
             {en ? "and the" : "et la"}{" "}
-            <Link to="/privacy" className="font-medium text-brand underline-offset-4 hover:underline">
+            <Link
+              to="/privacy"
+              className="font-medium text-brand underline-offset-4 hover:underline"
+            >
               {en ? "privacy policy" : "politique de confidentialité"}
             </Link>
             .
