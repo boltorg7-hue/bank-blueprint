@@ -73,11 +73,17 @@ assert.match(addressRoute, /addressStepSchema\.safeParse/);
 assert.match(optionalDocumentsMigration, /SET lifecycle_state = 'IDENTITY_REQUIRED'/);
 assert.match(optionalDocumentsMigration, /onboarding_step = 'COMPLETED'/);
 assert.match(optionalDocumentsMigration, /RETURN QUERY SELECT _verification\.status, false/);
-assert.match(optionalDocumentsMigration, /_profile\.lifecycle_state = 'ADDITIONAL_DOCUMENT_REQUIRED'/);
+assert.match(
+  optionalDocumentsMigration,
+  /_profile\.lifecycle_state = 'ADDITIONAL_DOCUMENT_REQUIRED'/,
+);
 assert.match(optionalDocumentsMigration, /IDENTITY_DOCUMENT_REQUIRED/);
 assert.match(optionalDocumentsMigration, /PROOF_OF_ADDRESS_REQUIRED/);
 assert.match(optionalDocumentsMigration, /status = 'UPLOADED'/);
-assert.match(optionalDocumentsMigration, /GRANT EXECUTE ON FUNCTION public\.customer_submit_onboarding_for_verification\(uuid\) TO service_role/);
+assert.match(
+  optionalDocumentsMigration,
+  /GRANT EXECUTE ON FUNCTION public\.customer_submit_onboarding_for_verification\(uuid\) TO service_role/,
+);
 assert.match(documentRoute, /Continuer sans fournir les documents pour le moment/);
 assert.match(documentRoute, /canDefer/);
 assert.match(reviewRoute, /const complete = isProfileComplete\(context\) && Boolean\(address\)/);
