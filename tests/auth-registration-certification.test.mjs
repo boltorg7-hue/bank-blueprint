@@ -61,3 +61,40 @@ test("email registration metadata is also guarded by the database", () => {
   assert.ok(migrations.includes("terms_accepted"));
   assert.ok(migrations.includes("_provider = 'email'"));
 });
+
+
+test("email confirmation resend fails closed when quota or audit persistence fails", () => {
+  const server = read("src/features/auth/services/email-confirmation.server.ts");
+  assert.ok(server.includes("if (error) throw new Error(\"Email confirmation quota could not be checked.\""));
+  assert.ok(server.includes("if (logError) throw new Error(\"Email confirmation send could not be recorded.\""));
+  assert.ok(server.includes("if (error) throw new Error(\"Email account lookup failed.\""));
+  assert.ok(server.includes("if (error) throw new Error(\"Email confirmation link could not be recorded.\""));
+});
+
+test("public resend response does not disclose whether an email account exists or is verified", () => {
+  const server = read("src/features/auth/services/email-confirmation.server.ts");
+  const page = read("src/routes/verify-email.tsx");
+  assert.ok(server.includes("Keep the response indistinguishable for unknown and already-verified addresses."));
+  assert.ok(server.includes('kind: "resend_verified"'));
+  assert.ok(server.includes('kind: "resend_unknown"'));
+  assert.ok(page.includes("If this address can receive a confirmation link"));
+  assert.ok(page.includes("Si cette adresse peut recevoir un lien de confirmation"));
+});
+
+test("email callback requires GoTrue confirmation and the latest issued nonce", () => {
+  const functions = read("src/features/auth/services/email-confirmation.functions.ts");
+  const server = read("src/features/auth/services/email-confirmation.server.ts");
+  assert.ok(functions.includes("!user.email_confirmed_at"));
+  assert.ok(functions.includes("isLatestConfirmationLink(user.email, data.nonce)"));
+  assert.ok(server.includes("data.current_nonce === nonce"));
+  assert.ok(server.includes("Boolean(nonce)"));
+});
+
+test("email confirmation sends use a strict HTTPS application origin", () => {
+  const functions = read("src/features/auth/services/email-confirmation.functions.ts");
+  assert.ok(functions.includes('url.protocol !== "https:"'));
+  assert.ok(functions.includes("url.username"));
+  assert.ok(functions.includes("url.password"));
+  assert.ok(functions.includes("url.search"));
+  assert.ok(functions.includes("url.hash"));
+});
