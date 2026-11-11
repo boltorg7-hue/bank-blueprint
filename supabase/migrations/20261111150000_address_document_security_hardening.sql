@@ -99,6 +99,7 @@ USING (
 
 -- Direct Storage reads remain limited to the owner or KYC/compliance staff.
 DROP POLICY IF EXISTS "identity docs read own or staff" ON storage.objects;
+DROP POLICY IF EXISTS "identity docs update own" ON storage.objects;
 CREATE POLICY "identity docs read owner or KYC staff"
 ON storage.objects
 FOR SELECT TO authenticated
