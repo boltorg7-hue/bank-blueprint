@@ -1,0 +1,201 @@
+BEGIN;
+
+-- Lot 1: durable, permission-checked review of simulated external-transfer evidence.
+-- The API invokes this SECURITY DEFINER routine with the authenticated staff id;
+-- the actor is re-authorized here and is never trusted from the browser alone.
+
+CREATE TABLE public.transfer_document_review_history (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  document_id uuid NOT NULL REFERENCES public.transfer_documents(id) ON DELETE RESTRICT,
+  transfer_id uuid NOT NULL REFERENCES public.transfers(id) ON DELETE RESTRICT,
+  requirement_id uuid REFERENCES public.transfer_requirements(id) ON DELETE SET NULL,
+  actor_user_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE RESTRICT,
+  previous_status public.transfer_document_status NOT NULL,
+  new_status public.transfer_document_status NOT NULL,
+  decision text NOT NULL CHECK (decision IN ('ACCEPT', 'REQUEST_REPLACEMENT')),
+  reason_code text,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  CONSTRAINT transfer_document_review_history_transition_check CHECK (
+    (decision = 'ACCEPT' AND new_status = 'ACCEPTED')
+    OR (decision = 'REQUEST_REPLACEMENT' AND new_status = 'REJECTED')
+  )
+);
+
+CREATE INDEX transfer_document_review_history_document_idx
+  ON public.transfer_document_review_history(document_id, created_at DESC);
+CREATE INDEX transfer_document_review_history_transfer_idx
+  ON public.transfer_document_review_history(transfer_id, created_at DESC);
+
+ALTER TABLE public.transfer_document_review_history ENABLE ROW LEVEL SECURITY;
+GRANT SELECT ON public.transfer_document_review_history TO authenticated;
+GRANT ALL ON public.transfer_document_review_history TO service_role;
+
+CREATE POLICY "Transfer document review history compliance readers"
+  ON public.transfer_document_review_history
+  FOR SELECT TO authenticated
+  USING (
+    public.has_permission(auth.uid(), 'compliance.review')
+    OR public.has_permission(auth.uid(), 'transfers.approve')
+  );
+
+CREATE OR REPLACE FUNCTION public.review_transfer_document(
+  _staff_id uuid,
+  _document_id uuid,
+  _accept boolean,
+  _reason_code text DEFAULT NULL
+)
+RETURNS void
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path TO 'public'
+AS $$
+DECLARE
+  _doc public.transfer_documents;
+  _t public.transfers;
+  _previous_status public.transfer_document_status;
+  _new_status public.transfer_document_status;
+  _decision text;
+  _reason text;
+BEGIN
+  IF _staff_id IS NULL
+     OR NOT public.has_permission(_staff_id, 'compliance.review') THEN
+    RAISE EXCEPTION 'NOT_AUTHORISED';
+  END IF;
+
+  IF _accept IS NULL THEN
+    RAISE EXCEPTION 'INVALID_DOCUMENT_DECISION';
+  END IF;
+
+  _reason := NULLIF(btrim(COALESCE(_reason_code, '')), '');
+  IF NOT _accept AND char_length(COALESCE(_reason, '')) NOT BETWEEN 8 AND 500 THEN
+    RAISE EXCEPTION 'DOCUMENT_REJECTION_REASON_REQUIRED';
+  END IF;
+
+  SELECT *
+    INTO _doc
+    FROM public.transfer_documents
+   WHERE id = _document_id
+   FOR UPDATE;
+
+  IF _doc.id IS NULL THEN
+    RAISE EXCEPTION 'DOCUMENT_UNAVAILABLE';
+  END IF;
+
+  -- Exact retries remain idempotent, while contradictory retries are rejected.
+  IF _doc.status IN ('ACCEPTED', 'REJECTED') THEN
+    IF (_doc.status = 'ACCEPTED' AND _accept)
+       OR (_doc.status = 'REJECTED' AND NOT _accept) THEN
+      RETURN;
+    END IF;
+    RAISE EXCEPTION 'DOCUMENT_ALREADY_FINALIZED';
+  END IF;
+
+  IF _doc.status <> 'UNDER_REVIEW' THEN
+    RAISE EXCEPTION 'INVALID_DOCUMENT_STATE';
+  END IF;
+
+  SELECT *
+    INTO _t
+    FROM public.transfers
+   WHERE id = _doc.transfer_id
+   FOR UPDATE;
+
+  IF _t.id IS NULL THEN
+    RAISE EXCEPTION 'TRANSFER_UNAVAILABLE';
+  END IF;
+
+  _previous_status := _doc.status;
+  _new_status := CASE
+    WHEN _accept THEN 'ACCEPTED'::public.transfer_document_status
+    ELSE 'REJECTED'::public.transfer_document_status
+  END;
+  _decision := CASE WHEN _accept THEN 'ACCEPT' ELSE 'REQUEST_REPLACEMENT' END;
+
+  UPDATE public.transfer_documents
+     SET status = _new_status,
+         rejection_reason_code = CASE WHEN _accept THEN NULL ELSE _reason END,
+         reviewed_at = now()
+   WHERE id = _document_id;
+
+  IF _doc.requirement_id IS NOT NULL THEN
+    UPDATE public.transfer_requirements
+       SET status = CASE
+                      WHEN _accept THEN 'SATISFIED'::public.transfer_requirement_status
+                      ELSE 'REPLACEMENT_REQUIRED'::public.transfer_requirement_status
+                    END,
+           rejection_reason_code = CASE WHEN _accept THEN NULL ELSE _reason END,
+           reviewed_at = now()
+     WHERE id = _doc.requirement_id
+       AND transfer_id = _doc.transfer_id;
+  END IF;
+
+  INSERT INTO public.transfer_document_review_history (
+    document_id, transfer_id, requirement_id, actor_user_id,
+    previous_status, new_status, decision, reason_code
+  ) VALUES (
+    _doc.id, _doc.transfer_id, _doc.requirement_id, _staff_id,
+    _previous_status, _new_status, _decision, _reason
+  );
+
+  INSERT INTO public.admin_audit_events (
+    actor_user_id, action, resource_type, resource_reference,
+    permission_checked, result, context
+  ) VALUES (
+    _staff_id,
+    CASE WHEN _accept THEN 'transfer.document_accepted'
+         ELSE 'transfer.document_replacement_requested' END,
+    'transfer_document',
+    _doc.id::text,
+    'compliance.review',
+    'ALLOWED',
+    jsonb_build_object(
+      'transfer_id', _doc.transfer_id,
+      'requirement_id', _doc.requirement_id,
+      'previous_status', _previous_status,
+      'new_status', _new_status,
+      'reason_code', _reason
+    )
+  );
+
+  IF _accept THEN
+    IF NOT EXISTS (
+      SELECT 1
+        FROM public.transfer_requirements
+       WHERE transfer_id = _t.id
+         AND is_mandatory
+         AND status <> 'SATISFIED'
+    ) THEN
+      UPDATE public.transfers
+         SET status = 'COMPLIANCE_REVIEW'
+       WHERE id = _t.id;
+      PERFORM public.set_transfer_progress(_t.id, 'FINAL_REVIEW');
+    END IF;
+  ELSE
+    UPDATE public.transfers
+       SET status = 'DOCUMENT_REQUIRED',
+           current_requirement_id = _doc.requirement_id
+     WHERE id = _t.id;
+
+    UPDATE public.transfer_compliance_cases
+       SET status = 'CUSTOMER_ACTION_REQUIRED'
+     WHERE transfer_id = _t.id;
+
+    PERFORM public.set_transfer_progress(_t.id, 'DOCUMENT_REQUIRED');
+    PERFORM public.record_transfer_status(
+      _t.id,
+      _t.status,
+      'DOCUMENT_REQUIRED',
+      'DOCUMENT_REJECTED',
+      'COMPLIANCE',
+      _staff_id
+    );
+  END IF;
+END;
+$$;
+
+REVOKE ALL ON FUNCTION public.review_transfer_document(uuid, uuid, boolean, text)
+  FROM PUBLIC, anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.review_transfer_document(uuid, uuid, boolean, text)
+  TO service_role;
+
+COMMIT;
