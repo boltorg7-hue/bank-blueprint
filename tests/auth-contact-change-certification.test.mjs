@@ -95,7 +95,7 @@ test("profile editing cannot bypass the atomic phone-change and OTP invalidation
   const onboarding = read("src/features/onboarding/services/onboarding.server.ts");
   const migration = read("supabase/migrations/20261111140000_otp_security_and_lifecycle_consistency.sql");
   assert.match(onboarding, /customer_change_pending_phone/);
-  assert.doesNotMatch(onboarding, /phone: data\.phone/);
+  assert.doesNotMatch(onboarding, /\bphone:\s*data\.phone/);
   assert.match(migration, /pg_advisory_xact_lock\(hashtextextended\(_phone, 0\)\)/);
   assert.match(migration, /WHERE phone = _phone AND id <> _user_id/);
 });
