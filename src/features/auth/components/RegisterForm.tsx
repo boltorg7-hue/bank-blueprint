@@ -9,6 +9,7 @@ import { PasswordField } from "@/features/auth/components/PasswordField";
 import { fieldErrorsFrom, registerSchema } from "@/features/auth/schemas/auth.schemas";
 import { genericErrorMessage, signUpErrorMessage } from "@/features/auth/lib/auth-errors";
 import { supabase } from "@/integrations/supabase/client";
+import { registerCustomer } from "@/features/auth/services/registration.functions";
 import { useLanguage } from "@/components/providers/LanguageProvider";
 
 /**
@@ -49,39 +50,36 @@ export function RegisterForm() {
     setErrors({});
     setPending(true);
 
-    let result: Awaited<ReturnType<typeof supabase.auth.signUp>>;
+    let result: Awaited<ReturnType<typeof registerCustomer>>;
     try {
-      result = await supabase.auth.signUp({
-        email: parsed.data.email,
-        password: parsed.data.password,
-        options: {
-          emailRedirectTo: `${window.location.origin}/auth/callback?next=verified`,
-          data: {
-            first_name: parsed.data.firstName,
-            last_name: parsed.data.lastName,
-            terms_accepted: "true",
-            marketing_consent: parsed.data.marketing ? "true" : "false",
-          },
-        },
-      });
+      result = await registerCustomer({ data: parsed.data });
     } catch {
       setFormError(genericErrorMessage(en ? "en" : "fr"));
       setPending(false);
       return;
     }
 
-    setPending(false);
-    if (result.error) {
-      setFormError(signUpErrorMessage(result.error, en ? "en" : "fr"));
+    if (!result.ok) {
+      setFormError(signUpErrorMessage({ code: result.code }, en ? "en" : "fr"));
+      setPending(false);
       return;
     }
 
-    // With email confirmation enabled, signUp does not create a session.
-    // The customer must confirm before continuing.
-    if (result.data.session) {
+    // Email confirmation may be disabled in non-production environments.
+    // Restore a returned session in the browser without persisting credentials on the server.
+    if (result.session) {
+      const { error } = await supabase.auth.setSession(result.session);
+      if (error) {
+        setFormError(genericErrorMessage(en ? "en" : "fr"));
+        setPending(false);
+        return;
+      }
+      setPending(false);
       await navigate({ to: "/onboarding", replace: true });
       return;
     }
+
+    setPending(false);
     await navigate({ to: "/verify-email", search: { email: parsed.data.email }, replace: true });
   }
 
