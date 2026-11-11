@@ -29,11 +29,11 @@ SET search_path = public
 AS $$
   SELECT
     public.has_role(auth.uid(), 'kyc_agent'::public.app_role)
-    OR public.has_role(_user_id, 'compliance_officer'::public.app_role)
-    OR public.has_role(_user_id, 'supervisor'::public.app_role)
-    OR public.has_role(_user_id, 'administrator'::public.app_role)
-    OR public.has_role(_user_id, 'super_admin'::public.app_role)
-    OR public.has_role(_user_id, 'auditor'::public.app_role);
+    OR public.has_role(auth.uid(), 'compliance_officer'::public.app_role)
+    OR public.has_role(auth.uid(), 'supervisor'::public.app_role)
+    OR public.has_role(auth.uid(), 'administrator'::public.app_role)
+    OR public.has_role(auth.uid(), 'super_admin'::public.app_role)
+    OR public.has_role(auth.uid(), 'auditor'::public.app_role);
 $$;
 
 REVOKE ALL ON FUNCTION public.can_access_kyc_documents() FROM PUBLIC, anon;
