@@ -134,10 +134,16 @@ export async function changeUnverifiedEmail(
   if (user.email_confirmed_at) return { ok: false, code: "ALREADY_VERIFIED" };
   if (await lookupUser(newEmail)) return { ok: false, code: "EMAIL_TAKEN" };
 
+  const currentQuota = await checkQuota(currentEmail);
+  if (!currentQuota.allowed) return { ok: false, code: "RATE_LIMITED", retryAfter: currentQuota.retryAfter };
   const quota = await checkQuota(newEmail);
   if (!quota.allowed) return { ok: false, code: "RATE_LIMITED", retryAfter: quota.retryAfter };
 
   const db = await admin();
+  const { error: auditError } = await db
+    .from("email_confirmation_sends")
+    .insert({ email: currentEmail, kind: "change_requested" });
+  if (auditError) throw new Error("Email confirmation send could not be recorded.");
 
   // Invalidate links for the previous address before changing the Auth record.
   // If this write fails, the email change is aborted and no old link remains usable.
