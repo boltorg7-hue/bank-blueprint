@@ -31,7 +31,7 @@ const ONBOARDING_EDITABLE_LIFECYCLE_STATES = [
 
 function metadataName(value: unknown): string | null {
   if (typeof value !== "string") return null;
-  const normalized = value.trim().replace(/\\s+/g, " ");
+  const normalized = value.trim().replace(/\s+/g, " ");
   return normalized.length >= 2 && normalized.length <= 60 ? normalized : null;
 }
 
