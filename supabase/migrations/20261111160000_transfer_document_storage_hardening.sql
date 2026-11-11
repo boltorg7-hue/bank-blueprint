@@ -77,7 +77,7 @@ USING (
     SELECT 1
     FROM public.transfer_documents td
     WHERE td.user_id = auth.uid()
-      AND td.storage_path = storage.objects.name
+      AND td.storage_path = name
   )
 );
 
