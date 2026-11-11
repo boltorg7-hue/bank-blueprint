@@ -11,7 +11,7 @@ AS $$
 DECLARE
   _profile public.profiles;
 BEGIN
-  IF _phone IS NULL OR _phone !~ '^\\+[1-9][0-9]{7,14}$' THEN
+  IF _phone IS NULL OR _phone !~ '^\+[1-9][0-9]{7,14}$' THEN
     RAISE EXCEPTION 'INVALID_PHONE';
   END IF;
 
