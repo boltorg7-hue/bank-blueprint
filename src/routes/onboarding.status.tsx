@@ -64,9 +64,11 @@ function statusCopy(state: CustomerLifecycleState, en: boolean): StatusCopy {
       secondaryLabel: en ? "Visit the help centre" : "Consulter le centre d'aide",
     },
     IDENTITY_REQUIRED: {
-      title: en ? "Complete identity verification" : "Terminez la vérification d'identité",
-      description: en ? "Your identity documents are still required before your application can be reviewed." : "Vos justificatifs d'identité sont encore nécessaires avant l'examen de votre dossier.",
-      primaryLabel: en ? "Complete my documents" : "Compléter mes documents",
+      title: en ? "Your registration is saved" : "Votre inscription est enregistrée",
+      description: en
+        ? "Your registration details are saved. You can add your identity documents later; identity verification and banking access remain unavailable until the required documents are reviewed."
+        : "Vos informations d'inscription sont enregistrées. Vous pourrez ajouter vos justificatifs plus tard ; la vérification d'identité et l'accès bancaire restent indisponibles jusqu'à l'examen des documents requis.",
+      primaryLabel: en ? "Add my documents" : "Ajouter mes documents",
       primaryRoute: "/onboarding/documents",
       secondaryLabel: en ? "Visit the help centre" : "Consulter le centre d'aide",
     },
