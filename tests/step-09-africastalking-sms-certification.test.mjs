@@ -19,6 +19,9 @@ assert.match(provider, /application\/x-www-form-urlencoded/);
 assert.match(provider, /username/);
 assert.match(provider, /from: senderId/);
 assert.match(provider, /statusCode === 100/);
+assert.match(provider, /state: "ACCEPTED"/);
+assert.match(provider, /createDecipheriv/);
+assert.match(provider, /AbortSignal.timeout/);
 assert.match(provider, /statusCode === 101/);
 assert.match(provider, /statusCode === 102/);
 assert.match(provider, /providerReference/);
@@ -36,6 +39,7 @@ assert.match(onboarding, /dispatchPendingSms/);
 assert.doesNotMatch(onboarding, /simulatePendingSms/);
 
 assert.match(env, /SMS_PROVIDER="africastalking"/);
+assert.match(env, /SMS_PAYLOAD_ENCRYPTION_KEY/);
 assert.match(env, /AFRICASTALKING_ENV="sandbox"/);
 assert.match(env, /AFRICASTALKING_USERNAME="sandbox"/);
 assert.match(env, /AFRICASTALKING_SENDER_ID="RFCBANK"/);
