@@ -92,7 +92,7 @@ export async function resendConfirmation(emailRaw: string, origin: string): Prom
   // This prevents the public resend endpoint from becoming an account-enumeration oracle.
   if (user?.email_confirmed_at) {
     const quota = await checkQuota(email);
-    if (!quota.allowed) return { ok: false, code: "RATE_LIMITED", retryAfter: quota.retryAfter };
+    if (!quota.allowed) return { ok: true, retryAfter: quota.retryAfter, remaining: 0 };
     const db = await admin();
     const { error } = await db.from("email_confirmation_sends").insert({ email, kind: "resend_verified" });
     if (error) throw new Error("Email confirmation send could not be recorded.");
@@ -101,13 +101,18 @@ export async function resendConfirmation(emailRaw: string, origin: string): Prom
   // Unknown addresses receive the same neutral result and are also rate limited.
   if (!user) {
     const quota = await checkQuota(email);
-    if (!quota.allowed) return { ok: false, code: "RATE_LIMITED", retryAfter: quota.retryAfter };
+    if (!quota.allowed) return { ok: true, retryAfter: quota.retryAfter, remaining: 0 };
     const db = await admin();
     const { error } = await db.from("email_confirmation_sends").insert({ email, kind: "resend_unknown" });
     if (error) throw new Error("Email confirmation send could not be recorded.");
     return { ok: true, retryAfter: RESEND_SPACING_SECONDS, remaining: quota.remaining };
   }
-  return sendSignupLink(email, user.id, origin, "resend");
+  const result = await sendSignupLink(email, user.id, origin, "resend");
+  // Keep provider-level throttling indistinguishable from the neutral public response.
+  if (!result.ok && result.code === "RATE_LIMITED") {
+    return { ok: true, retryAfter: result.retryAfter ?? RESEND_SPACING_SECONDS, remaining: 0 };
+  }
+  return result;
 }
 
 export async function changeUnverifiedEmail(
