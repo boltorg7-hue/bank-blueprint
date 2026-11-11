@@ -186,7 +186,7 @@ export async function saveProfileStep(userId: string, input: unknown) {
 
   const { data: currentProfile, error: currentProfileError } = await supabaseAdmin
     .from("profiles")
-    .select("phone, phone_verified_at")
+    .select("phone, phone_verified_at, lifecycle_state, onboarding_step")
     .eq("id", userId)
     .maybeSingle();
 
@@ -196,6 +196,16 @@ export async function saveProfileStep(userId: string, input: unknown) {
   const phoneUnchanged = currentProfile.phone === data.phone;
   const phoneVerifiedAt = phoneUnchanged ? currentProfile.phone_verified_at : null;
   const contactVerified = Boolean(phoneVerifiedAt);
+  const lifecycleState = contactVerified
+    ? currentProfile.lifecycle_state === "CONTACT_VERIFICATION_REQUIRED"
+      ? "PROFILE_INCOMPLETE"
+      : currentProfile.lifecycle_state
+    : "CONTACT_VERIFICATION_REQUIRED";
+  const onboardingStep = contactVerified
+    ? ["CONTACT", "PERSONAL_DETAILS"].includes(currentProfile.onboarding_step)
+      ? "ADDRESS"
+      : currentProfile.onboarding_step
+    : "CONTACT";
 
   const { data: updatedProfile, error } = await supabaseAdmin
     .from("profiles")
@@ -209,8 +219,8 @@ export async function saveProfileStep(userId: string, input: unknown) {
       occupation: data.occupation,
       phone: data.phone,
       phone_verified_at: phoneVerifiedAt,
-      lifecycle_state: contactVerified ? "PROFILE_INCOMPLETE" : "CONTACT_VERIFICATION_REQUIRED",
-      onboarding_step: contactVerified ? "ADDRESS" : "CONTACT",
+      lifecycle_state: lifecycleState,
+      onboarding_step: onboardingStep,
     })
     .eq("id", userId)
     .in("lifecycle_state", PROFILE_EDITABLE_LIFECYCLE_STATES)
