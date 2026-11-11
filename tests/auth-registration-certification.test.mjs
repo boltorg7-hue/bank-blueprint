@@ -77,6 +77,8 @@ test("public resend response does not disclose whether an email account exists o
   assert.ok(server.includes("Keep the response indistinguishable for unknown and already-verified addresses."));
   assert.ok(server.includes('kind: "resend_verified"'));
   assert.ok(server.includes('kind: "resend_unknown"'));
+  assert.ok(server.includes('return { ok: true, retryAfter: quota.retryAfter, remaining: 0 }'));
+  assert.ok(server.includes("Keep provider-level throttling indistinguishable from the neutral public response."));
   assert.ok(page.includes("If this address can receive a confirmation link"));
   assert.ok(page.includes("Si cette adresse peut recevoir un lien de confirmation"));
 });
