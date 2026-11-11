@@ -68,14 +68,15 @@ export function RegisterForm() {
     // Email confirmation may be disabled in non-production environments.
     // Restore a returned session in the browser without persisting credentials on the server.
     if (result.session) {
-      const { error } = await supabase.auth.setSession(result.session);
-      if (error) {
+      try {
+        const { error } = await supabase.auth.setSession(result.session);
+        if (error) throw error;
+        await navigate({ to: "/onboarding", replace: true });
+      } catch {
         setFormError(genericErrorMessage(en ? "en" : "fr"));
+      } finally {
         setPending(false);
-        return;
       }
-      setPending(false);
-      await navigate({ to: "/onboarding", replace: true });
       return;
     }
 
