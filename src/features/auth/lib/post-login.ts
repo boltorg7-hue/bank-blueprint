@@ -6,6 +6,7 @@
  */
 import { nextRouteForLifecycle } from "@/types/customer-lifecycle";
 import { getCustomerContext } from "@/features/onboarding/services/onboarding.functions";
+import { nextOnboardingRoute } from "@/features/onboarding/lib/tasks";
 import { getOAuthConsentStatus } from "@/features/auth/services/oauth-consent.functions";
 
 export function safeRedirectPath(value: string | null | undefined): string | null {
@@ -26,7 +27,13 @@ export async function resolvePostLoginRoute(redirectTo?: string | undefined): Pr
   let lifecycleRoute = "/onboarding";
   try {
     const context = await getCustomerContext();
-    lifecycleRoute = nextRouteForLifecycle(context.profile.lifecycle_state);
+    if (!context.emailVerified) {
+      lifecycleRoute = "/verify-email";
+    } else if (["ACTIVE", "RESTRICTED", "SUSPENDED", "CLOSED"].includes(context.profile.lifecycle_state)) {
+      lifecycleRoute = nextRouteForLifecycle(context.profile.lifecycle_state);
+    } else {
+      lifecycleRoute = nextOnboardingRoute(context);
+    }
   } catch {
     lifecycleRoute = "/onboarding";
   }
