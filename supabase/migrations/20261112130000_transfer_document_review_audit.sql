@@ -90,7 +90,8 @@ BEGIN
     RAISE EXCEPTION 'DOCUMENT_ALREADY_FINALIZED';
   END IF;
 
-  IF _doc.status <> 'UNDER_REVIEW' THEN
+  -- The upload routine persists new evidence as UPLOADED; that is also a valid pending-review state.
+  IF _doc.status NOT IN ('UPLOADED', 'UNDER_REVIEW') THEN
     RAISE EXCEPTION 'INVALID_DOCUMENT_STATE';
   END IF;
 
