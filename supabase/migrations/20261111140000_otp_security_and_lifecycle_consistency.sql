@@ -106,7 +106,7 @@ BEGIN
    WHERE user_id = _user_id AND consumed_at IS NULL;
 
   UPDATE public.notification_outbox
-     SET status = 'FAILED', processed_at = now(), last_error_code = 'OTP_SUPERSEDED'
+     SET status = 'FAILED', processed_at = now(), claimed_at = NULL, payload = '{}'::jsonb, last_error_code = 'OTP_SUPERSEDED'
    WHERE user_id = _user_id AND channel = 'SMS'
      AND template_key = 'CONTACT_VERIFICATION_CODE'
      AND status IN ('PENDING','PROCESSING');
@@ -271,6 +271,7 @@ BEGIN
   UPDATE public.notification_outbox
      SET status = 'FAILED',
          last_error_code = 'SMS_DISPATCH_TIMEOUT',
+         payload = '{}'::jsonb,
          processed_at = now(),
          claimed_at = NULL
    WHERE user_id = _user_id
