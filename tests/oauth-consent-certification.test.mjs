@@ -27,7 +27,7 @@ test("OAuth consent is stored by the server with provider identity and versioned
     "supabase/migrations/20261111110000_oauth_consent_security.sql",
   );
 
-  assert.ok(functions.includes("context.supabase.auth.getUser()"));
+  assert.ok(functions.includes("context.claims as AuthClaims | null"));
   assert.ok(functions.includes("record_oauth_registration_consent"));
   assert.ok(functions.includes("_terms_version: TERMS_VERSION"));
   assert.ok(functions.includes("_privacy_version: PRIVACY_VERSION"));
