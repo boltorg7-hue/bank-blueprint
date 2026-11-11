@@ -16,8 +16,14 @@ export const getCustomerContext = createServerFn({ method: "GET" })
     const claims = context.claims as { email?: string; email_verified?: boolean } | null;
     const { data } = await context.supabase.auth.getUser();
     const email = data.user?.email ?? claims?.email ?? null;
-    const emailVerified = Boolean(data.user?.email_confirmed_at);
-    return loadCustomerContext(context.userId, email, emailVerified);
+    if (!data.user) throw new Error("CUSTOMER_AUTH_UNAVAILABLE");
+    const emailVerified = Boolean(data.user.email_confirmed_at);
+    return loadCustomerContext(
+      context.userId,
+      email,
+      emailVerified,
+      (data.user.user_metadata ?? null) as Record<string, unknown> | null,
+    );
   });
 
 export const saveProfileStep = createServerFn({ method: "POST" })
