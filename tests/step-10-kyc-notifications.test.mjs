@@ -1,6 +1,10 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 const sql=readFileSync("supabase/migrations/20261002120000_step10_kyc_notifications.sql","utf8");
+const hardening = readFileSync(
+  "supabase/migrations/20261112110000_kyc_decision_integrity.sql",
+  "utf8",
+);
 assert.match(sql,/service_review_identity_application/);
 assert.match(sql,/kyc\.info_required:/);
 assert.match(sql,/service_decide_identity_application/);
