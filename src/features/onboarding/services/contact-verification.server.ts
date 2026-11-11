@@ -85,7 +85,7 @@ export async function sendContactVerificationCode(userId: string) {
         .is("consumed_at", null),
       supabaseAdmin
         .from("notification_outbox")
-        .update({ status: "FAILED", processed_at: now, last_error_code: "SMS_DELIVERY_FAILED" })
+        .update({ status: "FAILED", processed_at: now, payload: {}, last_error_code: "SMS_DELIVERY_FAILED" })
         .eq("id", challenge.notification_id)
         .eq("user_id", userId)
         .eq("status", "PENDING"),
