@@ -65,6 +65,22 @@ WITH CHECK (
 DROP POLICY IF EXISTS "Customers replace their own transfer documents"
 ON storage.objects;
 
+-- Permit cleanup of an abandoned upload only while no transfer document row
+-- references it. Registered evidence cannot be deleted directly by customers.
+CREATE POLICY "Transfer storage delete unregistered owner uploads"
+ON storage.objects
+FOR DELETE TO authenticated
+USING (
+  bucket_id = 'transfer-documents'
+  AND auth.uid()::text = (storage.foldername(name))[1]
+  AND NOT EXISTS (
+    SELECT 1
+    FROM public.transfer_documents td
+    WHERE td.user_id = auth.uid()
+      AND td.storage_path = storage.objects.name
+  )
+);
+
 CREATE OR REPLACE FUNCTION public.validate_transfer_document_storage_object()
 RETURNS trigger
 LANGUAGE plpgsql
