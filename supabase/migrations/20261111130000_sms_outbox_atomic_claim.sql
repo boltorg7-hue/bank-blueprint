@@ -31,6 +31,7 @@ BEGIN
       FROM public.notification_outbox AS o
      WHERE o.user_id = _user_id
        AND o.channel = 'SMS'
+       AND o.template_key = 'CONTACT_VERIFICATION_CODE'
        AND o.status = 'PENDING'
      ORDER BY o.created_at, o.id
      LIMIT 20
