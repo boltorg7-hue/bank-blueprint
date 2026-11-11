@@ -12,8 +12,8 @@ const env = read(".env.example");
 
 assert.match(provider, /https:\/\/api\.sandbox\.africastalking\.com\/version1\/messaging/);
 assert.match(provider, /https:\/\/api\.africastalking\.com\/version1\/messaging/);
-assert.match(provider, /process\.env\.AFRICASTALKING_API_KEY/);
-assert.match(provider, /process\.env\.AFRICASTALKING_SENDER_ID/);
+assert.match(provider, /requiredEnv\("AFRICASTALKING_API_KEY"\)/);
+assert.match(provider, /requiredEnv\("AFRICASTALKING_SENDER_ID"\)/);
 assert.match(provider, /apiKey/);
 assert.match(provider, /application\/x-www-form-urlencoded/);
 assert.match(provider, /username/);
@@ -32,10 +32,12 @@ assert.doesNotMatch(provider, /console\.(log|error|warn)/);
 assert.match(notifications, /dispatchPendingSms/);
 assert.match(notifications, /process\.env\.SMS_PROVIDER/);
 assert.match(notifications, /africastalking-provider/);
-assert.match(notifications, /status:result\.state/);
-assert.match(notifications, /provider_reference:result\.providerReference/);
+assert.match(notifications, /status: result\.state/);
+assert.match(notifications, /provider_reference: result\.providerReference/);
 
 assert.match(onboarding, /dispatchPendingSms/);
+assert.match(onboarding, /encryptOtpPayload/);
+assert.match(onboarding, /_payload: encryptedPayload/);
 assert.doesNotMatch(onboarding, /simulatePendingSms/);
 
 assert.match(env, /SMS_PROVIDER="africastalking"/);
