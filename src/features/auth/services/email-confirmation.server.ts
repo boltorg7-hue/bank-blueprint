@@ -138,21 +138,20 @@ export async function changeUnverifiedEmail(
   if (!quota.allowed) return { ok: false, code: "RATE_LIMITED", retryAfter: quota.retryAfter };
 
   const db = await admin();
-  const { error } = await db.auth.admin.updateUserById(user.id, { email: newEmail, email_confirm: false });
-  if (error) return { ok: false, code: /already/i.test(error.message) ? "EMAIL_TAKEN" : "SEND_FAILED" };
 
-  // Invalidate every link issued to the previous address.
-  const { error: deleteError } = await db
-    .from("email_confirmation_links")
-    .delete()
-    .eq("email", currentEmail);
-  if (deleteError) throw new Error("Previous email confirmation links could not be invalidated.");
+  // Invalidate links for the previous address before changing the Auth record.
+  // If this write fails, the email change is aborted and no old link remains usable.
   const { error: invalidateError } = await db.from("email_confirmation_links").upsert({
     email: currentEmail,
     user_id: null,
     current_nonce: crypto.randomUUID(),
+    updated_at: new Date().toISOString(),
   });
   if (invalidateError) throw new Error("Previous email confirmation links could not be invalidated.");
+
+  const { error } = await db.auth.admin.updateUserById(user.id, { email: newEmail, email_confirm: false });
+  if (error) return { ok: false, code: /already/i.test(error.message) ? "EMAIL_TAKEN" : "SEND_FAILED" };
+
   // A fresh signup link regenerates the confirmation token server-side, so old tokens stop working.
   return sendSignupLink(newEmail, user.id, origin, "change");
 }
