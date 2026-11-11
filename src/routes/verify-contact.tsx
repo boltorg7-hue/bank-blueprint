@@ -49,7 +49,7 @@ function VerifyContactPage() {
       const result = await send({ data: undefined });
       setMessage(result.alreadyVerified
         ? (en ? "This phone number is already verified." : "Ce numéro est déjà vérifié.")
-        : (en ? "A verification code has been sent by SMS." : "Un code de vérification a été envoyé par SMS."));
+        : (en ? "The SMS provider accepted the request. Delivery to your phone is not yet confirmed." : "Le fournisseur SMS a accepté la demande. La réception sur votre téléphone n’est pas encore confirmée."));
     } catch (e) {
       setError(errorMessage(e, en));
     } finally { setSending(false); }
@@ -142,6 +142,9 @@ function errorMessage(error: unknown, en: boolean) {
   const code = error instanceof Error ? error.message : "";
   const messages: Record<string, [string, string]> = {
     OTP_COOLDOWN: ["Wait before requesting another code.", "Attendez avant de demander un nouveau code."],
+    OTP_USER_DAILY_LIMIT: ["You have reached the daily code request limit for this account.", "Vous avez atteint la limite quotidienne de demandes de code pour ce compte."],
+    OTP_PHONE_DAILY_LIMIT: ["This phone number has reached its daily verification limit.", "Ce numéro a atteint sa limite quotidienne de vérification."],
+    PHONE_ALREADY_IN_USE: ["This phone number is already associated with another customer account.", "Ce numéro est déjà associé à un autre compte client."],
     OTP_EXPIRED: ["This code has expired. Request a new one.", "Ce code a expiré. Demandez-en un nouveau."],
     OTP_INVALID: ["The code is incorrect.", "Le code est incorrect."],
     OTP_LOCKED: ["Too many attempts. Request a new code.", "Trop de tentatives. Demandez un nouveau code."],
@@ -151,6 +154,9 @@ function errorMessage(error: unknown, en: boolean) {
     INVALID_PHONE: ["Enter a valid international number in E.164 format.", "Saisissez un numéro international valide au format E.164."],
     ONBOARDING_STATE_LOCKED: ["This number cannot be changed at the current onboarding stage.", "Le numéro ne peut pas être modifié à cette étape du dossier."],
     OTP_SECRET_NOT_CONFIGURED: ["Phone verification is temporarily unavailable.", "La vérification téléphonique est temporairement indisponible."],
+    SMS_PAYLOAD_ENCRYPTION_KEY_NOT_CONFIGURED: ["Secure SMS delivery is not configured yet. Please contact support.", "La sécurisation de l’envoi SMS n’est pas encore configurée. Contactez le support."],
+    SMS_PAYLOAD_ENCRYPTION_KEY_INVALID: ["Secure SMS delivery is temporarily unavailable.", "L’envoi SMS sécurisé est temporairement indisponible."],
+    SMS_PROVIDER_NOT_ACCEPTED: ["The SMS provider did not accept the message. Please try again later.", "Le fournisseur SMS n’a pas accepté le message. Réessayez plus tard."],
     SMS_DELIVERY_FAILED: ["The SMS could not be delivered. Please try again later.", "Le SMS n’a pas pu être envoyé. Réessayez plus tard."],
     SMS_SIMULATED_NOT_DELIVERED: ["SMS simulation is enabled; no real message was sent.", "Le mode simulation est activé : aucun vrai SMS n’a été envoyé."],
   };
