@@ -72,7 +72,7 @@ test("SMS outbox dispatch claims jobs atomically and prevents duplicate concurre
 test("OTP limits, encrypted outbox, provider acceptance and lifecycle progression are consistent", () => {
   const migration = read("supabase/migrations/20261111140000_otp_security_and_lifecycle_consistency.sql");
   const provider = read("src/features/notifications/services/sms/africastalking-provider.ts");
-  const service = read("src/features/notifications/services/contact-verification.server.ts");
+  const service = read("src/features/onboarding/services/contact-verification.server.ts");
   assert.match(migration, /OTP_USER_DAILY_LIMIT/);
   assert.match(migration, /OTP_PHONE_DAILY_LIMIT/);
   assert.match(migration, /pg_advisory_xact_lock/);
