@@ -11,7 +11,7 @@ assert.match(migration, /file_size_limit = EXCLUDED\.file_size_limit/);
 assert.match(migration, /allowed_mime_types = EXCLUDED\.allowed_mime_types/);
 assert.match(migration, /DROP POLICY IF EXISTS "Customers replace their own transfer documents"/);
 assert.match(migration, /Transfer storage delete unregistered owner uploads/);
-assert.match(migration, /td\.storage_path = storage\.objects\.name/);
+assert.match(migration, /td\.storage_path = name/);
 assert.match(migration, /public\.has_permission\(auth\.uid\(\), 'compliance\.review'\)/);
 assert.match(migration, /public\.has_permission\(auth\.uid\(\), 'transfers\.approve'\)/);
 assert.doesNotMatch(migration, /public\.is_staff\(auth\.uid\(\)\)/);
