@@ -113,6 +113,8 @@ test("profile onboarding preserves progress and reuses verified contact across a
   assert.ok(server.includes("Provider names are suggestions only"));
   assert.ok(server.includes("const phoneUnchanged = currentProfile.phone === data.phone"));
   assert.ok(server.includes("phone_verified_at: phoneVerifiedAt"));
+  assert.ok(server.includes('currentProfile.lifecycle_state === "CONTACT_VERIFICATION_REQUIRED"'));
+  assert.ok(server.includes("const onboardingStep = contactVerified"));
   assert.ok(server.includes("CUSTOMER_DOCUMENTS_UNAVAILABLE"));
   assert.ok(page.includes('navigate({ to: "/onboarding", replace: true })'));
   assert.ok(page.includes("required={required}"));
