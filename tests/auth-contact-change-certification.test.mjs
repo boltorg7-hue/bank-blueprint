@@ -75,6 +75,9 @@ test("OTP limits, encrypted outbox, provider acceptance and lifecycle progressio
   const service = read("src/features/onboarding/services/contact-verification.server.ts");
   assert.match(migration, /OTP_USER_DAILY_LIMIT/);
   assert.match(migration, /OTP_PHONE_DAILY_LIMIT/);
+  assert.match(migration, /payload =/);
+  assert.match(migration, /OTP_PAYLOAD_MIGRATION_REQUIRED/);
+  assert.match(migration, /WHERE consumed_at IS NULL/);
   assert.match(migration, /pg_advisory_xact_lock/);
   assert.match(migration, /'ACCEPTED'/);
   assert.match(migration, /claimed_at/);
