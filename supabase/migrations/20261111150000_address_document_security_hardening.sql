@@ -140,7 +140,7 @@ USING (
     SELECT 1
     FROM public.verification_documents vd
     WHERE vd.user_id = auth.uid()
-      AND vd.storage_path = storage.objects.name
+      AND vd.storage_path = name
   )
 );
 
