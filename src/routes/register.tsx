@@ -87,7 +87,10 @@ function RegisterPage() {
           </div>
 
           {oauthError ? (
-            <p role="alert" className="text-caption rounded-lg bg-destructive/10 px-3 py-2 text-destructive">
+            <p
+              role="alert"
+              className="text-caption rounded-lg bg-destructive/10 px-3 py-2 text-destructive"
+            >
               {oauthError}
             </p>
           ) : null}
@@ -121,9 +124,7 @@ function RegisterPage() {
     >
       <div className="mb-6 space-y-3">
         <div className="flex items-center justify-between gap-3">
-          <span className="text-overline text-brand">
-            {en ? "STEP 1 OF 3" : "ÉTAPE 1 SUR 3"}
-          </span>
+          <span className="text-overline text-brand">{en ? "STEP 1 OF 3" : "ÉTAPE 1 SUR 3"}</span>
           <span className="text-caption text-muted-foreground">
             {en ? "3 secure steps" : "3 étapes sécurisées"}
           </span>
