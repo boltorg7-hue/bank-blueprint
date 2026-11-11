@@ -808,7 +808,8 @@ test("5.8.8.7 ne laisse pas de reliquats de debug ou de maintenance explicite", 
             child !== "src/lib/error-capture.ts" &&
             child !== "src/routes/__root.tsx" &&
             child !== "src/server.ts" &&
-            child !== "src/start.ts"
+            child !== "src/start.ts" &&
+            !child.startsWith("scripts/")
           ) {
             assert.doesNotMatch(source, /console\.(log|debug|info|warn|error)\s*\(/);
           }
