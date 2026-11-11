@@ -150,7 +150,7 @@ CREATE OR REPLACE FUNCTION public.validate_verification_document_storage_object(
 RETURNS trigger
 LANGUAGE plpgsql
 SECURITY DEFINER
-SET search_path = public, storage
+SET search_path = public
 AS $$
 DECLARE
   _metadata jsonb;
