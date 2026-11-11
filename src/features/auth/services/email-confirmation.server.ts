@@ -29,7 +29,8 @@ async function admin() {
 
 function publicClient() {
   const url = process.env["SUPABASE_URL"] ?? process.env["VITE_SUPABASE_URL"];
-  const key = process.env["SUPABASE_PUBLISHABLE_KEY"] ?? process.env["VITE_SUPABASE_PUBLISHABLE_KEY"];
+  const key =
+    process.env["SUPABASE_PUBLISHABLE_KEY"] ?? process.env["VITE_SUPABASE_PUBLISHABLE_KEY"];
   if (!url || !key) throw new Error("Auth configuration missing");
   return createClient(url, key, { auth: { persistSession: false, autoRefreshToken: false } });
 }
@@ -96,7 +97,9 @@ async function sendSignupLink(
     options: { emailRedirectTo: `${origin}/auth/callback?next=verified&v=${nonce}` },
   });
   if (error) {
-    if (/rate|seconds|429/i.test(error.message)) return { ok: false, code: "RATE_LIMITED", retryAfter: RESEND_SPACING_SECONDS };
+    if (/rate|seconds|429/i.test(error.message)) {
+      return { ok: false, code: "RATE_LIMITED", retryAfter: RESEND_SPACING_SECONDS };
+    }
     return { ok: false, code: "SEND_FAILED" };
   }
   return { ok: true, retryAfter: RESEND_SPACING_SECONDS, remaining: quota.remaining };
@@ -171,7 +174,9 @@ export async function changeUnverifiedEmail(
   if (await lookupUser(newEmail)) return { ok: false, code: "EMAIL_TAKEN" };
 
   const currentQuota = await checkQuota(currentEmail);
-  if (!currentQuota.allowed) return { ok: false, code: "RATE_LIMITED", retryAfter: currentQuota.retryAfter };
+  if (!currentQuota.allowed) {
+    return { ok: false, code: "RATE_LIMITED", retryAfter: currentQuota.retryAfter };
+  }
   const quota = await checkQuota(newEmail);
   if (!quota.allowed) return { ok: false, code: "RATE_LIMITED", retryAfter: quota.retryAfter };
 
@@ -189,13 +194,17 @@ export async function changeUnverifiedEmail(
     current_nonce: crypto.randomUUID(),
     updated_at: new Date().toISOString(),
   });
-  if (invalidateError) throw new Error("Previous email confirmation links could not be invalidated.");
+  if (invalidateError) {
+    throw new Error("Previous email confirmation links could not be invalidated.");
+  }
 
   const { error } = await db.auth.admin.updateUserById(user.id, {
     email: newEmail,
     email_confirm: false,
   });
-  if (error) return { ok: false, code: /already/i.test(error.message) ? "EMAIL_TAKEN" : "SEND_FAILED" };
+  if (error) {
+    return { ok: false, code: /already/i.test(error.message) ? "EMAIL_TAKEN" : "SEND_FAILED" };
+  }
 
   // A fresh signup link regenerates the confirmation token server-side, so old tokens stop working.
   return sendSignupLink(newEmail, user.id, origin, "change");
