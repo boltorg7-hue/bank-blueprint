@@ -7,13 +7,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PasswordField } from "@/features/auth/components/PasswordField";
 import { fieldErrorsFrom, registerSchema } from "@/features/auth/schemas/auth.schemas";
-import { signUpErrorMessage } from "@/features/auth/lib/auth-errors";
+import { genericErrorMessage, signUpErrorMessage } from "@/features/auth/lib/auth-errors";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/components/providers/LanguageProvider";
 
 /**
  * First registration step only (§8): identity basics, credentials, consent.
- * The banking profile is collected progressively during onboarding.
+ * The verified phone and banking profile are collected progressively during onboarding.
  */
 export function RegisterForm() {
   const { language } = useLanguage();
@@ -27,7 +27,9 @@ export function RegisterForm() {
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (pending) return;
     setFormError(null);
+
     const formData = new FormData(event.currentTarget);
     const parsed = registerSchema.safeParse({
       firstName: String(formData.get("firstName") ?? ""),
@@ -46,29 +48,37 @@ export function RegisterForm() {
 
     setErrors({});
     setPending(true);
-    const { data, error } = await supabase.auth.signUp({
-      email: parsed.data.email,
-      password: parsed.data.password,
-      options: {
-        emailRedirectTo: `${window.location.origin}/auth/callback?next=verified`,
-        data: {
-          first_name: parsed.data.firstName,
-          last_name: parsed.data.lastName,
-          terms_accepted: "true",
-          marketing_consent: parsed.data.marketing ? "true" : "false",
-        },
-      },
-    });
 
-    if (error) {
+    let result: Awaited<ReturnType<typeof supabase.auth.signUp>>;
+    try {
+      result = await supabase.auth.signUp({
+        email: parsed.data.email,
+        password: parsed.data.password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth/callback?next=verified`,
+          data: {
+            first_name: parsed.data.firstName,
+            last_name: parsed.data.lastName,
+            terms_accepted: "true",
+            marketing_consent: parsed.data.marketing ? "true" : "false",
+          },
+        },
+      });
+    } catch {
+      setFormError(genericErrorMessage(en ? "en" : "fr"));
       setPending(false);
-      setFormError(signUpErrorMessage(error, en ? "en" : "fr"));
+      return;
+    }
+
+    setPending(false);
+    if (result.error) {
+      setFormError(signUpErrorMessage(result.error, en ? "en" : "fr"));
       return;
     }
 
     // With e-mail confirmation enabled, signUp does NOT create a session:
     // the customer must confirm before continuing (§14).
-    if (data.session) {
+    if (result.data.session) {
       await navigate({ to: "/onboarding", replace: true });
       return;
     }
@@ -145,7 +155,7 @@ export function RegisterForm() {
         </p>
       ) : null}
 
-      <Button type="submit" className="w-full touch-target" loading={pending}>
+      <Button type="submit" className="w-full touch-target" loading={pending} disabled={pending}>
         {en ? "Create my account" : "Créer mon compte"}
       </Button>
     </form>
@@ -173,9 +183,11 @@ function Field({
         id={id}
         name={name}
         type={type}
+        inputMode={type === "email" ? "email" : undefined}
         autoComplete={autoComplete}
         aria-invalid={error ? true : undefined}
         aria-describedby={error ? `${id}-error` : undefined}
+        required
       />
       {error ? (
         <p id={`${id}-error`} className="text-caption text-destructive">
