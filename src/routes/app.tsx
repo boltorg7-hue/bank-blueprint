@@ -1,15 +1,22 @@
 import { useLanguage } from "@/components/providers/LanguageProvider";
-import { createFileRoute, Outlet, redirect, useNavigate } from "@tanstack/react-router";
+import {
+  createFileRoute,
+  Outlet,
+  redirect,
+  useNavigate,
+} from "@tanstack/react-router";
 import { useEffect } from "react";
 
 import { BankingAppLayout } from "@/components/layout/BankingAppLayout";
 import { Spinner } from "@/components/ui/spinner";
-import { supabase } from "@/integrations/supabase/client";
-import { useCustomerContext } from "@/features/onboarding/hooks/useCustomerContext";
-import { nextRouteForLifecycle } from "@/types/customer-lifecycle";
 import { LimitedAccessBanner } from "@/features/customer-shell/components/LimitedAccessBanner";
 import { canEnterBankingShell } from "@/features/customer-shell/lib/route-access";
-import { getOAuthConsentStatus } from "@/features/auth/services/oauth-consent.functions";
+import { useCustomerContext } from "@/features/onboarding/hooks/useCustomerContext";
+import {
+  getOAuthConsentStatus,
+} from "@/features/auth/services/oauth-consent.functions";
+import { supabase } from "@/integrations/supabase/client";
+import { nextRouteForLifecycle } from "@/types/customer-lifecycle";
 
 /**
  * Customer banking namespace (/app) — §24, §26.
@@ -23,8 +30,12 @@ export const Route = createFileRoute("/app")({
     if (error || !data.user) {
       throw redirect({ to: "/login", search: { redirect: location.href } });
     }
+
     const consent = await getOAuthConsentStatus();
-    if (consent.required) throw redirect({ to: "/auth/consent", replace: true });
+    if (consent.required) {
+      throw redirect({ to: "/auth/consent", replace: true });
+    }
+
     return { user: data.user };
   },
   head: () => ({
@@ -57,7 +68,11 @@ function CustomerAppLayoutRoute() {
           role="status"
         >
           <Spinner className="size-5" />
-          <span className="text-body-sm">{language === "en" ? "Preparing your account…" : "Préparation de votre espace…"}</span>
+          <span className="text-body-sm">
+            {language === "en"
+              ? "Preparing your account…"
+              : "Préparation de votre espace…"}
+          </span>
         </div>
       </BankingAppLayout>
     );
