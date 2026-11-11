@@ -86,6 +86,7 @@ test("OTP limits, encrypted outbox, provider acceptance and lifecycle progressio
   assert.match(provider, /createDecipheriv/);
   assert.match(provider, /state: "ACCEPTED"/);
   assert.match(provider, /AbortSignal.timeout/);
+  assert.match(read("src/features/notifications/services/notifications.server.ts"), /payload: \{\}/);
   assert.match(service, /OTP_USER_DAILY_LIMIT/);
   assert.match(service, /OTP_PHONE_DAILY_LIMIT/);
 });
