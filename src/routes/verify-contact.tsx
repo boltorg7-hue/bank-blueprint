@@ -149,6 +149,7 @@ function errorMessage(error: unknown, en: boolean) {
     OTP_INVALID: ["The code is incorrect.", "Le code est incorrect."],
     OTP_LOCKED: ["Too many attempts. Request a new code.", "Trop de tentatives. Demandez un nouveau code."],
     OTP_NOT_FOUND: ["No active code. Request a new one.", "Aucun code actif. Demandez-en un nouveau."],
+    PHONE_CHANGED: ["Your phone number changed. Request a new code for the current number.", "Votre numéro a changé. Demandez un nouveau code pour le numéro actuel."],
     PHONE_REQUIRED: ["A phone number is required.", "Un numéro de téléphone est requis."],
     PHONE_UNCHANGED: ["This is already your current number.", "C’est déjà votre numéro actuel."],
     INVALID_PHONE: ["Enter a valid international number in E.164 format.", "Saisissez un numéro international valide au format E.164."],
@@ -157,7 +158,7 @@ function errorMessage(error: unknown, en: boolean) {
     SMS_PAYLOAD_ENCRYPTION_KEY_NOT_CONFIGURED: ["Secure SMS delivery is not configured yet. Please contact support.", "La sécurisation de l’envoi SMS n’est pas encore configurée. Contactez le support."],
     SMS_PAYLOAD_ENCRYPTION_KEY_INVALID: ["Secure SMS delivery is temporarily unavailable.", "L’envoi SMS sécurisé est temporairement indisponible."],
     SMS_PROVIDER_NOT_ACCEPTED: ["The SMS provider did not accept the message. Please try again later.", "Le fournisseur SMS n’a pas accepté le message. Réessayez plus tard."],
-    SMS_DELIVERY_FAILED: ["The SMS could not be delivered. Please try again later.", "Le SMS n’a pas pu être envoyé. Réessayez plus tard."],
+    SMS_DELIVERY_FAILED: ["The SMS request could not be completed. Please try again later.", "La demande d’envoi du SMS n’a pas abouti. Réessayez plus tard."],
     SMS_SIMULATED_NOT_DELIVERED: ["SMS simulation is enabled; no real message was sent.", "Le mode simulation est activé : aucun vrai SMS n’a été envoyé."],
   };
   return messages[code]?.[en ? 0 : 1] ?? (en ? "Verification failed. Please try again." : "La vérification a échoué. Réessayez.");
