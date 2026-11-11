@@ -143,6 +143,14 @@ BEGIN
   END IF;
   IF _profile.phone = _phone THEN RAISE EXCEPTION 'PHONE_UNCHANGED'; END IF;
 
+  PERFORM pg_advisory_xact_lock(hashtextextended(_phone, 0));
+  IF EXISTS (
+    SELECT 1 FROM public.profiles
+     WHERE phone = _phone AND id <> _user_id
+  ) THEN
+    RAISE EXCEPTION 'PHONE_ALREADY_IN_USE';
+  END IF;
+
   UPDATE public.phone_verification_codes
      SET consumed_at = now()
    WHERE user_id = _user_id AND consumed_at IS NULL;
@@ -254,7 +262,7 @@ BEGIN
    WHERE user_id = _user_id
      AND channel = 'SMS'
      AND status = 'PROCESSING'
-     AND claimed_at < now() - interval '2 minutes';
+     AND coalesce(claimed_at, processed_at, created_at) < now() - interval '2 minutes';
 
   RETURN QUERY
   WITH candidates AS (
