@@ -3,7 +3,7 @@ import { supabaseAdmin as typedAdmin } from "@/integrations/supabase/client.serv
 
 // Contact-verification tables are not yet in the generated types.
 const supabaseAdmin = typedAdmin as any;
-import { assertCustomerConsent } from "@/features/auth/services/oauth-consent.server";
+import { profileStepSchema } from "@/features/onboarding/schemas/onboarding.schemas";
 
 const OTP_TTL_MINUTES = 10;
 const RESEND_COOLDOWN_SECONDS = 60;
@@ -15,7 +15,6 @@ function otpHash(userId: string, phone: string, code: string) {
 }
 
 export async function sendContactVerificationCode(userId: string) {
-  await assertCustomerConsent(userId);
   const { data: profile, error } = await supabaseAdmin
     .from("profiles")
     .select("phone, phone_verified_at, lifecycle_state")
@@ -71,7 +70,6 @@ export async function sendContactVerificationCode(userId: string) {
 }
 
 export async function verifyContactCode(userId: string, codeInput: unknown) {
-  await assertCustomerConsent(userId);
   const code = String(codeInput ?? "").trim();
   if (!/^\d{6}$/.test(code)) throw new Error("INVALID_OTP");
 
