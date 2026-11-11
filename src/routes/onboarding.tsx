@@ -1,12 +1,19 @@
 import { useLanguage } from "@/components/providers/LanguageProvider";
 import { LanguageSwitch } from "@/components/navigation/LanguageSwitch";
-import { createFileRoute, Outlet, redirect, useRouter } from "@tanstack/react-router";
+import {
+  createFileRoute,
+  Outlet,
+  redirect,
+  useRouter,
+} from "@tanstack/react-router";
 
-import { BrandMark } from "@/components/navigation/BrandMark";
 import { Button } from "@/components/ui/button";
-import { supabase } from "@/integrations/supabase/client";
+import { BrandMark } from "@/components/navigation/BrandMark";
 import { useSignOut } from "@/features/auth/hooks/useSessionUser";
-import { getOAuthConsentStatus } from "@/features/auth/services/oauth-consent.functions";
+import {
+  getOAuthConsentStatus,
+} from "@/features/auth/services/oauth-consent.functions";
+import { supabase } from "@/integrations/supabase/client";
 
 /**
  * Protected onboarding namespace (§24).
@@ -20,15 +27,22 @@ export const Route = createFileRoute("/onboarding")({
     if (error || !data.user) {
       throw redirect({ to: "/login", search: { redirect: location.href } });
     }
+
     const consent = await getOAuthConsentStatus();
-    if (consent.required) throw redirect({ to: "/auth/consent", replace: true });
+    if (consent.required) {
+      throw redirect({ to: "/auth/consent", replace: true });
+    }
+
     return { user: data.user };
   },
   head: () => ({
     meta: [
       { title: "Ouverture de compte — RFC" },
       { name: "robots", content: "noindex,nofollow" },
-      { name: "description", content: "Parcours sécurisé d'ouverture de compte RFC." },
+      {
+        name: "description",
+        content: "Parcours sécurisé d'ouverture de compte RFC.",
+      },
     ],
   }),
   errorComponent: OnboardingError,
@@ -45,9 +59,17 @@ function OnboardingChrome({ children }: { children: React.ReactNode }) {
       <header className="safe-pt sticky top-0 z-30 border-b border-border bg-background/90 backdrop-blur">
         <div className="mx-auto flex h-16 w-full max-w-2xl items-center justify-between gap-3 px-4 sm:px-6">
           <BrandMark />
-          <div className="flex items-center gap-1"><LanguageSwitch /><Button variant="ghost" size="sm" className="touch-target" onClick={() => void signOut()}>
-            {en ? "Sign out" : "Se déconnecter"}
-          </Button></div>
+          <div className="flex items-center gap-1">
+            <LanguageSwitch />
+            <Button
+              variant="ghost"
+              size="sm"
+              className="touch-target"
+              onClick={() => void signOut()}
+            >
+              {en ? "Sign out" : "Se déconnecter"}
+            </Button>
+          </div>
         </div>
       </header>
       <main id="main" className="safe-pb">
@@ -69,14 +91,24 @@ function OnboardingError() {
   const router = useRouter();
   const { language } = useLanguage();
   const en = language === "en";
+
   return (
     <OnboardingChrome>
       <div className="mx-auto w-full max-w-2xl px-4 py-16 sm:px-6">
-        <h1 className="text-heading-lg text-foreground">{en ? "This step could not be displayed" : "Cette étape n’a pas pu s’afficher"}</h1>
+        <h1 className="text-heading-lg text-foreground">
+          {en
+            ? "This step could not be displayed"
+            : "Cette étape n’a pas pu s’afficher"}
+        </h1>
         <p className="text-body mt-3 text-muted-foreground">
-          {en ? "We could not load your information. Please try again shortly." : "Nous n’avons pas pu charger vos informations pour le moment. Réessayez dans un instant."}
+          {en
+            ? "We could not load your information. Please try again shortly."
+            : "Nous n’avons pas pu charger vos informations pour le moment. Réessayez dans un instant."}
         </p>
-        <Button className="mt-6 touch-target" onClick={() => void router.invalidate()}>
+        <Button
+          className="mt-6 touch-target"
+          onClick={() => void router.invalidate()}
+        >
           {en ? "Try again" : "Réessayer"}
         </Button>
       </div>
