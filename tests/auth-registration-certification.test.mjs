@@ -112,9 +112,10 @@ test("profile onboarding preserves progress and reuses verified contact across a
   assert.ok(server.includes("profileNameHints(authMetadata)"));
   assert.ok(server.includes("Provider names are suggestions only"));
   assert.ok(server.includes("const phoneUnchanged = currentProfile.phone === data.phone"));
-  assert.ok(server.includes("phone_verified_at: phoneVerifiedAt"));
-  assert.ok(server.includes('currentProfile.lifecycle_state === "CONTACT_VERIFICATION_REQUIRED"'));
-  assert.ok(server.includes("const onboardingStep = contactVerified"));
+  assert.ok(server.includes("customer_change_pending_phone"));
+  assert.ok(server.includes("const contactVerified = phoneUnchanged"));
+  assert.ok(server.includes("const onboardingStep = phoneUnchanged"));
+  assert.ok(!server.includes("phone: data.phone"));
   assert.ok(server.includes("CUSTOMER_DOCUMENTS_UNAVAILABLE"));
   assert.ok(page.includes('navigate({ to: "/onboarding", replace: true })'));
   assert.ok(page.includes("required={required}"));
@@ -151,4 +152,12 @@ test("phone OTP and phone/email change controls are part of certification", () =
   assert.ok(emailPage.includes("Adresse incorrecte ? Modifier mon e-mail"));
   assert.ok(sms.includes('|| "africastalking"'));
   assert.ok(sms.includes("SMS_PROVIDER_UNSUPPORTED"));
+});
+
+test("post-login resumes the first incomplete server-backed onboarding step", () => {
+  const routing = read("src/features/auth/lib/post-login.ts");
+  assert.ok(routing.includes("nextOnboardingRoute(context)"));
+  assert.ok(routing.includes("if (!context.emailVerified)"));
+  assert.ok(routing.includes('lifecycleRoute = "/verify-email"'));
+  assert.ok(routing.includes('["ACTIVE", "RESTRICTED", "SUSPENDED", "CLOSED"]'));
 });
