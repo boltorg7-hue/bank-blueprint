@@ -11,6 +11,10 @@ test("phone OTP creation, delivery and verification fail closed", () => {
   assert.ok(server.includes("PHONE_OTP_SECRET"));
   assert.ok(server.includes("OTP_SECRET_NOT_CONFIGURED"));
   assert.ok(server.includes("customer_create_phone_verification"));
+  assert.ok(server.includes("encryptOtpPayload"));
+  assert.ok(server.includes("SMS_PAYLOAD_ENCRYPTION_KEY"));
+  assert.ok(server.includes("_payload: encryptedPayload"));
+  assert.ok(server.includes('notification?.status !== "ACCEPTED"'));
   assert.ok(server.includes("customer_verify_phone_code"));
   assert.ok(server.includes("SMS_DELIVERY_FAILED"));
   assert.ok(migration.includes("FOR UPDATE"));
@@ -63,4 +67,22 @@ test("SMS outbox dispatch claims jobs atomically and prevents duplicate concurre
   assert.ok(migration.includes("'PROCESSING'"));
   assert.ok(migration.includes("SMS_DISPATCH_TIMEOUT"));
   assert.ok(migration.includes("TO service_role"));
+});
+
+test("OTP limits, encrypted outbox, provider acceptance and lifecycle progression are consistent", () => {
+  const migration = read("supabase/migrations/20261111140000_otp_security_and_lifecycle_consistency.sql");
+  const provider = read("src/features/notifications/services/sms/africastalking-provider.ts");
+  const service = read("src/features/notifications/services/contact-verification.server.ts");
+  assert.match(migration, /OTP_USER_DAILY_LIMIT/);
+  assert.match(migration, /OTP_PHONE_DAILY_LIMIT/);
+  assert.match(migration, /pg_advisory_xact_lock/);
+  assert.match(migration, /'ACCEPTED'/);
+  assert.match(migration, /claimed_at/);
+  assert.match(migration, /lifecycle_state = CASE[\\s\\S]*ELSE lifecycle_state/);
+  assert.match(migration, /onboarding_step = CASE[\\s\\S]*ELSE onboarding_step/);
+  assert.match(provider, /createDecipheriv/);
+  assert.match(provider, /state: "ACCEPTED"/);
+  assert.match(provider, /AbortSignal.timeout/);
+  assert.match(service, /OTP_USER_DAILY_LIMIT/);
+  assert.match(service, /OTP_PHONE_DAILY_LIMIT/);
 });
