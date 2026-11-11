@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowDownToLine, FileText, Send, Wallet, Clock } from "lucide-react";
+import { ArrowDownToLine, ArrowUpRight, FileText, History, Send, Users, Wallet, Clock } from "lucide-react";
 
 import { BankingContentContainer } from "@/components/layout/BankingAppLayout";
 import { PageHeader } from "@/components/layout/PageHeader";
@@ -160,17 +160,57 @@ function DashboardPage() {
 
           {data?.monthlySummary && <MonthlySummaryCard summary={data.monthlySummary} />}
 
-          <section aria-labelledby="quick-actions-heading" className="space-y-3.5 sm:space-y-4">
-            <div className="flex items-end justify-between gap-3">
-              <h2 id="quick-actions-heading" className="text-heading-sm font-semibold text-foreground md:text-heading-md">
-                {en ? "Actions & services" : "Actions et services"}
-              </h2>
+          <section aria-labelledby="quick-actions-heading" className="space-y-4 sm:space-y-5">
+            <div className="flex flex-wrap items-end justify-between gap-3">
+              <div>
+                <h2 id="quick-actions-heading" className="text-heading-sm font-semibold text-foreground md:text-heading-md">
+                  {en ? "Your banking services" : "Vos services bancaires"}
+                </h2>
+                <p className="mt-1 text-body-sm text-muted-foreground">
+                  {en ? "Choose a service to manage your money." : "Choisissez un service pour gérer votre argent."}
+                </p>
+              </div>
             </div>
-            <ul className="grid grid-cols-2 gap-2.5 sm:gap-3 md:grid-cols-3 lg:grid-cols-4">
-              <QuickAction to="/app/transfers" label={en ? "Send money" : "Envoyer de l'argent"} icon={Send} disabled={!canTransact} />
-              <QuickAction to="/app/accounts" label={en ? "My accounts" : "Mes comptes"} icon={Wallet} />
-              <QuickAction to="/app/statements" label={en ? "Statements" : "Relevés"} icon={FileText} />
-              <QuickAction to="/app/accounts/$accountRef" params={{ accountRef: account.reference }} label={en ? "Receive a payment" : "Recevoir un paiement"} icon={ArrowDownToLine} />
+            <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
+              <QuickAction
+                to="/app/transfers/new"
+                label={en ? "Make a transfer" : "Effectuer un virement"}
+                description={en ? "Send money to an internal or external beneficiary." : "Envoyez de l'argent vers un bénéficiaire interne ou externe."}
+                icon={Send}
+                disabled={!canTransact}
+              />
+              <QuickAction
+                to="/app/beneficiaries"
+                label={en ? "Beneficiaries" : "Bénéficiaires"}
+                description={en ? "Add and manage your recipients." : "Ajoutez et gérez vos destinataires."}
+                icon={Users}
+                disabled={!canTransact}
+              />
+              <QuickAction
+                to="/app/accounts"
+                label={en ? "My accounts" : "Mes comptes"}
+                description={en ? "View your accounts and balances." : "Consultez vos comptes et leurs soldes."}
+                icon={Wallet}
+              />
+              <QuickAction
+                to="/app/statements"
+                label={en ? "Statements" : "Relevés bancaires"}
+                description={en ? "View and download available statements." : "Consultez et téléchargez vos relevés disponibles."}
+                icon={FileText}
+              />
+              <QuickAction
+                to="/app/transactions"
+                label={en ? "Transaction history" : "Historique des opérations"}
+                description={en ? "Review your recent account activity." : "Retrouvez le détail de vos opérations."}
+                icon={History}
+              />
+              <QuickAction
+                to="/app/accounts/$accountRef"
+                params={{ accountRef: account.reference }}
+                label={en ? "Receive a payment" : "Recevoir un paiement"}
+                description={en ? "Find your account details to receive funds." : "Retrouvez vos coordonnées pour recevoir des fonds."}
+                icon={ArrowDownToLine}
+              />
             </ul>
           </section>
 
@@ -202,12 +242,14 @@ function QuickAction({
   to,
   params,
   label,
+  description,
   icon: Icon,
   disabled = false,
 }: {
-  to: "/app/transfers" | "/app/accounts" | "/app/statements" | "/app/accounts/$accountRef";
+  to: "/app/transfers/new" | "/app/beneficiaries" | "/app/accounts" | "/app/statements" | "/app/transactions" | "/app/accounts/$accountRef";
   params?: { accountRef: string };
   label: string;
+  description: string;
   icon: React.ComponentType<{ className?: string }>;
   disabled?: boolean;
 }) {
@@ -221,15 +263,17 @@ function QuickAction({
       )}>
         <Icon className="size-5" aria-hidden="true" />
       </div>
-      <div className="mt-3 min-w-0">
+      <div className="mt-4 min-w-0">
         <span className="block break-words font-semibold leading-tight tracking-tight">{label}</span>
-        {disabled && <span className="mt-1 block text-caption font-medium opacity-70">{en ? "Unavailable" : "Indisponible"}</span>}
+        <span className="mt-1.5 block text-caption leading-relaxed text-muted-foreground">{description}</span>
+        {disabled && <span className="mt-2 block text-caption font-medium text-warning">{en ? "Available after account activation" : "Disponible après activation du compte"}</span>}
       </div>
+      <ArrowUpRight className="absolute right-4 top-4 size-4 text-muted-foreground transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" aria-hidden="true" />
     </>
   );
 
   const baseClassName =
-    "native-surface flex min-h-28 min-w-0 flex-col justify-between rounded-xl p-3 text-sm transition-all duration-200 sm:p-4";
+    "native-surface group relative flex min-h-40 min-w-0 flex-col justify-between rounded-2xl border border-border/70 p-4 text-sm shadow-sm transition-[border-color,box-shadow,transform] duration-200 sm:min-h-44 sm:p-5";
 
   return (
     <li className="min-w-0">
@@ -243,7 +287,7 @@ function QuickAction({
           {...(params ? { params } : {})}
           className={cn(
             baseClassName,
-            "press-feedback text-foreground hover:border-brand/30 hover:shadow-sm active:press-feedback-active active:scale-[0.98]",
+            "press-feedback text-foreground hover:-translate-y-0.5 hover:border-brand/40 hover:shadow-md active:press-feedback-active active:scale-[0.99]",
           )}
         >
           {content}
