@@ -5,6 +5,14 @@ const read = (path) => fs.readFileSync(path, "utf8");
 const migration = read(
   "supabase/migrations/20261111150000_address_document_security_hardening.sql",
 );
+const optionalDocumentsMigration = read(
+  "supabase/migrations/20261112100000_optional_onboarding_documents.sql",
+);
+const documentRoute = read("src/routes/onboarding.documents.tsx");
+const reviewRoute = read("src/routes/onboarding.review.tsx");
+const taskModel = read("src/features/onboarding/lib/tasks.ts");
+const statusRoute = read("src/routes/onboarding.status.tsx");
+const transitionRoute = read("src/routes/onboarding.transition.tsx");
 const server = read("src/features/onboarding/services/onboarding.server.ts");
 const uploader = read("src/features/onboarding/components/DocumentUploader.tsx");
 const schema = read("src/features/onboarding/schemas/onboarding.schemas.ts");
@@ -59,5 +67,27 @@ assert.match(schema, /storagePath: z\.string\(\)\.min\(1\)\.max\(256\)/);
 assert.match(schema, /originalFilename: z\.string\(\)\.trim\(\)\.min\(1\)\.max\(255\)/);
 assert.match(addressRoute, /saveAddressStep/);
 assert.match(addressRoute, /addressStepSchema\.safeParse/);
+
+// Initial registration may finish without KYC documents, but no KYC submission
+// or banking activation is allowed until the required documents are provided.
+assert.match(optionalDocumentsMigration, /SET lifecycle_state = 'IDENTITY_REQUIRED'/);
+assert.match(optionalDocumentsMigration, /onboarding_step = 'COMPLETED'/);
+assert.match(optionalDocumentsMigration, /RETURN QUERY SELECT _verification\.status, false/);
+assert.match(optionalDocumentsMigration, /_profile\.lifecycle_state = 'ADDITIONAL_DOCUMENT_REQUIRED'/);
+assert.match(optionalDocumentsMigration, /IDENTITY_DOCUMENT_REQUIRED/);
+assert.match(optionalDocumentsMigration, /PROOF_OF_ADDRESS_REQUIRED/);
+assert.match(optionalDocumentsMigration, /status = 'UPLOADED'/);
+assert.match(optionalDocumentsMigration, /GRANT EXECUTE ON FUNCTION public\.customer_submit_onboarding_for_verification\(uuid\) TO service_role/);
+assert.match(documentRoute, /Continuer sans fournir les documents pour le moment/);
+assert.match(documentRoute, /canDefer/);
+assert.match(reviewRoute, /const complete = isProfileComplete\(context\) && Boolean\(address\)/);
+assert.match(reviewRoute, /Terminer mon inscription/);
+assert.match(reviewRoute, /vérification d'identité et l'accès bancaire resteront indisponibles/);
+assert.match(taskModel, /hasDeferredDocuments/);
+assert.match(taskModel, /required: false/);
+assert.match(taskModel, /hasDeferredDocuments\(context\)\) return "\/onboarding\/status"/);
+assert.match(statusRoute, /Votre inscription est enregistrée/);
+assert.match(transitionRoute, /Documents à transmettre ultérieurement/);
+assert.match(transitionRoute, /Accès bancaire verrouillé jusqu'à la vérification d'identité/);
 
 console.log("ONBOARDING ADDRESS/DOCUMENT SECURITY CERTIFICATION: PASS");
