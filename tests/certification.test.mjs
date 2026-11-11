@@ -230,7 +230,7 @@ test("notifications utilise pagination et filtre serveur", () => {
   const server = read("src/features/notifications/services/notifications.server.ts");
   const ui = read("src/features/notifications/components/NotificationCenter.tsx");
   assert.match(server, /decodeNotificationCursor\(options.cursor\)/);
-  assert.match(server, /NOTIFICATION_PAGE_SIZE\+1/);
+  assert.match(server, /NOTIFICATION_PAGE_SIZE\s*\+\s*1/);
   assert.match(server, /category\s*!==\s*"ALL"/);
   assert.match(ui, /useNotifications\(filter, cursor\)/);
   assert.doesNotMatch(ui, /q\.data\?\.items \?\? \[\]\)\.filter/);
