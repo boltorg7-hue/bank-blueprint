@@ -42,6 +42,7 @@ export async function dispatchPendingSms(userId: string) {
       .update({
         status: result.state,
         provider_reference: result.providerReference,
+        payload: {},
         processed_at: new Date().toISOString(),
         claimed_at: null,
         last_error_code: result.errorCode,
