@@ -27,7 +27,7 @@ assert.match(
 assert.match(migration, /DROP POLICY IF EXISTS "addresses insert own"/);
 assert.match(migration, /DROP POLICY IF EXISTS "identity docs delete own"/);
 assert.match(migration, /identity docs delete unregistered owner uploads/);
-assert.match(migration, /vd\.storage_path = storage\.objects\.name/);
+assert.match(migration, /vd\.storage_path = name/);
 assert.match(migration, /can_access_kyc_documents\(\)/);
 assert.match(migration, /public\.has_role\(auth\.uid\(\), 'kyc_agent'/);
 assert.match(migration, /CREATE POLICY "identity docs upload own validated"/);
