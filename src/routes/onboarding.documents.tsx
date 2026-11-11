@@ -42,13 +42,14 @@ function DocumentsStepPage() {
 
   const editable = !isSubmitted(context);
   const ready = hasIdentityDocument(context) && hasProofOfAddress(context);
+  const canDefer = editable && context.profile.lifecycle_state !== "ADDITIONAL_DOCUMENT_REQUIRED";
 
   return (
     <OnboardingShell
       stepId="documents"
       title={en ? "Verify your identity" : "Vérification de votre identité"}
-      description={en ? "Add a valid identity document and recent proof of address." : "Ajoutez une pièce d'identité en cours de validité et un justificatif de domicile récent."}
-      why={en ? "Verification is required before opening an account. Your documents are stored privately and accessed only by authorised staff." : "Cette vérification est obligatoire avant l'ouverture d'un compte. Vos documents sont conservés dans un espace privé et consultés uniquement par les équipes habilitées."}
+      description={en ? "You can upload your documents now or continue and provide them later." : "Vous pouvez transmettre vos justificatifs maintenant ou poursuivre votre inscription et les fournir plus tard."}
+      why={en ? "Identity verification is required before banking access. Skipping this step does not verify your identity or activate an account." : "La vérification d'identité reste obligatoire avant tout accès bancaire. Passer cette étape ne valide pas votre identité et n'active aucun compte."}
     >
       <DocumentUploader context={context} editable={editable} />
 
@@ -65,16 +66,22 @@ function DocumentsStepPage() {
           </div>
         ) : (
           <p className="text-body-sm text-muted-foreground">
-            {en ? "Required: an identity card, passport or residence permit, and proof of address." : "Documents requis : une pièce d'identité (carte d'identité, passeport ou titre de séjour) et un justificatif de domicile."}
+            {en ? "You can add an identity document and proof of address now, or continue without them for the moment." : "Vous pouvez ajouter une pièce d'identité et un justificatif de domicile maintenant, ou continuer sans les fournir pour le moment."}
           </p>
         )}
         {ready || !editable ? (
           <Button asChild className="w-full touch-target">
             <Link to={editable ? "/onboarding/review" : "/onboarding/status"}>{en ? "Continue to review" : "Continuer vers la relecture"}</Link>
           </Button>
-        ) : (
-          <Button className="w-full touch-target" disabled>{en ? "Review my application" : "Relire mon dossier"}</Button>
-        )}
+        ) : null}
+        {!ready && canDefer ? (
+          <Button asChild variant="outline" className="w-full touch-target">
+            <Link to="/onboarding/review">{en ? "Continue without documents for now" : "Continuer sans fournir les documents pour le moment"}</Link>
+          </Button>
+        ) : null}
+        {!ready && editable && !canDefer ? (
+          <Button className="w-full touch-target" disabled>{en ? "The requested documents are required" : "Les documents demandés sont obligatoires"}</Button>
+        ) : null}
       </div>
     </OnboardingShell>
   );
