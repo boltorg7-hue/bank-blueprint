@@ -137,8 +137,17 @@ export async function changeUnverifiedEmail(
   if (error) return { ok: false, code: /already/i.test(error.message) ? "EMAIL_TAKEN" : "SEND_FAILED" };
 
   // Invalidate every link issued to the previous address.
-  await db.from("email_confirmation_links").delete().eq("email", currentEmail);
-  await db.from("email_confirmation_links").upsert({ email: currentEmail, user_id: null, current_nonce: crypto.randomUUID() });
+  const { error: deleteError } = await db
+    .from("email_confirmation_links")
+    .delete()
+    .eq("email", currentEmail);
+  if (deleteError) throw new Error("Previous email confirmation links could not be invalidated.");
+  const { error: invalidateError } = await db.from("email_confirmation_links").upsert({
+    email: currentEmail,
+    user_id: null,
+    current_nonce: crypto.randomUUID(),
+  });
+  if (invalidateError) throw new Error("Previous email confirmation links could not be invalidated.");
   // A fresh signup link regenerates the confirmation token server-side, so old tokens stop working.
   return sendSignupLink(newEmail, user.id, origin, "change");
 }
@@ -146,11 +155,12 @@ export async function changeUnverifiedEmail(
 /** Called after a link is opened: true when the link is the latest one issued for this address. */
 export async function isLatestConfirmationLink(email: string, nonce: string | undefined): Promise<boolean> {
   const db = await admin();
-  const { data } = await db
+  const { data, error } = await db
     .from("email_confirmation_links")
     .select("current_nonce")
     .eq("email", email.toLowerCase())
     .maybeSingle();
+  if (error) throw new Error("Email confirmation link could not be verified.");
   if (!data) return true; // original sign-up link, never superseded
   return Boolean(nonce) && data.current_nonce === nonce;
 }
