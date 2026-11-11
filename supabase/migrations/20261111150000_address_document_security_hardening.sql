@@ -127,8 +127,22 @@ WITH CHECK (
   END
 );
 
--- Customers remove documents through the authenticated server function only.
+-- Customers may clean up only an uploaded object that has not been registered
+-- as a verification document. Registered documents remain server-deletion only.
 DROP POLICY IF EXISTS "identity docs delete own" ON storage.objects;
+CREATE POLICY "identity docs delete unregistered owner uploads"
+ON storage.objects
+FOR DELETE TO authenticated
+USING (
+  bucket_id = 'identity-documents'
+  AND auth.uid()::text = (storage.foldername(name))[1]
+  AND NOT EXISTS (
+    SELECT 1
+    FROM public.verification_documents vd
+    WHERE vd.user_id = auth.uid()
+      AND vd.storage_path = storage.objects.name
+  )
+);
 
 -- Enforce bounded, non-empty address values at the database boundary too.
 ALTER TABLE public.customer_addresses
