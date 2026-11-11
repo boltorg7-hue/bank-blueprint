@@ -46,4 +46,6 @@ assert.match(env, /AFRICASTALKING_SENDER_ID="RFCBANK"/);
 assert.match(env, /AFRICASTALKING_API_KEY=""/);
 
 console.log("STEP 09 SMS PROVIDER STATIC CERTIFICATION: PASS");
-console.log("Covered: server-only Africa's Talking credentials, sandbox/live endpoints, form-encoded API request, accepted API statuses, provider reference/error handling, OTP template rendering, outbox dispatch, and safe environment placeholders.");
+console.log(
+  "Covered: server-only Africa's Talking credentials, sandbox/live endpoints, form-encoded API request, accepted API statuses, provider reference/error handling, OTP template rendering, outbox dispatch, and safe environment placeholders.",
+);
