@@ -26,8 +26,18 @@ function RegisterPage() {
   const en = language === "en";
   const [oauthError, setOauthError] = useState<string | null>(null);
   const [oauthPending, setOauthPending] = useState(false);
+  const oauthLock = useRef(false);
+
+  function startOAuth() {
+    if (oauthLock.current) return false;
+    oauthLock.current = true;
+    setOauthError(null);
+    setOauthPending(true);
+    return true;
+  }
 
   function handleOauthError(message: string) {
+    oauthLock.current = false;
     setOauthPending(false);
     setOauthError(message);
   }
@@ -66,18 +76,12 @@ function RegisterPage() {
           <div className="space-y-3">
             <GoogleSignInButton
               disabled={oauthPending}
-              onStart={() => {
-                setOauthError(null);
-                setOauthPending(true);
-              }}
+              onStart={startOAuth}
               onError={handleOauthError}
             />
             <AppleSignInButton
               disabled={oauthPending}
-              onStart={() => {
-                setOauthError(null);
-                setOauthPending(true);
-              }}
+              onStart={startOAuth}
               onError={handleOauthError}
             />
           </div>
