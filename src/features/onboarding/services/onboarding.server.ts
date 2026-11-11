@@ -7,7 +7,9 @@
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import {
   addressStepSchema,
+  ALLOWED_DOCUMENT_MIME_TYPES,
   documentUploadSchema,
+  MAX_DOCUMENT_BYTES,
   profileStepSchema,
 } from "@/features/onboarding/schemas/onboarding.schemas";
 import type { CustomerContext } from "@/domain/onboarding/types";
@@ -17,6 +19,93 @@ const PROFILE_COLUMNS =
   "id, first_name, middle_name, last_name, date_of_birth, nationality, country_of_residence, occupation, phone, phone_verified_at, lifecycle_state, onboarding_step";
 
 export class OnboardingError extends Error {}
+
+function detectDocumentMimeType(bytes: Uint8Array): string | null {
+  const ascii = (start: number, end: number) =>
+    String.fromCharCode(...bytes.subarray(start, end));
+
+  if (ascii(0, 5) === "%PDF-") return "application/pdf";
+  if (bytes.length >= 3 && bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff) {
+    return "image/jpeg";
+  }
+  if (bytes.length >= 8 && bytes[0] === 0x89 && ascii(1, 4) === "PNG" && bytes[4] === 0x0d && bytes[5] === 0x0a && bytes[6] === 0x1a && bytes[7] === 0x0a) {
+    return "image/png";
+  }
+  if (bytes.length >= 12 && ascii(0, 4) === "RIFF" && ascii(8, 12) === "WEBP") {
+    return "image/webp";
+  }
+  if (bytes.length >= 12 && ascii(4, 8) === "ftyp" && ["heic", "heix", "hevc", "hevx", "mif1", "msf1"].includes(ascii(8, 12))) {
+    return "image/heic";
+  }
+  return null;
+}
+
+async function validateUploadedDocument(
+  userId: string,
+  data: { storagePath: string; mimeType: string; sizeBytes: number },
+) {
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(userId)) {
+    throw new OnboardingError("INVALID_DOCUMENT_PATH");
+  }
+  const pathPattern = new RegExp(
+    `^${userId}/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\\.(jpg|jpeg|png|heic|webp|pdf)/**
+ * Server-only onboarding logic (§50, §51, §57).
+ *
+ * Every lifecycle and verification transition happens here, under a verified
+ * caller identity. The client can never declare itself verified or active.
+ */
+import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import {
+  addressStepSchema,
+  ALLOWED_DOCUMENT_MIME_TYPES,
+  documentUploadSchema,
+  MAX_DOCUMENT_BYTES,
+  profileStepSchema,
+} from "@/features/onboarding/schemas/onboarding.schemas";
+import type { CustomerContext } from "@/domain/onboarding/types";
+import { assertCustomerConsent } from "@/features/auth/services/oauth-consent.server";
+
+const PROFILE_COLUMNS =
+  "id, first_name, middle_name, last_name, date_of_birth, nationality, country_of_residence, occupation, phone, phone_verified_at, lifecycle_state, onboarding_step";
+
+,
+    "i",
+  );
+  if (!pathPattern.test(data.storagePath)) {
+    throw new OnboardingError("INVALID_DOCUMENT_PATH");
+  }
+
+  const { data: file, error } = await supabaseAdmin.storage
+    .from("identity-documents")
+    .download(data.storagePath);
+  if (error || !file) throw new OnboardingError("DOCUMENT_OBJECT_NOT_FOUND");
+
+  const bytes = new Uint8Array(await file.arrayBuffer());
+  const actualMimeType = detectDocumentMimeType(bytes);
+  if (
+    !actualMimeType ||
+    actualMimeType !== data.mimeType ||
+    bytes.byteLength !== data.sizeBytes ||
+    bytes.byteLength < 1 ||
+    bytes.byteLength > MAX_DOCUMENT_BYTES
+  ) {
+    await supabaseAdmin.storage.from("identity-documents").remove([data.storagePath]);
+    throw new OnboardingError("INVALID_DOCUMENT_CONTENT");
+  }
+
+  const extensionByMime: Record<string, string[]> = {
+    "image/jpeg": ["jpg", "jpeg"],
+    "image/png": ["png"],
+    "image/heic": ["heic"],
+    "image/webp": ["webp"],
+    "application/pdf": ["pdf"],
+  };
+  const extension = data.storagePath.split(".").pop()?.toLowerCase() ?? "";
+  if (!extensionByMime[actualMimeType]?.includes(extension)) {
+    await supabaseAdmin.storage.from("identity-documents").remove([data.storagePath]);
+    throw new OnboardingError("DOCUMENT_EXTENSION_MISMATCH");
+  }
+}
 
 const PROFILE_EDITABLE_LIFECYCLE_STATES = [
   "CONTACT_VERIFICATION_REQUIRED",
@@ -275,9 +364,7 @@ export async function saveAddressStep(userId: string, input: unknown) {
 export async function registerDocument(userId: string, input: unknown) {
   await assertCustomerConsent(userId);
   const data = documentUploadSchema.parse(input);
-  if (!data.storagePath.startsWith(`${userId}/`)) {
-    throw new OnboardingError("Chemin de document invalide.");
-  }
+  await validateUploadedDocument(userId, data);
 
   const { error } = await supabaseAdmin.rpc(
     "customer_register_onboarding_document" as never,
@@ -291,7 +378,10 @@ export async function registerDocument(userId: string, input: unknown) {
     } as never,
   );
 
-  if (error) throw new OnboardingError(error.message);
+  if (error) {
+    await supabaseAdmin.storage.from("identity-documents").remove([data.storagePath]);
+    throw new OnboardingError(error.message);
+  }
   return { ok: true as const };
 }
 
