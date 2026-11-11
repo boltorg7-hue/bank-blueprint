@@ -53,3 +53,14 @@ test("SMS delivery does not silently fall back to simulation", () => {
   assert.ok(server.includes('providerName === "simulation"'));
   assert.ok(server.includes("SMS_PROVIDER_UNSUPPORTED"));
 });
+
+test("SMS outbox dispatch claims jobs atomically and prevents duplicate concurrent sends", () => {
+  const server = read("src/features/notifications/services/notifications.server.ts");
+  const migration = read("supabase/migrations/20261111130000_sms_outbox_atomic_claim.sql");
+  assert.ok(server.includes('rpc("claim_pending_sms_notifications"'));
+  assert.ok(server.includes('.eq("status", "PROCESSING")'));
+  assert.ok(migration.includes("FOR UPDATE SKIP LOCKED"));
+  assert.ok(migration.includes("'PROCESSING'"));
+  assert.ok(migration.includes("SMS_DISPATCH_TIMEOUT"));
+  assert.ok(migration.includes("TO service_role"));
+});
