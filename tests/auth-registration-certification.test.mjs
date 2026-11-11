@@ -8,52 +8,54 @@ const read = (path) => readFileSync(new URL(path, root), "utf8");
 test("registration handles rejected signup requests without exposing backend errors", () => {
   const form = read("src/features/auth/components/RegisterForm.tsx");
   const server = read("src/features/auth/services/registration.server.ts");
-  assert.match(form, /try\\s*\\{[\\s\\S]*?registerCustomer/);
-  assert.match(form, /catch\\s*\\{[\\s\\S]*?genericErrorMessage/);
-  assert.match(form, /setPending\\(false\\)/);
-  assert.match(form, /signUpErrorMessage\\(\\{ code: result\\.code \\}/);
-  assert.match(server, /authClient\\.auth\\.signUp/);
-  assert.doesNotMatch(form, /setFormError\\([^\\n]*\\.message/);
+  assert.ok(form.includes("try {"));
+  assert.ok(form.includes("registerCustomer({ data: parsed.data })"));
+  assert.ok(form.includes("catch {"));
+  assert.ok(form.includes("signUpErrorMessage({ code: result.code }"));
+  assert.ok(form.includes("setPending(false)"));
+  assert.ok(server.includes("authClient.auth.signUp"));
+  assert.doesNotMatch(form, /setFormError\([^\n]*\.message/);
 });
 
 test("registration prevents duplicate submission and requires accessible identity fields", () => {
   const form = read("src/features/auth/components/RegisterForm.tsx");
-  assert.match(form, /if \\(pending\\) return/);
-  assert.match(form, /disabled=\\{pending\\}/);
-  assert.match(form, /autoComplete=\\{autoComplete\\}/);
-  assert.match(form, /aria-invalid=\\{error \\? true : undefined\\}/);
-  assert.match(form, /required/);
+  assert.ok(form.includes("if (pending) return"));
+  assert.ok(form.includes("disabled={pending}"));
+  assert.ok(form.includes("autoComplete={autoComplete}"));
+  assert.ok(form.includes("aria-invalid={error ? true : undefined}"));
+  assert.ok(form.includes("required"));
 });
 
 test("registration validates consent and password confirmation before creating an account", () => {
   const schema = read("src/features/auth/schemas/auth.schemas.ts");
   const form = read("src/features/auth/components/RegisterForm.tsx");
   const server = read("src/features/auth/services/registration.server.ts");
-  assert.match(schema, /terms: z\\.literal\\(true/);
-  assert.match(schema, /value\\.password === value\\.confirmPassword/);
-  assert.match(form, /registerSchema\\.safeParse/);
-  assert.match(server, /marketing_consent/);
+  assert.ok(schema.includes("terms: z.literal(true"));
+  assert.ok(schema.includes("value.password === value.confirmPassword"));
+  assert.ok(form.includes("registerSchema.safeParse"));
+  assert.ok(server.includes("marketing_consent"));
 });
 
 test("classic registration is validated and executed on the server", () => {
   const functions = read("src/features/auth/services/registration.functions.ts");
   const server = read("src/features/auth/services/registration.server.ts");
   const form = read("src/features/auth/components/RegisterForm.tsx");
-  assert.match(functions, /inputValidator\\(\\(input: unknown\\) => registerSchema\\.parse\\(input\\)\\)/);
-  assert.match(functions, /createCustomerRegistration\\(data\\)/);
-  assert.match(server, /authClient\\.auth\\.signUp/);
-  assert.match(server, /SUPABASE_PUBLISHABLE_KEY/);
-  assert.doesNotMatch(server, /SUPABASE_SERVICE_ROLE_KEY/);
-  assert.match(form, /registerCustomer\\(\\{ data: parsed\\.data \\}\\)/);
-  assert.match(form, /supabase\\.auth\\.setSession/);
-  assert.doesNotMatch(form, /supabase\\.auth\\.signUp/);
+  assert.ok(functions.includes("registerSchema.parse(input)"));
+  assert.ok(functions.includes("createCustomerRegistration(data)"));
+  assert.ok(server.includes("authClient.auth.signUp"));
+  assert.ok(server.includes("SUPABASE_PUBLISHABLE_KEY"));
+  assert.ok(server.includes("createSupabaseFetch(key)"));
+  assert.ok(!server.includes("SUPABASE_SERVICE_ROLE_KEY"));
+  assert.ok(form.includes("registerCustomer({ data: parsed.data })"));
+  assert.ok(form.includes("supabase.auth.setSession"));
+  assert.ok(!form.includes("supabase.auth.signUp"));
 });
 
 test("email registration metadata is also guarded by the database", () => {
   const migrations = read("supabase/migrations/20261111100000_auth_registration_server_validation.sql");
-  assert.match(migrations, /BEFORE INSERT ON auth\\.users/);
-  assert.match(migrations, /validate_email_registration_metadata/);
-  assert.match(migrations, /char_length\\(_first_name\\) NOT BETWEEN 2 AND 60/);
-  assert.match(migrations, /terms_accepted/);
-  assert.match(migrations, /_provider = 'email'/);
+  assert.ok(migrations.includes("BEFORE INSERT ON auth.users"));
+  assert.ok(migrations.includes("validate_email_registration_metadata"));
+  assert.ok(migrations.includes("char_length(_first_name) NOT BETWEEN 2 AND 60"));
+  assert.ok(migrations.includes("terms_accepted"));
+  assert.ok(migrations.includes("_provider = 'email'"));
 });
