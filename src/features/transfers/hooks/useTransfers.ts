@@ -145,24 +145,38 @@ export function useUploadTransferDocument() {
       const userId = auth.user?.id;
       if (!userId) throw new Error("SESSION_EXPIRED");
 
-      const extension = (file.name.split(".").pop() ?? "bin").toLowerCase().slice(0, 8);
+      const extensionByMime: Record<string, string> = {
+        "image/jpeg": "jpg",
+        "image/png": "png",
+        "image/heic": "heic",
+        "application/pdf": "pdf",
+      };
+      const extension = extensionByMime[file.type];
+      if (!extension || file.size < 1 || file.size > 15 * 1024 * 1024) {
+        throw new Error("INVALID_DOCUMENT_CONTENT");
+      }
       const storagePath = `${userId}/${reference}/${requirementId}-${Date.now()}.${extension}`;
 
       const { error } = await supabase.storage
         .from("transfer-documents")
-        .upload(storagePath, file, { cacheControl: "0", upsert: false });
+        .upload(storagePath, file, { contentType: file.type, cacheControl: "0", upsert: false });
       if (error) throw new Error("UPLOAD_FAILED");
 
-      return register({
-        data: {
-          reference,
-          requirementId,
-          storagePath,
-          originalFilename: file.name,
-          mimeType: file.type,
-          sizeBytes: file.size,
-        },
-      });
+      try {
+        return await register({
+          data: {
+            reference,
+            requirementId,
+            storagePath,
+            originalFilename: file.name.slice(0, 200),
+            mimeType: file.type,
+            sizeBytes: file.size,
+          },
+        });
+      } catch (error) {
+        await supabase.storage.from("transfer-documents").remove([storagePath]);
+        throw error;
+      }
     },
     onSuccess: (detail) => {
       queryClient.setQueryData([...TRANSFERS_KEY, "detail", detail.reference], detail);
