@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { CheckCircle2, LockKeyhole } from "lucide-react";
 
 import { publicMeta } from "@/features/public/lib/seo";
@@ -121,7 +121,7 @@ function RegisterPage() {
             {en ? "STEP 1 OF 3" : "ÉTAPE 1 SUR 3"}
           </span>
           <span className="text-caption text-muted-foreground">
-            {en ? "About 2 minutes" : "Environ 2 minutes"}
+            {en ? "3 secure steps" : "3 étapes sécurisées"}
           </span>
         </div>
         <div
