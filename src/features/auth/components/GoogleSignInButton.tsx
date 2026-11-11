@@ -23,7 +23,7 @@ export function GoogleSignInButton({
 
   async function handleClick() {
     if (pending || disabled) return;
-    onStart?.();
+    if (onStart?.() === false) return;
     setPending(true);
     try {
       const result = await lovable.auth.signInWithOAuth("google", {
