@@ -47,18 +47,36 @@ function TransitionPage() {
   const { data: context, isPending, isError } = useCustomerContext();
 
   const [done, setDone] = useState(0);
+  const documentsDeferred = Boolean(
+    context &&
+      context.profile.lifecycle_state === "IDENTITY_REQUIRED" &&
+      context.profile.onboarding_step === "COMPLETED" &&
+      context.verification.status === "NOT_STARTED",
+  );
 
-  const steps = en
-    ? [
-        [ShieldCheck, "Application received securely"],
-        [CheckCircle2, "Identity documents recorded"],
-        [Lock, "Operations locked until verification"],
-      ]
-    : [
-        [ShieldCheck, "Dossier reçu en toute sécurité"],
-        [CheckCircle2, "Documents d'identité enregistrés"],
-        [Lock, "Opérations verrouillées jusqu'à la vérification"],
-      ];
+  const steps = documentsDeferred
+    ? en
+      ? [
+          [ShieldCheck, "Registration details saved"],
+          [CheckCircle2, "Documents can be provided later"],
+          [Lock, "Banking access locked until identity verification"],
+        ]
+      : [
+          [ShieldCheck, "Informations d'inscription enregistrées"],
+          [CheckCircle2, "Documents à transmettre ultérieurement"],
+          [Lock, "Accès bancaire verrouillé jusqu'à la vérification d'identité"],
+        ]
+    : en
+      ? [
+          [ShieldCheck, "Application received securely"],
+          [CheckCircle2, "Identity documents recorded"],
+          [Lock, "Operations locked until verification"],
+        ]
+      : [
+          [ShieldCheck, "Dossier reçu en toute sécurité"],
+          [CheckCircle2, "Documents d'identité enregistrés"],
+          [Lock, "Opérations verrouillées jusqu'à la vérification"],
+        ];
 
   /**
    * Only animate the transition after trusted customer state is available.
@@ -163,15 +181,19 @@ function TransitionPage() {
       </div>
 
       <h1 className="text-center text-h2 text-foreground">
-        {en
-          ? "Your application has been submitted"
-          : "Votre dossier a été transmis"}
+        {documentsDeferred
+          ? en ? "Your registration is saved" : "Votre inscription est enregistrée"
+          : en ? "Your application has been submitted" : "Votre dossier a été transmis"}
       </h1>
 
       <p className="mt-2 text-center text-body-sm text-muted-foreground">
-        {en
-          ? "Your account remains protected while our verification process continues."
-          : "Votre compte reste protégé pendant que la vérification de votre dossier se poursuit."}
+        {documentsDeferred
+          ? en
+            ? "You can provide the required documents later from your application. Banking access remains locked until identity verification and account activation."
+            : "Vous pourrez transmettre les justificatifs requis plus tard depuis votre dossier. L'accès bancaire restera verrouillé jusqu'à la vérification d'identité et l'activation du compte."
+          : en
+            ? "Your account remains protected while our verification process continues."
+            : "Votre compte reste protégé pendant que la vérification de votre dossier se poursuit."}
       </p>
 
       <div
