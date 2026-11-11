@@ -6,20 +6,26 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 const TERMS_VERSION = "2026-11-11";
 const PRIVACY_VERSION = "2026-11-11";
 
+type AuthClaims = {
+  sub?: string;
+  app_metadata?: {
+    provider?: string;
+  };
+};
+
 export const getOAuthConsentStatus = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const { supabaseAdmin } = await import(
       "@/integrations/supabase/client.server"
     );
-    const { data: userData, error: userError } =
-      await context.supabase.auth.getUser();
+    const claims = context.claims as AuthClaims | null;
 
-    if (userError || !userData.user || userData.user.id !== context.userId) {
+    if (!claims?.sub || claims.sub !== context.userId) {
       throw new Error("UNAUTHORIZED");
     }
 
-    const provider = userData.user.app_metadata?.provider ?? null;
+    const provider = claims.app_metadata?.provider ?? null;
     if (provider !== "google" && provider !== "apple") {
       return { required: false, provider };
     }
@@ -51,14 +57,13 @@ export const recordOAuthConsent = createServerFn({ method: "POST" })
       .parse(input),
   )
   .handler(async ({ data, context }) => {
-    const { data: userData, error: userError } =
-      await context.supabase.auth.getUser();
+    const claims = context.claims as AuthClaims | null;
 
-    if (userError || !userData.user || userData.user.id !== context.userId) {
+    if (!claims?.sub || claims.sub !== context.userId) {
       throw new Error("UNAUTHORIZED");
     }
 
-    const provider = userData.user.app_metadata?.provider;
+    const provider = claims.app_metadata?.provider;
     if (provider !== "google" && provider !== "apple") {
       throw new Error("UNSUPPORTED_OAUTH_PROVIDER");
     }
