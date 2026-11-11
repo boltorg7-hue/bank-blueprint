@@ -2,17 +2,28 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 
 const read = (path) => fs.readFileSync(path, "utf8");
-const migration = read("supabase/migrations/20261111150000_address_document_security_hardening.sql");
+const migration = read(
+  "supabase/migrations/20261111150000_address_document_security_hardening.sql",
+);
 const server = read("src/features/onboarding/services/onboarding.server.ts");
 const uploader = read("src/features/onboarding/components/DocumentUploader.tsx");
 const schema = read("src/features/onboarding/schemas/onboarding.schemas.ts");
 const addressRoute = read("src/routes/onboarding.address.tsx");
 
-assert.match(migration, /INSERT INTO storage\.buckets[\s\S]*'identity-documents'[\s\S]*public = false/i);
+assert.match(
+  migration,
+  /INSERT INTO storage\.buckets[\s\S]*'identity-documents'[\s\S]*public = false/i,
+);
 assert.match(migration, /file_size_limit = EXCLUDED\.file_size_limit/);
 assert.match(migration, /allowed_mime_types = EXCLUDED\.allowed_mime_types/);
-assert.match(migration, /REVOKE INSERT, UPDATE, DELETE ON public\.customer_addresses FROM authenticated/);
-assert.match(migration, /REVOKE INSERT, UPDATE, DELETE ON public\.verification_documents FROM authenticated/);
+assert.match(
+  migration,
+  /REVOKE INSERT, UPDATE, DELETE ON public\.customer_addresses FROM authenticated/,
+);
+assert.match(
+  migration,
+  /REVOKE INSERT, UPDATE, DELETE ON public\.verification_documents FROM authenticated/,
+);
 assert.match(migration, /DROP POLICY IF EXISTS "addresses insert own"/);
 assert.match(migration, /DROP POLICY IF EXISTS "identity docs delete own"/);
 assert.match(migration, /can_access_kyc_documents\(\)/);
@@ -20,7 +31,10 @@ assert.match(migration, /public\.has_role\(auth\.uid\(\), 'kyc_agent'/);
 assert.match(migration, /CREATE POLICY "identity docs upload own validated"/);
 assert.match(migration, /metadata->>'mimetype'/);
 assert.match(migration, /validate_verification_document_storage_object/);
-assert.match(migration, /REVOKE ALL ON FUNCTION public\.validate_verification_document_storage_object\(\)\s+FROM PUBLIC, anon, authenticated/);
+assert.match(
+  migration,
+  /REVOKE ALL ON FUNCTION public\.validate_verification_document_storage_object\(\)\s+FROM PUBLIC, anon, authenticated/,
+);
 assert.match(migration, /DOCUMENT_METADATA_MISMATCH/);
 assert.match(migration, /customer_addresses_line1_length_check/);
 
