@@ -31,3 +31,26 @@ test("registration validates consent and password confirmation before creating a
   assert.match(form, /registerSchema\.safeParse/);
   assert.match(form, /marketing_consent/);
 });
+
+test("classic registration is validated and executed on the server", () => {
+  const functions = read("src/features/auth/services/registration.functions.ts");
+  const server = read("src/features/auth/services/registration.server.ts");
+  const form = read("src/features/auth/components/RegisterForm.tsx");
+  assert.match(functions, /inputValidator\(\(input: unknown\) => registerSchema\.parse\(input\)\)/);
+  assert.match(functions, /createCustomerRegistration\(data\)/);
+  assert.match(server, /authClient\.auth\.signUp/);
+  assert.match(server, /SUPABASE_PUBLISHABLE_KEY/);
+  assert.doesNotMatch(server, /SUPABASE_SERVICE_ROLE_KEY/);
+  assert.match(form, /registerCustomer\(\{ data: parsed\.data \}\)/);
+  assert.match(form, /supabase\.auth\.setSession/);
+  assert.doesNotMatch(form, /supabase\.auth\.signUp/);
+});
+
+test("email registration metadata is also guarded by the database", () => {
+  const migrations = read("supabase/migrations/20261111100000_auth_registration_server_validation.sql");
+  assert.match(migrations, /BEFORE INSERT ON auth\.users/);
+  assert.match(migrations, /validate_email_registration_metadata/);
+  assert.match(migrations, /char_length\(_first_name\) NOT BETWEEN 2 AND 60/);
+  assert.match(migrations, /terms_accepted/);
+  assert.match(migrations, /_provider = 'email'/);
+});
