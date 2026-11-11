@@ -135,7 +135,7 @@ export async function loadCustomerContext(
     profile = data;
   }
 
-  const { data: verification, error: verificationReadError } = await supabaseAdmin
+  const { data: existingVerification, error: verificationReadError } = await supabaseAdmin
     .from("identity_verifications")
     .select("id, status, submitted_at, decided_at, decision_reason, requested_information")
     .eq("user_id", userId)
@@ -143,6 +143,7 @@ export async function loadCustomerContext(
 
   if (verificationReadError) throw new OnboardingError("IDENTITY_STATUS_UNAVAILABLE");
 
+  let verification = existingVerification;
   if (!verification) {
     const { data, error } = await supabaseAdmin
       .from("identity_verifications")
