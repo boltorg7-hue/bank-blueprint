@@ -201,6 +201,9 @@ $$;
 
 DROP TRIGGER IF EXISTS verification_documents_storage_object_guard
 ON public.verification_documents;
+REVOKE ALL ON FUNCTION public.validate_verification_document_storage_object()
+FROM PUBLIC, anon, authenticated;
+
 CREATE TRIGGER verification_documents_storage_object_guard
 BEFORE INSERT ON public.verification_documents
 FOR EACH ROW
