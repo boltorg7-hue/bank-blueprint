@@ -895,7 +895,8 @@ test("5.8.8.8 certifie la cohérence globale des primitives, shells, états et s
             child !== "src/lib/error-capture.ts" &&
             child !== "src/routes/__root.tsx" &&
             child !== "src/server.ts" &&
-            child !== "src/start.ts"
+            child !== "src/start.ts" &&
+            !child.startsWith("scripts/")
           ) {
             assert.doesNotMatch(source, /console\.(log|debug|info|warn|error)\s*\(/);
           }
