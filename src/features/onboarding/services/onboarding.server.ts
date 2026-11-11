@@ -7,7 +7,6 @@
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import {
   addressStepSchema,
-  ALLOWED_DOCUMENT_MIME_TYPES,
   documentUploadSchema,
   MAX_DOCUMENT_BYTES,
   profileStepSchema,
@@ -48,27 +47,7 @@ async function validateUploadedDocument(
     throw new OnboardingError("INVALID_DOCUMENT_PATH");
   }
   const pathPattern = new RegExp(
-    `^${userId}/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\\.(jpg|jpeg|png|heic|webp|pdf)/**
- * Server-only onboarding logic (§50, §51, §57).
- *
- * Every lifecycle and verification transition happens here, under a verified
- * caller identity. The client can never declare itself verified or active.
- */
-import { supabaseAdmin } from "@/integrations/supabase/client.server";
-import {
-  addressStepSchema,
-  ALLOWED_DOCUMENT_MIME_TYPES,
-  documentUploadSchema,
-  MAX_DOCUMENT_BYTES,
-  profileStepSchema,
-} from "@/features/onboarding/schemas/onboarding.schemas";
-import type { CustomerContext } from "@/domain/onboarding/types";
-import { assertCustomerConsent } from "@/features/auth/services/oauth-consent.server";
-
-const PROFILE_COLUMNS =
-  "id, first_name, middle_name, last_name, date_of_birth, nationality, country_of_residence, occupation, phone, phone_verified_at, lifecycle_state, onboarding_step";
-
-,
+    "^" + userId + "/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\\.(jpg|jpeg|png|heic|webp|pdf)$",
     "i",
   );
   if (!pathPattern.test(data.storagePath)) {
