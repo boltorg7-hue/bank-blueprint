@@ -1,3 +1,4 @@
+import { createDecipheriv } from "node:crypto";
 import type { SmsMessage, SmsProvider, SmsResult } from "./provider";
 
 type AfricaTalkingRecipient = {
@@ -24,10 +25,26 @@ function requiredEnv(name: string) {
   return value;
 }
 
+function decryptOtpPayload(payload: Record<string, unknown>) {
+  const encodedKey = process.env["SMS_PAYLOAD_ENCRYPTION_KEY"]?.trim();
+  if (!encodedKey) throw new Error("SMS_PAYLOAD_ENCRYPTION_KEY_NOT_CONFIGURED");
+  const key = Buffer.from(encodedKey, "base64");
+  if (key.length !== 32 || payload["v"] !== "1") throw new Error("SMS_PAYLOAD_INVALID");
+  const iv = Buffer.from(String(payload["iv"] ?? ""), "base64");
+  const tag = Buffer.from(String(payload["tag"] ?? ""), "base64");
+  const ciphertext = Buffer.from(String(payload["ciphertext"] ?? ""), "base64");
+  if (iv.length !== 12 || tag.length !== 16 || ciphertext.length === 0) throw new Error("SMS_PAYLOAD_INVALID");
+  const decipher = createDecipheriv("aes-256-gcm", key, iv);
+  decipher.setAuthTag(tag);
+  const plaintext = Buffer.concat([decipher.update(ciphertext), decipher.final()]);
+  return JSON.parse(plaintext.toString("utf8")) as { code?: unknown; expires_in_minutes?: unknown };
+}
+
 function renderMessage(message: SmsMessage) {
   if (message.templateKey === "CONTACT_VERIFICATION_CODE") {
-    const code = String(message.payload["code"] ?? "");
-    const expires = String(message.payload["expires_in_minutes"] ?? "10");
+    const decoded = decryptOtpPayload(message.payload);
+    const code = String(decoded.code ?? "");
+    const expires = String(decoded.expires_in_minutes ?? "10");
     if (!/^\d{6}$/.test(code)) throw new Error("SMS_TEMPLATE_INVALID");
     return `RFCBANK : votre code de vérification est ${code}. Il expire dans ${expires} minutes.`;
   }
@@ -54,6 +71,7 @@ export const africaTalkingSmsProvider: SmsProvider = {
 
       const response = await fetch(endpoint, {
         method: "POST",
+        signal: AbortSignal.timeout(30_000),
         headers: {
           Accept: "application/json",
           "Content-Type": "application/x-www-form-urlencoded",
@@ -83,7 +101,7 @@ export const africaTalkingSmsProvider: SmsProvider = {
 
       if (statusCode === 100 || statusCode === 101 || statusCode === 102) {
         return {
-          state: "SENT",
+          state: "ACCEPTED",
           providerReference: recipient?.messageId ?? null,
           errorCode: null,
         };
