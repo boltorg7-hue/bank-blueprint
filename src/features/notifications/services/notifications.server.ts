@@ -17,12 +17,15 @@ export async function dispatchPendingSms(userId:string) {
   if (error) throw new Error("SMS_QUEUE_READ_FAILED");
   if (!rows?.length) return { processed: 0 };
 
-  const providerName = process.env["SMS_PROVIDER"]?.trim().toLowerCase() || "simulation";
+  const providerName = process.env["SMS_PROVIDER"]?.trim().toLowerCase() || "africastalking";
   const { africaTalkingSmsProvider } = providerName === "africastalking"
     ? await import("@/features/notifications/services/sms/africastalking-provider")
-    : { africaTalkingSmsProvider: null };
+    : providerName === "simulation"
+      ? { africaTalkingSmsProvider: (await import("@/features/notifications/services/sms/simulation-provider")).simulationSmsProvider }
+      : { africaTalkingSmsProvider: null };
 
-  const provider = africaTalkingSmsProvider ?? (await import("@/features/notifications/services/sms/simulation-provider")).simulationSmsProvider;
+  if (!africaTalkingSmsProvider) throw new Error("SMS_PROVIDER_UNSUPPORTED");
+  const provider = africaTalkingSmsProvider;
 
   let processed = 0;
   for (const row of rows) {
