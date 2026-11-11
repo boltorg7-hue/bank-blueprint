@@ -52,7 +52,9 @@ test("classic registration is validated and executed on the server", () => {
 });
 
 test("email registration metadata is also guarded by the database", () => {
-  const migrations = read("supabase/migrations/20261111100000_auth_registration_server_validation.sql");
+  const migrations = read(
+    "supabase/migrations/20261111100000_auth_registration_server_validation.sql",
+  );
   assert.ok(migrations.includes("BEFORE INSERT ON auth.users"));
   assert.ok(migrations.includes("validate_email_registration_metadata"));
   assert.ok(migrations.includes("char_length(_first_name) NOT BETWEEN 2 AND 60"));
