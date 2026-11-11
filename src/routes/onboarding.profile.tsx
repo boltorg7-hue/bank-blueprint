@@ -69,8 +69,11 @@ function ProfileStepPage() {
       await invalidate();
       setDirty(false);
       await navigate({ to: "/onboarding", replace: true });
-    } catch {
-      setFormError((en ? "We could not save your details. Please try again." : "Nous n'avons pas pu enregistrer vos informations. Réessayez."));
+    } catch (error) {
+      const code = error instanceof Error ? error.message : "";
+      setFormError(code.includes("PHONE_ALREADY_IN_USE")
+        ? (en ? "This phone number is already associated with another customer account." : "Ce numéro est déjà associé à un autre compte client.")
+        : (en ? "We could not save your details. Please try again." : "Nous n'avons pas pu enregistrer vos informations. Réessayez."));
     } finally {
       setPending(false);
     }
