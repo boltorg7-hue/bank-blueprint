@@ -925,7 +925,7 @@ test("5.8.9 certifie la modernisation UI/UX 2026 de bout en bout", () => {
 
   assert.match(
     packageJson,
-    /"test:certification": "node --test tests\/certification\.test\.mjs tests\/admin-ui-certification\.test\.mjs tests\/auth-registration-certification\.test\.mjs tests\/auth-contact-change-certification\.test\.mjs tests\/oauth-consent-certification\.test\.mjs tests\/step-09-africastalking-sms-certification\.test\.mjs tests\/step-09-international-phone-otp-flow\.test\.mjs"/,
+    /"test:certification": "node --test tests\/certification\.test\.mjs tests\/admin-ui-certification\.test\.mjs tests\/auth-registration-certification\.test\.mjs tests\/auth-contact-change-certification\.test\.mjs tests\/oauth-consent-certification\.test\.mjs tests\/step-09-africastalking-sms-certification\.test\.mjs tests\/step-09-international-phone-otp-flow\.test\.mjs tests\/onboarding-address-document-security\.test\.mjs"/,
   );
 
   // 5.8.1 — thème adaptatif.
