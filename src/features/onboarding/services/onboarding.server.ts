@@ -196,6 +196,7 @@ export async function saveProfileStep(userId: string, input: unknown) {
   const phoneUnchanged = currentProfile.phone === data.phone;
   const phoneVerifiedAt = phoneUnchanged ? currentProfile.phone_verified_at : null;
   const contactVerified = Boolean(phoneVerifiedAt);
+  // Preserve later review states when a customer edits personal details.
   const lifecycleState = contactVerified
     ? currentProfile.lifecycle_state === "CONTACT_VERIFICATION_REQUIRED"
       ? "PROFILE_INCOMPLETE"
