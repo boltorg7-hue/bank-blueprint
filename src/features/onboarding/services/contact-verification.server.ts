@@ -59,8 +59,32 @@ export async function sendContactVerificationCode(userId: string) {
   const challenge = Array.isArray(data) ? data[0] : null;
   if (!challenge?.notification_id) throw new Error("SMS_QUEUE_FAILED");
 
+  const invalidateFailedChallenge = async () => {
+    const now = new Date().toISOString();
+    const [{ error: challengeError }, { error: outboxError }] = await Promise.all([
+      supabaseAdmin
+        .from("phone_verification_codes")
+        .update({ consumed_at: now })
+        .eq("user_id", userId)
+        .eq("phone", profile.phone)
+        .is("consumed_at", null),
+      supabaseAdmin
+        .from("notification_outbox")
+        .update({ status: "FAILED", processed_at: now, last_error_code: "SMS_DELIVERY_FAILED" })
+        .eq("id", challenge.notification_id)
+        .eq("user_id", userId)
+        .eq("status", "PENDING"),
+    ]);
+    if (challengeError || outboxError) throw new Error("SMS_FAILURE_CLEANUP_FAILED");
+  };
+
   const { dispatchPendingSms } = await import("@/features/notifications/services/notifications.server");
-  await dispatchPendingSms(userId);
+  try {
+    await dispatchPendingSms(userId);
+  } catch {
+    await invalidateFailedChallenge();
+    throw new Error("SMS_DELIVERY_FAILED");
+  }
 
   const { data: notification, error: notificationError } = await supabaseAdmin
     .from("notification_outbox")
@@ -68,14 +92,12 @@ export async function sendContactVerificationCode(userId: string) {
     .eq("id", challenge.notification_id)
     .eq("user_id", userId)
     .maybeSingle();
-  if (notificationError) throw new Error("SMS_STATUS_UNAVAILABLE");
+  if (notificationError) {
+    await invalidateFailedChallenge();
+    throw new Error("SMS_STATUS_UNAVAILABLE");
+  }
   if (notification?.status !== "SENT") {
-    await supabaseAdmin
-      .from("phone_verification_codes")
-      .update({ consumed_at: new Date().toISOString() })
-      .eq("user_id", userId)
-      .eq("phone", profile.phone)
-      .is("consumed_at", null);
+    await invalidateFailedChallenge();
     throw new Error(notification?.status === "SIMULATED" ? "SMS_SIMULATED_NOT_DELIVERED" : "SMS_DELIVERY_FAILED");
   }
 
