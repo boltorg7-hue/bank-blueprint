@@ -78,11 +78,20 @@ test("OTP limits, encrypted outbox, provider acceptance and lifecycle progressio
   assert.match(migration, /pg_advisory_xact_lock/);
   assert.match(migration, /'ACCEPTED'/);
   assert.match(migration, /claimed_at/);
-  assert.match(migration, /lifecycle_state = CASE[\\s\\S]*ELSE lifecycle_state/);
-  assert.match(migration, /onboarding_step = CASE[\\s\\S]*ELSE onboarding_step/);
+  assert.match(migration, /lifecycle_state = CASE[\s\S]*ELSE lifecycle_state/);
+  assert.match(migration, /onboarding_step = CASE[\s\S]*ELSE onboarding_step/);
   assert.match(provider, /createDecipheriv/);
   assert.match(provider, /state: "ACCEPTED"/);
   assert.match(provider, /AbortSignal.timeout/);
   assert.match(service, /OTP_USER_DAILY_LIMIT/);
   assert.match(service, /OTP_PHONE_DAILY_LIMIT/);
+});
+
+test("profile editing cannot bypass the atomic phone-change and OTP invalidation path", () => {
+  const onboarding = read("src/features/onboarding/services/onboarding.server.ts");
+  const migration = read("supabase/migrations/20261111140000_otp_security_and_lifecycle_consistency.sql");
+  assert.match(onboarding, /customer_change_pending_phone/);
+  assert.doesNotMatch(onboarding, /phone: data\.phone/);
+  assert.match(migration, /pg_advisory_xact_lock\(hashtextextended\(_phone, 0\)\)/);
+  assert.match(migration, /WHERE phone = _phone AND id <> _user_id/);
 });
