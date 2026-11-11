@@ -30,7 +30,7 @@ test("phone change is international, authenticated and invalidates old OTPs", ()
   assert.ok(migration.includes("SET consumed_at = now()"));
   assert.ok(migration.includes("phone_verified_at = NULL"));
   assert.ok(page.includes("Modifier mon numéro"));
-  assert.ok(page.includes("nouveau numéro de téléphone international"));
+  assert.ok(page.includes("Nouveau numéro de téléphone international"));
 });
 
 test("email change keeps password proof, uniqueness, quota and old-link invalidation", () => {
