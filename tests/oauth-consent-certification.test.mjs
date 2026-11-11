@@ -12,9 +12,7 @@ test("Google and Apple OAuth users must accept terms and privacy before continui
   assert.ok(consentRoute.includes('createFileRoute("/auth/consent")'));
   assert.ok(consentRoute.includes('id="oauth-terms"'));
   assert.ok(consentRoute.includes('id="oauth-privacy"'));
-  assert.ok(
-    consentRoute.includes("disabled={!termsAccepted || !privacyAccepted || pending}"),
-  );
+  assert.ok(consentRoute.includes("disabled={!termsAccepted || !privacyAccepted || pending}"));
   assert.ok(consentRoute.includes("marketingConsent"));
   assert.ok(functions.includes("termsAccepted: z.literal(true)"));
   assert.ok(functions.includes("privacyAccepted: z.literal(true)"));
@@ -23,9 +21,7 @@ test("Google and Apple OAuth users must accept terms and privacy before continui
 
 test("OAuth consent is stored by the server with provider identity and versioned evidence", () => {
   const functions = read("src/features/auth/services/oauth-consent.functions.ts");
-  const migration = read(
-    "supabase/migrations/20261111110000_oauth_consent_security.sql",
-  );
+  const migration = read("supabase/migrations/20261111110000_oauth_consent_security.sql");
 
   assert.ok(functions.includes("context.claims as AuthClaims | null"));
   assert.ok(functions.includes("record_oauth_registration_consent"));
@@ -35,17 +31,9 @@ test("OAuth consent is stored by the server with provider identity and versioned
   assert.ok(migration.includes("terms_version"));
   assert.ok(migration.includes("privacy_version"));
   assert.ok(migration.includes("raw_app_meta_data ->> 'provider'"));
-  assert.ok(
-    migration.includes(
-      "GRANT EXECUTE ON FUNCTION public.record_oauth_registration_consent",
-    ),
-  );
+  assert.ok(migration.includes("GRANT EXECUTE ON FUNCTION public.record_oauth_registration_consent"));
   assert.ok(migration.includes("TO service_role"));
-  assert.ok(
-    migration.includes(
-      "REVOKE ALL ON FUNCTION public.record_oauth_registration_consent",
-    ),
-  );
+  assert.ok(migration.includes("REVOKE ALL ON FUNCTION public.record_oauth_registration_consent"));
 });
 
 test("customers cannot forge or alter consent through direct profile updates", () => {
@@ -54,15 +42,9 @@ test("customers cannot forge or alter consent through direct profile updates", (
   );
 
   assert.ok(migration.includes("NEW.terms_accepted_at := OLD.terms_accepted_at"));
-  assert.ok(
-    migration.includes("NEW.privacy_accepted_at := OLD.privacy_accepted_at"),
-  );
+  assert.ok(migration.includes("NEW.privacy_accepted_at := OLD.privacy_accepted_at"));
   assert.ok(migration.includes("NEW.marketing_consent := OLD.marketing_consent"));
-  assert.ok(
-    migration.includes(
-      "REVOKE INSERT, UPDATE, DELETE ON public.customer_consent_events",
-    ),
-  );
+  assert.ok(migration.includes("REVOKE INSERT, UPDATE, DELETE ON public.customer_consent_events"));
 });
 
 test("OAuth consent is checked before post-login routing, onboarding and banking access", () => {
@@ -77,9 +59,7 @@ test("OAuth consent is checked before post-login routing, onboarding and banking
 });
 
 test("onboarding server functions enforce consent before every protected action", () => {
-  const onboardingFunctions = read(
-    "src/features/onboarding/services/onboarding.functions.ts",
-  );
+  const onboardingFunctions = read("src/features/onboarding/services/onboarding.functions.ts");
   const onboarding = read("src/features/onboarding/services/onboarding.server.ts");
   const guard = read("src/features/auth/services/oauth-consent.server.ts");
 
