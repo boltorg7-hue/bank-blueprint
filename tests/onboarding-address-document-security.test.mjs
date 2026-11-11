@@ -20,6 +20,7 @@ assert.match(migration, /public\.has_role\(auth\.uid\(\), 'kyc_agent'/);
 assert.match(migration, /CREATE POLICY "identity docs upload own validated"/);
 assert.match(migration, /metadata->>'mimetype'/);
 assert.match(migration, /validate_verification_document_storage_object/);
+assert.match(migration, /REVOKE ALL ON FUNCTION public\\.validate_verification_document_storage_object\\(\\)\\s+FROM PUBLIC, anon, authenticated/);
 assert.match(migration, /DOCUMENT_METADATA_MISMATCH/);
 assert.match(migration, /customer_addresses_line1_length_check/);
 
