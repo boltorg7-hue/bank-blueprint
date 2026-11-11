@@ -5,6 +5,7 @@ import { publicMeta } from "@/features/public/lib/seo";
 import { AuthShell } from "@/features/auth/components/AuthShell";
 import { RegisterForm } from "@/features/auth/components/RegisterForm";
 import { GoogleSignInButton } from "@/features/auth/components/GoogleSignInButton";
+import { AppleSignInButton } from "@/features/auth/components/AppleSignInButton";
 import { useLanguage } from "@/components/providers/LanguageProvider";
 
 const meta = publicMeta({
@@ -36,6 +37,7 @@ function RegisterPage() {
             <span className="h-px flex-1 bg-border" />
           </div>
           <GoogleSignInButton onError={setOauthError} />
+          <AppleSignInButton onError={setOauthError} />
           {oauthError ? (
             <p role="alert" className="text-caption text-destructive">
               {oauthError}
