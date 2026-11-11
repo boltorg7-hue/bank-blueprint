@@ -37,7 +37,7 @@ AS $$
 $$;
 
 REVOKE ALL ON FUNCTION public.can_access_kyc_documents() FROM PUBLIC, anon;
-GRANT EXECUTE ON FUNCTION public.can_access_kyc_documents(uuid) TO authenticated, service_role;
+GRANT EXECUTE ON FUNCTION public.can_access_kyc_documents() TO authenticated, service_role;
 
 -- Address changes must pass through customer_save_onboarding_address(), which
 -- locks the profile and enforces the onboarding lifecycle.
@@ -65,7 +65,7 @@ ON public.verification_documents
 FOR SELECT TO authenticated
 USING (
   auth.uid() = user_id
-  OR public.can_access_kyc_documents(auth.uid())
+  OR public.can_access_kyc_documents()
 );
 
 -- Apply the same restricted read boundary to identity-review metadata/history.
@@ -75,7 +75,7 @@ ON public.identity_verifications
 FOR SELECT TO authenticated
 USING (
   auth.uid() = user_id
-  OR public.can_access_kyc_documents(auth.uid())
+  OR public.can_access_kyc_documents()
 );
 
 DROP POLICY IF EXISTS "history select own or staff" ON public.verification_status_history;
@@ -84,7 +84,7 @@ ON public.verification_status_history
 FOR SELECT TO authenticated
 USING (
   auth.uid() = user_id
-  OR public.can_access_kyc_documents(auth.uid())
+  OR public.can_access_kyc_documents()
 );
 
 DROP POLICY IF EXISTS "document status history select own or staff"
@@ -94,7 +94,7 @@ ON public.verification_document_status_history
 FOR SELECT TO authenticated
 USING (
   auth.uid() = user_id
-  OR public.can_access_kyc_documents(auth.uid())
+  OR public.can_access_kyc_documents()
 );
 
 -- Direct Storage reads remain limited to the owner or KYC/compliance staff.
@@ -106,7 +106,7 @@ USING (
   bucket_id = 'identity-documents'
   AND (
     auth.uid()::text = (storage.foldername(name))[1]
-    OR public.can_access_kyc_documents(auth.uid())
+    OR public.can_access_kyc_documents()
   )
 );
 
@@ -159,7 +159,7 @@ DECLARE
 BEGIN
   IF NEW.storage_path !~ (
     '^' || NEW.user_id::text ||
-    '/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\\.(jpg|jpeg|png|heic|webp|pdf)$'
+    '/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.(jpg|jpeg|png|heic|webp|pdf)$'
   ) THEN
     RAISE EXCEPTION 'INVALID_DOCUMENT_PATH';
   END IF;
