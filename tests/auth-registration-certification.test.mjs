@@ -102,3 +102,26 @@ test("email confirmation sends use a strict HTTPS application origin", () => {
   assert.ok(functions.includes("url.search"));
   assert.ok(functions.includes("url.hash"));
 });
+
+
+test("profile onboarding preserves progress and reuses verified contact across all sign-in providers", () => {
+  const server = read("src/features/onboarding/services/onboarding.server.ts");
+  const functions = read("src/features/onboarding/services/onboarding.functions.ts");
+  const page = read("src/routes/onboarding.profile.tsx");
+  assert.ok(functions.includes("data.user.user_metadata"));
+  assert.ok(server.includes("profileNameHints(authMetadata)"));
+  assert.ok(server.includes("Provider names are suggestions only"));
+  assert.ok(server.includes("const phoneUnchanged = currentProfile.phone === data.phone"));
+  assert.ok(server.includes("phone_verified_at: phoneVerifiedAt"));
+  assert.ok(server.includes("CUSTOMER_DOCUMENTS_UNAVAILABLE"));
+  assert.ok(page.includes('navigate({ to: "/onboarding", replace: true })'));
+  assert.ok(page.includes("required={required}"));
+});
+
+test("profile context fails closed instead of treating database read failures as missing onboarding steps", () => {
+  const server = read("src/features/onboarding/services/onboarding.server.ts");
+  assert.ok(server.includes("if (profileReadError) throw new OnboardingError"));
+  assert.ok(server.includes("if (verificationReadError) throw new OnboardingError"));
+  assert.ok(server.includes("if (addressError) throw new OnboardingError"));
+  assert.ok(server.includes("if (documentsError) throw new OnboardingError"));
+});
