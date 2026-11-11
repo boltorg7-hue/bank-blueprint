@@ -83,7 +83,9 @@ test("onboarding server functions enforce consent before every protected action"
   const onboarding = read("src/features/onboarding/services/onboarding.server.ts");
   const guard = read("src/features/auth/services/oauth-consent.server.ts");
 
-  assert.ok(onboardingFunctions.includes("assertCustomerConsent(context.userId)"));
+  assert.ok(onboardingFunctions.includes("await assertConsent(context.userId)"));
+  assert.ok(onboardingFunctions.includes("async function assertConsent(userId: string)"));
+  assert.ok(onboardingFunctions.includes("await assertCustomerConsent(userId)"));
   assert.ok(onboarding.includes("assertCustomerConsent(userId)"));
   assert.ok(guard.includes('provider !== "google" && provider !== "apple"'));
   assert.ok(guard.includes("OAUTH_CONSENT_REQUIRED"));
