@@ -22,6 +22,7 @@ assert.match(provider, /statusCode === 100/);
 assert.match(provider, /state: "ACCEPTED"/);
 assert.match(provider, /createDecipheriv/);
 assert.match(provider, /AbortSignal.timeout/);
+assert.match(provider, /SMS_PROVIDER_ENV_UNSUPPORTED/);
 assert.match(provider, /statusCode === 101/);
 assert.match(provider, /statusCode === 102/);
 assert.match(provider, /providerReference/);
