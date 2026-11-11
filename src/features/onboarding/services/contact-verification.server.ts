@@ -30,7 +30,7 @@ function rpcError(error: { message?: string } | null, fallback: string): never {
   for (const code of [
     "OTP_COOLDOWN", "PHONE_REQUIRED", "PHONE_ALREADY_VERIFIED",
     "CUSTOMER_PROFILE_NOT_FOUND", "ONBOARDING_STATE_LOCKED", "PHONE_UNCHANGED",
-    "INVALID_PHONE", "OTP_USER_DAILY_LIMIT", "OTP_PHONE_DAILY_LIMIT",
+    "INVALID_PHONE", "PHONE_ALREADY_IN_USE", "OTP_USER_DAILY_LIMIT", "OTP_PHONE_DAILY_LIMIT",
   ]) {
     if (message.includes(code)) throw new Error(code);
   }
