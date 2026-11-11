@@ -18,6 +18,20 @@ ALTER TABLE public.notification_outbox
   ADD CONSTRAINT notification_outbox_status_check
   CHECK (status IN ('PENDING', 'PROCESSING', 'ACCEPTED', 'SENT', 'SIMULATED', 'FAILED'));
 
+-- Retire any challenge and erase legacy plaintext OTPs before the new dispatcher runs.
+UPDATE public.phone_verification_codes
+   SET consumed_at = now()
+ WHERE consumed_at IS NULL;
+
+UPDATE public.notification_outbox
+   SET status = CASE WHEN status IN ('PENDING','PROCESSING') THEN 'FAILED' ELSE status END,
+       payload = '{}'::jsonb,
+       processed_at = CASE WHEN status IN ('PENDING','PROCESSING') THEN now() ELSE processed_at END,
+       claimed_at = NULL,
+       last_error_code = CASE WHEN status IN ('PENDING','PROCESSING') THEN 'OTP_PAYLOAD_MIGRATION_REQUIRED' ELSE last_error_code END
+ WHERE channel = 'SMS'
+   AND template_key = 'CONTACT_VERIFICATION_CODE';
+
 -- Replace the plaintext-code RPC argument with an authenticated-encrypted payload.
 DROP FUNCTION IF EXISTS public.customer_create_phone_verification(uuid, text, text, timestamptz);
 
