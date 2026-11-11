@@ -135,7 +135,7 @@ export async function loadCustomerContext(
     profile = data;
   }
 
-  let { data: verification, error: verificationReadError } = await supabaseAdmin
+  const { data: verification, error: verificationReadError } = await supabaseAdmin
     .from("identity_verifications")
     .select("id, status, submitted_at, decided_at, decision_reason, requested_information")
     .eq("user_id", userId)
