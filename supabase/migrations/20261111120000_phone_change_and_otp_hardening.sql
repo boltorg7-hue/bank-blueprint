@@ -33,6 +33,11 @@ BEGIN
      SET consumed_at = now()
    WHERE user_id = _user_id AND consumed_at IS NULL;
 
+  UPDATE public.notification_outbox
+     SET status = 'FAILED', processed_at = now(), last_error_code = 'OTP_SUPERSEDED'
+   WHERE user_id = _user_id AND channel = 'SMS'
+     AND template_key = 'CONTACT_VERIFICATION_CODE' AND status = 'PENDING';
+
   UPDATE public.profiles
      SET phone = _phone,
          phone_verified_at = NULL,
@@ -83,6 +88,11 @@ BEGIN
   UPDATE public.phone_verification_codes
      SET consumed_at = now()
    WHERE user_id = _user_id AND consumed_at IS NULL;
+
+  UPDATE public.notification_outbox
+     SET status = 'FAILED', processed_at = now(), last_error_code = 'OTP_SUPERSEDED'
+   WHERE user_id = _user_id AND channel = 'SMS'
+     AND template_key = 'CONTACT_VERIFICATION_CODE' AND status = 'PENDING';
 
   INSERT INTO public.phone_verification_codes (
     user_id, phone, code_hash, expires_at, attempts
