@@ -67,14 +67,14 @@ export const recordOAuthConsent = createServerFn({ method: "POST" })
       "@/integrations/supabase/client.server"
     );
     const { error } = await supabaseAdmin.rpc(
-      "record_oauth_registration_consent",
+      "record_oauth_registration_consent" as never,
       {
         _user_id: context.userId,
         _provider: provider,
         _terms_version: TERMS_VERSION,
         _privacy_version: PRIVACY_VERSION,
         _marketing_consent: data.marketingConsent,
-      },
+      } as never,
     );
 
     if (error) throw new Error("CONSENT_RECORDING_FAILED");
