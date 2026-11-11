@@ -93,12 +93,24 @@ export function DocumentUploader({
       return;
     }
 
-    const extension = file.name.split(".").pop()?.toLowerCase() ?? "bin";
+    const extensionByMime: Record<string, string> = {
+      "image/jpeg": "jpg",
+      "image/png": "png",
+      "image/heic": "heic",
+      "image/webp": "webp",
+      "application/pdf": "pdf",
+    };
+    const extension = extensionByMime[file.type];
+    if (!extension) {
+      setUploading(false);
+      setError(en ? "This file type is not supported." : "Ce format de fichier n'est pas pris en charge.");
+      return;
+    }
     const storagePath = `${userId}/${crypto.randomUUID()}.${extension}`;
 
     const upload = await supabase.storage
       .from("identity-documents")
-      .upload(storagePath, file, { contentType: file.type, upsert: false });
+      .upload(storagePath, file, { contentType: file.type, cacheControl: "0", upsert: false });
 
     if (upload.error) {
       setUploading(false);
@@ -118,9 +130,12 @@ export function DocumentUploader({
       });
       await invalidate();
       setUploadSuccess(en ? "Document saved successfully." : "Document enregistré avec succès.");
-    } catch {
+    } catch (error) {
       await supabase.storage.from("identity-documents").remove([storagePath]);
-      setError((en ? "We could not save this document. Please try again." : "Nous n'avons pas pu enregistrer ce document. Réessayez."));
+      const code = error instanceof Error ? error.message : "";
+      setError(code.includes("INVALID_DOCUMENT_CONTENT") || code.includes("DOCUMENT_EXTENSION_MISMATCH")
+        ? (en ? "The file content does not match its declared format. Choose a valid document." : "Le contenu du fichier ne correspond pas à son format déclaré. Choisissez un document valide.")
+        : (en ? "We could not save this document. Please try again." : "Nous n'avons pas pu enregistrer ce document. Réessayez."));
     } finally {
       setUploading(false);
       if (inputRef.current) inputRef.current.value = "";
