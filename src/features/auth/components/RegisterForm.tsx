@@ -12,8 +12,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/components/providers/LanguageProvider";
 
 /**
- * First registration step only (§8): identity basics, credentials, consent.
- * The verified phone and banking profile are collected progressively during onboarding.
+ * First registration step only: identity basics, credentials, consent.
+ * Verified phone and banking profile are collected progressively during onboarding.
  */
 export function RegisterForm() {
   const { language } = useLanguage();
@@ -76,8 +76,8 @@ export function RegisterForm() {
       return;
     }
 
-    // With e-mail confirmation enabled, signUp does NOT create a session:
-    // the customer must confirm before continuing (§14).
+    // With email confirmation enabled, signUp does not create a session.
+    // The customer must confirm before continuing.
     if (result.data.session) {
       await navigate({ to: "/onboarding", replace: true });
       return;
@@ -87,15 +87,34 @@ export function RegisterForm() {
 
   return (
     <form onSubmit={handleSubmit} noValidate className="space-y-5">
-      <Field name="firstName" label={en ? "First name" : "Prénom"} autoComplete="given-name" error={errors["firstName"]} />
-      <Field name="lastName" label={en ? "Last name" : "Nom"} autoComplete="family-name" error={errors["lastName"]} />
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <Field
+          name="firstName"
+          label={en ? "First name" : "Prénom"}
+          autoComplete="given-name"
+          error={errors["firstName"]}
+        />
+        <Field
+          name="lastName"
+          label={en ? "Last name" : "Nom"}
+          autoComplete="family-name"
+          error={errors["lastName"]}
+        />
+      </div>
+
       <Field
         name="email"
         label={en ? "Email address" : "Adresse e-mail"}
         type="email"
         autoComplete="email"
+        autoCapitalize="none"
         error={errors["email"]}
       />
+      <p className="-mt-3 text-caption text-muted-foreground">
+        {en
+          ? "A confirmation link will be sent to this address."
+          : "Un lien de confirmation sera envoyé à cette adresse."}
+      </p>
 
       <PasswordField
         name="password"
@@ -111,7 +130,7 @@ export function RegisterForm() {
         error={errors["confirmPassword"]}
       />
 
-      <div className="space-y-3 rounded-xl border border-border bg-surface px-4 py-4">
+      <div className="space-y-4 rounded-xl border border-border bg-surface-sunken p-4 sm:p-5">
         <div className="flex items-start gap-3">
           <Checkbox
             id="terms"
@@ -121,11 +140,11 @@ export function RegisterForm() {
           />
           <Label htmlFor="terms" className="text-body-sm leading-relaxed font-normal">
             {en ? "I accept the" : "J'accepte les"}{" "}
-            <Link to="/terms" className="text-brand underline-offset-4 hover:underline">
+            <Link to="/terms" className="font-medium text-brand underline-offset-4 hover:underline">
               {en ? "terms" : "conditions générales"}
             </Link>{" "}
             {en ? "and the" : "et la"}{" "}
-            <Link to="/privacy" className="text-brand underline-offset-4 hover:underline">
+            <Link to="/privacy" className="font-medium text-brand underline-offset-4 hover:underline">
               {en ? "privacy policy" : "politique de confidentialité"}
             </Link>
             .
@@ -137,27 +156,44 @@ export function RegisterForm() {
           </p>
         ) : null}
 
-        <div className="flex items-start gap-3">
+        <div className="flex items-start gap-3 border-t border-border pt-3">
           <Checkbox
             id="marketing"
             checked={marketing}
             onCheckedChange={(value) => setMarketing(value === true)}
           />
           <Label htmlFor="marketing" className="text-body-sm leading-relaxed font-normal">
-            {en ? "I would like to receive RFC updates (optional)." : "Je souhaite recevoir des informations sur les nouveautés RFC (optionnel)."}
+            {en
+              ? "I would like to receive RF BANK updates (optional)."
+              : "Je souhaite recevoir les actualités de RF BANK (facultatif)."}
           </Label>
         </div>
       </div>
 
       {formError ? (
-        <p role="alert" className="text-body-sm rounded-lg bg-destructive/10 px-3 py-2 text-destructive">
+        <p
+          role="alert"
+          aria-live="polite"
+          className="text-body-sm rounded-lg bg-destructive/10 px-3 py-2 text-destructive"
+        >
           {formError}
         </p>
       ) : null}
 
-      <Button type="submit" className="w-full touch-target" loading={pending} disabled={pending}>
+      <Button
+        type="submit"
+        className="w-full touch-target"
+        loading={pending}
+        loadingLabel={en ? "Creating your account…" : "Création de votre compte…"}
+        disabled={pending}
+      >
         {en ? "Create my account" : "Créer mon compte"}
       </Button>
+      <p className="text-caption text-center text-muted-foreground">
+        {en
+          ? "You will complete identity verification before banking access is enabled."
+          : "La vérification de votre identité sera effectuée avant l'activation de l'accès bancaire."}
+      </p>
     </form>
   );
 }
@@ -167,17 +203,19 @@ function Field({
   label,
   type = "text",
   autoComplete,
+  autoCapitalize,
   error,
 }: {
   name: string;
   label: string;
   type?: string;
   autoComplete: string;
+  autoCapitalize?: string;
   error?: string | undefined;
 }) {
   const id = `register-${name}`;
   return (
-    <div className="space-y-2">
+    <div className="min-w-0 space-y-2">
       <Label htmlFor={id}>{label}</Label>
       <Input
         id={id}
@@ -185,6 +223,8 @@ function Field({
         type={type}
         inputMode={type === "email" ? "email" : undefined}
         autoComplete={autoComplete}
+        autoCapitalize={autoCapitalize}
+        spellCheck={type === "email" ? false : undefined}
         aria-invalid={error ? true : undefined}
         aria-describedby={error ? `${id}-error` : undefined}
         required
