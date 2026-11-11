@@ -30,7 +30,7 @@ assert.match(provider, /CONTACT_VERIFICATION_CODE/);
 assert.doesNotMatch(provider, /console\.(log|error|warn)/);
 
 assert.match(notifications, /dispatchPendingSms/);
-assert.match(notifications, /process\.env\.SMS_PROVIDER/);
+assert.match(notifications, /process\.env\["SMS_PROVIDER"\]/);
 assert.match(notifications, /africastalking-provider/);
 assert.match(notifications, /status: result\.state/);
 assert.match(notifications, /provider_reference: result\.providerReference/);
