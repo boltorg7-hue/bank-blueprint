@@ -90,11 +90,7 @@ function FeaturesPage() {
                     <Icon className="size-6" aria-hidden="true" />
                   </div>
                   <div className="min-w-0 pt-0.5">
-                    <SectionHeader
-                      as="h2"
-                      title={category.label}
-                      description={category.intro}
-                    />
+                    <SectionHeader as="h2" title={category.label} description={category.intro} />
                   </div>
                 </div>
 
@@ -110,9 +106,7 @@ function FeaturesPage() {
                       <h3 className="text-heading-sm mt-4 text-foreground transition-colors group-hover:text-brand">
                         {item.title}
                       </h3>
-                      <p className="text-body-sm mt-2 text-muted-foreground">
-                        {item.description}
-                      </p>
+                      <p className="text-body-sm mt-2 text-muted-foreground">{item.description}</p>
                     </article>
                   ))}
                 </div>
