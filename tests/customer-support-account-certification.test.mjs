@@ -26,4 +26,9 @@ assert.match(profilePage, /to="\/app\/messages"/);
 assert.match(profilePage, /to="\/help"/);
 assert.match(moreRoute, /onClick=\{\(\) => void signOut\(\)\}/);
 
+assert.match(sessionHook, /toast\\.error/);
+assert.ok(
+  sessionHook.indexOf("if (error) throw error") < sessionHook.indexOf("queryClient.clear()"),
+);
+
 console.log("CUSTOMER SUPPORT AND ACCOUNT MANAGEMENT CERTIFICATION: PASS");
