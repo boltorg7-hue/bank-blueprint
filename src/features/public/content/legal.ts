@@ -23,7 +23,9 @@ export type LegalDocument = {
   sections: LegalSection[];
 };
 
-export const PENDING_SECTION_NOTICE = "La finalisation de cette rubrique est en cours. Nous préparons ses informations détaillées afin de vous présenter une documentation claire et cohérente.";
+export const PENDING_SECTION_NOTICE =
+  "La finalisation de cette rubrique est en cours. Nous préparons ses informations détaillées afin de vous présenter une documentation claire et cohérente.";
+
 
 export const TERMS_DOCUMENT: LegalDocument = {
   slug: "terms",
