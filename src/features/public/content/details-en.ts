@@ -46,15 +46,5 @@ const privacyTitles = ["Data collected", "Purposes of processing", "Use of data"
 export function englishLegalDocument(document: LegalDocument): LegalDocument {
   const terms = document.slug === "terms";
   const titles = terms ? termsTitles : privacyTitles;
-  return {
-    ...document,
-    title: terms ? "Terms and conditions" : "Privacy policy",
-    intro: terms
-      ? "We are preparing a clear explanation of the contractual framework that will govern the relationship with our customers: account opening, use of services, mutual obligations and ending the relationship."
-      : "We are preparing a privacy policy that will clearly explain the data concerned, the reasons for processing, retention periods and your rights.",
-    sections: document.sections.map((section, index) => ({
-      ...section,
-      title: `${index + 1}. ${titles[index] ?? section.title}`,
-    })),
-  };
+  return { ...document, title: terms ? "Terms and conditions" : "Privacy policy", intro: terms ? "These terms will describe the contractual relationship between the customer and the bank: account opening, use of services, mutual obligations and ending the relationship." : "This policy will describe the data we collect, why we collect it, how long we retain it and your rights.", sections: document.sections.map((section, index) => ({ ...section, title: `${index + 1}. ${titles[index] ?? section.title}` })) };
 }
