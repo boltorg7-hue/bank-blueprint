@@ -226,118 +226,45 @@ export function ProfilePage() {
               </span>
               <div className="min-w-0">
                 <CardTitle>
-                  {en ? "Personal information and address" : "Informations personnelles et adresse"}
+                  {en ? "Personal information" : "Informations personnelles"}
                 </CardTitle>
                 <CardDescription className="mt-1">
                   {en
-                    ? "Keep your identity and contact details accurate. Verified identity fields may be locked."
-                    : "Maintenez vos informations exactes. Les champs d’identité déjà vérifiés peuvent être verrouillés."}
+                    ? "Manage your legal identity, contact details and primary address."
+                    : "Gérez votre état civil, vos coordonnées et votre adresse principale."}
                 </CardDescription>
               </div>
             </div>
           </CardHeader>
-
-          <CardContent className="space-y-6">
-            <form onSubmit={submitProfile} className="grid gap-4 sm:grid-cols-2">
-              {field("firstName", en ? "First name" : "Prénom", "text", data.identityLocked)}
-              {field(
-                "middleName",
-                en ? "Middle names" : "Autres prénoms",
-                "text",
-                data.identityLocked,
-              )}
-              {field("lastName", en ? "Last name" : "Nom", "text", data.identityLocked)}
-              {field(
-                "dateOfBirth",
-                en ? "Date of birth" : "Date de naissance",
-                "date",
-                data.identityLocked,
-              )}
-              {field(
-                "nationality",
-                en ? "Nationality" : "Nationalité",
-                "text",
-                data.identityLocked,
-              )}
-              {field("countryOfResidence", en ? "Country of residence" : "Pays de résidence")}
-              {field("occupation", en ? "Occupation" : "Profession")}
-              {field("phone", en ? "Phone number" : "Téléphone", "tel")}
-
-              <div className="grid min-w-0 gap-2">
-                <Label htmlFor="profile-email">{en ? "Email address" : "Adresse e-mail"}</Label>
-                <Input id="profile-email" value={data.email ?? ""} disabled />
-                <StatusBadge
-                  label={
-                    data.emailVerified
-                      ? en
-                        ? "Verified"
-                        : "Vérifiée"
-                      : en
-                        ? "Not verified"
-                        : "Non vérifiée"
-                  }
-                  tone={data.emailVerified ? "success" : "pending"}
-                />
-              </div>
-
-              <div className="flex flex-col gap-2 border-t border-border/70 pt-4 sm:col-span-2 sm:flex-row sm:items-center sm:justify-between">
-                {data.identityLocked ? (
-                  <p className="text-xs text-muted-foreground">
-                    {en
-                      ? "Verified identity fields cannot be edited here."
-                      : "Les champs d’identité vérifiés ne peuvent pas être modifiés ici."}
-                  </p>
-                ) : (
-                  <span />
-                )}
-                <Button
-                  type="submit"
-                  className="w-full sm:w-auto"
-                  disabled={saveProfile.isPending}
-                  loading={saveProfile.isPending}
-                  loadingLabel={en ? "Saving…" : "Enregistrement…"}
-                >
-                  {en ? "Save personal details" : "Enregistrer les informations"}
-                </Button>
-              </div>
-            </form>
-
-            <div className="border-t border-border/70 pt-5">
-              <div className="mb-4 flex items-center gap-2">
-                <MapPin aria-hidden className="size-4 text-muted-foreground" />
-                <h3 className="text-sm font-semibold">
-                  {en ? "Primary address" : "Adresse principale"}
-                </h3>
-              </div>
-              <form onSubmit={submitAddress} className="grid gap-4 sm:grid-cols-2">
-                {ADDRESS_FIELDS.map(([key, label, labelEn]) => (
-                  <div className="grid min-w-0 gap-2" key={key}>
-                    <Label htmlFor={`profile-address-${key}`}>{en ? labelEn : label}</Label>
-                    <Input
-                      id={`profile-address-${key}`}
-                      value={address[key] ?? ""}
-                      onChange={(event) =>
-                        setAddress((current) => ({
-                          ...current,
-                          [key]: event.target.value,
-                        }))
-                      }
-                    />
-                  </div>
-                ))}
-                <div className="flex justify-end border-t border-border/70 pt-4 sm:col-span-2">
-                  <Button
-                    type="submit"
-                    className="w-full sm:w-auto"
-                    disabled={saveAddress.isPending}
-                    loading={saveAddress.isPending}
-                    loadingLabel={en ? "Saving…" : "Enregistrement…"}
-                  >
-                    {en ? "Save address" : "Enregistrer l’adresse"}
-                  </Button>
-                </div>
-              </form>
-            </div>
+          <CardContent className="grid gap-3 sm:grid-cols-2">
+            <Link to="/app/profile/personal" className={SHORTCUT_CLASS}>
+              <span className="flex min-w-0 items-center gap-3">
+                <UserRound aria-hidden className="size-5 shrink-0 text-primary" />
+                <span className="min-w-0">
+                  <span className="block text-sm font-semibold">
+                    {en ? "Personal details" : "Informations personnelles"}
+                  </span>
+                  <span className="block text-xs text-muted-foreground">
+                    {en ? "Name, date of birth, nationality and phone" : "Nom, date de naissance, nationalité et téléphone"}
+                  </span>
+                </span>
+              </span>
+              <ArrowUpRight aria-hidden className="size-4 shrink-0 text-muted-foreground" />
+            </Link>
+            <Link to="/app/profile/address" className={SHORTCUT_CLASS}>
+              <span className="flex min-w-0 items-center gap-3">
+                <MapPin aria-hidden className="size-5 shrink-0 text-primary" />
+                <span className="min-w-0">
+                  <span className="block text-sm font-semibold">
+                    {en ? "Primary address" : "Adresse principale"}
+                  </span>
+                  <span className="block text-xs text-muted-foreground">
+                    {data.address.city || data.address.country || (en ? "Not provided" : "Non renseignée")}
+                  </span>
+                </span>
+              </span>
+              <ArrowUpRight aria-hidden className="size-4 shrink-0 text-muted-foreground" />
+            </Link>
           </CardContent>
         </Card>
 
