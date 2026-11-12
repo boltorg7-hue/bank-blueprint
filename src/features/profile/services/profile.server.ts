@@ -4,10 +4,7 @@ import {
   permanentProfileSchema,
   preferencesSchema,
 } from "@/features/profile/schemas/profile.schemas";
-import type {
-  CustomerPreferencesDto,
-  ProfileOverviewDto,
-} from "@/features/profile/types/profile";
+import type { CustomerPreferencesDto, ProfileOverviewDto } from "@/features/profile/types/profile";
 
 const admin = supabaseAdmin;
 
@@ -18,12 +15,8 @@ export async function loadProfile(
   email: string | null,
   emailVerified: boolean,
 ): Promise<ProfileOverviewDto> {
-  const [
-    { data: profile, error },
-    { data: address },
-    { data: verification },
-    { data: accounts },
-  ] = await Promise.all([
+  const [{ data: profile, error }, { data: address }, { data: verification }, { data: accounts }] =
+    await Promise.all([
     admin
       .from("profiles")
       .select(
@@ -37,11 +30,7 @@ export async function loadProfile(
       .eq("user_id", userId)
       .eq("is_primary", true)
       .maybeSingle(),
-    admin
-      .from("identity_verifications")
-      .select("status")
-      .eq("user_id", userId)
-      .maybeSingle(),
+    admin.from("identity_verifications").select("status").eq("user_id", userId).maybeSingle(),
     admin
       .from("bank_accounts")
       .select("public_reference,display_name,currency,status,account_number,iban,bic")
@@ -104,9 +93,7 @@ export async function updateProfile(userId: string, input: unknown) {
     .select("status")
     .eq("user_id", userId)
     .maybeSingle();
-  const locked = ["SUBMITTED", "UNDER_REVIEW", "VERIFIED"].includes(
-    verification?.status ?? "",
-  );
+  const locked = ["SUBMITTED", "UNDER_REVIEW", "VERIFIED"].includes(verification?.status ?? "");
   const payload: Record<string, unknown> = {
     country_of_residence: data.countryOfResidence,
     occupation: data.occupation,
@@ -177,11 +164,7 @@ export async function updateProfileAvatar(userId: string, storagePath: unknown) 
   }
 
   const bytes = new Uint8Array(await image.arrayBuffer());
-  const isJpeg =
-    bytes.length >= 3 &&
-    bytes[0] === 0xff &&
-    bytes[1] === 0xd8 &&
-    bytes[2] === 0xff;
+  const isJpeg = bytes.length >= 3 && bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff;
   const isPng =
     bytes.length >= 8 &&
     bytes[0] === 0x89 &&
@@ -229,14 +212,10 @@ export async function updateProfileAvatar(userId: string, storagePath: unknown) 
   return { avatarUrl: signedAvatar.signedUrl };
 }
 
-export async function loadPreferences(
-  userId: string,
-): Promise<CustomerPreferencesDto> {
+export async function loadPreferences(userId: string): Promise<CustomerPreferencesDto> {
   const { data } = await admin
     .from("customer_preferences")
-    .select(
-      "language,theme,privacy_mode_default,sms_transactions,sms_security,email_service",
-    )
+    .select("language,theme,privacy_mode_default,sms_transactions,sms_security,email_service")
     .eq("user_id", userId)
     .maybeSingle();
 
