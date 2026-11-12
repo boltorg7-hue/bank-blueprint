@@ -108,9 +108,7 @@ export function AddExternalBeneficiaryDialog({
         {trigger ?? (
           <Button variant="outline">
             <Landmark className="size-4" aria-hidden="true" />
-            {en
-              ? "Beneficiary at another bank"
-              : "Bénéficiaire dans une autre banque"}
+            {en ? "Beneficiary at another bank" : "Bénéficiaire dans une autre banque"}
           </Button>
         )}
       </DialogTrigger>
@@ -194,9 +192,7 @@ export function AddExternalBeneficiaryDialog({
 
             <div className="space-y-2">
               <Label htmlFor="external-identifier">
-                {en
-                  ? "Account number or IBAN"
-                  : "Numéro de compte ou IBAN"}
+                {en ? "Account number or IBAN" : "Numéro de compte ou IBAN"}
               </Label>
               <Input
                 id="external-identifier"
@@ -218,9 +214,7 @@ export function AddExternalBeneficiaryDialog({
 
             <div className="space-y-2">
               <Label htmlFor="external-routing">
-                {en
-                  ? "Routing code / BIC (optional)"
-                  : "Code d'acheminement / BIC (optionnel)"}
+                {en ? "Routing code / BIC (optional)" : "Code d'acheminement / BIC (optionnel)"}
               </Label>
               <Input
                 id="external-routing"
@@ -235,9 +229,7 @@ export function AddExternalBeneficiaryDialog({
 
             <div className="space-y-2">
               <Label htmlFor="external-nickname">
-                {en
-                  ? "Label (optional)"
-                  : "Libellé (optionnel)"}
+                {en ? "Label (optional)" : "Libellé (optionnel)"}
               </Label>
               <Input
                 id="external-nickname"
