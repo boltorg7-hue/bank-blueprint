@@ -1,8 +1,9 @@
 import { createCipheriv, createHmac, randomBytes, randomInt } from "node:crypto";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { supabaseAdmin as typedAdmin } from "@/integrations/supabase/client.server";
 import { internationalPhoneSchema } from "@/features/onboarding/schemas/onboarding.schemas";
 
-const supabaseAdmin = typedAdmin as any;
+const supabaseAdmin = typedAdmin as SupabaseClient;
 const OTP_TTL_MINUTES = 10;
 
 function encryptOtpPayload(code: string) {
