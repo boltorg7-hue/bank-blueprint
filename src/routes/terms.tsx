@@ -33,7 +33,24 @@ function TermsPage() {
         description={document.intro}
       />
       <PublicSection>
-        <LegalDocumentView document={document} />
+        <div className="mx-auto max-w-7xl rounded-3xl border border-border/70 bg-card p-5 shadow-sm transition-shadow duration-300 hover:shadow-md motion-reduce:transition-none sm:p-8 lg:p-10">
+          <div className="mb-8 flex flex-wrap items-center justify-between gap-3 border-b border-border/70 pb-5">
+            <div className="space-y-1">
+              <p className="text-overline text-muted-foreground">
+                {en ? "Contractual framework" : "Cadre contractuel"}
+              </p>
+              <p className="text-body-sm text-muted-foreground">
+                {en
+                  ? "Review the document structure and its publication status."
+                  : "Consultez la structure du document et son état de publication."}
+              </p>
+            </div>
+            <span className="inline-flex items-center rounded-full border border-border bg-surface-sunken px-3 py-1 text-caption font-medium text-muted-foreground">
+              {en ? "Legal document" : "Document juridique"}
+            </span>
+          </div>
+          <LegalDocumentView document={document} />
+        </div>
       </PublicSection>
     </PublicLayout>
   );
