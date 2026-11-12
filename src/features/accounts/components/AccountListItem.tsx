@@ -69,15 +69,14 @@ export function AccountListItem({ account }: { account: CustomerAccountSummaryDt
                     )}
               </p>
             ) : (
-              <p className="text-body text-muted-foreground">{en ? "Balance details will appear when available." : "Les informations de solde seront affichées dès leur disponibilité."}</p>
+              <p className="text-body text-muted-foreground">{en
+                ? "Balance details will appear when available."
+                : "Les informations de solde seront affichées dès leur disponibilité."}</p>
             )}
           </div>
         </div>
         <div className="flex shrink-0 flex-col items-end gap-2">
-          <StatusBadge
-            label={statusLabel}
-            tone={accountStatusTone(account.status)}
-          />
+          <StatusBadge label={statusLabel} tone={accountStatusTone(account.status)} />
           <ChevronRight className="size-4 text-muted-foreground" aria-hidden="true" />
         </div>
       </Link>
