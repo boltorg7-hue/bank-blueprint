@@ -33,16 +33,21 @@ const ERRORS: Record<string, string> = {
     "Ce compte est détenu chez nous : enregistrez-le comme bénéficiaire de notre banque, le virement sera immédiat et sans frais.",
   DESTINATION_NOT_SUPPORTED:
     "Nous ne desservons pas encore cette destination. Aucun bénéficiaire n'a été enregistré.",
-  INVALID_DESTINATION: "Les coordonnées saisies ne sont pas valides. Vérifiez-les auprès du bénéficiaire.",
+  INVALID_DESTINATION:
+    "Les coordonnées saisies ne sont pas valides. Vérifiez-les auprès du bénéficiaire.",
   ACCOUNT_RESTRICTED:
     "Votre compte ne permet pas d'ajouter un bénéficiaire pour le moment.",
 };
 
 const ERRORS_EN: Record<string, string> = {
-  DESTINATION_IS_INTERNAL: "This account is held with us: register it as an internal beneficiary; the transfer will be immediate and free.",
-  DESTINATION_NOT_SUPPORTED: "We do not support this destination yet. No beneficiary was saved.",
-  INVALID_DESTINATION: "The details entered are invalid. Check them with the beneficiary.",
-  ACCOUNT_RESTRICTED: "Your account cannot add a beneficiary at the moment.",
+  DESTINATION_IS_INTERNAL:
+    "This account is held with us: register it as an internal beneficiary; the transfer will be immediate and free.",
+  DESTINATION_NOT_SUPPORTED:
+    "We do not support this destination yet. No beneficiary was saved.",
+  INVALID_DESTINATION:
+    "The details entered are invalid. Check them with the beneficiary.",
+  ACCOUNT_RESTRICTED:
+    "Your account cannot add a beneficiary at the moment.",
 };
 
 /**
@@ -73,7 +78,7 @@ export function AddExternalBeneficiaryDialog({
   const railsQuery = useSupportedDestinations();
   const add = useAddExternalBeneficiary();
 
-  const rails = railsQuery.data ?? [];
+  const rails = useMemo(() => railsQuery.data ?? [], [railsQuery.data]);
   const rail = useMemo(
     () => rails.find((item) => item.code === railCode) ?? rails[0],
     [rails, railCode],
@@ -113,9 +118,13 @@ export function AddExternalBeneficiaryDialog({
       </DialogTrigger>
       <DialogContent className="safe-pb max-h-[88vh] max-w-lg overflow-y-auto rounded-2xl">
         <DialogHeader>
-          <DialogTitle>{en ? "Beneficiary at another bank" : "Bénéficiaire dans une autre banque"}</DialogTitle>
+          <DialogTitle>
+            {en ? "Beneficiary at another bank" : "Bénéficiaire dans une autre banque"}
+          </DialogTitle>
           <DialogDescription>
-            {en ? "A transfer to another bank requires checks and is not instant. You can follow each step from the transfer details." : "Un virement vers une autre banque demande des vérifications et n'est pas instantané. Vous suivrez chaque étape depuis le détail du virement."}
+            {en
+              ? "A transfer to another bank requires checks and is not instant. You can follow each step from the transfer details."
+              : "Un virement vers une autre banque demande des vérifications et n'est pas instantané. Vous suivrez chaque étape depuis le détail du virement."}
           </DialogDescription>
         </DialogHeader>
 
@@ -132,7 +141,9 @@ export function AddExternalBeneficiaryDialog({
 
         {rails.length === 0 ? (
           <p className="text-sm text-muted-foreground">
-            {en ? "No external destination is currently supported. You can still transfer to an account held with us." : "Aucune destination externe n'est desservie actuellement. Vous pouvez toujours envoyer un virement vers un compte détenu chez nous."}
+            {en
+              ? "No external destination is currently supported. You can still transfer to an account held with us."
+              : "Aucune destination externe n'est desservie actuellement. Vous pouvez toujours envoyer un virement vers un compte détenu chez nous."}
           </p>
         ) : (
           <div className="space-y-4">
@@ -153,7 +164,9 @@ export function AddExternalBeneficiaryDialog({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="external-name">{en ? "Beneficiary name" : "Nom du bénéficiaire"}</Label>
+              <Label htmlFor="external-name">
+                {en ? "Beneficiary name" : "Nom du bénéficiaire"}
+              </Label>
               <Input
                 id="external-name"
                 value={displayName}
@@ -162,7 +175,11 @@ export function AddExternalBeneficiaryDialog({
                   setDisplayName(event.target.value);
                   setError(null);
                 }}
-                placeholder={en ? "Name shown on the recipient account" : "Nom figurant sur le compte destinataire"}
+                placeholder={
+                  en
+                    ? "Name shown on the recipient account"
+                    : "Nom figurant sur le compte destinataire"
+                }
               />
             </div>
 
@@ -178,7 +195,9 @@ export function AddExternalBeneficiaryDialog({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="external-identifier">{en ? "Account number or IBAN" : "Numéro de compte ou IBAN"}</Label>
+              <Label htmlFor="external-identifier">
+                {en ? "Account number or IBAN" : "Numéro de compte ou IBAN"}
+              </Label>
               <Input
                 id="external-identifier"
                 autoComplete="off"
@@ -191,12 +210,16 @@ export function AddExternalBeneficiaryDialog({
                 placeholder={en ? "e.g. 0098765432" : "Ex. 0098765432"}
               />
               <p className="text-caption text-muted-foreground">
-                {en ? "Only the last digits of this account will be shown afterward." : "Nous n'affichons ensuite que les derniers chiffres de ce compte."}
+                {en
+                  ? "Only the last digits of this account will be shown afterward."
+                  : "Nous n'affichons ensuite que les derniers chiffres de ce compte."}
               </p>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="external-routing">{en ? "Routing code / BIC (optional)" : "Code d'acheminement / BIC (optionnel)"}</Label>
+              <Label htmlFor="external-routing">
+                {en ? "Routing code / BIC (optional)" : "Code d'acheminement / BIC (optionnel)"}
+              </Label>
               <Input
                 id="external-routing"
                 autoComplete="off"
@@ -209,7 +232,9 @@ export function AddExternalBeneficiaryDialog({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="external-nickname">{en ? "Label (optional)" : "Libellé (optionnel)"}</Label>
+              <Label htmlFor="external-nickname">
+                {en ? "Label (optional)" : "Libellé (optionnel)"}
+              </Label>
               <Input
                 id="external-nickname"
                 value={nickname}
@@ -259,7 +284,9 @@ export function AddExternalBeneficiaryDialog({
                         setError(
                           known
                             ? ((en ? ERRORS_EN[known] : ERRORS[known]) ?? code)
-                            : (en ? "The beneficiary could not be saved. Check the details and try again." : "L'enregistrement n'a pas abouti. Vérifiez les coordonnées, puis réessayez."),
+                            : en
+                              ? "The beneficiary could not be saved. Check the details and try again."
+                              : "L'enregistrement n'a pas abouti. Vérifiez les coordonnées, puis réessayez.",
                         );
                       },
                     },
