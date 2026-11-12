@@ -44,12 +44,7 @@ export function BeneficiaryList({ action }: { action?: React.ReactNode }) {
   const beneficiaries = data ?? [];
   const normalizedQuery = searchQuery.trim().toLocaleLowerCase();
   const filteredBeneficiaries = beneficiaries.filter((beneficiary) =>
-    [
-      beneficiary.nickname,
-      beneficiary.displayName,
-      beneficiary.maskedNumber,
-      beneficiary.currency,
-    ]
+    [beneficiary.nickname, beneficiary.displayName, beneficiary.maskedNumber, beneficiary.currency]
       .filter(Boolean)
       .some((value) => value!.toLocaleLowerCase().includes(normalizedQuery)),
   );
@@ -70,7 +65,10 @@ export function BeneficiaryList({ action }: { action?: React.ReactNode }) {
 
   return (
     <>
-      <section className="space-y-4" aria-label={en ? "Saved beneficiaries" : "Bénéficiaires enregistrés"}>
+      <section
+        className="space-y-4"
+        aria-label={en ? "Saved beneficiaries" : "Bénéficiaires enregistrés"}
+      >
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div className="space-y-1">
             <p className="text-sm font-semibold text-foreground">
@@ -90,7 +88,11 @@ export function BeneficiaryList({ action }: { action?: React.ReactNode }) {
             <Input
               value={searchQuery}
               onChange={(event) => setSearchQuery(event.target.value)}
-              placeholder={en ? "Search a recipient or account" : "Rechercher un bénéficiaire ou un compte"}
+              placeholder={
+                en
+                  ? "Search a recipient or account"
+                  : "Rechercher un bénéficiaire ou un compte"
+              }
               aria-label={en ? "Search beneficiaries" : "Rechercher parmi les bénéficiaires"}
               className="h-11 pl-9 pr-10"
             />
@@ -116,7 +118,9 @@ export function BeneficiaryList({ action }: { action?: React.ReactNode }) {
               {en ? "No matching beneficiary" : "Aucun bénéficiaire correspondant"}
             </p>
             <p className="mt-1 text-caption text-muted-foreground">
-              {en ? "Try another name, account suffix or currency." : "Essayez un autre nom, une fin de compte ou une devise."}
+              {en
+                ? "Try another name, account suffix or currency."
+                : "Essayez un autre nom, une fin de compte ou une devise."}
             </p>
             <Button variant="ghost" size="sm" className="mt-2" onClick={() => setSearchQuery("")}>
               {en ? "Clear search" : "Effacer la recherche"}
@@ -141,7 +145,7 @@ export function BeneficiaryList({ action }: { action?: React.ReactNode }) {
                         {beneficiaryLabel(beneficiary)}
                       </p>
                       <p className="mt-1 truncate text-caption text-muted-foreground">
-                        {en ? "Account" : "Compte"} •••• {beneficiary.maskedNumber}
+                        {en ? "Account" : "Compte"}{" "}•••• {beneficiary.maskedNumber}
                       </p>
                     </div>
                     <DropdownMenu>
