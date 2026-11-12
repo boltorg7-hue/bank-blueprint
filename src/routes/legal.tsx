@@ -137,9 +137,7 @@ function LegalPage() {
                 {en ? "Bank contact details" : "Coordonnées de la banque"}
               </h2>
               <LegalIdentityList className="mt-4 rounded-xl border border-border/70 bg-surface-sunken/50 p-4" />
-              <p className="text-caption mt-3 text-muted-foreground">
-                {LEGAL_IDENTITY_NOTICE}
-              </p>
+              <p className="text-caption mt-3 text-muted-foreground">{LEGAL_IDENTITY_NOTICE}</p>
             </section>
           </div>
         </div>
