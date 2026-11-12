@@ -3,6 +3,7 @@ import type { CustomerLifecycleState } from "@/types/customer-lifecycle";
 export type ProfileOverviewDto = {
   email: string | null;
   emailVerified: boolean;
+  avatarUrl: string | null;
   firstName: string;
   middleName: string;
   lastName: string;
