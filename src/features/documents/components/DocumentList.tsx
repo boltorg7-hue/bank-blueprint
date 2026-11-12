@@ -1,11 +1,5 @@
 import { memo, useState } from "react";
-import {
-  FileCheck2,
-  FileText,
-  Mail,
-  ReceiptText,
-  Search,
-} from "lucide-react";
+import { FileCheck2, FileText, Mail, ReceiptText, Search } from "lucide-react";
 import { useLanguage } from "@/components/providers/LanguageProvider";
 
 import { Button } from "@/components/ui/button";
