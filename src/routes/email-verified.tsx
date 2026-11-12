@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { CheckCircle2, Circle, ArrowRight } from "lucide-react";
+import { CheckCircle2, Circle, ArrowRight, ShieldCheck } from "lucide-react";
 
 import { useLanguage } from "@/components/providers/LanguageProvider";
 import { AuthShell } from "@/features/auth/components/AuthShell";
@@ -82,30 +82,52 @@ function EmailVerifiedPage() {
 
   return (
     <AuthShell
+      eyebrow={en ? "ACCOUNT OPENING · STEP 1 OF 6" : "OUVERTURE DU COMPTE · ÉTAPE 1 SUR 6"}
       title={en ? "Your email is confirmed" : "Votre adresse e-mail est confirmée"}
       description={
         en
-          ? "Welcome to RFC FINANCE Bank. Here is what comes next."
-          : "Bienvenue chez RFC FINANCE Bank. Voici les prochaines étapes."
+          ? "Welcome to RFC FINANCE Bank. Your registration can now continue securely."
+          : "Bienvenue chez RFC FINANCE Bank. Votre inscription peut maintenant se poursuivre en toute sécurité."
+      }
+      aside={
+        <div className="rounded-2xl border border-brand/15 bg-brand/5 p-4 sm:p-5">
+          <div className="mb-3 flex size-10 items-center justify-center rounded-xl bg-background text-brand shadow-sm">
+            <ShieldCheck className="size-5" aria-hidden="true" />
+          </div>
+          <h2 className="text-heading-sm font-semibold text-foreground">
+            {en ? "Your information stays protected" : "Vos informations restent protégées"}
+          </h2>
+          <p className="mt-2 text-body-sm leading-relaxed text-muted-foreground">
+            {en
+              ? "Continue using your own details and upload only documents that belong to you. Our team will review your application before banking access is enabled."
+              : "Continuez avec vos propres informations et déposez uniquement des documents qui vous appartiennent. Notre équipe examinera votre dossier avant l’activation de l’accès bancaire."}
+          </p>
+        </div>
       }
     >
       <div className="space-y-5">
         <div
           role="status"
-          className="flex items-start gap-3 rounded-xl border border-success/40 bg-success-muted px-4 py-3"
+          className="flex items-start gap-3 rounded-2xl border border-success/40 bg-success-muted p-4 sm:p-5"
         >
           <CheckCircle2 className="mt-0.5 size-5 shrink-0 text-success" aria-hidden="true" />
-          <div className="min-w-0">
-            <p className="text-body-sm text-foreground">
+          <div className="min-w-0 flex-1">
+            <div className="flex flex-wrap items-center gap-2">
+              <p className="text-label font-semibold text-foreground">
+                {en ? "Step 1 completed" : "Étape 1 terminée"}
+              </p>
+              <span className="rounded-full bg-success/10 px-2.5 py-1 text-caption font-medium text-success">
+                {en ? "Verified" : "Vérifiée"}
+              </span>
+            </div>
+            <p className="mt-1 text-body-sm text-muted-foreground">
               {en
-                ? "Step 1 done: your email address is verified."
-                : "Étape 1 terminée : votre adresse e-mail est vérifiée."}
+                ? "Your email address has been successfully confirmed."
+                : "Votre adresse e-mail a bien été confirmée."}
             </p>
             {context ? (
-              <p className="mt-1 text-body-sm text-muted-foreground">
-                {en
-                  ? "Registration details received for"
-                  : "Premières informations enregistrées pour"}{" "}
+              <p className="mt-2 text-body-sm text-muted-foreground">
+                {en ? "Registration details received for" : "Premières informations enregistrées pour"}{" "}
                 <span className="font-medium text-foreground">
                   {[context.profile.first_name, context.profile.last_name]
                     .filter(Boolean)
@@ -117,23 +139,43 @@ function EmailVerifiedPage() {
           </div>
         </div>
 
-        <ol className="space-y-3">
-          {steps.map(([title, text], i) => (
-            <li
-              key={title}
-              className="flex gap-3 rounded-xl border border-border bg-surface px-4 py-3"
-            >
-              <Circle className="mt-0.5 size-5 shrink-0 text-muted-foreground" aria-hidden="true" />
-              <div>
-                <p className="text-label text-foreground">
-                  {i + 2}. {title}
-                </p>
-                <p className="text-body-sm text-muted-foreground">{text}</p>
-              </div>
-            </li>
-          ))}
-        </ol>
-
+        <div className="space-y-3">
+          <div className="flex items-center justify-between gap-3">
+            <h2 className="text-label font-semibold text-foreground">
+              {en ? "Your next steps" : "Les prochaines étapes"}
+            </h2>
+            <span className="text-caption tabular-nums text-muted-foreground">
+              {en ? "1 of 6 complete" : "1 sur 6 terminée"}
+            </span>
+          </div>
+          <div
+            className="h-1.5 overflow-hidden rounded-full bg-surface-sunken"
+            role="progressbar"
+            aria-label={en ? "Registration progress" : "Progression de l’inscription"}
+            aria-valuemin={0}
+            aria-valuemax={6}
+            aria-valuenow={1}
+          >
+            <div className="h-full w-1/6 rounded-full bg-brand" />
+          </div>
+          <ol className="space-y-3">
+            {steps.map(([title, text], i) => (
+              <li
+                key={title}
+                className="flex gap-3 rounded-2xl border border-border bg-surface p-4 transition-colors hover:border-brand/25 motion-reduce:transition-none"
+              >
+                <span className="flex size-8 shrink-0 items-center justify-center rounded-xl bg-surface-sunken text-caption font-semibold tabular-nums text-muted-foreground">
+                  {i + 2}
+                </span>
+                <div className="min-w-0 flex-1">
+                  <p className="text-label font-medium text-foreground">{title}</p>
+                  <p className="mt-1 text-body-sm leading-relaxed text-muted-foreground">{text}</p>
+                </div>
+                <Circle className="mt-1 size-4 shrink-0 text-muted-foreground/60" aria-hidden="true" />
+              </li>
+            ))}
+          </ol>
+        </div>
         {isPending ? (
           <div className="flex justify-center">
             <Spinner className="size-5" />
