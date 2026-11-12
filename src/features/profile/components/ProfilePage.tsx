@@ -6,13 +6,7 @@ import { useLanguage } from "@/components/providers/LanguageProvider";
 import { ErrorState, LoadingState } from "@/components/feedback";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PageSection } from "@/components/ui/page-section";
@@ -61,11 +55,7 @@ export function ProfilePage() {
   }, [query.data]);
 
   if (query.isPending) {
-    return (
-      <LoadingState
-        label={en ? "Loading your profile…" : "Chargement de votre profil…"}
-      />
-    );
+    return <LoadingState label={en ? "Loading your profile…" : "Chargement de votre profil…"} />;
   }
 
   if (query.isError || !query.data) {
@@ -73,12 +63,7 @@ export function ProfilePage() {
   }
 
   const data = query.data;
-  const field = (
-    key: string,
-    label: string,
-    type = "text",
-    locked = false,
-  ) => (
+  const field = (key: string, label: string, type = "text", locked = false) => (
     <div className="grid min-w-0 gap-2">
       <Label htmlFor={key}>{label}</Label>
       <Input
@@ -86,9 +71,7 @@ export function ProfilePage() {
         type={type}
         value={profile[key] ?? ""}
         disabled={locked}
-        onChange={(event) =>
-          setProfile((current) => ({ ...current, [key]: event.target.value }))
-        }
+        onChange={(event) => setProfile((current) => ({ ...current, [key]: event.target.value }))}
       />
     </div>
   );
@@ -97,11 +80,7 @@ export function ProfilePage() {
     event.preventDefault();
     try {
       await saveProfile.mutateAsync(profile);
-      toast.success(
-        en
-          ? "Personal information saved."
-          : "Informations personnelles enregistrées.",
-      );
+      toast.success(en ? "Personal information saved." : "Informations personnelles enregistrées.");
     } catch {
       toast.error(
         en
@@ -117,7 +96,11 @@ export function ProfilePage() {
       await saveAddress.mutateAsync(address);
       toast.success(en ? "Address saved." : "Adresse enregistrée.");
     } catch {
-      toast.error(en ? "Your address could not be saved." : "L’adresse n’a pas pu être enregistrée.");
+      toast.error(
+        en
+          ? "Your address could not be saved."
+          : "L’adresse n’a pas pu être enregistrée.",
+      );
     }
   }
 
@@ -190,10 +173,25 @@ export function ProfilePage() {
           <CardContent>
             <form onSubmit={submitProfile} className="grid gap-4 sm:grid-cols-2">
               {field("firstName", en ? "First name" : "Prénom", "text", data.identityLocked)}
-              {field("middleName", en ? "Middle names" : "Autres prénoms", "text", data.identityLocked)}
+              {field(
+                "middleName",
+                en ? "Middle names" : "Autres prénoms",
+                "text",
+                data.identityLocked,
+              )}
               {field("lastName", en ? "Last name" : "Nom", "text", data.identityLocked)}
-              {field("dateOfBirth", en ? "Date of birth" : "Date de naissance", "date", data.identityLocked)}
-              {field("nationality", en ? "Nationality" : "Nationalité", "text", data.identityLocked)}
+              {field(
+                "dateOfBirth",
+                en ? "Date of birth" : "Date de naissance",
+                "date",
+                data.identityLocked,
+              )}
+              {field(
+                "nationality",
+                en ? "Nationality" : "Nationalité",
+                "text",
+                data.identityLocked,
+              )}
               {field("countryOfResidence", en ? "Country of residence" : "Pays de résidence")}
               {field("occupation", en ? "Occupation" : "Profession")}
               {field("phone", en ? "Phone number" : "Téléphone", "tel")}
@@ -203,7 +201,15 @@ export function ProfilePage() {
                 <Input id="profile-email" value={data.email ?? ""} disabled />
                 <div className="flex flex-wrap items-center gap-2">
                   <StatusBadge
-                    label={data.emailVerified ? (en ? "Verified" : "Vérifiée") : (en ? "Not verified" : "Non vérifiée")}
+                    label={
+                      data.emailVerified
+                        ? en
+                          ? "Verified"
+                          : "Vérifiée"
+                        : en
+                          ? "Not verified"
+                          : "Non vérifiée"
+                    }
                     tone={data.emailVerified ? "success" : "pending"}
                   />
                   <p className="text-xs text-muted-foreground">
@@ -357,7 +363,7 @@ export function ProfilePage() {
                       tone={account.status === "ACTIVE" ? "success" : "pending"}
                     />
                   </div>
-                  {(account.iban || account.bic) ? (
+                  {account.iban || account.bic ? (
                     <div className="mt-3 grid gap-2 border-t border-border/70 pt-3 sm:grid-cols-2">
                       {account.iban ? (
                         <div className="min-w-0">
@@ -381,7 +387,9 @@ export function ProfilePage() {
               ))
             ) : (
               <p className="rounded-xl border border-dashed border-border p-4 text-sm text-muted-foreground">
-                {en ? "No bank account opened yet." : "Aucun compte bancaire ouvert pour le moment."}
+                {en
+                  ? "No bank account opened yet."
+                  : "Aucun compte bancaire ouvert pour le moment."}
               </p>
             )}
           </CardContent>
@@ -415,7 +423,7 @@ function ProfileSummary({
         <p className="text-xs text-muted-foreground">{label}</p>
         <p className="truncate text-sm font-medium text-foreground">{value}</p>
         <StatusBadge
-          label={verified ? (en ? "Verified" : "Vérifiée") : (en ? "To verify" : "À vérifier")}
+          label={verified ? (en ? "Verified" : "Vérifiée") : en ? "To verify" : "À vérifier"}
           tone={verified ? "success" : "pending"}
         />
       </div>
