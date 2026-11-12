@@ -136,17 +136,23 @@ function DashboardPage() {
                   ? "Move money when you need it."
                   : "Déplacez votre argent quand vous en avez besoin."}
               </p>
-              <Link
-                to="/app/transfers"
-                aria-disabled={!canTransact}
-                className={cn(
-                  "press-feedback inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-brand px-5 py-2.5 text-sm font-semibold text-brand-foreground shadow-sm transition hover:brightness-95",
-                  !canTransact && "pointer-events-none opacity-50",
-                )}
-              >
-                <Send className="size-4" aria-hidden="true" />
-                {en ? "Make a transfer" : "Faire un virement"}
-              </Link>
+              {canTransact ? (
+                <Link
+                  to="/app/transfers"
+                  className="press-feedback inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-brand px-5 py-2.5 text-sm font-semibold text-brand-foreground shadow-sm transition hover:brightness-95"
+                >
+                  <Send className="size-4" aria-hidden="true" />
+                  {en ? "Make a transfer" : "Faire un virement"}
+                </Link>
+              ) : (
+                <span
+                  aria-disabled="true"
+                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-brand px-5 py-2.5 text-sm font-semibold text-brand-foreground opacity-50"
+                >
+                  <Send className="size-4" aria-hidden="true" />
+                  {en ? "Make a transfer" : "Faire un virement"}
+                </span>
+              )}
             </div>
 
             <section aria-labelledby="accounts-heading" className="space-y-3.5 sm:space-y-4">
