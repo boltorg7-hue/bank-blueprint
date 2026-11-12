@@ -389,7 +389,9 @@ function NotificationCard({
     >
       <CardContent className="flex h-full flex-col gap-4 p-4 sm:p-5">
         <div className="flex items-start gap-3">
-          <span className={`flex size-11 shrink-0 items-center justify-center rounded-xl ${critical ? "bg-danger/10 text-danger" : warning ? "bg-warning/10 text-warning" : "bg-primary/10 text-primary"}`}>
+          <span
+            className={`flex size-11 shrink-0 items-center justify-center rounded-xl ${critical ? "bg-danger/10 text-danger" : warning ? "bg-warning/10 text-warning" : "bg-primary/10 text-primary"}`}
+          >
             <Icon aria-hidden className="size-5" />
           </span>
           <div className="min-w-0 flex-1 space-y-1">
