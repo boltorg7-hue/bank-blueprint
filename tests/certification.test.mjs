@@ -925,6 +925,7 @@ test("5.8.9 certifie la modernisation UI/UX 2026 de bout en bout", () => {
   const styles = read("src/styles.css");
 
   assert.ok(packageJson.includes("tests/customer-profile-banking-certification.test.mjs"));
+  assert.ok(packageJson.includes("tests/customer-profile-preferences-certification.test.mjs"));
   // 5.8.1 — thème adaptatif.
   assert.match(theme, /ThemeMode = "light" \| "dark" \| "system"/);
   assert.match(theme, /prefers-color-scheme: dark/);
