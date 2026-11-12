@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { MapPin, ShieldCheck, UserRound, WalletCards } from "lucide-react";
+import { Mail, MapPin, Phone, ShieldCheck, WalletCards } from "lucide-react";
 import { toast } from "sonner";
 
 import { useLanguage } from "@/components/providers/LanguageProvider";
@@ -142,18 +142,21 @@ export function ProfilePage() {
         <CardContent className="grid gap-4 p-4 sm:grid-cols-3 sm:p-5">
           <ProfileSummary
             icon="identity"
+            en={en}
             label={en ? "Identity verification" : "Vérification d’identité"}
             value={data.identityStatus}
             verified={data.identityStatus === "VERIFIED"}
           />
           <ProfileSummary
             icon="email"
+            en={en}
             label={en ? "Email address" : "Adresse e-mail"}
             value={data.email ?? (en ? "Not provided" : "Non renseignée")}
             verified={data.emailVerified}
           />
           <ProfileSummary
             icon="phone"
+            en={en}
             label={en ? "Phone number" : "Numéro de téléphone"}
             value={data.phone || (en ? "Not provided" : "Non renseigné")}
             verified={data.phoneVerified}
@@ -390,16 +393,18 @@ export function ProfilePage() {
 
 function ProfileSummary({
   icon,
+  en,
   label,
   value,
   verified,
 }: {
   icon: "identity" | "email" | "phone";
+  en: boolean;
   label: string;
   value: string;
   verified: boolean;
 }) {
-  const Icon = icon === "identity" ? ShieldCheck : icon === "email" ? UserRound : MapPin;
+  const Icon = icon === "identity" ? ShieldCheck : icon === "email" ? Mail : Phone;
 
   return (
     <div className="flex min-w-0 items-center gap-3">
@@ -410,7 +415,7 @@ function ProfileSummary({
         <p className="text-xs text-muted-foreground">{label}</p>
         <p className="truncate text-sm font-medium text-foreground">{value}</p>
         <StatusBadge
-          label={verified ? "Verified" : "To verify"}
+          label={verified ? (en ? "Verified" : "Vérifiée") : (en ? "To verify" : "À vérifier")}
           tone={verified ? "success" : "pending"}
         />
       </div>
