@@ -121,6 +121,17 @@ test("les composants et routes n’utilisent le client service-role que dans le 
   }
 });
 
+test("le support client valide ses curseurs et limite les recherches à la page chargée", () => {
+  const support = read("src/features/support/services/support.server.ts");
+  const ui = read("src/features/support/components/SupportCenter.tsx");
+  assert.match(support, /SUPPORT_CURSOR_UUID/);
+  assert.match(support, /SUPPORT_CURSOR_TIMESTAMP/);
+  assert.match(support, /INVALID_SUPPORT_CURSOR/);
+  assert.match(support, /eq\("customer_user_id", userId\)/);
+  assert.match(ui, /Rechercher sur cette page/);
+  assert.match(ui, /Filtrer cette page/);
+});
+
 test("la messagerie est uniquement client vers service client", () => {
   const migration = read("supabase/migrations/20260924120000_customer_support_messaging.sql");
   assert.match(migration, /customer_user_id=auth\.uid\(\)/);
