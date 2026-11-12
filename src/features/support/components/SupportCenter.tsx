@@ -266,12 +266,12 @@ export function SupportCenter() {
 
       <div className="grid gap-2 sm:grid-cols-3">
         <SummaryTile
-          label={en ? "On this page" : "Sur cette page"}
+          label={en ? "Conversations on this page" : "Conversations de cette page"}
           value={query.data?.items.length ?? 0}
           icon="inbox"
         />
         <SummaryTile
-          label={en ? "Awaiting your reply" : "Votre réponse attendue"}
+          label={en ? "Replies due on this page" : "Réponses attendues sur cette page"}
           value={
             (query.data?.items ?? []).filter((thread) => thread.status === "WAITING_CUSTOMER")
               .length
@@ -279,7 +279,7 @@ export function SupportCenter() {
           icon="reply"
         />
         <SummaryTile
-          label={en ? "In progress" : "En cours"}
+          label={en ? "In progress on this page" : "En cours sur cette page"}
           value={
             (query.data?.items ?? []).filter((thread) =>
               ["OPEN", "WAITING_SUPPORT"].includes(thread.status),
