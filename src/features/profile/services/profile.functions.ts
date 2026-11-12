@@ -1,19 +1,13 @@
 import { createServerFn } from "@tanstack/react-start";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import type {
-  CustomerPreferencesDto,
-  ProfileOverviewDto,
-} from "@/features/profile/types/profile";
+import type { CustomerPreferencesDto, ProfileOverviewDto } from "@/features/profile/types/profile";
 
 export const getProfileOverview = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<ProfileOverviewDto> => {
     const service = await import("@/features/profile/services/profile.server");
-    const email =
-      typeof context.claims["email"] === "string"
-        ? context.claims["email"]
-        : null;
+    const email = typeof context.claims["email"] === "string" ? context.claims["email"] : null;
 
     return service.loadProfile(
       context.userId,
