@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { AlertTriangle, Check, ShieldCheck } from "lucide-react";
 import { useLanguage } from "@/components/providers/LanguageProvider";
-import { securityEn } from "@/features/public/content/details-en";
+import { SECURITY_CONTENT_EN } from "@/features/public/content/security";
 
 import { PublicLayout } from "@/components/layout/PublicLayout";
 import { PageHero } from "@/features/public/components/PageHero";
@@ -31,9 +31,9 @@ export const Route = createFileRoute("/security")({
 function SecurityPage() {
   const { language } = useLanguage();
   const en = language === "en";
-  const intro = en ? securityEn.intro : SECURITY_INTRO;
-  const responsibilities = en ? securityEn.responsibilities : CUSTOMER_RESPONSIBILITIES;
-  const steps = en ? securityEn.steps : SUSPICIOUS_ACTIVITY_STEPS;
+  const intro = en ? SECURITY_CONTENT_EN.intro : SECURITY_INTRO;
+  const responsibilities = en ? SECURITY_CONTENT_EN.responsibilities : CUSTOMER_RESPONSIBILITIES;
+  const steps = en ? SECURITY_CONTENT_EN.steps : SUSPICIOUS_ACTIVITY_STEPS;
 
   return (
     <PublicLayout>
@@ -86,10 +86,10 @@ function SecurityPage() {
                   <Icon className="size-5 text-brand" aria-hidden="true" />
                 </span>
                 <h3 className="text-heading-sm mt-5 text-foreground">
-                  {en ? securityEn.protections[index]?.[0] : item.title}
+                  {en ? SECURITY_CONTENT_EN.protections[index]?.[0] : item.title}
                 </h3>
                 <p className="text-body-sm mt-2 text-muted-foreground">
-                  {en ? securityEn.protections[index]?.[1] : item.description}
+                  {en ? SECURITY_CONTENT_EN.protections[index]?.[1] : item.description}
                 </p>
               </article>
             );
@@ -150,11 +150,7 @@ function SecurityPage() {
       </PublicSection>
 
       <CtaSection
-        title={
-          en
-            ? "Stay in control of your account access"
-            : "Gardez le contrôle de vos accès"
-        }
+        title={en ? "Stay in control of your account access" : "Gardez le contrôle de vos accès"}
         description={
           en
             ? "Update your password, review recorded sessions and close other sessions from your security area."
