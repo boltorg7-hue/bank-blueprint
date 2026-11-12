@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import {
   ArrowUpRight,
   CircleHelp,
@@ -13,34 +12,16 @@ import {
   WalletCards,
 } from "lucide-react";
 import { Link } from "@tanstack/react-router";
-import { toast } from "sonner";
 
 import { useLanguage } from "@/components/providers/LanguageProvider";
 import { ErrorState, LoadingState } from "@/components/feedback";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { PageSection } from "@/components/ui/page-section";
 import { StatusBadge } from "@/components/ui/status-badge";
-import {
-  useProfileOverview,
-  useSaveAddress,
-  useSaveProfile,
-} from "@/features/profile/hooks/useProfile";
+import { useProfileOverview } from "@/features/profile/hooks/useProfile";
 import { LIFECYCLE_LABELS } from "@/types/customer-lifecycle";
-
-type Form = Record<string, string>;
-
-const ADDRESS_FIELDS = [
-  ["country", "Pays", "Country"],
-  ["addressLine1", "Adresse", "Address"],
-  ["addressLine2", "Complément d’adresse", "Address line 2"],
-  ["city", "Ville", "City"],
-  ["region", "Région", "Region"],
-  ["postalCode", "Code postal", "Postal code"],
-] as const;
 
 const SECTION_ICON_CLASS =
   "flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary";
@@ -51,29 +32,7 @@ export function ProfilePage() {
   const { language } = useLanguage();
   const en = language === "en";
   const query = useProfileOverview();
-  const saveProfile = useSaveProfile();
-  const saveAddress = useSaveAddress();
-  const [profile, setProfile] = useState<Form>({});
-  const [address, setAddress] = useState<Form>({});
-
-  useEffect(() => {
-    if (!query.data) return;
-
-    const data = query.data;
-    setProfile({
-      firstName: data.firstName,
-      middleName: data.middleName,
-      lastName: data.lastName,
-      dateOfBirth: data.dateOfBirth,
-      nationality: data.nationality,
-      countryOfResidence: data.countryOfResidence,
-      occupation: data.occupation,
-      phone: data.phone,
-    });
-    setAddress(data.address);
-  }, [query.data]);
-
-  if (query.isPending) {
+    if (query.isPending) {
     return <LoadingState label={en ? "Loading your profile…" : "Chargement de votre profil…"} />;
   }
 
@@ -89,47 +48,6 @@ export function ProfilePage() {
     .join("")
     .slice(0, 2)
     .toUpperCase();
-
-  const field = (key: string, label: string, type = "text", locked = false) => (
-    <div className="grid min-w-0 gap-2">
-      <Label htmlFor={key}>{label}</Label>
-      <Input
-        id={key}
-        type={type}
-        value={profile[key] ?? ""}
-        disabled={locked}
-        onChange={(event) => setProfile((current) => ({ ...current, [key]: event.target.value }))}
-      />
-    </div>
-  );
-
-  async function submitProfile(event: React.FormEvent) {
-    event.preventDefault();
-
-    try {
-      await saveProfile.mutateAsync(profile);
-      toast.success(en ? "Personal information saved." : "Informations personnelles enregistrées.");
-    } catch {
-      toast.error(
-        en
-          ? "Your information could not be saved."
-          : "Les informations n’ont pas pu être enregistrées.",
-      );
-    }
-  }
-
-  async function submitAddress(event: React.FormEvent) {
-    event.preventDefault();
-
-    try {
-      await saveAddress.mutateAsync(address);
-      toast.success(en ? "Address saved." : "Adresse enregistrée.");
-    } catch {
-      toast.error(
-        en ? "Your address could not be saved." : "L’adresse n’a pas pu être enregistrée.",
-      );
-    }
-  }
 
   return (
     <div className="mx-auto w-full max-w-5xl space-y-5">
