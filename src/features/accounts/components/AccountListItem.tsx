@@ -45,7 +45,10 @@ export function AccountListItem({ account }: { account: CustomerAccountSummaryDt
         params={{ accountRef: account.reference }}
         className="native-surface press-feedback group flex min-h-28 w-full items-center gap-3 rounded-2xl p-4 text-left motion-safe:transition-[border-color,box-shadow,transform] motion-safe:duration-150 hover:-translate-y-0.5 hover:border-brand/30 hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background motion-reduce:transform-none motion-reduce:transition-none sm:gap-4 sm:p-5"
       >
-        <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-brand/5 text-brand ring-1 ring-inset ring-brand/10 transition-colors motion-safe:duration-200 group-hover:bg-brand/10" aria-hidden="true">
+        <span
+          className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-brand/5 text-brand ring-1 ring-inset ring-brand/10 transition-colors motion-safe:duration-200 group-hover:bg-brand/10"
+          aria-hidden="true"
+        >
           <WalletCards className="size-5" strokeWidth={1.8} />
         </span>
         <div className="min-w-0 flex-1">
