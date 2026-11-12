@@ -183,7 +183,7 @@ export function ProfileIdentityPage() {
           <CardContent className="space-y-3">
             <IdentityRow
               label={en ? "Identity verification" : "Vérification d’identité"}
-              value={data.identityStatus}
+              value={identityStatusLabel(data.identityStatus, en)}
               verified={data.identityStatus === "VERIFIED"}
             />
             <IdentityRow
@@ -207,6 +207,19 @@ export function ProfileIdentityPage() {
       </PageSection>
     </div>
   );
+}
+
+function identityStatusLabel(status: string, en: boolean) {
+  const labels: Record<string, string> = {
+    VERIFIED: en ? "Verified" : "Vérifiée",
+    UNDER_REVIEW: en ? "Under review" : "En cours de vérification",
+    SUBMITTED: en ? "Submitted" : "Dossier transmis",
+    ADDITIONAL_DOCUMENT_REQUIRED: en ? "Documents required" : "Documents à fournir",
+    REJECTED: en ? "Action required" : "Action requise",
+    NOT_STARTED: en ? "Not started" : "Non commencée",
+  };
+
+  return labels[status] ?? (en ? "In progress" : "En cours");
 }
 
 function IdentityRow({
