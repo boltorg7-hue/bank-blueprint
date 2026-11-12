@@ -24,8 +24,7 @@ export const SECURITY_INTRO = {
 export const SECURITY_PROTECTIONS: { title: string; description: string; icon: LucideIcon }[] = [
   {
     title: "Accès personnel",
-    description:
-      "L'accès à votre espace est personnel et s'effectue avec vos identifiants.",
+    description: "L'accès à votre espace est personnel et s'effectue avec vos identifiants.",
     icon: KeyRound,
   },
   {
