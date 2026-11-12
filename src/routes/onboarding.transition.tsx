@@ -112,18 +112,21 @@ function TransitionPage() {
 
   if (isPending) {
     return (
-      <div className="mx-auto flex min-h-[80vh] w-full max-w-md flex-col items-center justify-center px-6 py-12">
+      <div className="flex min-h-screen items-center justify-center bg-background px-4 py-10 sm:px-6">
+        <div className="mx-auto flex min-h-[70vh] w-full max-w-lg flex-col items-center justify-center rounded-3xl border border-border bg-card px-6 py-12 shadow-sm sm:px-10">
         <Spinner className="size-7 text-primary" />
         <p className="mt-4 text-body-sm text-muted-foreground">
           {en ? "Preparing your application…" : "Préparation de votre dossier…"}
         </p>
+        </div>
       </div>
     );
   }
 
   if (isError || !context) {
     return (
-      <div className="mx-auto flex min-h-[80vh] w-full max-w-md flex-col justify-center px-6 py-12">
+      <div className="flex min-h-screen items-center justify-center bg-background px-4 py-10 sm:px-6">
+        <div className="mx-auto flex min-h-[60vh] w-full max-w-lg flex-col justify-center rounded-3xl border border-border bg-card px-6 py-10 shadow-sm sm:px-10">
         <div className="rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-4">
           <p className="text-body-sm text-destructive">
             {en
@@ -145,6 +148,7 @@ function TransitionPage() {
         >
           {en ? "View application status" : "Voir le statut du dossier"}
         </Button>
+        </div>
       </div>
     );
   }
@@ -153,8 +157,9 @@ function TransitionPage() {
   const progress = lifecycle === "ACTIVE" ? 100 : Math.round((done / steps.length) * 100);
 
   return (
-    <div className="mx-auto flex min-h-[80vh] w-full max-w-md flex-col justify-center px-6 py-12">
-      <div className="mx-auto mb-8 grid size-20 place-items-center rounded-full bg-primary/10 animate-in zoom-in-75 duration-700">
+    <div className="flex min-h-screen items-center justify-center bg-background px-4 py-10 sm:px-6">
+      <div className="mx-auto flex w-full max-w-lg flex-col justify-center rounded-3xl border border-border bg-card px-6 py-8 shadow-sm sm:px-10 sm:py-10">
+      <div className="mx-auto mb-7 grid size-20 place-items-center rounded-2xl border border-primary/15 bg-primary/10 animate-in zoom-in-75 duration-700">
         <ShieldCheck className="size-10 text-primary" aria-hidden="true" />
       </div>
 
@@ -191,7 +196,7 @@ function TransitionPage() {
         />
       </div>
 
-      <ol className="mt-6 space-y-3" aria-live="polite">
+      <ol className="mt-7 space-y-3" aria-live="polite">
         {steps.map(([Icon, label], index) => {
           const state = index < done ? "done" : index === done ? "active" : "todo";
 
@@ -225,7 +230,7 @@ function TransitionPage() {
         })}
       </ol>
 
-      <div className="mt-8 rounded-xl border border-border bg-surface px-4 py-4">
+      <div className="mt-8 rounded-2xl border border-border bg-surface px-4 py-4">
         <p className="text-label text-foreground">{en ? "Current status" : "Statut actuel"}</p>
 
         <p className="mt-1 text-body-sm text-muted-foreground">
@@ -247,6 +252,7 @@ function TransitionPage() {
       >
         {en ? "View application status" : "Voir le statut de mon dossier"}
       </Button>
+      </div>
     </div>
   );
 }
