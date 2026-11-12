@@ -1,7 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { NotificationCenterDto } from "@/domain/notifications/types";
 
-type Client = SupabaseClient<any, any, any>;
+type Client = SupabaseClient;
 
 export async function dispatchPendingSms(userId: string) {
   const providerName = process.env["SMS_PROVIDER"]?.trim().toLowerCase() || "africastalking";
@@ -19,7 +19,7 @@ export async function dispatchPendingSms(userId: string) {
   if (!africaTalkingSmsProvider) throw new Error("SMS_PROVIDER_UNSUPPORTED");
   const provider = africaTalkingSmsProvider;
   const adminModule = await import("@/integrations/supabase/client.server");
-  const admin = adminModule.supabaseAdmin as any;
+  const admin = adminModule.supabaseAdmin as SupabaseClient;
 
   // Claim rows atomically in PostgreSQL. Concurrent requests cannot dispatch
   // the same pending SMS because the RPC locks candidates with SKIP LOCKED.
@@ -106,7 +106,7 @@ export async function loadNotifications(
     : "ALL";
   const cursor = decodeNotificationCursor(options.cursor);
   let query = client
-    .from("notifications" as any)
+    .from("notifications")
     .select("id,category,severity,title,body,resource_path,read_at,created_at")
     .eq("user_id", userId)
     .is("archived_at", null)
@@ -121,7 +121,7 @@ export async function loadNotifications(
   const [{ data, error }, { count: unreadCount, error: countError }] = await Promise.all([
     query,
     client
-      .from("notifications" as any)
+      .from("notifications")
       .select("id", { count: "exact", head: true })
       .eq("user_id", userId)
       .is("archived_at", null)
@@ -130,7 +130,7 @@ export async function loadNotifications(
   if (error || countError) throw new Error("NOTIFICATIONS_UNAVAILABLE");
   const rows = data ?? [];
   const hasNext = rows.length > NOTIFICATION_PAGE_SIZE;
-  const items = rows.slice(0, NOTIFICATION_PAGE_SIZE).map((item: any) => ({
+  const items = rows.slice(0, NOTIFICATION_PAGE_SIZE).map((item) => ({
     id: String(item.id),
     category: String(item.category),
     severity: String(item.severity),
@@ -163,7 +163,7 @@ export async function markNotification(
       ? { read_at: new Date().toISOString() }
       : { archived_at: new Date().toISOString(), read_at: new Date().toISOString() };
   const { error } = await client
-    .from("notifications" as any)
+    .from("notifications")
     .update(values)
     .eq("id", id)
     .eq("user_id", userId);
@@ -172,7 +172,7 @@ export async function markNotification(
 }
 export async function markAllRead(client: Client, userId: string) {
   const { error } = await client
-    .from("notifications" as any)
+    .from("notifications")
     .update({ read_at: new Date().toISOString() })
     .eq("user_id", userId)
     .is("read_at", null);
