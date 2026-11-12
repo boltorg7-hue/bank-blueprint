@@ -138,25 +138,8 @@ BEGIN
     _previous_status, _new_status, _decision, _reason
   );
 
-  INSERT INTO public.admin_audit_events (
-    actor_user_id, action, resource_type, resource_reference,
-    permission_checked, result, context
-  ) VALUES (
-    _staff_id,
-    CASE WHEN _accept THEN 'transfer.document_accepted'
-         ELSE 'transfer.document_replacement_requested' END,
-    'transfer_document',
-    _doc.id::text,
-    'compliance.review',
-    'ALLOWED',
-    jsonb_build_object(
-      'transfer_id', _doc.transfer_id,
-      'requirement_id', _doc.requirement_id,
-      'previous_status', _previous_status,
-      'new_status', _new_status,
-      'reason_code', _reason
-    )
-  );
+  -- The dedicated immutable review-history row above is the authoritative
+  -- audit record for this decision; do not depend on the legacy admin audit schema.
 
   IF _accept THEN
     IF NOT EXISTS (
