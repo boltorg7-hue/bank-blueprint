@@ -70,8 +70,8 @@ function SecurityPage() {
           title={en ? "How the bank protects you" : "Ce que la banque met en place"}
           description={
             en
-              ? "An overview of the safeguards you can see and control."
-              : "Ces explications restent au niveau du client : aucun détail technique exploitable n’est publié."
+              ? "The security actions and information available in your customer account."
+              : "Les actions et les informations de sécurité accessibles depuis votre espace client."
           }
         />
         <div className="mt-8 grid grid-cols-[minmax(0,1fr)] gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -152,13 +152,13 @@ function SecurityPage() {
       <CtaSection
         title={
           en
-            ? "Protect your account from the first sign-in"
-            : "Ouvrir un compte protégé dès la première connexion"
+            ? "Stay in control of your account access"
+            : "Gardez le contrôle de vos accès"
         }
         description={
           en
-            ? "Two-step verification and session management are available as soon as your account is activated."
-            : "La vérification en deux étapes et la gestion des sessions sont disponibles dès l’activation du compte."
+            ? "Update your password, review recorded sessions and close other sessions from your security area."
+            : "Modifiez votre mot de passe, consultez les sessions enregistrées et fermez les autres sessions depuis votre espace sécurité."
         }
       />
     </PublicLayout>
