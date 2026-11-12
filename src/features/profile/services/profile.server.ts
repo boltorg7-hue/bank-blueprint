@@ -225,11 +225,13 @@ export async function updateProfileAvatar(userId: string, storagePath: unknown) 
 }
 
 export async function loadPreferences(userId: string): Promise<CustomerPreferencesDto> {
-  const { data } = await admin
+  const { data, error } = await admin
     .from("customer_preferences")
     .select("language,theme,privacy_mode_default,sms_transactions,sms_security,email_service")
     .eq("user_id", userId)
     .maybeSingle();
+
+  if (error) throw new ProfileError("PREFERENCES_UNAVAILABLE");
 
   return {
     language: data?.language ?? "fr",
