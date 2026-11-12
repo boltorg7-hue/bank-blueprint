@@ -54,10 +54,17 @@ function StatementRow({ statement, en }: { statement: StatementDto; en: boolean 
     });
 
   const balances = [
-    { label: en ? "Opening balance" : "Solde d'ouverture", value: money(statement.openingBalanceMinor) },
+    {
+      label: en ? "Opening balance" : "Solde d'ouverture",
+      value: money(statement.openingBalanceMinor),
+    },
     { label: en ? "Credits" : "Crédits", value: money(statement.totalCreditMinor) },
     { label: en ? "Debits" : "Débits", value: money(statement.totalDebitMinor) },
-    { label: en ? "Closing balance" : "Solde de clôture", value: money(statement.closingBalanceMinor), highlight: true },
+    {
+      label: en ? "Closing balance" : "Solde de clôture",
+      value: money(statement.closingBalanceMinor),
+      highlight: true,
+    },
   ];
 
   return (
@@ -72,7 +79,9 @@ function StatementRow({ statement, en }: { statement: StatementDto; en: boolean 
             <p className="truncate text-caption text-muted-foreground">
               {statement.accountDisplayName} · {statement.accountReference}
             </p>
-            <p className="truncate font-mono text-[11px] text-muted-foreground">{statement.reference}</p>
+            <p className="truncate font-mono text-[11px] text-muted-foreground">
+              {statement.reference}
+            </p>
           </div>
         </div>
         <StatusBadge
@@ -85,7 +94,9 @@ function StatementRow({ statement, en }: { statement: StatementDto; en: boolean 
         {balances.map((cell) => (
           <div key={cell.label} className="min-w-0 space-y-1">
             <dt className="text-caption text-muted-foreground">{cell.label}</dt>
-            <dd className={`truncate text-numeric text-sm font-semibold ${cell.highlight ? "text-primary" : "text-foreground"}`}>
+            <dd
+              className={`truncate text-numeric text-sm font-semibold ${cell.highlight ? "text-primary" : "text-foreground"}`}
+            >
               {cell.value}
             </dd>
           </div>
@@ -178,7 +189,11 @@ export function StatementList() {
           <Input
             value={search}
             onChange={(event) => setSearch(event.target.value)}
-            placeholder={en ? "Search by period, account or reference" : "Rechercher par période, compte ou référence"}
+            placeholder={
+              en
+                ? "Search by period, account or reference"
+                : "Rechercher par période, compte ou référence"
+            }
             aria-label={en ? "Search statements" : "Rechercher des relevés"}
             className="pl-9"
           />
