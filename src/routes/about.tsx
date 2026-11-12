@@ -60,7 +60,7 @@ function AboutPage() {
         <div className="grid grid-cols-[minmax(0,1fr)] gap-8 lg:grid-cols-[220px_minmax(0,1fr)] lg:gap-10">
           <nav
             aria-label={en ? "Page sections" : "Sections de la page"}
-            className="h-fit rounded-2xl border border-border bg-card p-4 shadow-sm lg:sticky lg:top-24"
+            className="h-fit rounded-2xl border border-brand/10 bg-gradient-to-br from-brand/[0.04] via-card to-card p-4 shadow-sm lg:sticky lg:top-24"
           >
             <p className="text-overline text-muted-foreground">
               {en ? "On this page" : "Sur cette page"}
@@ -70,7 +70,7 @@ function AboutPage() {
                 <li key={section.id} className="min-w-0">
                   <a
                     href={`#${section.id}`}
-                    className="text-body-sm block rounded-xl px-3 py-2 text-muted-foreground transition-colors hover:bg-surface-sunken hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                    className="text-body-sm block rounded-xl border border-transparent px-3 py-2 text-muted-foreground transition-colors hover:border-border/70 hover:bg-surface-sunken hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                   >
                     {section.title}
                   </a>
@@ -84,7 +84,7 @@ function AboutPage() {
               <section
                 key={section.id}
                 id={section.id}
-                className="scroll-mt-24 rounded-2xl border border-border bg-card p-5 shadow-sm transition-shadow duration-200 hover:shadow-md sm:p-7"
+                className="scroll-mt-24 rounded-2xl border border-border/80 bg-card p-5 shadow-sm transition-[border-color,box-shadow] duration-200 hover:border-brand/25 hover:shadow-md motion-reduce:transition-none sm:p-7"
               >
                 <div className="flex items-start gap-4">
                   <span className="text-overline flex size-10 shrink-0 items-center justify-center rounded-xl bg-brand/10 text-brand">
@@ -117,7 +117,7 @@ function AboutPage() {
           {values.map((value, index) => (
             <article
               key={value.title}
-              className="group rounded-2xl border border-border bg-card p-5 shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-md motion-reduce:transform-none motion-reduce:transition-none sm:p-6"
+              className="group rounded-2xl border border-border/80 bg-card p-5 shadow-sm transition-[transform,border-color,box-shadow] duration-200 hover:-translate-y-1 hover:border-brand/30 hover:shadow-md motion-reduce:transform-none motion-reduce:transition-none sm:p-6"
             >
               <span className="text-overline inline-flex size-9 items-center justify-center rounded-xl bg-brand/10 text-brand">
                 {String(index + 1).padStart(2, "0")}
@@ -131,7 +131,7 @@ function AboutPage() {
 
       <PublicSection>
         <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
-          <div className="rounded-2xl border border-border bg-card p-6 shadow-sm sm:p-7">
+          <div className="rounded-2xl border border-border/80 bg-card p-6 shadow-sm transition-shadow duration-200 hover:shadow-md motion-reduce:transition-none sm:p-7">
             <SectionHeader
               as="h2"
               eyebrow={en ? "Commitment" : "Engagement"}
@@ -148,7 +148,7 @@ function AboutPage() {
               ))}
             </ul>
           </div>
-          <div className="relative overflow-hidden rounded-2xl border border-brand/20 bg-surface-sunken p-6 shadow-sm sm:p-7">
+          <div className="relative overflow-hidden rounded-2xl border border-brand/20 bg-gradient-to-br from-brand/[0.06] via-surface-sunken to-surface-sunken p-6 shadow-sm sm:p-7">
             <div className="absolute inset-y-0 left-0 w-1 bg-brand" aria-hidden="true" />
             <div className="pl-3">
               <p className="text-overline text-brand">{en ? "Governance" : "Gouvernance"}</p>
