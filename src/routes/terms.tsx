@@ -97,9 +97,7 @@ function TermsPage() {
               </span>
               <div className="min-w-0 space-y-2">
                 <p className="text-overline font-semibold text-brand">
-                  {en
-                    ? "Legal document review in progress"
-                    : "Relecture et validation en cours"}
+                  {en ? "Legal document review in progress" : "Relecture et validation en cours"}
                 </p>
                 <h2 className="text-heading-md text-foreground">
                   {en
