@@ -4,7 +4,9 @@ import {
   ArrowUpRight,
   FileText,
   History,
+  Landmark,
   Send,
+  ShieldCheck,
   Users,
   Wallet,
   Clock,
@@ -71,9 +73,31 @@ function DashboardPage() {
         description={
           en
             ? "Your account, transactions and next steps in one place."
-            : "Votre compte, vos opérations et vos prochaines actions au même endroit."
+            : "Votre espace bancaire, avec l'essentiel à portée de main."
         }
       />
+
+      <div className="mb-5 flex items-center justify-between gap-4 overflow-hidden rounded-2xl border border-brand/10 bg-gradient-to-r from-brand/5 via-surface to-surface p-4 sm:mb-7 sm:p-5">
+        <div className="min-w-0">
+          <p className="text-overline font-semibold tracking-wide text-brand">
+            {en ? "YOUR BANKING SPACE" : "VOTRE ESPACE BANCAIRE"}
+          </p>
+          <p className="mt-1.5 max-w-2xl text-body-sm leading-relaxed text-foreground">
+            {en
+              ? "Your balances and activity are shown from the account data currently available."
+              : "Vos soldes et opérations sont présentés à partir des données disponibles sur vos comptes."}
+          </p>
+        </div>
+        <div
+          className="relative mr-1 flex size-14 shrink-0 items-center justify-center rounded-2xl bg-brand/10 text-brand sm:size-16"
+          aria-hidden="true"
+        >
+          <Landmark className="size-7 sm:size-8" strokeWidth={1.7} />
+          <span className="absolute -bottom-1 -right-1 flex size-6 items-center justify-center rounded-full border-2 border-surface bg-success text-success-foreground">
+            <ShieldCheck className="size-3.5" strokeWidth={2.2} />
+          </span>
+        </div>
+      </div>
 
       <PageSection>
         {query.isError ? (
@@ -132,14 +156,12 @@ function DashboardPage() {
 
             <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
               <p className="text-body-sm text-muted-foreground">
-                {en
-                  ? "Move money when you need it."
-                  : "Déplacez votre argent quand vous en avez besoin."}
+                {en ? "Access your transfer journey." : "Accédez à votre parcours de virement."}
               </p>
               {canTransact ? (
                 <Link
                   to="/app/transfers"
-                  className="press-feedback inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-brand px-5 py-2.5 text-sm font-semibold text-brand-foreground shadow-sm transition hover:brightness-95"
+                  className="press-feedback inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-brand px-5 py-2.5 text-sm font-semibold text-brand-foreground shadow-sm transition-[filter,transform] duration-150 hover:brightness-95 active:scale-[0.99] motion-reduce:transition-none sm:w-auto"
                 >
                   <Send className="size-4" aria-hidden="true" />
                   {en ? "Make a transfer" : "Faire un virement"}
@@ -147,7 +169,7 @@ function DashboardPage() {
               ) : (
                 <span
                   aria-disabled="true"
-                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-brand px-5 py-2.5 text-sm font-semibold text-brand-foreground opacity-50"
+                  className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-brand px-5 py-2.5 text-sm font-semibold text-brand-foreground opacity-50 sm:w-auto"
                 >
                   <Send className="size-4" aria-hidden="true" />
                   {en ? "Make a transfer" : "Faire un virement"}
@@ -242,7 +264,7 @@ function DashboardPage() {
                   </p>
                 </div>
               </div>
-              <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
+              <ul className="grid grid-cols-2 gap-2.5 sm:grid-cols-2 sm:gap-3 xl:grid-cols-3">
                 <QuickAction
                   to="/app/transfers/new"
                   label={en ? "Make a transfer" : "Effectuer un virement"}
@@ -364,13 +386,15 @@ function QuickAction({
     <>
       <div
         className={cn(
-          "flex size-10 shrink-0 items-center justify-center rounded-xl transition-colors sm:size-9",
-          !disabled ? "bg-brand/5 text-brand" : "bg-muted/50 text-muted-foreground",
+          "flex size-9 shrink-0 items-center justify-center rounded-xl ring-1 ring-inset ring-brand/10 transition-[background-color,transform] duration-200 sm:size-10",
+          !disabled
+            ? "bg-brand/5 text-brand group-hover:scale-105 group-hover:bg-brand/10"
+            : "bg-muted/50 text-muted-foreground",
         )}
       >
         <Icon className="size-5" aria-hidden="true" />
       </div>
-      <div className="mt-4 min-w-0">
+      <div className="mt-3 min-w-0 sm:mt-4">
         <span className="block break-words font-semibold leading-tight tracking-tight">
           {label}
         </span>
@@ -391,7 +415,7 @@ function QuickAction({
   );
 
   const baseClassName =
-    "native-surface group relative flex min-h-40 min-w-0 flex-col justify-between rounded-2xl border border-border/70 p-4 text-sm shadow-sm transition-[border-color,box-shadow,transform] duration-200 sm:min-h-44 sm:p-5";
+    "native-surface group relative flex min-h-32 min-w-0 flex-col justify-between rounded-2xl border border-border/70 p-3.5 text-sm shadow-sm transition-[border-color,box-shadow,transform] duration-200 motion-reduce:transition-none sm:min-h-44 sm:p-5";
 
   return (
     <li className="min-w-0">
