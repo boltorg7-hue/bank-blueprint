@@ -273,9 +273,8 @@ export function SupportCenter() {
         <SummaryTile
           label={en ? "Awaiting your reply" : "Votre réponse attendue"}
           value={
-            (query.data?.items ?? []).filter(
-              (thread) => thread.status === "WAITING_CUSTOMER",
-            ).length
+            (query.data?.items ?? []).filter((thread) => thread.status === "WAITING_CUSTOMER")
+              .length
           }
           icon="reply"
         />
