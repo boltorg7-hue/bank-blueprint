@@ -27,14 +27,14 @@ jobs:
         shell: bash
         run: |
           git fetch origin main
-          mapfile -t files < <(git diff --name-only --diff-filter=ACMRT origin/main...HEAD | grep -E '\\.(js|jsx|ts|tsx|mjs|cjs)$' || true)
+          mapfile -t files < <(git diff --name-only --diff-filter=ACMRT origin/main...HEAD | grep -E '\.(js|jsx|ts|tsx|mjs|cjs)$' || true)
 
           if (( ${#files[@]} == 0 )); then
             echo "No changed JavaScript/TypeScript files to format."
             exit 0
           fi
 
-          printf 'Formatting %s changed file(s):\\n' "${#files[@]}"
+          printf 'Formatting %s changed file(s):\n' "${#files[@]}"
           bunx prettier --write "${files[@]}"
 
           if git diff --quiet; then
