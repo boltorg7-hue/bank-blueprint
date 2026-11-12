@@ -17,12 +17,19 @@ BEGIN
     RAISE EXCEPTION 'FORBIDDEN';
   END IF;
 
-  SELECT tr, rail.is_simulation
-    INTO _t, _simulated
+  SELECT tr.*
+    INTO _t
     FROM public.transfers tr
     JOIN public.external_settlement_rails rail ON rail.id = tr.settlement_rail_id
    WHERE tr.public_reference = _reference
    FOR UPDATE OF tr;
+
+  IF _t.id IS NOT NULL THEN
+    SELECT rail.is_simulation
+      INTO _simulated
+      FROM public.external_settlement_rails rail
+     WHERE rail.id = _t.settlement_rail_id;
+  END IF;
 
   IF _t.id IS NULL
      OR NOT COALESCE(_simulated, false)
@@ -107,12 +114,19 @@ BEGIN
     RAISE EXCEPTION 'INVALID_SIMULATED_PROVIDER_RESULT';
   END IF;
 
-  SELECT tr, rail.is_simulation
-    INTO _t, _simulated
+  SELECT tr.*
+    INTO _t
     FROM public.transfers tr
     JOIN public.external_settlement_rails rail ON rail.id = tr.settlement_rail_id
    WHERE tr.public_reference = _reference
    FOR UPDATE OF tr;
+
+  IF _t.id IS NOT NULL THEN
+    SELECT rail.is_simulation
+      INTO _simulated
+      FROM public.external_settlement_rails rail
+     WHERE rail.id = _t.settlement_rail_id;
+  END IF;
 
   IF _t.id IS NULL
      OR NOT COALESCE(_simulated, false)
@@ -176,12 +190,19 @@ BEGIN
     RAISE EXCEPTION 'FORBIDDEN';
   END IF;
 
-  SELECT tr, rail.is_simulation
-    INTO _t, _simulated
+  SELECT tr.*
+    INTO _t
     FROM public.transfers tr
     JOIN public.external_settlement_rails rail ON rail.id = tr.settlement_rail_id
    WHERE tr.public_reference = _reference
    FOR UPDATE OF tr;
+
+  IF _t.id IS NOT NULL THEN
+    SELECT rail.is_simulation
+      INTO _simulated
+      FROM public.external_settlement_rails rail
+     WHERE rail.id = _t.settlement_rail_id;
+  END IF;
 
   IF _t.id IS NULL
      OR NOT COALESCE(_simulated, false)

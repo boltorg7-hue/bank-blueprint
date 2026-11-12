@@ -26,7 +26,16 @@ RETURNS void LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$
 DECLARE _t public.transfers%ROWTYPE; _simulated boolean;
 BEGIN
   IF NOT public.has_permission(auth.uid(),'transfers.approve') THEN RAISE EXCEPTION 'forbidden'; END IF;
-  SELECT tr,rail.is_simulation INTO _t,_simulated FROM public.transfers tr JOIN public.external_settlement_rails rail ON rail.id=tr.settlement_rail_id WHERE tr.public_reference=_reference FOR UPDATE OF tr;
+  SELECT tr.* INTO _t
+    FROM public.transfers tr
+    JOIN public.external_settlement_rails rail ON rail.id = tr.settlement_rail_id
+   WHERE tr.public_reference = _reference
+   FOR UPDATE OF tr;
+  IF _t.id IS NOT NULL THEN
+    SELECT rail.is_simulation INTO _simulated
+      FROM public.external_settlement_rails rail
+     WHERE rail.id = _t.settlement_rail_id;
+  END IF;
   IF _t.id IS NULL OR NOT _simulated OR _t.status<>'APPROVED' THEN RAISE EXCEPTION 'invalid transition'; END IF;
   IF _t.simulation_approved_by=auth.uid() THEN RAISE EXCEPTION 'four-eyes approval required'; END IF;
   PERFORM public.submit_external_settlement(_reference);
@@ -40,7 +49,16 @@ RETURNS void LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$
 DECLARE _t public.transfers%ROWTYPE; _simulated boolean;
 BEGIN
   IF NOT public.has_permission(auth.uid(),'transfers.approve') THEN RAISE EXCEPTION 'forbidden'; END IF;
-  SELECT tr,rail.is_simulation INTO _t,_simulated FROM public.transfers tr JOIN public.external_settlement_rails rail ON rail.id=tr.settlement_rail_id WHERE tr.public_reference=_reference FOR UPDATE OF tr;
+  SELECT tr.* INTO _t
+    FROM public.transfers tr
+    JOIN public.external_settlement_rails rail ON rail.id = tr.settlement_rail_id
+   WHERE tr.public_reference = _reference
+   FOR UPDATE OF tr;
+  IF _t.id IS NOT NULL THEN
+    SELECT rail.is_simulation INTO _simulated
+      FROM public.external_settlement_rails rail
+     WHERE rail.id = _t.settlement_rail_id;
+  END IF;
   IF _t.id IS NULL OR NOT _simulated OR _t.status<>'SETTLEMENT_PENDING' OR _t.progress_percent<>99 THEN RAISE EXCEPTION 'invalid transition'; END IF;
   IF _t.simulation_submitted_by=auth.uid() THEN RAISE EXCEPTION 'four-eyes approval required'; END IF;
   PERFORM public.apply_external_settlement_result(_reference,'SUCCEEDED','ADMIN-SIM-'||replace(gen_random_uuid()::text,'-',''));
