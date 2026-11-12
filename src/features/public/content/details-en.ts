@@ -12,17 +12,17 @@ export const accountsEn = {
 };
 
 export const securityEn = {
-  intro: { title: "Your account security", description: "RFC protects access to your account, transactions and documents. Here's what we do and what you can control." },
+  intro: { title: "Your account security", description: "Your security area lets you update your password, review sessions recorded by the application and follow security events." },
   protections: [
-    ["Authentication", "Your personal credentials are required to sign in. Repeated failed attempts trigger additional protection."],
-    ["Two-step verification", "An extra check may be required when signing in and before sensitive transactions."],
-    ["Devices and sessions", "Review your active sessions and close any you do not recognize."],
-    ["Sensitive transaction confirmation", "Transfers and important changes require your explicit confirmation."],
-    ["Secure documents", "Documents you submit are kept in your account and accessible only to authorized processing."],
-    ["Data privacy", "Your data is used only to manage your banking relationship and related obligations."],
-    ["Activity alerts", "Important events — sign-ins, transactions and security changes — are brought to your attention."],
+    ["Personal access", "Access to your account is personal and uses your sign-in credentials."],
+    ["Contact verification", "Verification steps for your email address and phone number help secure account registration and follow-up."],
+    ["Sessions and devices", "Your security area shows sessions recorded by the application and lets you close other sessions."],
+    ["Password management", "You can change your password after verifying your current password."],
+    ["Account documents", "Submitted documents support the verification steps and the follow-up of your customer file."],
+    ["Information privacy", "Your account information is used to manage your relationship with RFC and carry out service-related checks."],
+    ["Security history", "Password changes and recorded security events can be reviewed in your account."],
   ],
-  responsibilities: ["Choose a unique password used only for RFC.", "Never share your password, PIN or verification code.", "Check the website address before entering your credentials.", "Keep your phone and browser up to date.", "Close sessions on devices you no longer use."],
+  responsibilities: ["Choose a unique password used only for RFC.", "Never share your password, PIN or verification code.", "Check the website address before entering your credentials.", "Keep your phone and browser up to date.", "Use your security area to close other sessions if you do not recognize a device."],
   steps: ["Change your password immediately from your customer account.", "Close any active sessions you do not recognize.", "Report the incident through your secure customer messaging.", "If you can no longer access your account, use the public contact form."],
 };
 
