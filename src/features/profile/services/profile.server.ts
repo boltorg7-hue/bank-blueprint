@@ -94,11 +94,25 @@ export async function updateProfile(userId: string, input: unknown) {
     .eq("user_id", userId)
     .maybeSingle();
   const locked = ["SUBMITTED", "UNDER_REVIEW", "VERIFIED"].includes(verification?.status ?? "");
+  const { data: currentProfile, error: currentProfileError } = await admin
+    .from("profiles")
+    .select("phone")
+    .eq("id", userId)
+    .single();
+  if (currentProfileError || !currentProfile) {
+    throw new ProfileError("PROFILE_UNAVAILABLE");
+  }
+
+  const phoneChanged = (currentProfile.phone ?? "") !== data.phone;
   const payload: Record<string, unknown> = {
     country_of_residence: data.countryOfResidence,
     occupation: data.occupation,
     phone: data.phone || null,
   };
+
+  if (phoneChanged) {
+    payload.phone_verified_at = null;
+  }
 
   if (!locked) {
     Object.assign(payload, {
