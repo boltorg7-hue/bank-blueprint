@@ -20,8 +20,9 @@ test("Lot 1 — review history is durable and records the authenticated actor an
   assert.match(migration, /previous_status public\.transfer_document_status NOT NULL/);
   assert.match(migration, /new_status public\.transfer_document_status NOT NULL/);
   assert.match(migration, /INSERT INTO public\.transfer_document_review_history/);
-  assert.match(migration, /INSERT INTO public\.admin_audit_events/);
-  assert.match(migration, /permission_checked, result, context/);
+  assert.match(migration, /INSERT INTO public\.transfer_document_review_history/);
+  assert.match(migration, /actor_user_id, previous_status, new_status, decision, reason_code/);
+  assert.doesNotMatch(migration, /public\.admin_audit_events/);
 });
 
 test("Lot 1 — replacement requests require a meaningful reason and valid review state", () => {
