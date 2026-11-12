@@ -521,8 +521,7 @@ const CustomerThread = memo(function CustomerThread({
         </div>
         <p className="mt-2 text-xs text-muted-foreground">
           {CATEGORY_LABELS[thread.category][en ? "en" : "fr"]} ·{" "}
-          {en ? "Last activity" : "Dernière activité"}{" "}
-          {formatDateTime(thread.lastMessageAt)}
+          {en ? "Last activity" : "Dernière activité"} {formatDateTime(thread.lastMessageAt)}
         </p>
       </div>
       <CardContent className="space-y-4 p-3 sm:p-4">
