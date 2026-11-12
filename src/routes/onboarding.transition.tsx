@@ -210,11 +210,16 @@ function TransitionPage() {
                     ? "translate-y-1 border-border opacity-40"
                     : "translate-y-0 opacity-100"
                 } ${
-                  state === "done" ? "border-success/40 bg-success-muted" : "border-border bg-surface"
+                  state === "done"
+                    ? "border-success/40 bg-success-muted"
+                    : "border-border bg-surface"
                 }`}
               >
                 {state === "active" ? (
-                  <Loader2 className="size-5 shrink-0 animate-spin text-primary" aria-hidden="true" />
+                  <Loader2
+                  className="size-5 shrink-0 animate-spin text-primary"
+                  aria-hidden="true"
+                />
                 ) : (
                   <StepIcon
                     className={`size-5 shrink-0 ${
