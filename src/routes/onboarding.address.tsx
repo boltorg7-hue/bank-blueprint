@@ -25,8 +25,7 @@ export const Route = createFileRoute("/onboarding/address")({
       { title: "Adresse de résidence — Ouverture de compte RFC" },
       {
         name: "description",
-        content:
-          "Ajoutez votre adresse de résidence à votre dossier d’ouverture de compte RFC.",
+        content: "Ajoutez votre adresse de résidence à votre dossier d’ouverture de compte RFC.",
       },
       { property: "og:title", content: "Adresse de résidence — RFC FINANCE Bank" },
       {
@@ -159,7 +158,9 @@ function AddressStepPage() {
             label={en ? "Country" : "Pays"}
             options={COUNTRIES}
             en={en}
-            defaultValue={address?.country ?? context.profile.country_of_residence ?? "Trinidad and Tobago"}
+            defaultValue={
+              address?.country ?? context.profile.country_of_residence ?? "Trinidad and Tobago"
+            }
             error={errors["country"]}
             onChange={setCountry}
           />
