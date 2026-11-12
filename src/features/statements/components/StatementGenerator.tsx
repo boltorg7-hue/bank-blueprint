@@ -89,9 +89,7 @@ export function StatementGenerator() {
 
     if (!periodStart || !periodEnd) {
       toast.error(
-        en
-          ? "The selected period is not valid."
-          : "La période sélectionnée n'est pas valide.",
+        en ? "The selected period is not valid." : "La période sélectionnée n'est pas valide.",
       );
       return;
     }
@@ -112,7 +110,12 @@ export function StatementGenerator() {
             toast.success(en ? "Official statement available" : "Relevé officiel disponible");
           else if (statement.status === "FAILED")
             toast.error(statementErrorMessage(statement.failureCode));
-          else toast.info(en ? "Your statement is being prepared." : "Votre relevé est en préparation.");
+          else
+            toast.info(
+              en
+                ? "Your statement is being prepared."
+                : "Votre relevé est en préparation.",
+            );
         },
         onError: (error) => toast.error(statementErrorMessage(error.message)),
       },
@@ -169,7 +172,9 @@ export function StatementGenerator() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="MONTHLY">{en ? "Monthly statement" : "Relevé mensuel"}</SelectItem>
-              <SelectItem value="CUSTOM">{en ? "Custom period" : "Période personnalisée"}</SelectItem>
+              <SelectItem value="CUSTOM">
+                {en ? "Custom period" : "Période personnalisée"}
+              </SelectItem>
             </SelectContent>
           </Select>
         </div>
