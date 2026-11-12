@@ -17,10 +17,7 @@ const preferencesSchema = fs.readFileSync(
   "src/features/profile/schemas/profile.schemas.ts",
   "utf8",
 );
-const privacyProvider = fs.readFileSync(
-  "src/components/providers/PrivacyModeProvider.tsx",
-  "utf8",
-);
+const privacyProvider = fs.readFileSync("src/components/providers/PrivacyModeProvider.tsx", "utf8");
 
 assert.match(preferencesPage, /usePreferences\(\)/);
 assert.match(preferencesPage, /useSavePreferences\(\)/);
@@ -31,7 +28,10 @@ assert.match(preferencesPage, /setPrivacyMode\(result\.privacyModeDefault\)/);
 assert.match(preferencesPage, /disabled=\{save\.isPending \|\| !hasChanges\}/);
 assert.match(preferencesFunctions, /middleware\(\[requireSupabaseAuth\]\)/);
 assert.match(preferencesService, /eq\("user_id", userId\)/);
-assert.match(preferencesService, /if \(error\) throw new ProfileError\("PREFERENCES_UNAVAILABLE"\)/);
+assert.match(
+  preferencesService,
+  /if \(error\) throw new ProfileError\("PREFERENCES_UNAVAILABLE"\)/,
+);
 assert.match(preferencesService, /upsert\(payload, \{ onConflict: "user_id" \}\)/);
 assert.match(preferencesSchema, /language: z\.enum\(\["fr", "en"\]\)/);
 assert.match(preferencesSchema, /theme: z\.enum\(\["light", "dark", "system"\]\)/);
