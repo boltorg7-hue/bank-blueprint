@@ -21,7 +21,10 @@ export const Route = createFileRoute("/app/accounts/$accountRef")({
   head: () => ({
     meta: [
       { title: "Détail du compte — RFC Royal FINANCE Bank" },
-      { name: "description", content: "Solde, coordonnées bancaires et activité de votre compte." },
+      {
+        name: "description",
+        content: "Solde, coordonnées bancaires et activité de votre compte.",
+      },
       { name: "robots", content: "noindex, nofollow" },
     ],
   }),
@@ -47,87 +50,132 @@ function AccountDetailsPage() {
     <BankingContentContainer width="wide">
       <PageHeader
         title={account?.displayName ?? (en ? "Account" : "Compte")}
-        description={account ? (en ? account.accountType === "CURRENT" ? "Current account" : "Savings account" : accountTypeLabel(account.accountType)) : undefined}
+        description={
+          account
+            ? en
+              ? account.accountType === "CURRENT"
+                ? "Current account"
+                : "Savings account"
+              : accountTypeLabel(account.accountType)
+            : undefined
+        }
         backTo="/app/accounts"
       />
 
       <PageSection>
         {query.isError ? (
-        <ErrorState
-          title={en ? "Your account information is being refreshed" : "Actualisation de vos informations de compte en cours"}
-          onRetry={() => query.refetch()}
-        />
-      ) : query.isPending ? (
-        <LoadingState label={en ? "Loading account…" : "Chargement du compte…"} />
-      ) : !account ? (
-        <EmptyState
-          title={en ? "This account is not linked to your banking space" : "Ce compte n'est pas rattaché à votre espace bancaire"}
-          description={en ? "Check the account reference or return to your account list." : "Vérifiez la référence du compte ou revenez à la liste de vos comptes."}
-        />
-      ) : (
-        <div className="space-y-8">
-          <AccountBalanceCard
-            account={account}
-            isRefreshing={query.isFetching}
-            isStale={query.isStale}
+          <ErrorState
+            title={
+              en
+                ? "Your account information is being refreshed"
+                : "Actualisation de vos informations de compte en cours"
+            }
             onRetry={() => query.refetch()}
           />
-
-          {restriction && (
-            <p
-              role="status"
-              className="rounded-xl border border-warning/40 bg-warning-muted p-4 text-sm text-warning"
-            >
-              {restriction}
-            </p>
-          )}
-
-          <AccountCoordinatesPanel
-            coordinates={account.coordinates}
-            holderName={account.holderName}
+        ) : query.isPending ? (
+          <LoadingState
+            label={en ? "Loading account…" : "Chargement du compte…"}
           />
+        ) : !account ? (
+          <EmptyState
+            title={
+              en
+                ? "This account is not linked to your banking space"
+                : "Ce compte n'est pas rattaché à votre espace bancaire"
+            }
+            description={
+              en
+                ? "Check the account reference or return to your account list."
+                : "Vérifiez la référence du compte ou revenez à la liste de vos comptes."
+            }
+          />
+        ) : (
+          <div className="space-y-8">
+            <AccountBalanceCard
+              account={account}
+              isRefreshing={query.isFetching}
+              isStale={query.isStale}
+              onRetry={() => query.refetch()}
+            />
 
-          <section aria-labelledby="account-activity-heading" className="space-y-3">
-            <h2 id="account-activity-heading" className="text-heading-sm text-foreground">
-              {en ? "Recent activity" : "Activité récente"}
-            </h2>
-            {activityQuery.isError ? (
-              <ErrorState
-                title={en ? "Your recent activity is being refreshed" : "Actualisation de votre activité récente en cours"}
-                onRetry={() => activityQuery.refetch()}
-              />
-            ) : activityQuery.isPending ? (
-              <LoadingState label={en ? "Loading recent activity…" : "Chargement de l’activité récente…"} />
-            ) : (
-              <RecentActivityList items={mapRecentActivity(activityQuery.data ?? [])} />
+            {restriction && (
+              <p
+                role="status"
+                className="rounded-xl border border-warning/40 bg-warning-muted p-4 text-sm text-warning"
+              >
+                {restriction}
+              </p>
             )}
-          </section>
 
-          <dl className="text-caption grid gap-2 text-muted-foreground">
-            <div className="flex justify-between gap-3">
-              <dt>{en ? "Account reference" : "Référence du compte"}</dt>
-              <dd className="text-numeric text-foreground">{account.reference}</dd>
-            </div>
-            {account.openedAt && (
+            <AccountCoordinatesPanel
+              coordinates={account.coordinates}
+              holderName={account.holderName}
+            />
+
+            <section
+              aria-labelledby="account-activity-heading"
+              className="space-y-3"
+            >
+              <h2
+                id="account-activity-heading"
+                className="text-heading-sm text-foreground"
+              >
+                {en ? "Recent activity" : "Activité récente"}
+              </h2>
+              {activityQuery.isError ? (
+                <ErrorState
+                  title={
+                    en
+                      ? "Your recent activity is being refreshed"
+                      : "Actualisation de votre activité récente en cours"
+                  }
+                  onRetry={() => activityQuery.refetch()}
+                />
+              ) : activityQuery.isPending ? (
+                <LoadingState
+                  label={
+                    en
+                      ? "Loading recent activity…"
+                      : "Chargement de l’activité récente…"
+                  }
+                />
+              ) : (
+                <RecentActivityList
+                  items={mapRecentActivity(activityQuery.data ?? [])}
+                />
+              )}
+            </section>
+
+            <dl className="text-caption grid gap-2 text-muted-foreground">
               <div className="flex justify-between gap-3">
-                <dt>{en ? "Opened" : "Ouvert le"}</dt>
-                <dd className="text-foreground">{formatDate(account.openedAt)}</dd>
+                <dt>{en ? "Account reference" : "Référence du compte"}</dt>
+                <dd className="text-numeric text-foreground">
+                  {account.reference}
+                </dd>
               </div>
-            )}
-            {account.closedAt && (
-              <div className="flex justify-between gap-3">
-                <dt>{en ? "Closed" : "Clôturé le"}</dt>
-                <dd className="text-foreground">{formatDate(account.closedAt)}</dd>
-              </div>
-            )}
-          </dl>
-        </div>
+              {account.openedAt && (
+                <div className="flex justify-between gap-3">
+                  <dt>{en ? "Opened" : "Ouvert le"}</dt>
+                  <dd className="text-foreground">
+                    {formatDate(account.openedAt)}
+                  </dd>
+                </div>
+              )}
+              {account.closedAt && (
+                <div className="flex justify-between gap-3">
+                  <dt>{en ? "Closed" : "Clôturé le"}</dt>
+                  <dd className="text-foreground">
+                    {formatDate(account.closedAt)}
+                  </dd>
+                </div>
+              )}
+            </dl>
+          </div>
         )}
       </PageSection>
     </BankingContentContainer>
   );
 }
-
 
 function mapRecentActivity(items: CustomerTransactionDto[]) {
   return items
@@ -135,17 +183,18 @@ function mapRecentActivity(items: CustomerTransactionDto[]) {
     .map((item) => ({
       reference: item.reference,
       type: item.type,
-      direction: (item.direction === "INCOMING" ? "credit" : "debit") as "credit" | "debit",
+      direction: (item.direction === "INCOMING"
+        ? "credit"
+        : "debit") as "credit" | "debit",
       displayName: item.displayTitle,
       amountMinor: item.amountMinor,
       currency: item.currency,
       minorUnit: item.minorUnit,
       occurredAt: item.occurredAt,
-      status: (
-        item.status === "COMPLETED"
-          ? "POSTED"
-          : item.status === "FAILED" || item.status === "CANCELLED"
-            ? "FAILED"
-            : "PENDING") as "POSTED" | "FAILED" | "PENDING",
+      status: (item.status === "COMPLETED"
+        ? "POSTED"
+        : item.status === "FAILED" || item.status === "CANCELLED"
+          ? "FAILED"
+          : "PENDING") as "POSTED" | "FAILED" | "PENDING",
     }));
 }
