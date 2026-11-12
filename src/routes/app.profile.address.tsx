@@ -5,10 +5,7 @@ import { ProfileAddressPage } from "@/features/profile/components/ProfileAddress
 
 export const Route = createFileRoute("/app/profile/address")({
   head: () => ({
-    meta: [
-      { title: "Adresse principale — RFC" },
-      { name: "robots", content: "noindex, nofollow" },
-    ],
+    meta: [{ title: "Adresse principale — RFC" }, { name: "robots", content: "noindex, nofollow" }],
   }),
   component: () => (
     <BankingContentContainer width="wide">
