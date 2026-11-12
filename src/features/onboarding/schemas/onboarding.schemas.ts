@@ -76,6 +76,14 @@ export const ALLOWED_DOCUMENT_MIME_TYPES = [
 
 export const MAX_DOCUMENT_BYTES = 10 * 1024 * 1024;
 
+function containsControlCharacter(value: string): boolean {
+  for (const character of value) {
+    const code = character.charCodeAt(0);
+    if (code < 32 || code === 127) return true;
+  }
+  return false;
+}
+
 export const documentUploadSchema = z.object({
   documentType: z.enum(DOCUMENT_TYPES),
   storagePath: z.string().min(1).max(256),
