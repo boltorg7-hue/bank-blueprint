@@ -229,16 +229,14 @@ export function ProfilePage() {
                     />
                   </div>
 
-                  {account.iban || account.bic ? (
-                    <div className="mt-3 grid gap-2 border-t border-border/70 pt-3 sm:grid-cols-2">
-                      {account.iban ? (
-                        <div className="min-w-0">
-                          <p className="text-xs text-muted-foreground">IBAN</p>
-                          <p className="break-all font-mono text-xs text-foreground">
-                            {account.iban}
-                          </p>
-                        </div>
-                      ) : null}
+                  <Link
+                    to="/app/accounts/$accountRef"
+                    params={{ accountRef: account.reference }}
+                    className="mt-3 inline-flex min-h-10 items-center gap-2 rounded-lg text-sm font-medium text-primary underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  >
+                    {en ? "View account details" : "Consulter les détails du compte"}
+                    <ArrowUpRight aria-hidden className="size-4" />
+                  </Link>
                       {account.bic ? (
                         <div className="min-w-0">
                           <p className="text-xs text-muted-foreground">BIC</p>
