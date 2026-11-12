@@ -3,7 +3,6 @@ import { useLanguage } from "@/components/providers/LanguageProvider";
 
 import { OperationReceiptButton } from "@/features/documents/components/OperationReceiptButton";
 
-
 import { AmountText } from "@/components/data-display";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { formatDateTime } from "@/lib/format/date";
@@ -48,6 +47,7 @@ export function TransactionDetailCard({ transaction }: { transaction: Transactio
               transaction.currency,
               transaction.minorUnit,
               transaction.direction,
+              en ? "en" : "fr",
             )}
           >
             <AmountText
@@ -70,7 +70,7 @@ export function TransactionDetailCard({ transaction }: { transaction: Transactio
         </div>
         <div className="mt-3 flex justify-center">
           <StatusBadge
-            label={transactionStatusLabel(transaction.status)}
+            label={transactionStatusLabel(transaction.status, en ? "en" : "fr")}
             tone={transactionStatusTone(transaction.status)}
           />
         </div>
