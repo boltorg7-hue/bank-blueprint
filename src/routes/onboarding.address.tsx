@@ -11,7 +11,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Spinner } from "@/components/ui/spinner";
 import { OnboardingShell } from "@/features/onboarding/components/OnboardingShell";
-import { useCustomerContext, useInvalidateCustomerContext } from "@/features/onboarding/hooks/useCustomerContext";
+import {
+  useCustomerContext,
+  useInvalidateCustomerContext,
+} from "@/features/onboarding/hooks/useCustomerContext";
 import { addressStepSchema } from "@/features/onboarding/schemas/onboarding.schemas";
 import { fieldErrorsFrom } from "@/features/auth/schemas/auth.schemas";
 import { saveAddressStep } from "@/features/onboarding/services/onboarding.functions";
@@ -20,9 +23,16 @@ export const Route = createFileRoute("/onboarding/address")({
   head: () => ({
     meta: [
       { title: "Adresse de résidence — Ouverture de compte RFC" },
-      { name: "description", content: "Ajoutez votre adresse de résidence à votre dossier d’ouverture de compte RFC." },
+      {
+        name: "description",
+        content:
+          "Ajoutez votre adresse de résidence à votre dossier d’ouverture de compte RFC.",
+      },
       { property: "og:title", content: "Adresse de résidence — RFC FINANCE Bank" },
-      { property: "og:description", content: "Deuxième étape sécurisée de l’ouverture de compte RFC." },
+      {
+        property: "og:description",
+        content: "Deuxième étape sécurisée de l’ouverture de compte RFC.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex,nofollow" },
@@ -70,7 +80,11 @@ function AddressStepPage() {
       setDirty(false);
       await navigate({ to: "/onboarding/documents" });
     } catch {
-      setFormError((en ? "We could not save your address. Please try again." : "Nous n'avons pas pu enregistrer votre adresse. Réessayez."));
+      setFormError(
+        en
+          ? "We could not save your address. Please try again."
+          : "Nous n'avons pas pu enregistrer votre adresse. Réessayez.",
+      );
     } finally {
       setPending(false);
     }
@@ -88,15 +102,27 @@ function AddressStepPage() {
   }
 
   const address = context.address;
-  const isTT = (country ?? address?.country ?? context.profile.country_of_residence ?? "Trinidad and Tobago") === "Trinidad and Tobago";
+  const isTT =
+    (country ??
+      address?.country ??
+      context.profile.country_of_residence ??
+      "Trinidad and Tobago") === "Trinidad and Tobago";
 
   return (
     <OnboardingShell
       stepId="address"
       title={en ? "Your residential address" : "Votre adresse de résidence"}
-      description={en ? "Enter the address where you usually live. Optional fields may be left blank if not used in your country." : "Renseignez l'adresse où vous résidez habituellement. Les champs facultatifs peuvent rester vides si votre pays ne les utilise pas."}
+      description={
+        en
+          ? "Enter the address where you usually live. Optional fields may be left blank if not used in your country."
+          : "Renseignez l'adresse où vous résidez habituellement. Les champs facultatifs peuvent rester vides si votre pays ne les utilise pas."
+      }
       hasUnsavedChanges={dirty}
-      why={en ? "Your address determines available services and must match your proof of address." : "Votre adresse détermine les services disponibles et doit correspondre à votre justificatif de domicile."}
+      why={
+        en
+          ? "Your address determines available services and must match your proof of address."
+          : "Votre adresse détermine les services disponibles et doit correspondre à votre justificatif de domicile."
+      }
     >
       <form
         onSubmit={handleSubmit}
@@ -133,7 +159,11 @@ function AddressStepPage() {
             label={en ? "Country" : "Pays"}
             options={COUNTRIES}
             en={en}
-            defaultValue={address?.country ?? context.profile.country_of_residence ?? "Trinidad and Tobago"}
+            defaultValue={
+              address?.country ??
+              context.profile.country_of_residence ??
+              "Trinidad and Tobago"
+            }
             error={errors["country"]}
             onChange={setCountry}
           />
@@ -156,7 +186,11 @@ function AddressStepPage() {
             />
             <Field
               name="addressLine2"
-              label={en ? "Apartment, suite or additional details (optional)" : "Appartement, résidence ou complément (optionnel)"}
+              label={
+                en
+                  ? "Apartment, suite or additional details (optional)"
+                  : "Appartement, résidence ou complément (optionnel)"
+              }
               autoComplete="address-line2"
               defaultValue={address?.address_line2}
               error={errors["addressLine2"]}
@@ -177,14 +211,18 @@ function AddressStepPage() {
                 <div className="space-y-2">
                   <Field
                     name="city"
-                    label={en ? "City or town — choose or type" : "Ville ou localité — choisir ou saisir"}
+                    label={
+                      en ? "City or town — choose or type" : "Ville ou localité — choisir ou saisir"
+                    }
                     autoComplete="address-level2"
                     defaultValue={address?.city}
                     error={errors["city"]}
                     list="tt-cities"
                   />
                   <datalist id="tt-cities">
-                    {TT_CITIES.map((c) => <option key={c} value={c} />)}
+                    {TT_CITIES.map((c) => (
+                      <option key={c} value={c} />
+                    ))}
                   </datalist>
                 </div>
                 <ChoiceField
@@ -208,7 +246,11 @@ function AddressStepPage() {
                 />
                 <Field
                   name="region"
-                  label={en ? "Region, state or province (if applicable)" : "Région, état ou province (si applicable)"}
+                  label={
+                    en
+                      ? "Region, state or province (if applicable)"
+                      : "Région, état ou province (si applicable)"
+                  }
                   autoComplete="address-level1"
                   defaultValue={address?.region}
                   error={errors["region"]}
@@ -226,7 +268,10 @@ function AddressStepPage() {
         </section>
 
         {formError ? (
-          <p role="alert" className="text-body-sm rounded-lg bg-destructive/10 px-3 py-2 text-destructive">
+          <p
+            role="alert"
+            className="text-body-sm rounded-lg bg-destructive/10 px-3 py-2 text-destructive"
+          >
             {formError}
           </p>
         ) : null}
