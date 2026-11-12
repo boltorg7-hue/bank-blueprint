@@ -70,3 +70,28 @@ test("onboarding server functions enforce consent before every protected action"
   assert.ok(guard.includes('provider !== "google" && provider !== "apple"'));
   assert.ok(guard.includes("OAUTH_CONSENT_REQUIRED"));
 });
+
+
+test("OAuth consent stays blocked until both complete legal documents are published", () => {
+  const legal = read("src/features/public/content/legal.ts");
+  const functions = read("src/features/auth/services/oauth-consent.functions.ts");
+  const route = read("src/routes/auth.consent.tsx");
+
+  assert.ok(legal.includes("export function areOAuthConsentDocumentsPublished"));
+  assert.ok(legal.includes("document.lastUpdated !== null"));
+  assert.ok(legal.includes("section.paragraphs.some"));
+  assert.ok(functions.includes("!documentsPublished || !data?.terms_accepted_at"));
+  assert.ok(functions.includes('throw new Error("LEGAL_DOCUMENTS_NOT_PUBLISHED")'));
+  assert.ok(functions.includes("_terms_version: TERMS_DOCUMENT.lastUpdated"));
+  assert.ok(route.includes("!documentsPublished || !termsAccepted || !privacyAccepted || pending"));
+  assert.ok(route.includes("supabase.auth.signOut()"));
+  assert.ok(route.includes("Quitter et me déconnecter"));
+});
+
+test("OAuth consent distinguishes provider sign-in from bank KYC", () => {
+  const route = read("src/routes/auth.consent.tsx");
+  assert.ok(route.includes("not bank identity verification (KYC)"));
+  assert.ok(route.includes("ne constitue pas une vérification d’identité bancaire (KYC)"));
+  assert.ok(route.includes("official Terms and Privacy Policy are not yet fully published"));
+  assert.ok(route.includes("ne sont pas encore intégralement publiées"));
+});
