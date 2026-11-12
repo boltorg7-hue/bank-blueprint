@@ -1,13 +1,15 @@
 import { createFileRoute, Link, redirect, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { FileCheck2, LockKeyhole, ShieldCheck, Sparkles } from "lucide-react";
+import { FileCheck2, LockKeyhole, ShieldCheck, Sparkles, LogOut } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { useLanguage } from "@/components/providers/LanguageProvider";
 import { AuthShell } from "@/features/auth/components/AuthShell";
+import { areOAuthConsentDocumentsPublished } from "@/features/public/content/legal";
+import { supabase } from "@/integrations/supabase/client";
 import { resolvePostLoginRoute } from "@/features/auth/lib/post-login";
 import {
   getOAuthConsentStatus,
@@ -42,9 +44,10 @@ function OAuthConsentPage() {
   const [marketingConsent, setMarketingConsent] = useState(false);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const documentsPublished = areOAuthConsentDocumentsPublished();
 
   async function handleContinue() {
-    if (!termsAccepted || !privacyAccepted || pending) return;
+    if (!documentsPublished || !termsAccepted || !privacyAccepted || pending) return;
 
     setPending(true);
     setError(null);
@@ -69,6 +72,21 @@ function OAuthConsentPage() {
     }
   }
 
+  async function handleLeave() {
+    if (pending) return;
+    setPending(true);
+    setError(null);
+    try {
+      const { error: signOutError } = await supabase.auth.signOut();
+      if (signOutError) throw signOutError;
+      await navigate({ to: "/login", replace: true });
+    } catch {
+      setError(en ? "We could not safely sign you out. Please try again." : "La déconnexion sécurisée a échoué. Veuillez réessayer.");
+    } finally {
+      setPending(false);
+    }
+  }
+
   return (
     <AuthShell
       eyebrow={en ? "A secure start" : "Un début en toute sécurité"}
@@ -87,12 +105,12 @@ function OAuthConsentPage() {
             </span>
             <div className="min-w-0 space-y-1">
               <p className="text-sm font-semibold text-foreground">
-                {en ? "Your identity is verified" : "Votre identité est vérifiée"}
+                {en ? "Google or Apple sign-in completed" : "Connexion Google ou Apple réussie"}
               </p>
               <p className="text-sm leading-relaxed text-muted-foreground">
                 {en
-                  ? "Your Google or Apple sign-in confirms your identity only. It does not activate a bank account or unlock banking services."
-                  : "Votre connexion Google ou Apple confirme uniquement votre identité. Elle n’active pas de compte bancaire et ne débloque aucun service bancaire."}
+                  ? "This confirms access to your Google or Apple account only. It is not bank identity verification (KYC), does not approve your documents and does not activate banking services."
+                  : "Cette étape confirme uniquement l’accès à votre compte Google ou Apple. Elle ne constitue pas une vérification d’identité bancaire (KYC), ne valide pas vos documents et n’active aucun service bancaire."}
               </p>
             </div>
           </div>
@@ -103,6 +121,24 @@ function OAuthConsentPage() {
               : "Vos choix sont enregistrés de manière sécurisée avant l’ouverture du compte."}
           </div>
         </div>
+
+        {!documentsPublished ? (
+          <div role="alert" className="space-y-3 rounded-2xl border border-amber-500/30 bg-amber-500/5 p-4">
+            <div className="space-y-1">
+              <p className="text-sm font-semibold text-foreground">
+                {en ? "Consent is temporarily unavailable" : "Validation temporairement indisponible"}
+              </p>
+              <p className="text-sm leading-relaxed text-muted-foreground">
+                {en
+                  ? "The official Terms and Privacy Policy are not yet fully published. Their final text and publication dates are required before you can accept them. No consent will be recorded and you cannot continue onboarding yet."
+                  : "Les Conditions générales et la Politique de confidentialité officielles ne sont pas encore intégralement publiées. Leur texte définitif et leur date de publication sont nécessaires avant toute acceptation. Aucun consentement ne sera enregistré et vous ne pouvez pas encore poursuivre l’inscription."}
+              </p>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {en ? "You may leave securely and return later when the documents are available." : "Vous pouvez quitter votre session en toute sécurité et revenir lorsque les documents seront disponibles."}
+            </p>
+          </div>
+        ) : null}
 
         <section aria-labelledby="required-consents" className="space-y-3">
           <div className="flex items-center justify-between gap-3">
@@ -206,7 +242,7 @@ function OAuthConsentPage() {
             variant="brand"
             size="block"
             loading={pending}
-            disabled={!termsAccepted || !privacyAccepted || pending}
+            disabled={!documentsPublished || !termsAccepted || !privacyAccepted || pending}
             onClick={() => void handleContinue()}
             className="rounded-xl shadow-md shadow-brand/15"
           >
@@ -214,9 +250,13 @@ function OAuthConsentPage() {
           </Button>
           <p className="text-center text-xs leading-relaxed text-muted-foreground">
             {en
-              ? "Marketing consent is optional and is not required to open your account."
-              : "L’accord marketing est facultatif et n’est pas nécessaire pour ouvrir votre compte."}
+              ? "After consent, you will continue through the required profile, contact, address, document and KYC checks. Banking access remains subject to review and approval."
+              : "Après les consentements, vous poursuivrez les étapes du profil, des coordonnées, de l’adresse, des documents et du contrôle KYC. L’accès bancaire restera soumis à vérification et approbation."}
           </p>
+          <Button type="button" variant="outline" size="block" disabled={pending} onClick={() => void handleLeave()} className="rounded-xl">
+            <LogOut className="mr-2 size-4" aria-hidden="true" />
+            {en ? "Leave and sign out" : "Quitter et me déconnecter"}
+          </Button>
         </div>
       </div>
     </AuthShell>
