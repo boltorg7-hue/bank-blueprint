@@ -188,12 +188,22 @@ export function ProfileIdentityPage() {
             />
             <IdentityRow
               label={en ? "Email address" : "Adresse e-mail"}
-              value={data.emailVerified ? (en ? "Verified" : "Vérifiée") : en ? "To verify" : "À vérifier"}
+              value={
+                data.emailVerified
+                  ? en
+                    ? "Verified"
+                    : "Vérifiée"
+                  : en
+                    ? "To verify"
+                    : "À vérifier"
+              }
               verified={data.emailVerified}
             />
             <IdentityRow
               label={en ? "Phone number" : "Numéro de téléphone"}
-              value={data.phoneVerified ? (en ? "Verified" : "Vérifié") : en ? "To verify" : "À vérifier"}
+              value={
+                data.phoneVerified ? (en ? "Verified" : "Vérifié") : en ? "To verify" : "À vérifier"
+              }
               verified={data.phoneVerified}
             />
             <p className="flex items-start gap-2 border-t border-border/70 pt-3 text-xs text-muted-foreground">
