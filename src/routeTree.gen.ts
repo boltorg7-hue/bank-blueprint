@@ -57,6 +57,7 @@ import { Route as AppSettingsRouteImport } from './routes/app.settings'
 import { Route as AppStatementsRouteImport } from './routes/app.statements'
 import { Route as AppTransactionsRouteImport } from './routes/app.transactions'
 import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
+import { Route as AuthConsentRouteImport } from './routes/auth.consent'
 import { Route as DevDesignSystemRouteImport } from './routes/dev.design-system'
 import { Route as OnboardingIndexRouteImport } from './routes/onboarding.index'
 import { Route as OnboardingAddressRouteImport } from './routes/onboarding.address'
@@ -316,6 +317,11 @@ const AuthCallbackRoute = AuthCallbackRouteImport.update({
   path: '/auth/callback',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthConsentRoute = AuthConsentRouteImport.update({
+  id: '/auth/consent',
+  path: '/auth/consent',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DevDesignSystemRoute = DevDesignSystemRouteImport.update({
   id: '/dev/design-system',
   path: '/dev/design-system',
@@ -457,6 +463,7 @@ export interface FileRoutesByFullPath {
   '/app/statements': typeof AppStatementsRouteWithChildren
   '/app/transactions': typeof AppTransactionsRouteWithChildren
   '/auth/callback': typeof AuthCallbackRoute
+  '/auth/consent': typeof AuthConsentRoute
   '/dev/design-system': typeof DevDesignSystemRoute
   '/onboarding/address': typeof OnboardingAddressRoute
   '/onboarding/documents': typeof OnboardingDocumentsRoute
@@ -519,6 +526,7 @@ export interface FileRoutesByTo {
   '/app/security': typeof AppSecurityRoute
   '/app/settings': typeof AppSettingsRoute
   '/auth/callback': typeof AuthCallbackRoute
+  '/auth/consent': typeof AuthConsentRoute
   '/dev/design-system': typeof DevDesignSystemRoute
   '/onboarding/address': typeof OnboardingAddressRoute
   '/onboarding/documents': typeof OnboardingDocumentsRoute
@@ -588,6 +596,7 @@ export interface FileRoutesById {
   '/app/statements': typeof AppStatementsRouteWithChildren
   '/app/transactions': typeof AppTransactionsRouteWithChildren
   '/auth/callback': typeof AuthCallbackRoute
+  '/auth/consent': typeof AuthConsentRoute
   '/dev/design-system': typeof DevDesignSystemRoute
   '/onboarding/address': typeof OnboardingAddressRoute
   '/onboarding/documents': typeof OnboardingDocumentsRoute
@@ -658,6 +667,7 @@ export interface FileRouteTypes {
     | '/app/statements'
     | '/app/transactions'
     | '/auth/callback'
+    | '/auth/consent'
     | '/dev/design-system'
     | '/onboarding/address'
     | '/onboarding/documents'
@@ -720,6 +730,7 @@ export interface FileRouteTypes {
     | '/app/security'
     | '/app/settings'
     | '/auth/callback'
+    | '/auth/consent'
     | '/dev/design-system'
     | '/onboarding/address'
     | '/onboarding/documents'
@@ -788,6 +799,7 @@ export interface FileRouteTypes {
     | '/app/statements'
     | '/app/transactions'
     | '/auth/callback'
+    | '/auth/consent'
     | '/dev/design-system'
     | '/onboarding/address'
     | '/onboarding/documents'
@@ -835,6 +847,7 @@ export interface RootRouteChildren {
   VerifyContactRoute: typeof VerifyContactRoute
   VerifyEmailRoute: typeof VerifyEmailRoute
   AuthCallbackRoute: typeof AuthCallbackRoute
+  AuthConsentRoute: typeof AuthConsentRoute
   DevDesignSystemRoute: typeof DevDesignSystemRoute
   ApiPublicCronMonthlyStatementsRoute: typeof ApiPublicCronMonthlyStatementsRoute
 }
@@ -1177,6 +1190,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthCallbackRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/auth/consent': {
+      id: '/auth/consent'
+      path: '/auth/consent'
+      fullPath: '/auth/consent'
+      preLoaderRoute: typeof AuthConsentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/dev/design-system': {
       id: '/dev/design-system'
       path: '/dev/design-system'
@@ -1467,6 +1487,7 @@ const rootRouteChildren: RootRouteChildren = {
   VerifyContactRoute: VerifyContactRoute,
   VerifyEmailRoute: VerifyEmailRoute,
   AuthCallbackRoute: AuthCallbackRoute,
+  AuthConsentRoute: AuthConsentRoute,
   DevDesignSystemRoute: DevDesignSystemRoute,
   ApiPublicCronMonthlyStatementsRoute: ApiPublicCronMonthlyStatementsRoute,
 }
