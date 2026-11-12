@@ -8,7 +8,7 @@ import { AuthShell } from "@/features/auth/components/AuthShell";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { useCustomerContext } from "@/features/onboarding/hooks/useCustomerContext";
-import { nextOnboardingRoute } from "@/features/onboarding/lib/tasks";
+import { buildOnboardingTasks, nextOnboardingRoute } from "@/features/onboarding/lib/tasks";
 
 export const Route = createFileRoute("/email-verified")({
   ssr: false,
@@ -44,45 +44,65 @@ function EmailVerifiedPage() {
   const context = query.data;
   const isPending = hasSession === null || (hasSession && query.isLoading);
 
-  const steps = en
-    ? [
-        [
-          "Personal details",
-          "Name, date of birth, nationality, residence and occupation — about 2 minutes.",
-        ],
-        ["Home address", "Your full residential address."],
-        [
-          "Identity documents",
-          "An ID card, passport or residence permit, plus a recent proof of address.",
-        ],
-        ["Review and submit", "Check your details, then send your application."],
-        [
-          "Compliance review",
-          "Our team verifies your identity, then opens your USD account. We'll notify you.",
-        ],
-      ]
-    : [
-        [
-          "Informations personnelles",
-          "Nom, date de naissance, nationalité, résidence et profession — environ 2 minutes.",
-        ],
-        ["Adresse de résidence", "Votre adresse complète."],
-        [
-          "Pièces d'identité",
-          "Carte d'identité, passeport ou titre de séjour, et un justificatif de domicile récent.",
-        ],
-        ["Relecture et envoi", "Vérifiez vos informations, puis envoyez votre dossier."],
-        [
-          "Examen de conformité",
-          "Notre équipe vérifie votre identité puis ouvre votre compte en USD. Vous serez notifié.",
-        ],
-      ];
+  const tasks = context ? buildOnboardingTasks(context) : [];
+  const visibleTasks = tasks.filter((task) => task.id !== "email");
+  const completedCount = tasks.filter((task) => task.status === "done").length;
+  const totalCount = tasks.length;
+  const progressPercent = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
+
+  const taskCopy: Record<string, { title: string; description: string }> = en
+    ? {
+        profile: {
+          title: "Personal details",
+          description: "Name, date of birth, nationality, country of residence and occupation.",
+        },
+        contact: {
+          title: "Phone verification",
+          description: "Confirm your phone number to secure your registration.",
+        },
+        address: {
+          title: "Residential address",
+          description: "Provide your complete residential address.",
+        },
+        documents: {
+          title: "Identity documents",
+          description: "Provide an identity document and proof of address. You may complete this later when your file allows it.",
+        },
+        review: {
+          title: "Application submission",
+          description: "Review your information and submit your application for verification.",
+        },
+        activation: {
+          title: "Account opening",
+          description: "Account activation follows the separate identity and compliance review.",
+        },
+      }
+    : {};
+
+  const taskStatusLabel = (status: string) => {
+    if (en) {
+      return status === "done"
+        ? "Completed"
+        : status === "current"
+          ? "To complete now"
+          : status === "blocked"
+            ? "Can be completed later"
+            : "Upcoming";
+    }
+    return status === "done"
+      ? "Terminée"
+      : status === "current"
+        ? "À compléter maintenant"
+        : status === "blocked"
+          ? "À compléter ultérieurement"
+          : "À venir";
+  };
 
   const next = context ? nextOnboardingRoute(context) : "/onboarding";
 
   return (
     <AuthShell
-      eyebrow={en ? "ACCOUNT OPENING · STEP 1 OF 6" : "OUVERTURE DU COMPTE · ÉTAPE 1 SUR 6"}
+      eyebrow={en ? "ACCOUNT OPENING" : "OUVERTURE DU COMPTE"}
       title={en ? "Your email is confirmed" : "Votre adresse e-mail est confirmée"}
       description={
         en
@@ -141,46 +161,66 @@ function EmailVerifiedPage() {
           </div>
         </div>
 
-        <div className="space-y-3">
-          <div className="flex items-center justify-between gap-3">
-            <h2 className="text-label font-semibold text-foreground">
-              {en ? "Your next steps" : "Les prochaines étapes"}
-            </h2>
-            <span className="text-caption tabular-nums text-muted-foreground">
-              {en ? "1 of 6 complete" : "1 sur 6 terminée"}
-            </span>
+        {context ? (
+          <div className="space-y-3">
+            <div className="flex items-center justify-between gap-3">
+              <h2 className="text-label font-semibold text-foreground">
+                {en ? "Your registration progress" : "Progression de votre inscription"}
+              </h2>
+              <span className="text-caption tabular-nums text-muted-foreground">
+                {completedCount} / {totalCount} {en ? "completed" : "terminées"}
+              </span>
+            </div>
+            <div
+              className="h-1.5 overflow-hidden rounded-full bg-surface-sunken"
+              role="progressbar"
+              aria-label={en ? "Registration progress" : "Progression de l’inscription"}
+              aria-valuemin={0}
+              aria-valuemax={totalCount}
+              aria-valuenow={completedCount}
+            >
+              <div
+                className="h-full rounded-full bg-brand transition-[width] motion-reduce:transition-none"
+                style={{ width: `${progressPercent}%` }}
+              />
+            </div>
+            <ol className="space-y-3">
+              {visibleTasks.map((task, index) => {
+                const copy = taskCopy[task.id];
+                return (
+                  <li
+                    key={task.id}
+                    className="flex gap-3 rounded-2xl border border-border bg-surface p-4 transition-colors hover:border-brand/25 motion-reduce:transition-none"
+                  >
+                    <span className="flex size-8 shrink-0 items-center justify-center rounded-xl bg-surface-sunken text-caption font-semibold tabular-nums text-muted-foreground">
+                      {index + 2}
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-label font-medium text-foreground">
+                        {copy?.title ?? task.title}
+                      </p>
+                      <p className="mt-1 text-body-sm leading-relaxed text-muted-foreground">
+                        {copy?.description ?? task.description}
+                      </p>
+                      <p className="mt-2 text-caption font-medium text-muted-foreground">
+                        {taskStatusLabel(task.status)}
+                      </p>
+                    </div>
+                    {task.status === "done" ? (
+                      <CheckCircle2 className="mt-1 size-4 shrink-0 text-success" aria-label={en ? "Completed" : "Terminée"} />
+                    ) : (
+                      <Circle className="mt-1 size-4 shrink-0 text-muted-foreground/60" aria-hidden="true" />
+                    )}
+                  </li>
+                );
+              })}
+            </ol>
           </div>
-          <div
-            className="h-1.5 overflow-hidden rounded-full bg-surface-sunken"
-            role="progressbar"
-            aria-label={en ? "Registration progress" : "Progression de l’inscription"}
-            aria-valuemin={0}
-            aria-valuemax={6}
-            aria-valuenow={1}
-          >
-            <div className="h-full w-1/6 rounded-full bg-brand" />
-          </div>
-          <ol className="space-y-3">
-            {steps.map(([title, text], i) => (
-              <li
-                key={title}
-                className="flex gap-3 rounded-2xl border border-border bg-surface p-4 transition-colors hover:border-brand/25 motion-reduce:transition-none"
-              >
-                <span className="flex size-8 shrink-0 items-center justify-center rounded-xl bg-surface-sunken text-caption font-semibold tabular-nums text-muted-foreground">
-                  {i + 2}
-                </span>
-                <div className="min-w-0 flex-1">
-                  <p className="text-label font-medium text-foreground">{title}</p>
-                  <p className="mt-1 text-body-sm leading-relaxed text-muted-foreground">{text}</p>
-                </div>
-                <Circle
-                  className="mt-1 size-4 shrink-0 text-muted-foreground/60"
-                  aria-hidden="true"
-                />
-              </li>
-            ))}
-          </ol>
-        </div>
+        ) : isPending ? (
+          <p className="text-body-sm text-muted-foreground">
+            {en ? "Your registration progress will appear when your details are loaded." : "Votre progression apparaîtra dès que les informations de votre dossier seront chargées."}
+          </p>
+        ) : null}
         {isPending ? (
           <div className="flex justify-center">
             <Spinner className="size-5" />
