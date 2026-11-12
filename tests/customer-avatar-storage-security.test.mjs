@@ -5,10 +5,7 @@ const migration = fs.readFileSync(
   "supabase/migrations/20261112100000_customer_avatar_storage_hardening.sql",
   "utf8",
 );
-const profileService = fs.readFileSync(
-  "src/features/profile/services/profile.server.ts",
-  "utf8",
-);
+const profileService = fs.readFileSync("src/features/profile/services/profile.server.ts", "utf8");
 
 assert.match(migration, /'customer-avatars'[\s\S]*public = false/i);
 assert.match(migration, /file_size_limit[\s\S]*3145728/);
