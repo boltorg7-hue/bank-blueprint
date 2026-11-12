@@ -34,9 +34,7 @@ function TransactionsIndexRoute() {
   const { language } = useLanguage();
   const en = language === "en";
   const { summary } = useCustomerSummary();
-  const allowed = summary
-    ? isAllowed(summary.lifecycleState, "banking-read")
-    : true;
+  const allowed = summary ? isAllowed(summary.lifecycleState, "banking-read") : true;
 
   return (
     <BankingContentContainer width="default">
