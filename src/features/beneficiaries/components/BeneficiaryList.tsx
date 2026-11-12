@@ -88,7 +88,9 @@ export function BeneficiaryList({ action }: { action?: React.ReactNode }) {
             <Input
               value={searchQuery}
               onChange={(event) => setSearchQuery(event.target.value)}
-              placeholder={\n                en ? "Search a recipient or account" : "Rechercher un bénéficiaire ou un compte"\n              }
+              placeholder={
+                en ? "Search a recipient or account" : "Rechercher un bénéficiaire ou un compte"
+              }
               aria-label={en ? "Search beneficiaries" : "Rechercher parmi les bénéficiaires"}
               className="h-11 pl-9 pr-10"
             />
