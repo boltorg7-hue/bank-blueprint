@@ -120,13 +120,21 @@ export function StatementGenerator() {
   };
 
   return (
-    <Card className="space-y-4 p-4 sm:p-5">
-      <div>
-        <h2 className="text-sm font-semibold text-foreground">Éditer un relevé</h2>
-        <p className="text-caption text-muted-foreground">
-          Les relevés sont figés à l'émission : les montants reflètent la comptabilité de la période
-          demandée.
-        </p>
+    <Card className="overflow-hidden border-primary/15 bg-gradient-to-br from-primary/[0.08] via-card to-card p-4 sm:p-6">
+      <div className="flex items-start gap-3">
+        <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+          <Landmark aria-hidden className="size-5" />
+        </span>
+        <div className="space-y-1">
+          <h2 className="text-base font-semibold text-foreground">
+            {en ? "Create an account statement" : "Éditer un relevé de compte"}
+          </h2>
+          <p className="max-w-2xl text-caption leading-relaxed text-muted-foreground">
+            {en
+              ? "Choose an account and a period. Your statement is prepared from the official accounting records and remains fixed once issued."
+              : "Choisissez un compte et une période. Votre relevé est préparé à partir des écritures comptables officielles et reste figé après son émission."}
+          </p>
+        </div>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
