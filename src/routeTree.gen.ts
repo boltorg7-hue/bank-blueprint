@@ -68,6 +68,10 @@ import { Route as OnboardingStatusRouteImport } from './routes/onboarding.status
 import { Route as OnboardingTransitionRouteImport } from './routes/onboarding.transition'
 import { Route as AppAccountsIndexRouteImport } from './routes/app.accounts.index'
 import { Route as AppAccountsAccountRefRouteImport } from './routes/app.accounts.$accountRef'
+import { Route as AppProfileIndexRouteImport } from './routes/app.profile.index'
+import { Route as AppProfileAddressRouteImport } from './routes/app.profile.address'
+import { Route as AppProfileIdentityRouteImport } from './routes/app.profile.identity'
+import { Route as AppProfilePersonalRouteImport } from './routes/app.profile.personal'
 import { Route as AppStatementsIndexRouteImport } from './routes/app.statements.index'
 import { Route as AppStatementsStatementRefRouteImport } from './routes/app.statements.$statementRef'
 import { Route as AppTransactionsIndexRouteImport } from './routes/app.transactions.index'
@@ -372,6 +376,26 @@ const AppAccountsAccountRefRoute = AppAccountsAccountRefRouteImport.update({
   path: '/$accountRef',
   getParentRoute: () => AppAccountsRoute,
 } as any)
+const AppProfileIndexRoute = AppProfileIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppProfileRoute,
+} as any)
+const AppProfileAddressRoute = AppProfileAddressRouteImport.update({
+  id: '/address',
+  path: '/address',
+  getParentRoute: () => AppProfileRoute,
+} as any)
+const AppProfileIdentityRoute = AppProfileIdentityRouteImport.update({
+  id: '/identity',
+  path: '/identity',
+  getParentRoute: () => AppProfileRoute,
+} as any)
+const AppProfilePersonalRoute = AppProfilePersonalRouteImport.update({
+  id: '/personal',
+  path: '/personal',
+  getParentRoute: () => AppProfileRoute,
+} as any)
 const AppStatementsIndexRoute = AppStatementsIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -457,7 +481,7 @@ export interface FileRoutesByFullPath {
   '/app/messages': typeof AppMessagesRoute
   '/app/more': typeof AppMoreRoute
   '/app/notifications': typeof AppNotificationsRoute
-  '/app/profile': typeof AppProfileRoute
+  '/app/profile': typeof AppProfileRouteWithChildren
   '/app/security': typeof AppSecurityRoute
   '/app/settings': typeof AppSettingsRoute
   '/app/statements': typeof AppStatementsRouteWithChildren
@@ -475,11 +499,15 @@ export interface FileRoutesByFullPath {
   '/app/': typeof AppIndexRoute
   '/onboarding/': typeof OnboardingIndexRoute
   '/app/accounts/$accountRef': typeof AppAccountsAccountRefRoute
+  '/app/profile/address': typeof AppProfileAddressRoute
+  '/app/profile/identity': typeof AppProfileIdentityRoute
+  '/app/profile/personal': typeof AppProfilePersonalRoute
   '/app/statements/$statementRef': typeof AppStatementsStatementRefRoute
   '/app/transactions/$transactionRef': typeof AppTransactionsTransactionRefRoute
   '/app/transfers/$transferRef': typeof AppTransfersTransferRefRoute
   '/app/transfers/new': typeof AppTransfersNewRoute
   '/app/accounts/': typeof AppAccountsIndexRoute
+  '/app/profile/': typeof AppProfileIndexRoute
   '/app/statements/': typeof AppStatementsIndexRoute
   '/app/transactions/': typeof AppTransactionsIndexRoute
   '/app/transfers/': typeof AppTransfersIndexRoute
@@ -522,7 +550,6 @@ export interface FileRoutesByTo {
   '/app/messages': typeof AppMessagesRoute
   '/app/more': typeof AppMoreRoute
   '/app/notifications': typeof AppNotificationsRoute
-  '/app/profile': typeof AppProfileRoute
   '/app/security': typeof AppSecurityRoute
   '/app/settings': typeof AppSettingsRoute
   '/auth/callback': typeof AuthCallbackRoute
@@ -538,11 +565,15 @@ export interface FileRoutesByTo {
   '/app': typeof AppIndexRoute
   '/onboarding': typeof OnboardingIndexRoute
   '/app/accounts/$accountRef': typeof AppAccountsAccountRefRoute
+  '/app/profile/address': typeof AppProfileAddressRoute
+  '/app/profile/identity': typeof AppProfileIdentityRoute
+  '/app/profile/personal': typeof AppProfilePersonalRoute
   '/app/statements/$statementRef': typeof AppStatementsStatementRefRoute
   '/app/transactions/$transactionRef': typeof AppTransactionsTransactionRefRoute
   '/app/transfers/$transferRef': typeof AppTransfersTransferRefRoute
   '/app/transfers/new': typeof AppTransfersNewRoute
   '/app/accounts': typeof AppAccountsIndexRoute
+  '/app/profile': typeof AppProfileIndexRoute
   '/app/statements': typeof AppStatementsIndexRoute
   '/app/transactions': typeof AppTransactionsIndexRoute
   '/app/transfers': typeof AppTransfersIndexRoute
@@ -590,7 +621,7 @@ export interface FileRoutesById {
   '/app/messages': typeof AppMessagesRoute
   '/app/more': typeof AppMoreRoute
   '/app/notifications': typeof AppNotificationsRoute
-  '/app/profile': typeof AppProfileRoute
+  '/app/profile': typeof AppProfileRouteWithChildren
   '/app/security': typeof AppSecurityRoute
   '/app/settings': typeof AppSettingsRoute
   '/app/statements': typeof AppStatementsRouteWithChildren
@@ -608,11 +639,15 @@ export interface FileRoutesById {
   '/app/': typeof AppIndexRoute
   '/onboarding/': typeof OnboardingIndexRoute
   '/app/accounts/$accountRef': typeof AppAccountsAccountRefRoute
+  '/app/profile/address': typeof AppProfileAddressRoute
+  '/app/profile/identity': typeof AppProfileIdentityRoute
+  '/app/profile/personal': typeof AppProfilePersonalRoute
   '/app/statements/$statementRef': typeof AppStatementsStatementRefRoute
   '/app/transactions/$transactionRef': typeof AppTransactionsTransactionRefRoute
   '/app/transfers/$transferRef': typeof AppTransfersTransferRefRoute
   '/app/transfers/new': typeof AppTransfersNewRoute
   '/app/accounts/': typeof AppAccountsIndexRoute
+  '/app/profile/': typeof AppProfileIndexRoute
   '/app/statements/': typeof AppStatementsIndexRoute
   '/app/transactions/': typeof AppTransactionsIndexRoute
   '/app/transfers/': typeof AppTransfersIndexRoute
@@ -679,11 +714,15 @@ export interface FileRouteTypes {
     | '/app/'
     | '/onboarding/'
     | '/app/accounts/$accountRef'
+    | '/app/profile/address'
+    | '/app/profile/identity'
+    | '/app/profile/personal'
     | '/app/statements/$statementRef'
     | '/app/transactions/$transactionRef'
     | '/app/transfers/$transferRef'
     | '/app/transfers/new'
     | '/app/accounts/'
+    | '/app/profile/'
     | '/app/statements/'
     | '/app/transactions/'
     | '/app/transfers/'
@@ -726,7 +765,6 @@ export interface FileRouteTypes {
     | '/app/messages'
     | '/app/more'
     | '/app/notifications'
-    | '/app/profile'
     | '/app/security'
     | '/app/settings'
     | '/auth/callback'
@@ -742,11 +780,15 @@ export interface FileRouteTypes {
     | '/app'
     | '/onboarding'
     | '/app/accounts/$accountRef'
+    | '/app/profile/address'
+    | '/app/profile/identity'
+    | '/app/profile/personal'
     | '/app/statements/$statementRef'
     | '/app/transactions/$transactionRef'
     | '/app/transfers/$transferRef'
     | '/app/transfers/new'
     | '/app/accounts'
+    | '/app/profile'
     | '/app/statements'
     | '/app/transactions'
     | '/app/transfers'
@@ -811,11 +853,15 @@ export interface FileRouteTypes {
     | '/app/'
     | '/onboarding/'
     | '/app/accounts/$accountRef'
+    | '/app/profile/address'
+    | '/app/profile/identity'
+    | '/app/profile/personal'
     | '/app/statements/$statementRef'
     | '/app/transactions/$transactionRef'
     | '/app/transfers/$transferRef'
     | '/app/transfers/new'
     | '/app/accounts/'
+    | '/app/profile/'
     | '/app/statements/'
     | '/app/transactions/'
     | '/app/transfers/'
@@ -1267,6 +1313,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAccountsAccountRefRouteImport
       parentRoute: typeof AppAccountsRoute
     }
+    '/app/profile/': {
+      id: '/app/profile/'
+      path: '/'
+      fullPath: '/app/profile/'
+      preLoaderRoute: typeof AppProfileIndexRouteImport
+      parentRoute: typeof AppProfileRoute
+    }
+    '/app/profile/address': {
+      id: '/app/profile/address'
+      path: '/address'
+      fullPath: '/app/profile/address'
+      preLoaderRoute: typeof AppProfileAddressRouteImport
+      parentRoute: typeof AppProfileRoute
+    }
+    '/app/profile/identity': {
+      id: '/app/profile/identity'
+      path: '/identity'
+      fullPath: '/app/profile/identity'
+      preLoaderRoute: typeof AppProfileIdentityRouteImport
+      parentRoute: typeof AppProfileRoute
+    }
+    '/app/profile/personal': {
+      id: '/app/profile/personal'
+      path: '/personal'
+      fullPath: '/app/profile/personal'
+      preLoaderRoute: typeof AppProfilePersonalRouteImport
+      parentRoute: typeof AppProfileRoute
+    }
     '/app/statements/': {
       id: '/app/statements/'
       path: '/'
@@ -1368,6 +1442,24 @@ const AppAccountsRouteWithChildren = AppAccountsRoute._addFileChildren(
   AppAccountsRouteChildren,
 )
 
+interface AppProfileRouteChildren {
+  AppProfileAddressRoute: typeof AppProfileAddressRoute
+  AppProfileIdentityRoute: typeof AppProfileIdentityRoute
+  AppProfilePersonalRoute: typeof AppProfilePersonalRoute
+  AppProfileIndexRoute: typeof AppProfileIndexRoute
+}
+
+const AppProfileRouteChildren: AppProfileRouteChildren = {
+  AppProfileAddressRoute: AppProfileAddressRoute,
+  AppProfileIdentityRoute: AppProfileIdentityRoute,
+  AppProfilePersonalRoute: AppProfilePersonalRoute,
+  AppProfileIndexRoute: AppProfileIndexRoute,
+}
+
+const AppProfileRouteWithChildren = AppProfileRoute._addFileChildren(
+  AppProfileRouteChildren,
+)
+
 interface AppStatementsRouteChildren {
   AppStatementsStatementRefRoute: typeof AppStatementsStatementRefRoute
   AppStatementsIndexRoute: typeof AppStatementsIndexRoute
@@ -1405,7 +1497,7 @@ interface AppRouteChildren {
   AppMessagesRoute: typeof AppMessagesRoute
   AppMoreRoute: typeof AppMoreRoute
   AppNotificationsRoute: typeof AppNotificationsRoute
-  AppProfileRoute: typeof AppProfileRoute
+  AppProfileRoute: typeof AppProfileRouteWithChildren
   AppSecurityRoute: typeof AppSecurityRoute
   AppSettingsRoute: typeof AppSettingsRoute
   AppStatementsRoute: typeof AppStatementsRouteWithChildren
@@ -1425,7 +1517,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppMessagesRoute: AppMessagesRoute,
   AppMoreRoute: AppMoreRoute,
   AppNotificationsRoute: AppNotificationsRoute,
-  AppProfileRoute: AppProfileRoute,
+  AppProfileRoute: AppProfileRouteWithChildren,
   AppSecurityRoute: AppSecurityRoute,
   AppSettingsRoute: AppSettingsRoute,
   AppStatementsRoute: AppStatementsRouteWithChildren,
