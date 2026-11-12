@@ -144,9 +144,7 @@ export function ProfilePage() {
                 <UserRound aria-hidden className="size-5" />
               </span>
               <div className="min-w-0">
-                <CardTitle>
-                  {en ? "Personal information" : "Informations personnelles"}
-                </CardTitle>
+                <CardTitle>{en ? "Personal information" : "Informations personnelles"}</CardTitle>
                 <CardDescription className="mt-1">
                   {en
                     ? "Manage your legal identity, contact details and primary address."
