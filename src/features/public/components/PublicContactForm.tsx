@@ -88,9 +88,9 @@ export function PublicContactForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} noValidate className="space-y-6">
+    <form onSubmit={handleSubmit} noValidate className="space-y-5 sm:space-y-6">
       <div
-        className="flex gap-3 rounded-xl border border-warning/30 bg-warning-muted/70 px-4 py-4 shadow-sm"
+        className="flex gap-3 rounded-xl border border-warning/30 bg-warning-muted/70 px-4 py-4"
         role="note"
       >
         <ShieldAlert className="mt-0.5 size-5 shrink-0 text-warning" aria-hidden="true" />
@@ -99,46 +99,52 @@ export function PublicContactForm() {
         </p>
       </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="contact-name">{copy("Nom", "Name")}</Label>
-        <Input
-          id="contact-name"
-          name="name"
-          autoComplete="name"
-          className="h-12 rounded-xl bg-background transition-colors focus-visible:ring-2"
-          aria-invalid={Boolean(errors.name)}
-          {...(errors.name ? { "aria-describedby": "contact-name-error" } : {})}
-        />
-        {errors.name && (
-          <p id="contact-name-error" className="text-caption text-danger">
-            {errors.name}
-          </p>
-        )}
-      </div>
+      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+        <div className="min-w-0 space-y-2">
+          <Label htmlFor="contact-name">{copy("Nom", "Name")}</Label>
+          <Input
+            id="contact-name"
+            name="name"
+            autoComplete="name"
+            className="h-12 rounded-xl bg-background transition-colors focus-visible:ring-2"
+            aria-invalid={Boolean(errors.name)}
+            {...(errors.name ? { "aria-describedby": "contact-name-error" } : {})}
+          />
+          {errors.name && (
+            <p id="contact-name-error" className="text-caption text-danger">
+              {errors.name}
+            </p>
+          )}
+        </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="contact-email">{copy("Adresse e-mail", "Email address")}</Label>
-        <Input
-          id="contact-email"
-          name="email"
-          type="email"
-          inputMode="email"
-          autoComplete="email"
-          className="h-12"
-          aria-invalid={Boolean(errors.email)}
-          {...(errors.email ? { "aria-describedby": "contact-email-error" } : {})}
-        />
-        {errors.email && (
-          <p id="contact-email-error" className="text-caption text-danger">
-            {errors.email}
-          </p>
-        )}
+        <div className="min-w-0 space-y-2">
+          <Label htmlFor="contact-email">{copy("Adresse e-mail", "Email address")}</Label>
+          <Input
+            id="contact-email"
+            name="email"
+            type="email"
+            inputMode="email"
+            autoComplete="email"
+            className="h-12 rounded-xl bg-background"
+            aria-invalid={Boolean(errors.email)}
+            {...(errors.email ? { "aria-describedby": "contact-email-error" } : {})}
+          />
+          {errors.email && (
+            <p id="contact-email-error" className="text-caption text-danger">
+              {errors.email}
+            </p>
+          )}
+        </div>
       </div>
 
       <div className="space-y-2">
         <Label htmlFor="contact-topic">{copy("Sujet", "Topic")}</Label>
         <Select value={topic} onValueChange={setTopic}>
-          <SelectTrigger id="contact-topic" className="h-12" aria-invalid={Boolean(errors.topic)}>
+          <SelectTrigger
+            id="contact-topic"
+            className="h-12 rounded-xl bg-background"
+            aria-invalid={Boolean(errors.topic)}
+          >
             <SelectValue placeholder={copy("Choisissez un sujet", "Choose a topic")} />
           </SelectTrigger>
           <SelectContent>
@@ -153,7 +159,12 @@ export function PublicContactForm() {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="contact-message">Message</Label>
+        <div className="flex items-center justify-between gap-3">
+          <Label htmlFor="contact-message">{copy("Message", "Message")}</Label>
+          <span className="text-caption text-muted-foreground">
+            {copy("20 à 1 500 caractères", "20 to 1,500 characters")}
+          </span>
+        </div>
         <Textarea
           id="contact-message"
           name="message"
@@ -173,17 +184,14 @@ export function PublicContactForm() {
         )}
       </div>
 
-      <Button
-        type="submit"
-        size="lg"
-        className="h-12 w-full rounded-xl shadow-sm transition-all hover:shadow-md sm:w-auto"
-      >
-        {copy("Envoyer la demande", "Send request")}
-      </Button>
-
-      <p className="text-caption text-muted-foreground" aria-live="polite" role="status">
-        {notice}
-      </p>
+      <div className="flex flex-col gap-3 border-t border-border pt-5 sm:flex-row sm:items-center sm:justify-between">
+        <p className="text-caption text-muted-foreground" aria-live="polite" role="status">
+          {notice}
+        </p>
+        <Button type="submit" size="lg" className="h-12 w-full rounded-xl sm:w-auto">
+          {copy("Envoyer la demande", "Send request")}
+        </Button>
+      </div>
     </form>
   );
 }
