@@ -32,7 +32,8 @@ export function ProfilePage() {
   const { language } = useLanguage();
   const en = language === "en";
   const query = useProfileOverview();
-    if (query.isPending) {
+
+  if (query.isPending) {
     return <LoadingState label={en ? "Loading your profile…" : "Chargement de votre profil…"} />;
   }
 
@@ -163,7 +164,9 @@ export function ProfilePage() {
                     {en ? "Personal details" : "Informations personnelles"}
                   </span>
                   <span className="block text-xs text-muted-foreground">
-                    {en ? "Name, date of birth, nationality and phone" : "Nom, date de naissance, nationalité et téléphone"}
+                    {en
+                      ? "Name, date of birth, nationality and phone"
+                      : "Nom, date de naissance, nationalité et téléphone"}
                   </span>
                 </span>
               </span>
@@ -177,7 +180,9 @@ export function ProfilePage() {
                     {en ? "Primary address" : "Adresse principale"}
                   </span>
                   <span className="block text-xs text-muted-foreground">
-                    {data.address.city || data.address.country || (en ? "Not provided" : "Non renseignée")}
+                    {data.address.city ||
+                      data.address.country ||
+                      (en ? "Not provided" : "Non renseignée")}
                   </span>
                 </span>
               </span>
