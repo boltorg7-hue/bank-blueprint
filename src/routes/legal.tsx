@@ -39,7 +39,7 @@ function LegalPage() {
   const cookiesEn = [
     ["Theme preference", "Remember your light or dark appearance choice.", "Browser local storage"],
     ["Privacy mode", "Remember whether amounts are hidden on screen.", "Browser local storage"],
-    ["Sign-in session", "Keep you signed in to your customer account.", "Cookie / secure storage"],
+    ["Sign-in session", "Keep you signed in to your customer account.", "Browser local storage on the published site; shared session storage in Lovable preview"],
   ];
 
   return (
