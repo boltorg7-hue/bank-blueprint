@@ -59,7 +59,7 @@ export function AccountCoordinatesPanel({
         <h2 id="coordinates-heading" className="text-heading-sm text-foreground">
           {en ? "Banking details" : "Coordonnées bancaires"}
         </h2>
-        <Button variant="ghost" size="sm" onClick={() => setRevealed((value) => !value)}>
+        <Button variant="ghost" size="sm" className="min-h-11 shrink-0" onClick={() => setRevealed((value) => !value)}>
           {revealed ? (
             <>
               <EyeOff className="size-4" aria-hidden="true" /> {en ? "Hide" : "Masquer"}
@@ -74,14 +74,15 @@ export function AccountCoordinatesPanel({
 
       <dl className="mt-4 divide-y divide-border">
         {rows.map((row) => (
-          <div key={row.label} className="flex items-center justify-between gap-3 py-3 transition-colors hover:bg-muted/20 motion-safe:duration-200">
-            <dt className="text-caption text-muted-foreground">{row.label}</dt>
-            <dd className="text-numeric text-body flex min-w-0 items-center gap-2 text-foreground">
-              <span className="truncate">{row.value}</span>
+          <div key={row.label} className="grid grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] items-center gap-2 py-3 transition-colors hover:bg-muted/20 motion-safe:duration-200 sm:gap-3">
+            <dt className="text-caption min-w-0 text-muted-foreground">{row.label}</dt>
+            <dd className="text-numeric text-body flex min-w-0 items-center justify-end gap-1.5 text-foreground sm:gap-2">
+              <span className="min-w-0 truncate text-right">{row.value}</span>
               {row.copyable && (
                 <Button
                   variant="ghost"
                   size="icon"
+                  className="min-h-11 min-w-11 shrink-0"
                   aria-label={en ? `Copy ${row.label}` : `Copier ${row.label}`}
                   onClick={() => copy(row.label, row.value)}
                 >

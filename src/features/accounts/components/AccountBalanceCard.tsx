@@ -1,4 +1,4 @@
-import { Info } from "lucide-react";
+import { Info, WalletCards } from "lucide-react";
 
 import { StatusBadge } from "@/components/ui/status-badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -59,11 +59,14 @@ export function AccountBalanceCard({
     <section
       aria-labelledby="balance-card-heading"
       className={cn(
-        "native-surface overflow-hidden border-t-2 border-t-brand p-5 sm:p-6 motion-safe:transition-shadow motion-safe:duration-200",
+        "native-surface overflow-hidden rounded-2xl border-t-2 border-t-brand p-4 sm:p-6 motion-safe:transition-shadow motion-safe:duration-200",
         className,
       )}
     >
-      <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
+      <div className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-start gap-2.5 sm:gap-3">
+        <span className="mt-0.5 flex size-10 shrink-0 items-center justify-center rounded-xl bg-brand/5 text-brand ring-1 ring-inset ring-brand/10" aria-hidden="true">
+          <WalletCards className="size-5" strokeWidth={1.8} />
+        </span>
         <div className="min-w-0">
           <h2
             id="balance-card-heading"

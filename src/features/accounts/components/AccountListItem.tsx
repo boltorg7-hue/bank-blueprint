@@ -1,4 +1,4 @@
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, WalletCards } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { useLanguage } from "@/components/providers/LanguageProvider";
 
@@ -43,8 +43,11 @@ export function AccountListItem({ account }: { account: CustomerAccountSummaryDt
       <Link
         to="/app/accounts/$accountRef"
         params={{ accountRef: account.reference }}
-        className="native-surface press-feedback flex w-full items-center gap-3 p-4 text-left motion-safe:transition-[border-color,box-shadow,transform] motion-safe:duration-150 hover:border-brand/30 hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background motion-reduce:transition-none"
+        className="native-surface press-feedback flex min-h-28 w-full items-center gap-3 rounded-2xl p-4 text-left motion-safe:transition-[border-color,box-shadow,transform] motion-safe:duration-150 hover:-translate-y-0.5 hover:border-brand/30 hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background motion-reduce:transform-none motion-reduce:transition-none sm:gap-4 sm:p-5"
       >
+        <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-brand/5 text-brand ring-1 ring-inset ring-brand/10 transition-colors motion-safe:duration-200 group-hover:bg-brand/10" aria-hidden="true">
+          <WalletCards className="size-5" strokeWidth={1.8} />
+        </span>
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
             <p className="text-heading-sm truncate text-foreground">{account.displayName}</p>
@@ -54,10 +57,10 @@ export function AccountListItem({ account }: { account: CustomerAccountSummaryDt
               </span>
             )}
           </div>
-          <p className="text-caption text-numeric mt-0.5 text-muted-foreground">
+          <p className="text-caption text-numeric mt-1 text-muted-foreground">
             {typeLabel} · ••••{account.maskedNumber.slice(-4)}
           </p>
-          <div className="mt-2">
+          <div className="mt-2.5">
             {balance ? (
               <p className="text-amount text-foreground">
                 {privacyMode
