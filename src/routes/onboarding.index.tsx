@@ -51,6 +51,24 @@ function OnboardingHome() {
 
   const tasks = buildOnboardingTasks(context);
   const resume = nextOnboardingRoute(context);
+  const englishTaskTitles: Record<string, string> = {
+    email: "Email address confirmed",
+    profile: "Personal information",
+    address: "Residential address",
+    documents: "Identity verification",
+    review: "Submit your application",
+    activation: "Account opening",
+  };
+  const englishTaskDescriptions: Record<string, string> = {
+    email: context.emailVerified
+      ? "Your email address is confirmed."
+      : "Confirm your email address to secure your account.",
+    profile: "Name, date of birth, nationality, country of residence and occupation.",
+    address: "Your full address in your country’s format.",
+    documents: "An identity document and proof of address.",
+    review: "Review your details, then submit your application for verification.",
+    activation: "After identity checks, account opening is reviewed separately.",
+  };
 
   return (
     <OnboardingShell
@@ -82,37 +100,10 @@ function OnboardingHome() {
             </span>
             <span className="min-w-0 flex-1">
               <span className="block text-label font-semibold text-foreground">
-                {en
-                  ? (
-                      {
-                        email: "Email address confirmed",
-                        profile: "Personal information",
-                        address: "Residential address",
-                        documents: "Identity verification",
-                        review: "Submit your application",
-                        activation: "Account opening",
-                      } as Record<string, string>
-                    )[task.id] ?? task.title
-                  : task.title}
+                {en ? (englishTaskTitles[task.id] ?? task.title) : task.title}
               </span>
               <span className="mt-1.5 block text-body-sm leading-relaxed text-muted-foreground">
-                {en
-                  ? (
-                      {
-                        email: context.emailVerified
-                          ? "Your email address is confirmed."
-                          : "Confirm your email address to secure your account.",
-                        profile:
-                          "Name, date of birth, nationality, country of residence and occupation.",
-                        address: "Your full address in your country’s format.",
-                        documents: "An identity document and proof of address.",
-                        review:
-                          "Review your details, then submit your application for verification.",
-                        activation:
-                          "After identity checks, account opening is reviewed separately.",
-                      } as Record<string, string>
-                    )[task.id] ?? task.description
-                  : task.description}
+                {en ? (englishTaskDescriptions[task.id] ?? task.description) : task.description}
               </span>
             </span>
             {task.status !== "done" ? (
