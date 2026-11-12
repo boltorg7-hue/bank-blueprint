@@ -37,7 +37,7 @@ export function useSessionUser(): SessionState {
   return state;
 }
 
-/** Sign-out hygiene: cancel in-flight queries, clear cache, then replace history. */
+/** Sign-out hygiene: cancel queries, sign out, clear cache, then replace history. */
 export function useSignOut() {
   const { language } = useLanguage();
   const queryClient = useQueryClient();
