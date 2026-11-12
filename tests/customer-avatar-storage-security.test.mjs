@@ -16,7 +16,7 @@ assert.match(migration, /ARRAY\['image\/jpeg', 'image\/png', 'image\/webp'\]/);
 assert.match(migration, /Customer avatar owner read[\s\S]*auth\.uid\(\)::text = \(storage\.foldername\(name\)\)\[1\]/);
 assert.match(migration, /Customer avatar owner upload[\s\S]*metadata->>'mimetype'[\s\S]*metadata->>'size'/);
 assert.match(migration, /Customer avatar owner delete unlinked[\s\S]*p\.avatar_storage_path = name/);
-assert.match(profileService, /createSignedUrl\\([\\s\\S]*avatar_storage_path/);
+assert.match(profileService, /createSignedUrl\([\s\S]*avatar_storage_path/);
 assert.match(profileService, /AVATAR_INVALID_CONTENT/);
 assert.match(profileService, /AVATAR_PATH_FORBIDDEN/);
 
