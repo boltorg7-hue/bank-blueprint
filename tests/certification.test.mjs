@@ -1080,14 +1080,20 @@ test("les listes de virements ont des filtres et états vides bilingues", () => 
   assert.match(route, /en \? "New transfer" : "Nouveau virement"/);
 });
 
-test("les erreurs de formulaire et la navigation client sont accessibles au clavier", () => {
+test("les erreurs de formulaire et les navigations client/admin sont accessibles au clavier", () => {
   const form = read("src/components/ui/form.tsx");
   const customerSidebar = read("src/components/navigation/CustomerSidebar.tsx");
+  const adminSidebar = read("src/components/navigation/AdminSidebar.tsx");
+
   assert.match(form, /role="alert"/);
+  assert.doesNotMatch(form, /aria-live="polite"/);
   assert.match(form, /aria-describedby=/);
   assert.match(form, /aria-invalid=\{!!error\}/);
-  assert.match(customerSidebar, /min-h-11/);
-  assert.match(customerSidebar, /focus-visible:ring-2 focus-visible:ring-ring/);
+
+  for (const sidebar of [customerSidebar, adminSidebar]) {
+    assert.match(sidebar, /min-h-11/);
+    assert.match(sidebar, /focus-visible:ring-2 focus-visible:ring-ring/);
+  }
 });
 
 test("B1 — les mutations onboarding verrouillent l'état client dans la transaction d'écriture", () => {
