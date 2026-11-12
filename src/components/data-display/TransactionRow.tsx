@@ -1,5 +1,5 @@
 import type { ComponentType } from "react";
-import { ArrowDownLeft, ArrowUpRight } from "lucide-react";
+import { ArrowDownLeft, ArrowLeftRight, ArrowUpRight } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { AmountText } from "./AmountText";
@@ -27,7 +27,7 @@ export function TransactionRow({
   subtitle?: string;
   amount: number;
   currency?: string;
-  direction: "credit" | "debit";
+  direction: "credit" | "debit" | "neutral";
   date: string | number | Date;
   statusLabel?: string;
   statusTone?: StatusTone;
@@ -35,7 +35,13 @@ export function TransactionRow({
   onClick?: () => void;
   className?: string;
 }) {
-  const Icon = icon ?? (direction === "credit" ? ArrowDownLeft : ArrowUpRight);
+  const Icon =
+    icon ??
+    (direction === "credit"
+      ? ArrowDownLeft
+      : direction === "debit"
+        ? ArrowUpRight
+        : ArrowLeftRight);
   const interactive = typeof onClick === "function";
   const Wrapper = interactive ? "button" : "div";
 
@@ -53,14 +59,18 @@ export function TransactionRow({
         aria-hidden="true"
         className={cn(
           "flex size-11 shrink-0 items-center justify-center rounded-full transition-transform",
-          direction === "credit" ? "bg-success-muted/50 text-success" : "bg-surface-sunken text-muted-foreground",
+          direction === "credit"
+            ? "bg-success-muted/50 text-success"
+            : "bg-surface-sunken text-muted-foreground",
         )}
       >
         <Icon className="size-5" />
       </span>
 
       <span className="min-w-0 flex-1">
-        <span className="text-label block truncate font-bold text-foreground sm:text-body">{title}</span>
+        <span className="text-label block truncate font-bold text-foreground sm:text-body">
+          {title}
+        </span>
         <span className="text-caption mt-1 flex flex-wrap items-center gap-x-2 text-muted-foreground">
           <time dateTime={toISODate(date)}>{formatRelativeDay(date)}</time>
           {subtitle && <span className="truncate max-w-[120px] sm:max-w-none">· {subtitle}</span>}
@@ -70,11 +80,19 @@ export function TransactionRow({
       <span className="flex shrink-0 flex-col items-end gap-1.5">
         <AmountText
           className="text-label sm:text-amount"
-          amount={direction === "credit" ? Math.abs(amount) : -Math.abs(amount)}
+          amount={
+            direction === "credit"
+              ? Math.abs(amount)
+              : direction === "debit"
+                ? -Math.abs(amount)
+                : amount
+          }
           direction={direction}
           {...(currency ? { currency } : {})}
         />
-        {statusLabel && <StatusBadge label={statusLabel} tone={statusTone} className="h-5 px-2 text-[0.625rem]" />}
+        {statusLabel && (
+          <StatusBadge label={statusLabel} tone={statusTone} className="h-5 px-2 text-[0.625rem]" />
+        )}
       </span>
     </Wrapper>
   );

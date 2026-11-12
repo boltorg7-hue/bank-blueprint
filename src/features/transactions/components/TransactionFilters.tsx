@@ -37,6 +37,7 @@ const DIRECTIONS = [
   { value: "ALL", label: "Toutes les opérations" },
   { value: "INCOMING", label: "Entrées d'argent" },
   { value: "OUTGOING", label: "Sorties d'argent" },
+  { value: "NEUTRAL", label: "Autres opérations" },
 ];
 
 const STATUSES = [
@@ -46,6 +47,7 @@ const STATUSES = [
   { value: "PROCESSING", label: "En cours" },
   { value: "REVERSED", label: "Contre-passé" },
   { value: "FAILED", label: "Échoué" },
+  { value: "CANCELLED", label: "Annulé" },
 ];
 
 const CATEGORIES = [
@@ -58,6 +60,32 @@ const CATEGORIES = [
   { value: "REVERSAL", fr: "Contre-passations", en: "Reversals" },
   { value: "ACCOUNT_OPENING", fr: "Ouvertures de compte", en: "Account openings" },
 ];
+
+const DIRECTION_LABELS: Record<string, string> = {
+  ALL: "All transactions",
+  INCOMING: "Money in",
+  OUTGOING: "Money out",
+  NEUTRAL: "Other transactions",
+};
+
+const STATUS_LABELS: Record<string, string> = {
+  ALL: "All statuses",
+  COMPLETED: "Completed",
+  PENDING: "Pending",
+  PROCESSING: "Processing",
+  REVERSED: "Reversed",
+  FAILED: "Failed",
+  CANCELLED: "Cancelled",
+};
+
+const DATE_PRESET_LABELS: Record<string, string> = {
+  ALL: "Any date",
+  TODAY: "Today",
+  LAST_7_DAYS: "Last 7 days",
+  THIS_MONTH: "This month",
+  LAST_MONTH: "Last month",
+  CUSTOM: "Custom dates",
+};
 
 export function amountToMinor(value: string): number | null {
   if (!value.trim()) return null;
@@ -75,9 +103,12 @@ function validAmount(value: string): boolean {
 function validRange(filters: Filters): boolean {
   const min = amountToMinor(filters.minAmount);
   const max = amountToMinor(filters.maxAmount);
-  return validAmount(filters.minAmount) && validAmount(filters.maxAmount) &&
+  return (
+    validAmount(filters.minAmount) &&
+    validAmount(filters.maxAmount) &&
     (min === null || max === null || min <= max) &&
-    (filters.datePreset !== "CUSTOM" || !filters.from || !filters.to || filters.from < filters.to);
+    (filters.datePreset !== "CUSTOM" || !filters.from || !filters.to || filters.from < filters.to)
+  );
 }
 
 function dayAfter(date: string): string {
@@ -120,20 +151,51 @@ function FilterFields({
     <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
       <div className="space-y-1.5">
         <Label htmlFor="filter-category">{en ? "Category" : "Catégorie"}</Label>
-        <Select value={filters.type} onValueChange={(value) => onChange({ ...filters, type: value })}>
-          <SelectTrigger id="filter-category" className="h-11"><SelectValue /></SelectTrigger>
+        <Select
+          value={filters.type}
+          onValueChange={(value) => onChange({ ...filters, type: value })}
+        >
+          <SelectTrigger id="filter-category" className="h-11">
+            <SelectValue />
+          </SelectTrigger>
           <SelectContent>
-            {CATEGORIES.map((option) => <SelectItem key={option.value} value={option.value}>{en ? option.en : option.fr}</SelectItem>)}
+            {CATEGORIES.map((option) => (
+              <SelectItem key={option.value} value={option.value}>
+                {en ? option.en : option.fr}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
       </div>
       <div className="space-y-1.5">
-        <Label htmlFor="filter-min-amount">{en ? "Minimum amount (USD)" : "Montant minimum (USD)"}</Label>
-        <Input id="filter-min-amount" className="h-11" type="text" inputMode="decimal" placeholder="0,00" value={filters.minAmount} onChange={(event) => onChange({ ...filters, minAmount: event.target.value })} aria-invalid={!validAmount(filters.minAmount)} />
+        <Label htmlFor="filter-min-amount">
+          {en ? "Minimum amount (USD)" : "Montant minimum (USD)"}
+        </Label>
+        <Input
+          id="filter-min-amount"
+          className="h-11"
+          type="text"
+          inputMode="decimal"
+          placeholder="0,00"
+          value={filters.minAmount}
+          onChange={(event) => onChange({ ...filters, minAmount: event.target.value })}
+          aria-invalid={!validAmount(filters.minAmount)}
+        />
       </div>
       <div className="space-y-1.5">
-        <Label htmlFor="filter-max-amount">{en ? "Maximum amount (USD)" : "Montant maximum (USD)"}</Label>
-        <Input id="filter-max-amount" className="h-11" type="text" inputMode="decimal" placeholder="0,00" value={filters.maxAmount} onChange={(event) => onChange({ ...filters, maxAmount: event.target.value })} aria-invalid={!validAmount(filters.maxAmount)} />
+        <Label htmlFor="filter-max-amount">
+          {en ? "Maximum amount (USD)" : "Montant maximum (USD)"}
+        </Label>
+        <Input
+          id="filter-max-amount"
+          className="h-11"
+          type="text"
+          inputMode="decimal"
+          placeholder="0,00"
+          value={filters.maxAmount}
+          onChange={(event) => onChange({ ...filters, maxAmount: event.target.value })}
+          aria-invalid={!validAmount(filters.maxAmount)}
+        />
       </div>
       <div className="space-y-1.5">
         <Label htmlFor="filter-search">{en ? "Search" : "Recherche"}</Label>
@@ -149,7 +211,9 @@ function FilterFields({
         <Label htmlFor="filter-direction">{en ? "Direction" : "Sens"}</Label>
         <Select
           value={filters.direction}
-          onValueChange={(value) => onChange({ ...filters, direction: value as TransactionDirection | "ALL" })}
+          onValueChange={(value) =>
+            onChange({ ...filters, direction: value as TransactionDirection | "ALL" })
+          }
         >
           <SelectTrigger id="filter-direction">
             <SelectValue />
@@ -157,7 +221,7 @@ function FilterFields({
           <SelectContent>
             {DIRECTIONS.map((option) => (
               <SelectItem key={option.value} value={option.value}>
-                {en ? ({ ALL: "All transactions", INCOMING: "Money in", OUTGOING: "Money out" } as Record<string, string>)[option.value] : option.label}
+                {en ? DIRECTION_LABELS[option.value] : option.label}
               </SelectItem>
             ))}
           </SelectContent>
@@ -168,7 +232,9 @@ function FilterFields({
         <Label htmlFor="filter-status">{en ? "Status" : "Statut"}</Label>
         <Select
           value={filters.status}
-          onValueChange={(value) => onChange({ ...filters, status: value as CustomerTransactionStatus | "ALL" })}
+          onValueChange={(value) =>
+            onChange({ ...filters, status: value as CustomerTransactionStatus | "ALL" })
+          }
         >
           <SelectTrigger id="filter-status">
             <SelectValue />
@@ -176,7 +242,7 @@ function FilterFields({
           <SelectContent>
             {STATUSES.map((option) => (
               <SelectItem key={option.value} value={option.value}>
-                {en ? ({ ALL: "All statuses", COMPLETED: "Completed", PENDING: "Pending", PROCESSING: "Processing", REVERSED: "Reversed", FAILED: "Failed" } as Record<string, string>)[option.value] : option.label}
+                {en ? STATUS_LABELS[option.value] : option.label}
               </SelectItem>
             ))}
           </SelectContent>
@@ -197,7 +263,7 @@ function FilterFields({
           <SelectContent>
             {PRESETS.map((option) => (
               <SelectItem key={option.value} value={option.value}>
-                {en ? ({ ALL: "Any date", TODAY: "Today", LAST_7_DAYS: "Last 7 days", THIS_MONTH: "This month", LAST_MONTH: "Last month", CUSTOM: "Custom dates" } as Record<string, string>)[option.value] : option.label}
+                {en ? DATE_PRESET_LABELS[option.value] : option.label}
               </SelectItem>
             ))}
           </SelectContent>
@@ -225,7 +291,11 @@ function FilterFields({
             <Input
               id="filter-to"
               type="date"
-              value={filters.to ? new Date(Date.parse(filters.to) - 86_400_000).toISOString().slice(0, 10) : ""}
+              value={
+                filters.to
+                  ? new Date(Date.parse(filters.to) - 86_400_000).toISOString().slice(0, 10)
+                  : ""
+              }
               onChange={(event) =>
                 onChange({
                   ...filters,
@@ -236,7 +306,13 @@ function FilterFields({
           </div>
         </>
       ) : null}
-      {!validRange(filters) ? <p role="alert" className="text-sm text-destructive sm:col-span-2 lg:col-span-3">{en ? "Enter valid amounts (up to two decimals) and make sure the minimum does not exceed the maximum or the start date the end date." : "Saisissez des montants valides (deux décimales maximum) et vérifiez l’ordre des montants et des dates."}</p> : null}
+      {!validRange(filters) ? (
+        <p role="alert" className="text-sm text-destructive sm:col-span-2 lg:col-span-3">
+          {en
+            ? "Enter valid USD amounts (up to two decimals), keep the minimum at or below the maximum, and check the date range."
+            : "Saisissez des montants valides (deux décimales maximum) et vérifiez l’ordre des montants et des dates."}
+        </p>
+      ) : null}
     </div>
   );
 }
@@ -286,7 +362,11 @@ export function TransactionFilters({
         open={sheetOpen}
         onOpenChange={setSheetOpen}
         title={en ? "Filter transactions" : "Filtrer les opérations"}
-        description={en ? "Choose a date, amount or category." : "Choisissez une date, un montant ou une catégorie."}
+        description={
+          en
+            ? "Choose a date, amount or category."
+            : "Choisissez une date, un montant ou une catégorie."
+        }
         footer={
           <>
             <Button
@@ -321,11 +401,22 @@ export function TransactionFilters({
         <div className="native-surface p-4">
           <FilterFields filters={draft} onChange={setDraft} />
           <div className="mt-4 flex justify-end gap-2">
-            {count > 0 ? <Button variant="ghost" size="sm" onClick={() => { setDraft({ ...EMPTY_FILTERS }); onChange({ ...EMPTY_FILTERS }); }}>
+            {count > 0 ? (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setDraft({ ...EMPTY_FILTERS });
+                  onChange({ ...EMPTY_FILTERS });
+                }}
+              >
                 <X className="size-4" aria-hidden="true" />
                 {en ? "Reset all filters" : "Tout réinitialiser"}
-              </Button> : null}
-            <Button size="sm" disabled={!validRange(draft)} onClick={() => onChange(draft)}>{en ? "Show results" : "Voir les résultats"}</Button>
+              </Button>
+            ) : null}
+            <Button size="sm" disabled={!validRange(draft)} onClick={() => onChange(draft)}>
+              {en ? "Show results" : "Voir les résultats"}
+            </Button>
           </div>
         </div>
       </div>

@@ -51,7 +51,7 @@ function TransactionDetailRoute() {
             description={
               en
                 ? "We could not load this transaction. Please try again shortly."
-                : "Les informations de cette opération sont en cours de chargement. Réessayez dans un instant."
+                : "Impossible de charger les informations de cette opération. Réessayez dans un instant."
             }
             onRetry={() => void refetch()}
           />
