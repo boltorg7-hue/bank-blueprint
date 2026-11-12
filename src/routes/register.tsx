@@ -55,22 +55,22 @@ function RegisterPage() {
       aside={
         <div className="space-y-5">
           <div className="space-y-1">
-            <h2 className="text-heading-sm text-foreground">
+            <h2 className="text-heading-sm font-semibold text-foreground">
               {en ? "Choose another way" : "Choisissez une autre méthode"}
             </h2>
-            <p className="text-body-sm text-muted-foreground">
+            <p className="text-body-sm leading-relaxed text-muted-foreground">
               {en
                 ? "Use a trusted identity provider to continue."
                 : "Utilisez un fournisseur d'identité pour continuer."}
             </p>
           </div>
 
-          <div className="flex items-center gap-3">
-            <span className="h-px flex-1 bg-border" />
-            <span className="text-caption text-muted-foreground">
+          <div className="flex items-center gap-3 py-1">
+            <span className="h-px flex-1 bg-gradient-to-r from-transparent via-border to-border" />
+            <span className="text-caption rounded-full border border-border bg-background px-3 py-1 text-muted-foreground">
               {en ? "QUICK SIGN-UP" : "INSCRIPTION RAPIDE"}
             </span>
-            <span className="h-px flex-1 bg-border" />
+            <span className="h-px flex-1 bg-gradient-to-l from-transparent via-border to-border" />
           </div>
 
           <div className="space-y-3">
@@ -89,7 +89,7 @@ function RegisterPage() {
           {oauthError ? (
             <p
               role="alert"
-              className="text-caption rounded-lg bg-destructive/10 px-3 py-2 text-destructive"
+              className="text-caption rounded-xl border border-destructive/20 bg-destructive/10 px-3 py-3 text-destructive"
             >
               {oauthError}
             </p>
@@ -116,28 +116,28 @@ function RegisterPage() {
       footer={
         <p className="text-body-sm text-muted-foreground">
           {en ? "Already have an account?" : "Vous avez déjà un compte ?"}{" "}
-          <Link to="/login" className="font-semibold text-brand underline-offset-4 hover:underline">
+          <Link to="/login" className="rounded-sm font-semibold text-brand underline-offset-4 transition-colors hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 motion-reduce:transition-none">
             {en ? "Sign in" : "Se connecter"}
           </Link>
         </p>
       }
     >
-      <div className="mb-6 space-y-3">
+      <div className="mb-6 space-y-4 rounded-2xl border border-border bg-surface-sunken/70 p-4 sm:p-5">
         <div className="flex items-center justify-between gap-3">
-          <span className="text-overline text-brand">{en ? "STEP 1 OF 3" : "ÉTAPE 1 SUR 3"}</span>
+          <span className="text-overline font-semibold tracking-[0.12em] text-brand">{en ? "STEP 1 OF 3" : "ÉTAPE 1 SUR 3"}</span>
           <span className="text-caption text-muted-foreground">
             {en ? "3 secure steps" : "3 étapes sécurisées"}
           </span>
         </div>
         <div
-          className="h-1.5 overflow-hidden rounded-full bg-border"
+          className="h-2 overflow-hidden rounded-full bg-border/80"
           role="progressbar"
           aria-label={en ? "Registration progress" : "Progression de l'inscription"}
           aria-valuemin={1}
           aria-valuemax={3}
           aria-valuenow={1}
         >
-          <div className="h-full w-1/3 rounded-full bg-brand" />
+          <div className="h-full w-1/3 rounded-full bg-brand shadow-[0_0_10px_hsl(var(--brand)/0.35)]" />
         </div>
         <h2 className="text-heading-sm text-foreground">
           {en ? "Your personal details" : "Vos informations personnelles"}
