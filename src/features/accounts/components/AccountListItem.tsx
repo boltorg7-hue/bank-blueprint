@@ -69,9 +69,11 @@ export function AccountListItem({ account }: { account: CustomerAccountSummaryDt
                     )}
               </p>
             ) : (
-              <p className="text-body text-muted-foreground">{en
-                ? "Balance details will appear when available."
-                : "Les informations de solde seront affichées dès leur disponibilité."}</p>
+              <p className="text-body text-muted-foreground">
+                {en
+                  ? "Balance details will appear when available."
+                  : "Les informations de solde seront affichées dès leur disponibilité."}
+              </p>
             )}
           </div>
         </div>
