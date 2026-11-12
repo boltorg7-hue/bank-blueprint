@@ -8,18 +8,37 @@ const SUPPORT_PAGE_SIZE = 25;
 
 type SupportCursor = { lastMessageAt: string; id: string };
 
+const SUPPORT_CURSOR_UUID =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const SUPPORT_CURSOR_TIMESTAMP =
+  /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,6})?(?:Z|[+-]\d{2}:\d{2})$/;
+
 function encodeSupportCursor(value: SupportCursor): string {
   return Buffer.from(JSON.stringify(value), "utf8").toString("base64url");
 }
 
 function decodeSupportCursor(value?: string | null): SupportCursor | null {
   if (!value) return null;
+  if (!/^[A-Za-z0-9_-]{1,512}$/.test(value)) {
+    throw new Error("INVALID_SUPPORT_CURSOR");
+  }
+
   try {
     const parsed = JSON.parse(Buffer.from(value, "base64url").toString("utf8"));
-    if (typeof parsed?.lastMessageAt !== "string" || typeof parsed?.id !== "string") return null;
+    const validTimestamp =
+      typeof parsed?.lastMessageAt === "string" &&
+      SUPPORT_CURSOR_TIMESTAMP.test(parsed.lastMessageAt) &&
+      Number.isFinite(Date.parse(parsed.lastMessageAt));
+    const validId = typeof parsed?.id === "string" && SUPPORT_CURSOR_UUID.test(parsed.id);
+
+    if (!validTimestamp || !validId) {
+      throw new Error("INVALID_SUPPORT_CURSOR");
+    }
+
     return { lastMessageAt: parsed.lastMessageAt, id: parsed.id };
-  } catch {
-    return null;
+  } catch (error) {
+    if (error instanceof Error && error.message === "INVALID_SUPPORT_CURSOR") throw error;
+    throw new Error("INVALID_SUPPORT_CURSOR");
   }
 }
 
