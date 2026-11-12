@@ -77,7 +77,9 @@ function AccountsPage() {
           ))}
           <article className="group flex flex-col justify-center rounded-3xl border border-dashed border-border bg-surface-sunken p-6 transition-all duration-200 hover:border-brand/40 hover:bg-surface sm:p-8">
             <span className="inline-flex size-11 items-center justify-center rounded-xl bg-brand-muted text-brand transition-transform duration-200 group-hover:scale-105">
-              <span className="text-heading-sm" aria-hidden="true">＋</span>
+              <span className="text-heading-sm" aria-hidden="true">
+                ＋
+              </span>
             </span>
             <h3 className="text-heading-sm mt-5 text-foreground">{business.title}</h3>
             <p className="text-body-sm mt-2 max-w-md text-muted-foreground">
@@ -90,17 +92,10 @@ function AccountsPage() {
         </div>
       </PublicSection>
 
-      <PublicSection
-        tone="sunken"
-        className="border-y border-border py-12 sm:py-16"
-      >
+      <PublicSection tone="sunken" className="border-y border-border py-12 sm:py-16">
         <SectionHeader
           eyebrow={en ? "In practice" : "En pratique"}
-          title={
-            en
-              ? "What you can do with your account"
-              : "Ce que le compte vous permet de faire"
-          }
+          title={en ? "What you can do with your account" : "Ce que le compte vous permet de faire"}
           description={
             en
               ? "The essential services are grouped into clear, easy-to-find areas."
@@ -118,22 +113,15 @@ function AccountsPage() {
                 <span className="inline-flex size-11 items-center justify-center rounded-xl bg-brand-muted text-brand transition-transform duration-200 group-hover:scale-105">
                   <Icon className="size-5" aria-hidden="true" />
                 </span>
-                <h3 className="text-heading-sm mt-4 text-foreground">
-                  {section.title}
-                </h3>
-                <p className="text-body-sm mt-2 text-muted-foreground">
-                  {section.description}
-                </p>
+                <h3 className="text-heading-sm mt-4 text-foreground">{section.title}</h3>
+                <p className="text-body-sm mt-2 text-muted-foreground">{section.description}</p>
                 <ul className="mt-5 space-y-3 border-t border-border pt-4">
                   {section.points.map((point) => (
                     <li
                       key={point}
                       className="text-body-sm flex items-start gap-2.5 text-foreground"
                     >
-                      <Check
-                        className="mt-0.5 size-4 shrink-0 text-success"
-                        aria-hidden="true"
-                      />
+                      <Check className="mt-0.5 size-4 shrink-0 text-success" aria-hidden="true" />
                       <span className="min-w-0">{point}</span>
                     </li>
                   ))}
