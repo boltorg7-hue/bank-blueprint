@@ -1,42 +1,28 @@
 import { useEffect, useState } from "react";
-import {
-  BellRing,
-  EyeOff,
-  Languages,
-  MonitorCog,
-  Palette,
-  ShieldCheck,
-} from "lucide-react";
+import { BellRing, EyeOff, Languages, MonitorCog, Palette, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 
 import { useLanguage } from "@/components/providers/LanguageProvider";
 import { ErrorState, LoadingState } from "@/components/feedback";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { PageSection } from "@/components/ui/page-section";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { Switch } from "@/components/ui/switch";
 import { useTheme } from "@/components/providers/ThemeProvider";
-import {
-  usePreferences,
-  useSavePreferences,
-} from "@/features/profile/hooks/useProfile";
+import { usePreferences, useSavePreferences } from "@/features/profile/hooks/useProfile";
 import type { CustomerPreferencesDto } from "@/features/profile/types/profile";
 
-type ToggleKey =
-  | "privacyModeDefault"
-  | "smsTransactions"
-  | "smsSecurity"
-  | "emailService";
+type ToggleKey = "privacyModeDefault" | "smsTransactions" | "smsSecurity" | "emailService";
 
 export function PreferencesPage() {
   const { language, setLanguage } = useLanguage();
@@ -55,11 +41,7 @@ export function PreferencesPage() {
   }
 
   if (query.isPending || !form) {
-    return (
-      <LoadingState
-        label={en ? "Loading your preferences…" : "Chargement de vos préférences…"}
-      />
-    );
+    return <LoadingState label={en ? "Loading your preferences…" : "Chargement de vos préférences…"} />;
   }
 
   const updateToggle = (key: ToggleKey, value: boolean) => {
@@ -82,11 +64,9 @@ export function PreferencesPage() {
     form.smsSecurity !== query.data?.smsSecurity ||
     form.emailService !== query.data?.emailService;
 
-  const enabledChannels = [
-    form.smsTransactions,
-    form.smsSecurity,
-    form.emailService,
-  ].filter(Boolean).length;
+  const enabledChannels = [form.smsTransactions, form.smsSecurity, form.emailService].filter(
+    Boolean,
+  ).length;
 
   async function submit() {
     try {
@@ -108,26 +88,15 @@ export function PreferencesPage() {
     }
   }
 
-  const toggle = (
-    key: ToggleKey,
-    title: string,
-    description: string,
-    id: string,
-  ) => (
+  const toggle = (key: ToggleKey, title: string, description: string, id: string) => (
     <div className="flex items-center justify-between gap-4 border-b border-border/70 py-4 last:border-0 last:pb-0">
       <div className="min-w-0 space-y-1">
         <Label htmlFor={id} className="text-sm font-medium">
           {title}
         </Label>
-        <p className="text-xs leading-relaxed text-muted-foreground">
-          {description}
-        </p>
+        <p className="text-xs leading-relaxed text-muted-foreground">{description}</p>
       </div>
-      <Switch
-        id={id}
-        checked={form[key]}
-        onCheckedChange={(value) => updateToggle(key, value)}
-      />
+      <Switch id={id} checked={form[key]} onCheckedChange={(value) => updateToggle(key, value)} />
     </div>
   );
 
@@ -142,7 +111,15 @@ export function PreferencesPage() {
         }
         status={
           <StatusBadge
-            label={hasChanges ? (en ? "Unsaved changes" : "Modifications non enregistrées") : (en ? "Up to date" : "À jour")}
+            label={
+              hasChanges
+                ? en
+                  ? "Unsaved changes"
+                  : "Modifications non enregistrées"
+                : en
+                  ? "Up to date"
+                  : "À jour"
+            }
             tone={hasChanges ? "pending" : "success"}
           />
         }
@@ -217,28 +194,18 @@ export function PreferencesPage() {
                 </Select>
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="preference-theme">
-                  {en ? "Theme" : "Thème"}
-                </Label>
+                <Label htmlFor="preference-theme">{en ? "Theme" : "Thème"}</Label>
                 <Select
                   value={form.theme}
-                  onValueChange={(value: "light" | "dark" | "system") =>
-                    updateTheme(value)
-                  }
+                  onValueChange={(value: "light" | "dark" | "system") => updateTheme(value)}
                 >
                   <SelectTrigger id="preference-theme">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="system">
-                      {en ? "System" : "Système"}
-                    </SelectItem>
-                    <SelectItem value="light">
-                      {en ? "Light" : "Clair"}
-                    </SelectItem>
-                    <SelectItem value="dark">
-                      {en ? "Dark" : "Sombre"}
-                    </SelectItem>
+                    <SelectItem value="system">{en ? "System" : "Système"}</SelectItem>
+                    <SelectItem value="light">{en ? "Light" : "Clair"}</SelectItem>
+                    <SelectItem value="dark">{en ? "Dark" : "Sombre"}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -349,8 +316,7 @@ function PreferenceSummary({
   label: string;
   value: string;
 }) {
-  const Icon =
-    icon === "language" ? Languages : icon === "theme" ? Palette : BellRing;
+  const Icon = icon === "language" ? Languages : icon === "theme" ? Palette : BellRing;
 
   return (
     <div className="flex min-w-0 items-center gap-3">
