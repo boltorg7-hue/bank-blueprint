@@ -66,7 +66,8 @@ function EmailVerifiedPage() {
         },
         documents: {
           title: "Identity documents",
-          description: "Provide an identity document and proof of address. You may complete this later when your file allows it.",
+          description:
+          "Provide an identity document and proof of address. You may complete this later when your file allows it.",
         },
         review: {
           title: "Application submission",
@@ -207,9 +208,15 @@ function EmailVerifiedPage() {
                       </p>
                     </div>
                     {task.status === "done" ? (
-                      <CheckCircle2 className="mt-1 size-4 shrink-0 text-success" aria-label={en ? "Completed" : "Terminée"} />
+                      <CheckCircle2
+                      className="mt-1 size-4 shrink-0 text-success"
+                      aria-label={en ? "Completed" : "Terminée"}
+                    />
                     ) : (
-                      <Circle className="mt-1 size-4 shrink-0 text-muted-foreground/60" aria-hidden="true" />
+                      <Circle
+                      className="mt-1 size-4 shrink-0 text-muted-foreground/60"
+                      aria-hidden="true"
+                    />
                     )}
                   </li>
                 );
@@ -218,7 +225,9 @@ function EmailVerifiedPage() {
           </div>
         ) : isPending ? (
           <p className="text-body-sm text-muted-foreground">
-            {en ? "Your registration progress will appear when your details are loaded." : "Votre progression apparaîtra dès que les informations de votre dossier seront chargées."}
+            {en
+              ? "Your registration progress will appear when your details are loaded."
+              : "Votre progression apparaîtra dès que les informations de votre dossier seront chargées."}
           </p>
         ) : null}
         {isPending ? (
