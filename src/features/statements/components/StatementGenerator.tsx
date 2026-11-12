@@ -32,20 +32,20 @@ import {
  * Last 12 months, as UTC boundaries (period_end exclusive).
  * The running month is cut at the current instant (interim statement).
  */
-function monthlyOptions(count = 12) {
+function monthlyOptions(locale: string, count = 12) {
   const now = new Date();
   return Array.from({ length: count }, (_, index) => {
     const start = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - index, 1));
     const monthEnd = new Date(Date.UTC(start.getUTCFullYear(), start.getUTCMonth() + 1, 1));
     const isRunning = monthEnd.getTime() > now.getTime();
-    const label = new Intl.DateTimeFormat("fr-FR", {
+    const label = new Intl.DateTimeFormat(locale, {
       month: "long",
       year: "numeric",
       timeZone: "UTC",
     }).format(start);
     return {
       value: start.toISOString().slice(0, 10),
-      label: isRunning ? `${label} (en cours)` : label,
+      label: isRunning ? `${label} (${locale === "en-GB" ? "in progress" : "en cours"})` : label,
       start: start.toISOString(),
       end: (isRunning ? now : monthEnd).toISOString(),
     };
@@ -57,7 +57,7 @@ export function StatementGenerator() {
   const en = language === "en";
   const accounts = useCustomerAccounts();
   const request = useRequestStatement();
-  const months = useMemo(() => monthlyOptions(), []);
+  const months = useMemo(() => monthlyOptions(en ? "en-GB" : "fr-FR"), [en]);
 
   const [accountReference, setAccountReference] = useState("");
   const [periodKind, setPeriodKind] = useState<StatementPeriodKind>("MONTHLY");
