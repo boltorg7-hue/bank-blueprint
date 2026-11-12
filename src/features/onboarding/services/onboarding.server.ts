@@ -173,7 +173,8 @@ export async function loadCustomerContext(
       .from("profiles")
       .insert({
         id: userId,
-        ...nameHints,
+        first_name: nameHints.first_name ?? null,
+        last_name: nameHints.last_name ?? null,
         lifecycle_state: emailVerified ? "PROFILE_INCOMPLETE" : "EMAIL_VERIFICATION_REQUIRED",
       })
       .select(PROFILE_COLUMNS)
@@ -279,7 +280,7 @@ export async function saveProfileStep(userId: string, input: unknown) {
   if (!phoneUnchanged) {
     // Phone changes must use the same atomic path as the dedicated contact page:
     // invalidate old challenges, preserve lifecycle progression and check ownership.
-    const { error: phoneChangeError } = await supabaseAdmin.rpc("customer_change_pending_phone", {
+    const { error: phoneChangeError } = await (supabaseAdmin.rpc as any)("customer_change_pending_phone", {
       _user_id: userId,
       _phone: data.phone,
     });

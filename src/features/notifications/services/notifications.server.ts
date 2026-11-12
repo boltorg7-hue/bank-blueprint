@@ -1,5 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { NotificationCenterDto } from "@/domain/notifications/types";
+import type { NotificationCenterDto, NotificationDto } from "@/domain/notifications/types";
 
 type Client = SupabaseClient;
 
@@ -133,7 +133,7 @@ export async function loadNotifications(
   const items = rows.slice(0, NOTIFICATION_PAGE_SIZE).map((item) => ({
     id: String(item.id),
     category: String(item.category),
-    severity: String(item.severity),
+    severity: String(item.severity) as NotificationDto["severity"],
     title: String(item.title),
     body: String(item.body),
     resourcePath: item.resource_path ? String(item.resource_path) : null,
