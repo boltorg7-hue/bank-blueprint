@@ -41,7 +41,7 @@ function FeaturesPage() {
         }
         aside={
           featurePhoto ? (
-            <figure className="overflow-hidden rounded-2xl border border-border bg-surface p-2 shadow-[var(--shadow-subtle)]">
+            <figure className="overflow-hidden rounded-2xl border border-border/80 bg-card p-2 shadow-[var(--shadow-card)]">
               <img
                 src={featurePhoto.src}
                 alt={en ? "Queen's Park Savannah, Port of Spain" : featurePhoto.alt}
@@ -59,14 +59,14 @@ function FeaturesPage() {
       <PublicSection>
         <nav
           aria-label={en ? "Feature categories" : "Catégories de fonctionnalités"}
-          className="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0"
+          className="-mx-4 overflow-x-auto px-4 pb-2 sm:mx-0 sm:px-0"
         >
           <ul className="flex w-max gap-2 sm:w-full sm:flex-wrap">
             {categories.map((category) => (
               <li key={category.id}>
                 <a
                   href={`#${category.id}`}
-                  className="text-body-sm touch-target inline-flex items-center rounded-full border border-border bg-surface px-4 py-2 text-foreground shadow-[var(--shadow-subtle)] transition-colors hover:border-brand hover:bg-surface-sunken hover:text-brand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                  className="text-body-sm touch-target inline-flex items-center rounded-full border border-border/80 bg-card px-4 py-2 text-foreground shadow-[var(--shadow-subtle)] transition-[border-color,background-color,color,box-shadow] hover:border-brand/50 hover:bg-brand/5 hover:text-brand hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 >
                   {category.label}
                 </a>
@@ -83,10 +83,10 @@ function FeaturesPage() {
               <section
                 key={category.id}
                 id={category.id}
-                className="scroll-mt-24 border-t border-border pt-7 first:border-0 first:pt-0 sm:pt-9"
+                className="scroll-mt-24 border-t border-border/80 pt-8 first:border-0 first:pt-0 sm:pt-10"
               >
                 <div className="flex items-start gap-4">
-                  <div className="flex size-12 shrink-0 items-center justify-center rounded-2xl border border-brand/15 bg-brand/5 text-brand shadow-[var(--shadow-subtle)]">
+                  <div className="flex size-12 shrink-0 items-center justify-center rounded-2xl border border-brand/20 bg-gradient-to-br from-brand/10 to-brand/5 text-brand shadow-[var(--shadow-subtle)]">
                     <Icon className="size-6" aria-hidden="true" />
                   </div>
                   <div className="min-w-0 pt-0.5">
@@ -94,13 +94,13 @@ function FeaturesPage() {
                   </div>
                 </div>
 
-                <div className="mt-6 grid grid-cols-[minmax(0,1fr)] gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3">
+                <div className="mt-7 grid grid-cols-[minmax(0,1fr)] gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3">
                   {category.items.map((item, index) => (
                     <article
                       key={item.title}
-                      className="group min-w-0 rounded-2xl border border-border bg-surface p-5 shadow-[var(--shadow-subtle)] transition-[transform,border-color,box-shadow] duration-200 hover:-translate-y-1 hover:border-brand/50 hover:shadow-[var(--shadow-elevated)] motion-reduce:transform-none motion-reduce:transition-none sm:p-6"
+                      className="group min-w-0 rounded-2xl border border-border/80 bg-card p-5 shadow-[var(--shadow-subtle)] transition-[transform,border-color,box-shadow] duration-200 hover:-translate-y-1 hover:border-brand/40 hover:shadow-[var(--shadow-elevated)] motion-reduce:transform-none motion-reduce:transition-none sm:p-6"
                     >
-                      <span className="text-overline inline-flex size-9 items-center justify-center rounded-xl bg-brand/5 text-brand">
+                      <span className="text-overline inline-flex size-9 items-center justify-center rounded-xl border border-brand/10 bg-brand/5 text-brand">
                         {String(index + 1).padStart(2, "0")}
                       </span>
                       <h3 className="text-heading-sm mt-4 text-foreground transition-colors group-hover:text-brand">
