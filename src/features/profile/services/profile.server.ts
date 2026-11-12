@@ -17,26 +17,26 @@ export async function loadProfile(
 ): Promise<ProfileOverviewDto> {
   const [{ data: profile, error }, { data: address }, { data: verification }, { data: accounts }] =
     await Promise.all([
-    admin
-      .from("profiles")
-      .select(
-        "first_name,middle_name,last_name,date_of_birth,nationality,country_of_residence,occupation,phone,phone_verified_at,lifecycle_state,avatar_storage_path",
-      )
-      .eq("id", userId)
-      .single(),
-    admin
-      .from("customer_addresses")
-      .select("country,address_line1,address_line2,city,region,postal_code")
-      .eq("user_id", userId)
-      .eq("is_primary", true)
-      .maybeSingle(),
-    admin.from("identity_verifications").select("status").eq("user_id", userId).maybeSingle(),
-    admin
-      .from("bank_accounts")
-      .select("public_reference,display_name,currency,status,account_number,iban,bic")
-      .eq("user_id", userId)
-      .order("is_primary", { ascending: false }),
-  ]);
+      admin
+        .from("profiles")
+        .select(
+          "first_name,middle_name,last_name,date_of_birth,nationality,country_of_residence,occupation,phone,phone_verified_at,lifecycle_state,avatar_storage_path",
+        )
+        .eq("id", userId)
+        .single(),
+      admin
+        .from("customer_addresses")
+        .select("country,address_line1,address_line2,city,region,postal_code")
+        .eq("user_id", userId)
+        .eq("is_primary", true)
+        .maybeSingle(),
+      admin.from("identity_verifications").select("status").eq("user_id", userId).maybeSingle(),
+      admin
+        .from("bank_accounts")
+        .select("public_reference,display_name,currency,status,account_number,iban,bic")
+        .eq("user_id", userId)
+        .order("is_primary", { ascending: false }),
+    ]);
 
   if (error || !profile) throw new ProfileError("PROFILE_UNAVAILABLE");
 
