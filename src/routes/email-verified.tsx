@@ -35,7 +35,7 @@ function EmailVerifiedPage() {
   }, []);
   const query = useCustomerContext({ enabled: hasSession === true });
   const context = query.data;
-  const isPending = hasSession === null || query.isLoading;
+  const isPending = hasSession === null || (hasSession && query.isLoading);
 
   const steps = en
     ? [
@@ -63,9 +63,20 @@ function EmailVerifiedPage() {
       <div className="space-y-5">
         <div role="status" className="flex items-start gap-3 rounded-xl border border-success/40 bg-success-muted px-4 py-3">
           <CheckCircle2 className="mt-0.5 size-5 shrink-0 text-success" aria-hidden="true" />
-          <p className="text-body-sm text-foreground">
-            {en ? "Step 1 done: your email address is verified." : "Étape 1 terminée : votre adresse e-mail est vérifiée."}
-          </p>
+          <div className="min-w-0">
+            <p className="text-body-sm text-foreground">
+              {en ? "Step 1 done: your email address is verified." : "Étape 1 terminée : votre adresse e-mail est vérifiée."}
+            </p>
+            {context ? (
+              <p className="mt-1 text-body-sm text-muted-foreground">
+                {en ? "Registration details received for" : "Premières informations enregistrées pour"}{" "}
+                <span className="font-medium text-foreground">
+                  {[context.profile.first_name, context.profile.last_name].filter(Boolean).join(" ")}
+                </span>
+                {context.email ? ` · ${context.email}` : ""}
+              </p>
+            ) : null}
+          </div>
         </div>
 
         <ol className="space-y-3">
@@ -82,17 +93,38 @@ function EmailVerifiedPage() {
 
         {isPending ? (
           <div className="flex justify-center"><Spinner className="size-5" /></div>
+        ) : query.isError && hasSession ? (
+          <div className="space-y-3">
+            <p role="alert" className="text-body-sm text-destructive">
+              {en
+                ? "Your email is confirmed, but we could not load your registration details. Your account has not been reset. Please retry."
+                : "Votre e-mail est confirmé, mais nous n’avons pas pu charger vos informations d’inscription. Votre dossier n’a pas été réinitialisé. Veuillez réessayer."}
+            </p>
+            <Button className="w-full touch-target" onClick={() => void query.refetch()}>
+              {en ? "Retry loading my application" : "Réessayer de charger mon dossier"}
+              <ArrowRight className="size-4" aria-hidden="true" />
+            </Button>
+          </div>
+        ) : context ? (
+          <Button asChild className="w-full touch-target">
+            <Link to={next}>
+              {en ? "Start the next step" : "Commencer l'étape suivante"}
+              <ArrowRight className="size-4" aria-hidden="true" />
+            </Link>
+          </Button>
         ) : (
           <Button asChild className="w-full touch-target">
-            <Link to={context ? next : "/login"}>
-              {context ? (en ? "Start the next step" : "Commencer l'étape suivante") : en ? "Sign in to continue" : "Se connecter pour continuer"}
+            <Link to="/login">
+              {en ? "Sign in to continue" : "Se connecter pour continuer"}
               <ArrowRight className="size-4" aria-hidden="true" />
             </Link>
           </Button>
         )}
-        <Button asChild variant="ghost" className="w-full touch-target">
-          <Link to="/onboarding">{en ? "See my full progress" : "Voir toute ma progression"}</Link>
-        </Button>
+        {context ? (
+          <Button asChild variant="ghost" className="w-full touch-target">
+            <Link to="/onboarding">{en ? "See my full progress" : "Voir toute ma progression"}</Link>
+          </Button>
+        ) : null}
       </div>
     </AuthShell>
   );
