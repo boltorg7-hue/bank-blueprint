@@ -266,7 +266,7 @@ export function SupportCenter() {
 
       <div className="grid gap-2 sm:grid-cols-3">
         <SummaryTile
-          label={en ? "Conversations" : "Conversations"}
+          label={en ? "On this page" : "Sur cette page"}
           value={query.data?.items.length ?? 0}
           icon="inbox"
         />
@@ -313,7 +313,7 @@ export function SupportCenter() {
               value={search}
               onChange={(event) => setSearch(event.target.value)}
               placeholder={
-                en ? "Search by subject or reference" : "Rechercher par sujet ou référence"
+                en ? "Search this page" : "Rechercher sur cette page"
               }
               aria-label={en ? "Search conversations" : "Rechercher des conversations"}
               className="pl-9"
@@ -324,7 +324,7 @@ export function SupportCenter() {
         <div
           className="flex gap-2 overflow-x-auto pb-1"
           role="group"
-          aria-label={en ? "Filter conversations" : "Filtrer les conversations"}
+          aria-label={en ? "Filter this page" : "Filtrer cette page"}
         >
           {FILTERS.map((value) => (
             <Button
