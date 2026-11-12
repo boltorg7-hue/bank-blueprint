@@ -88,11 +88,7 @@ export function BeneficiaryList({ action }: { action?: React.ReactNode }) {
             <Input
               value={searchQuery}
               onChange={(event) => setSearchQuery(event.target.value)}
-              placeholder={
-                en
-                  ? "Search a recipient or account"
-                  : "Rechercher un bénéficiaire ou un compte"
-              }
+              placeholder={en ? "Search a recipient or account" : "Rechercher un bénéficiaire ou un compte"}
               aria-label={en ? "Search beneficiaries" : "Rechercher parmi les bénéficiaires"}
               className="h-11 pl-9 pr-10"
             />
@@ -174,8 +170,7 @@ export function BeneficiaryList({ action }: { action?: React.ReactNode }) {
                     </span>
                     {beneficiary.lastUsedAt ? (
                       <span className="text-caption text-muted-foreground">
-                        {en ? "Last transfer" : "Dernier virement"}{" "}
-                        · {formatDate(beneficiary.lastUsedAt)}
+                        {en ? "Last transfer" : "Dernier virement"} · {formatDate(beneficiary.lastUsedAt)}
                       </span>
                     ) : (
                       <span className="text-caption text-muted-foreground">
