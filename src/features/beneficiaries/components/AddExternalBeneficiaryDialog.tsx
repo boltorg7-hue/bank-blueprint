@@ -35,19 +35,15 @@ const ERRORS: Record<string, string> = {
     "Nous ne desservons pas encore cette destination. Aucun bénéficiaire n'a été enregistré.",
   INVALID_DESTINATION:
     "Les coordonnées saisies ne sont pas valides. Vérifiez-les auprès du bénéficiaire.",
-  ACCOUNT_RESTRICTED:
-    "Votre compte ne permet pas d'ajouter un bénéficiaire pour le moment.",
+  ACCOUNT_RESTRICTED: "Votre compte ne permet pas d'ajouter un bénéficiaire pour le moment.",
 };
 
 const ERRORS_EN: Record<string, string> = {
   DESTINATION_IS_INTERNAL:
     "This account is held with us: register it as an internal beneficiary; the transfer will be immediate and free.",
-  DESTINATION_NOT_SUPPORTED:
-    "We do not support this destination yet. No beneficiary was saved.",
-  INVALID_DESTINATION:
-    "The details entered are invalid. Check them with the beneficiary.",
-  ACCOUNT_RESTRICTED:
-    "Your account cannot add a beneficiary at the moment.",
+  DESTINATION_NOT_SUPPORTED: "We do not support this destination yet. No beneficiary was saved.",
+  INVALID_DESTINATION: "The details entered are invalid. Check them with the beneficiary.",
+  ACCOUNT_RESTRICTED: "Your account cannot add a beneficiary at the moment.",
 };
 
 /**
