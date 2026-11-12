@@ -341,7 +341,7 @@ export function SecurityCenter() {
               return (
                 <div
                   key={session.id}
-                  className="flex flex-col gap-3 rounded-xl border border-border/70 bg-card p-3 sm:flex-row sm:items-center sm:justify-between sm:p-4"
+                  className="flex flex-col items-start gap-2 border-b pb-3 sm:flex-row sm:items-center sm:justify-between rounded-xl border border-border/70 bg-card p-3 sm:p-4"
                 >
                   <div className="flex min-w-0 items-start gap-3">
                     <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-muted text-primary">
