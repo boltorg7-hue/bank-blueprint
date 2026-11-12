@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { getPreferences, getProfileOverview, savePermanentAddress, savePermanentProfile, savePreferences } from "@/features/profile/services/profile.functions";
+import { getPreferences, getProfileOverview, savePermanentAddress, savePermanentProfile, savePreferences, saveProfileAvatar } from "@/features/profile/services/profile.functions";
 import type { CustomerPreferencesDto } from "@/features/profile/types/profile";
 import { QUERY_POLICY } from "@/lib/query-policy";
 
@@ -10,3 +10,12 @@ export function useSaveProfile() { const fn = useServerFn(savePermanentProfile);
 export function useSaveAddress() { const fn = useServerFn(savePermanentAddress); const qc = useQueryClient(); return useMutation({ mutationFn: (data: unknown) => fn({ data }), onSuccess: () => qc.invalidateQueries({ queryKey: PROFILE_KEY }) }); }
 export function usePreferences() { const fn = useServerFn(getPreferences); return useQuery({ queryKey: PREFERENCES_KEY, queryFn: () => fn(), ...QUERY_POLICY.NORMAL }); }
 export function useSavePreferences() { const fn = useServerFn(savePreferences); const qc = useQueryClient(); return useMutation({ mutationFn: (data: CustomerPreferencesDto) => fn({ data }), onSuccess: () => qc.invalidateQueries({ queryKey: PREFERENCES_KEY }) }); }
+
+export function useSaveProfileAvatar() {
+  const fn = useServerFn(saveProfileAvatar);
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (storagePath: string) => fn({ data: { storagePath } }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: PROFILE_KEY }),
+  });
+}
