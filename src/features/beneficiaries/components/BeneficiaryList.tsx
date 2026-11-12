@@ -172,7 +172,8 @@ export function BeneficiaryList({ action }: { action?: React.ReactNode }) {
                     </span>
                     {beneficiary.lastUsedAt ? (
                       <span className="text-caption text-muted-foreground">
-                        {en ? "Last transfer" : "Dernier virement"}{" · "}\n                        {formatDate(beneficiary.lastUsedAt)}
+                        {en ? "Last transfer" : "Dernier virement"}{" · "}
+                        {formatDate(beneficiary.lastUsedAt)}
                       </span>
                     ) : (
                       <span className="text-caption text-muted-foreground">
