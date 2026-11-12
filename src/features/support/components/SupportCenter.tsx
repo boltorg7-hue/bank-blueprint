@@ -1,4 +1,4 @@
-import { memo, useMemo, useState } from "react";
+import { memo, useState } from "react";
 import {
   Clock3,
   Inbox,
@@ -86,19 +86,17 @@ export function SupportCenter() {
   const query = useCustomerSupport(cursor);
   const create = useCreateSupportThread();
 
-  const threads = useMemo(() => {
-    const term = search.trim().toLocaleLowerCase();
-    return (query.data?.items ?? []).filter((thread) => {
-      const matchesFilter = filter === "ALL" || thread.status === filter;
-      const matchesSearch =
-        !term ||
-        [thread.subject, thread.reference, CATEGORY_LABELS[thread.category][en ? "en" : "fr"], messagePreview(thread)]
-          .join(" ")
-          .toLocaleLowerCase()
-          .includes(term);
-      return matchesFilter && matchesSearch;
-    });
-  }, [query.data?.items, search, filter, en]);
+  const term = search.trim().toLocaleLowerCase();
+  const threads = (query.data?.items ?? []).filter((thread) => {
+    const matchesFilter = filter === "ALL" || thread.status === filter;
+    const matchesSearch =
+      !term ||
+      [thread.subject, thread.reference, CATEGORY_LABELS[thread.category][en ? "en" : "fr"], messagePreview(thread)]
+        .join(" ")
+        .toLocaleLowerCase()
+        .includes(term);
+    return matchesFilter && matchesSearch;
+  });
 
   const selectedThread =
     threads.find((thread) => thread.id === selectedId) ?? threads[0] ?? null;
@@ -212,7 +210,7 @@ export function SupportCenter() {
               />
               <p className="text-right text-xs text-muted-foreground">{body.length}/4000</p>
             </div>
-            <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+            <div className="flex flex-col gap-2 sm:flex-row sm:justify-end">
               <Button variant="outline" onClick={() => setShowComposer(false)}>
                 {en ? "Cancel" : "Annuler"}
               </Button>
