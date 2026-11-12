@@ -70,7 +70,9 @@ function AccountsListPage() {
           />
         ) : query.isError ? (
           <ErrorState
-            title={en ? "Your accounts could not be loaded" : "Vos comptes n'ont pas pu être chargés"}
+            title={
+              en ? "Your accounts could not be loaded" : "Vos comptes n'ont pas pu être chargés"
+            }
             onRetry={() => query.refetch()}
           />
         ) : query.isPending ? (
