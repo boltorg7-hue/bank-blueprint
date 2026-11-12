@@ -29,7 +29,7 @@ test("Simulated external queue submits through the simulation provider", () => {
 
 test("95%, 99% and 100% require three distinct staff members", () => {
   assert.match(migration, /simulation_approved_by IS NULL/);
-  assert.match(migration, /simulation_approved_by = auth\.uid\(\)/);
+  assert.match(migration, /_t\.simulation_approved_by = _staff_id/);
   assert.match(migration, /simulation_submitted_by IS NULL/);
   assert.match(migration, /THREE_PERSON_APPROVAL_REQUIRED/);
   assert.match(migration, /auth\.uid\(\) = _t\.simulation_approved_by/);
