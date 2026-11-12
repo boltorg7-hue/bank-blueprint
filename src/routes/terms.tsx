@@ -108,8 +108,8 @@ function TermsPage() {
                 </h2>
                 <p className="text-body-sm max-w-3xl text-muted-foreground">
                   {en
-                    ? "The topics below outline the contractual framework being prepared. The complete terms will be published only after review and approval, with their effective date clearly stated."
-                    : "Les rubriques ci-dessous présentent le cadre contractuel en préparation. Les conditions complètes seront publiées uniquement après relecture et validation, avec une date d’entrée en vigueur clairement indiquée."}
+                    ? "The topics below present the framework being finalized. We are completing a careful review so the information is clear and reliable; the publication and effective dates will be displayed when the document is finalized."
+                    : "Les rubriques ci-dessous présentent le cadre contractuel en cours de finalisation. Nous poursuivons une relecture attentive pour vous proposer des informations claires et fiables ; les dates de publication et d’entrée en vigueur seront affichées dès que le document sera finalisé."}
                 </p>
               </div>
             </div>
