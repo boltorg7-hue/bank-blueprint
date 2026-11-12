@@ -1,10 +1,7 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
 
-const profilePage = fs.readFileSync(
-  "src/features/profile/components/ProfilePage.tsx",
-  "utf8",
-);
+const profilePage = fs.readFileSync("src/features/profile/components/ProfilePage.tsx", "utf8");
 const personalPage = fs.readFileSync(
   "src/features/profile/components/ProfilePersonalPage.tsx",
   "utf8",
