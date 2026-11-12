@@ -56,7 +56,7 @@ function LegalPage() {
             <li key={link.label}>
               <Link
                 to={link.to}
-                className="flex h-full items-start justify-between gap-4 rounded-2xl border border-border bg-surface p-5 transition-colors hover:border-brand/40"
+                className="group flex h-full items-start justify-between gap-4 rounded-2xl border border-border/80 bg-card p-5 shadow-sm transition-all duration-200 hover:-translate-y-1 hover:border-brand/40 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring motion-reduce:transform-none motion-reduce:transition-none"
               >
                 <span className="min-w-0">
                   <span className="text-heading-sm block text-foreground">{en ? linksEn[index]?.[0] : link.label}</span>
@@ -64,7 +64,9 @@ function LegalPage() {
                     {en ? linksEn[index]?.[1] : link.description}
                   </span>
                 </span>
-                <ArrowRight className="mt-1 size-5 shrink-0 text-brand" aria-hidden="true" />
+                <span className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-full bg-brand/10 text-brand transition-transform duration-200 group-hover:translate-x-0.5 motion-reduce:transition-none">
+                  <ArrowRight className="size-4" aria-hidden="true" />
+                </span>
               </Link>
             </li>
           ))}
@@ -72,7 +74,7 @@ function LegalPage() {
       </PublicSection>
 
       <PublicSection tone="sunken">
-        <div className="grid grid-cols-[minmax(0,1fr)] gap-10 lg:grid-cols-2">
+        <div className="grid grid-cols-[minmax(0,1fr)] items-start gap-8 lg:grid-cols-2 lg:gap-10">
           <div className="min-w-0">
             <SectionHeader
               as="h2"
@@ -86,7 +88,7 @@ function LegalPage() {
             />
             <ul className="mt-6 space-y-3">
               {COOKIE_POSTURE.strictlyNecessary.map((item, index) => (
-                <li key={item.name} className="rounded-xl border border-border bg-surface p-4">
+                <li key={item.name} className="rounded-2xl border border-border/80 bg-card p-4 shadow-sm transition-shadow duration-200 hover:shadow-md motion-reduce:transition-none">
                   <p className="text-label text-foreground">{en ? cookiesEn[index]?.[0] : item.name}</p>
                   <p className="text-body-sm mt-1 text-muted-foreground">{en ? cookiesEn[index]?.[1] : item.purpose}</p>
                   <p className="text-caption mt-1 text-muted-foreground">{en ? cookiesEn[index]?.[2] : item.storage}</p>
@@ -96,16 +98,16 @@ function LegalPage() {
           </div>
 
           <div className="min-w-0 space-y-8">
-            <section>
+            <section className="rounded-2xl border border-border/80 bg-card p-5 shadow-sm sm:p-6">
               <h2 className="text-heading-sm text-foreground">{en ? "Accessibility statement" : ACCESSIBILITY_STATEMENT.title}</h2>
               <p className="text-body-sm mt-2 max-w-prose text-muted-foreground">
                 {en ? "We aim for WCAG 2.2 AA: keyboard navigation, sufficient contrast, visible focus, reduced-motion support and screen-reader compatibility. Please report accessibility issues through the Contact page." : ACCESSIBILITY_STATEMENT.description}
               </p>
             </section>
 
-            <section>
+            <section className="rounded-2xl border border-border/80 bg-card p-5 shadow-sm sm:p-6">
               <h2 className="text-heading-sm text-foreground">{en ? "Bank contact details" : "Coordonnées de la banque"}</h2>
-              <LegalIdentityList className="mt-4 rounded-2xl border border-border bg-surface p-5" />
+              <LegalIdentityList className="mt-4 rounded-xl border border-border/70 bg-surface-sunken/50 p-4" />
               <p className="text-caption mt-3 text-muted-foreground">{LEGAL_IDENTITY_NOTICE}</p>
             </section>
 
