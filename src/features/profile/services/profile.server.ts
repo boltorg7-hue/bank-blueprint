@@ -33,7 +33,7 @@ export async function loadProfile(
       admin.from("identity_verifications").select("status").eq("user_id", userId).maybeSingle(),
       admin
         .from("bank_accounts")
-        .select("public_reference,display_name,currency,status,account_number,iban,bic")
+        .select("public_reference,display_name,currency,status,account_number")
         .eq("user_id", userId)
         .order("is_primary", { ascending: false }),
     ]);
@@ -80,8 +80,6 @@ export async function loadProfile(
       currency: account.currency,
       status: account.status,
       maskedNumber: `•••• ${String(account.account_number).slice(-4)}`,
-      iban: account.iban ?? null,
-      bic: account.bic ?? null,
     })),
   };
 }
