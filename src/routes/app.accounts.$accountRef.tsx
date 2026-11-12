@@ -42,9 +42,7 @@ function AccountDetailsPage() {
   const query = useAccountDetails(accountRef);
   const account = query.data ?? null;
   const activityQuery = useAccountActivity(account?.reference ?? null, 5);
-  const restriction = account
-    ? accountRestrictionMessage(account.status, en ? "en" : "fr")
-    : null;
+  const restriction = account ? accountRestrictionMessage(account.status, en ? "en" : "fr") : null;
 
   return (
     <BankingContentContainer width="wide">
@@ -125,7 +123,7 @@ function AccountDetailsPage() {
                 />
               ) : activityQuery.isPending ? (
                 <LoadingState
-                  label={en ? "Loading recent activity…" : "Chargement de l’activité récente…"} 
+                  label={en ? "Loading recent activity…" : "Chargement de l’activité récente…"}
                 />
               ) : (
                 <RecentActivityList items={mapRecentActivity(activityQuery.data ?? [])} />
