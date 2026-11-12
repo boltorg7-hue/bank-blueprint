@@ -5,10 +5,7 @@ import { ProfileIdentityPage } from "@/features/profile/components/ProfileIdenti
 
 export const Route = createFileRoute("/app/profile/identity")({
   head: () => ({
-    meta: [
-      { title: "Identité et photo — RFC" },
-      { name: "robots", content: "noindex, nofollow" },
-    ],
+    meta: [{ title: "Identité et photo — RFC" }, { name: "robots", content: "noindex, nofollow" }],
   }),
   component: () => (
     <BankingContentContainer width="wide">
