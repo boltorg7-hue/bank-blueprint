@@ -1,13 +1,5 @@
 import { memo, useState } from "react";
-import {
-  Clock3,
-  Inbox,
-  MessageSquareText,
-  Plus,
-  Search,
-  Send,
-  ShieldCheck,
-} from "lucide-react";
+import { Clock3, Inbox, MessageSquareText, Plus, Search, Send, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 
 import { useLanguage } from "@/components/providers/LanguageProvider";
@@ -16,7 +8,13 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -49,10 +47,7 @@ const STATUS_LABELS: Record<SupportStatus, { fr: string; en: string }> = {
   CLOSED: { fr: "Clôturée", en: "Closed" },
 };
 
-const STATUS_TONES: Record<
-  SupportStatus,
-  "success" | "pending" | "neutral" | "info"
-> = {
+const STATUS_TONES: Record<SupportStatus, "success" | "pending" | "neutral" | "info"> = {
   OPEN: "pending",
   WAITING_SUPPORT: "pending",
   WAITING_CUSTOMER: "info",
@@ -104,18 +99,13 @@ export function SupportCenter() {
       .toLocaleLowerCase();
     return matchesFilter && (!term || searchable.includes(term));
   });
-  const selectedThread =
-    threads.find((thread) => thread.id === selectedId) ?? threads[0] ?? null;
+  const selectedThread = threads.find((thread) => thread.id === selectedId) ?? threads[0] ?? null;
 
   async function submit() {
     const cleanSubject = subject.trim();
     const cleanBody = body.trim();
     if (cleanSubject.length < 5 || !cleanBody) {
-      toast.error(
-        en
-          ? "Add a clear subject and your message."
-          : "Ajoutez un sujet précis et votre message.",
-      );
+      toast.error(en ? "Add a clear subject and your message." : "Ajoutez un sujet précis et votre message.");
       return;
     }
 
@@ -235,14 +225,10 @@ export function SupportCenter() {
                     : "Exemple : Question concernant mon compte"
                 }
               />
-              <p className="text-right text-xs text-muted-foreground">
-                {subject.length}/120
-              </p>
+              <p className="text-right text-xs text-muted-foreground">{subject.length}/120</p>
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="support-body">
-                {en ? "Your message" : "Votre message"}
-              </Label>
+              <Label htmlFor="support-body">{en ? "Your message" : "Votre message"}</Label>
               <Textarea
                 id="support-body"
                 rows={5}
@@ -255,9 +241,7 @@ export function SupportCenter() {
                     : "Expliquez votre besoin. Ne communiquez jamais votre mot de passe, code PIN ou code de vérification."
                 }
               />
-              <p className="text-right text-xs text-muted-foreground">
-                {body.length}/4000
-              </p>
+              <p className="text-right text-xs text-muted-foreground">{body.length}/4000</p>
             </div>
             <div className="flex flex-col gap-2 sm:flex-row sm:justify-end">
               <Button variant="outline" onClick={() => setShowComposer(false)}>
@@ -286,11 +270,7 @@ export function SupportCenter() {
         />
         <SummaryTile
           label={en ? "Awaiting your reply" : "Votre réponse attendue"}
-          value={
-            (query.data?.items ?? []).filter(
-              (thread) => thread.status === "WAITING_CUSTOMER",
-            ).length
-          }
+          value={(query.data?.items ?? []).filter((thread) => thread.status === "WAITING_CUSTOMER").length}
           icon="reply"
         />
         <SummaryTile
@@ -327,11 +307,7 @@ export function SupportCenter() {
             <Input
               value={search}
               onChange={(event) => setSearch(event.target.value)}
-              placeholder={
-                en
-                  ? "Search by subject or reference"
-                  : "Rechercher par sujet ou référence"
-              }
+              placeholder={en ? "Search by subject or reference" : "Rechercher par sujet ou référence"}
               aria-label={en ? "Search conversations" : "Rechercher des conversations"}
               className="pl-9"
             />
@@ -353,11 +329,7 @@ export function SupportCenter() {
               aria-pressed={filter === value}
               onClick={() => setFilter(value)}
             >
-              {value === "ALL"
-                ? en
-                  ? "All"
-                  : "Toutes"
-                : statusLabel(value, en)}
+              {value === "ALL" ? (en ? "All" : "Toutes") : statusLabel(value, en)}
             </Button>
           ))}
         </div>
@@ -401,18 +373,12 @@ export function SupportCenter() {
               ))}
             </div>
             {selectedThread ? (
-              <CustomerThread
-                key={selectedThread.id}
-                thread={selectedThread}
-                en={en}
-              />
+              <CustomerThread key={selectedThread.id} thread={selectedThread} en={en} />
             ) : null}
           </div>
         )}
 
-        {(history.length > 0 || query.data?.hasNext) &&
-        !query.isPending &&
-        !query.isError ? (
+        {(history.length > 0 || query.data?.hasNext) && !query.isPending && !query.isError ? (
           <div className="flex justify-between gap-2 border-t border-border/70 pt-3">
             <Button
               variant="outline"
@@ -496,10 +462,7 @@ const ThreadListItem = memo(function ThreadListItem({
         <span className="min-w-0 truncate text-sm font-semibold text-foreground">
           {thread.subject}
         </span>
-        <StatusBadge
-          label={statusLabel(thread.status, en)}
-          tone={STATUS_TONES[thread.status]}
-        />
+        <StatusBadge label={statusLabel(thread.status, en)} tone={STATUS_TONES[thread.status]} />
       </div>
       <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-muted-foreground">
         {messagePreview(thread)}
@@ -535,11 +498,7 @@ const CustomerThread = memo(function CustomerThread({
       setBody("");
       toast.success(en ? "Reply sent." : "Votre réponse a été envoyée.");
     } catch {
-      toast.error(
-        en
-          ? "Your reply could not be sent."
-          : "Votre réponse n’a pas pu être envoyée.",
-      );
+      toast.error(en ? "Your reply could not be sent." : "Votre réponse n’a pas pu être envoyée.");
     }
   }
 
@@ -548,17 +507,10 @@ const CustomerThread = memo(function CustomerThread({
       <div className="border-b border-border/70 bg-muted/20 p-4">
         <div className="flex flex-wrap items-start justify-between gap-2">
           <div className="min-w-0">
-            <h4 className="break-words font-semibold text-foreground">
-              {thread.subject}
-            </h4>
-            <p className="mt-1 font-mono text-[11px] text-muted-foreground">
-              {thread.reference}
-            </p>
+            <h4 className="break-words font-semibold text-foreground">{thread.subject}</h4>
+            <p className="mt-1 font-mono text-[11px] text-muted-foreground">{thread.reference}</p>
           </div>
-          <StatusBadge
-            label={statusLabel(thread.status, en)}
-            tone={STATUS_TONES[thread.status]}
-          />
+          <StatusBadge label={statusLabel(thread.status, en)} tone={STATUS_TONES[thread.status]} />
         </div>
         <p className="mt-2 text-xs text-muted-foreground">
           {CATEGORY_LABELS[thread.category][en ? "en" : "fr"]} ·{" "}
