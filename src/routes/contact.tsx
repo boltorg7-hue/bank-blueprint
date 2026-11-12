@@ -80,15 +80,21 @@ function ContactPage() {
       />
 
       <PublicSection>
+        <div className="mb-6 flex items-center gap-3 text-sm text-muted-foreground">
+          <span className="h-px flex-1 bg-border" />
+          <span className="font-medium uppercase tracking-[0.16em]">{en ? "Choose your channel" : "Choisissez votre canal"}</span>
+          <span className="h-px flex-1 bg-border" />
+        </div>
         <div className="grid grid-cols-[minmax(0,1fr)] gap-4 md:grid-cols-3">
           {CHANNELS.map((channel, index) => {
             const Icon = channel.icon;
             return (
               <article
                 key={channel.title}
-                className="group flex flex-col rounded-2xl border border-border/80 bg-card p-5 shadow-sm transition-all duration-200 hover:-translate-y-1 hover:border-brand/30 hover:shadow-md motion-reduce:transform-none motion-reduce:transition-none"
+                className="group relative flex min-h-60 flex-col overflow-hidden rounded-2xl border border-border/80 bg-card p-5 shadow-sm transition-all duration-200 hover:-translate-y-1 hover:border-brand/40 hover:shadow-lg motion-reduce:transform-none motion-reduce:transition-none sm:p-6"
+
               >
-                <div className="flex size-12 items-center justify-center rounded-2xl bg-brand/10 text-brand transition-colors duration-200 group-hover:bg-brand/15 motion-reduce:transition-none">
+                <div className="flex size-12 items-center justify-center rounded-2xl border border-brand/10 bg-brand/10 text-brand transition-colors duration-200 group-hover:bg-brand/15 motion-reduce:transition-none">
                   <Icon className="size-6" aria-hidden="true" />
                 </div>
                 <h2 className="text-heading-sm mt-5 text-foreground">
@@ -112,7 +118,7 @@ function ContactPage() {
       </PublicSection>
 
       <PublicSection tone="sunken">
-        <div className="grid grid-cols-[minmax(0,1fr)] items-start gap-8 lg:grid-cols-[minmax(0,1.15fr)_minmax(280px,0.85fr)] lg:gap-10">
+        <div className="grid grid-cols-[minmax(0,1fr)] items-start gap-6 lg:grid-cols-[minmax(0,1.15fr)_minmax(280px,0.85fr)] lg:gap-10">
           <div className="min-w-0">
             <SectionHeader
               as="h2"
@@ -124,12 +130,12 @@ function ContactPage() {
                   : "Nous ne demandons que le strict nécessaire : nom, e-mail, sujet et message."
               }
             />
-            <div className="mt-6 rounded-2xl border border-border/80 bg-card p-4 shadow-sm sm:p-6">
+            <div className="mt-6 rounded-2xl border border-border/80 bg-card p-4 shadow-md shadow-black/[0.03] sm:p-7">
               <PublicContactForm />
             </div>
           </div>
 
-          <aside className="min-w-0 rounded-2xl border border-border/80 bg-card p-5 shadow-sm sm:p-6">
+          <aside className="min-w-0 rounded-2xl border border-border/80 bg-card p-5 shadow-md shadow-black/[0.03] sm:p-6">
             <h2 className="text-heading-sm text-foreground">
               {en ? "Bank contact details" : "Coordonnées de la banque"}
             </h2>
