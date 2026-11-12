@@ -55,7 +55,7 @@ export function TransactionList({
                 : {})}
               amount={toMajorUnits(item.amountMinor, item.minorUnit)}
               currency={item.currency}
-              direction={item.direction === "INCOMING" ? "credit" : "debit"}
+              direction={item.direction === "INCOMING" ? "credit" : item.direction === "OUTGOING" ? "debit" : "neutral"}
               date={item.occurredAt}
               statusLabel={transactionStatusLabel(item.status, en ? "en" : "fr")}
               statusTone={transactionStatusTone(item.status)}

@@ -1,5 +1,5 @@
 import type { ComponentType } from "react";
-import { ArrowDownLeft, ArrowUpRight } from "lucide-react";
+import { ArrowDownLeft, ArrowLeftRight, ArrowUpRight } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { AmountText } from "./AmountText";
@@ -27,7 +27,7 @@ export function TransactionRow({
   subtitle?: string;
   amount: number;
   currency?: string;
-  direction: "credit" | "debit";
+  direction: "credit" | "debit" | "neutral";
   date: string | number | Date;
   statusLabel?: string;
   statusTone?: StatusTone;
@@ -35,7 +35,7 @@ export function TransactionRow({
   onClick?: () => void;
   className?: string;
 }) {
-  const Icon = icon ?? (direction === "credit" ? ArrowDownLeft : ArrowUpRight);
+  const Icon = icon ?? (direction === "credit" ? ArrowDownLeft : direction === "debit" ? ArrowUpRight : ArrowLeftRight);
   const interactive = typeof onClick === "function";
   const Wrapper = interactive ? "button" : "div";
 
@@ -70,7 +70,7 @@ export function TransactionRow({
       <span className="flex shrink-0 flex-col items-end gap-1.5">
         <AmountText
           className="text-label sm:text-amount"
-          amount={direction === "credit" ? Math.abs(amount) : -Math.abs(amount)}
+          amount={direction === "credit" ? Math.abs(amount) : direction === "debit" ? -Math.abs(amount) : amount}
           direction={direction}
           {...(currency ? { currency } : {})}
         />

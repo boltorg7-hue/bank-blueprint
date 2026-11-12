@@ -236,7 +236,7 @@ function FilterFields({
           </div>
         </>
       ) : null}
-      {!validRange(filters) ? <p role="alert" className="text-sm text-destructive sm:col-span-2 lg:col-span-3">{en ? "Enter valid amounts (up to two decimals) and make sure the minimum does not exceed the maximum or the start date the end date." : "Saisissez des montants valides (deux décimales maximum) et vérifiez l’ordre des montants et des dates."}</p> : null}
+      {!validRange(filters) ? <p role="alert" className="text-sm text-destructive sm:col-span-2 lg:col-span-3">{en ? "Enter valid USD amounts (up to two decimals), keep the minimum at or below the maximum, and check the date range." : "Saisissez des montants valides (deux décimales maximum) et vérifiez l’ordre des montants et des dates."}</p> : null}
     </div>
   );
 }
