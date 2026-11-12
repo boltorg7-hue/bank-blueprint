@@ -39,7 +39,9 @@ export function TransactionDetailCard({ transaction }: { transaction: Transactio
         aria-label={en ? "Transaction amount" : "Montant de l'opération"}
         className="rounded-xl border border-border bg-surface p-5 text-center"
       >
-        <p className="text-caption text-muted-foreground">{transactionTypeLabel(transaction.type, transaction.direction, en ? "en" : "fr")}</p>
+        <p className="text-caption text-muted-foreground">
+          {transactionTypeLabel(transaction.type, transaction.direction, en ? "en" : "fr")}
+        </p>
         <div className="mt-2 flex justify-center">
           <span
             aria-label={transactionAmountAriaLabel(
