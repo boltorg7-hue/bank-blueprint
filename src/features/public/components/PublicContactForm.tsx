@@ -76,9 +76,9 @@ export function PublicContactForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} noValidate className="space-y-5">
+    <form onSubmit={handleSubmit} noValidate className="space-y-6">
       <div
-        className="flex gap-3 rounded-xl border border-warning/30 bg-warning-muted px-4 py-3"
+        className="flex gap-3 rounded-xl border border-warning/30 bg-warning-muted/70 px-4 py-4 shadow-sm"
         role="note"
       >
         <ShieldAlert className="mt-0.5 size-5 shrink-0 text-warning" aria-hidden="true" />
@@ -91,7 +91,7 @@ export function PublicContactForm() {
           id="contact-name"
           name="name"
           autoComplete="name"
-          className="h-12"
+          className="h-12 rounded-xl bg-background transition-colors focus-visible:ring-2"
           aria-invalid={Boolean(errors.name)}
           {...(errors.name ? { "aria-describedby": "contact-name-error" } : {})}
         />
@@ -144,6 +144,7 @@ export function PublicContactForm() {
           id="contact-message"
           name="message"
           rows={6}
+          className="min-h-36 rounded-xl bg-background transition-colors focus-visible:ring-2"
           placeholder={copy("Décrivez votre demande. N’indiquez jamais de mot de passe ni de code de vérification.", "Describe your request. Never include a password or verification code.")}
           aria-invalid={Boolean(errors.message)}
           {...(errors.message ? { "aria-describedby": "contact-message-error" } : {})}
@@ -155,7 +156,7 @@ export function PublicContactForm() {
         )}
       </div>
 
-      <Button type="submit" size="lg" className="w-full sm:w-auto">
+      <Button type="submit" size="lg" className="h-12 w-full rounded-xl shadow-sm transition-all hover:shadow-md sm:w-auto">
         {copy("Envoyer la demande", "Send request")}
       </Button>
 
