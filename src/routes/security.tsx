@@ -56,9 +56,7 @@ function SecurityPage() {
                   {en ? "Important reminder" : "Rappel important"}
                 </p>
                 <p className="text-body-sm mt-2 text-foreground">
-                  {en
-                    ? "Never share your password or a verification code."
-                    : SECURITY_WARNING}
+                  {en ? "Never share your password or a verification code." : SECURITY_WARNING}
                 </p>
               </div>
             </div>
