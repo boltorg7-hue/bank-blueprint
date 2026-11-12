@@ -42,6 +42,11 @@ const ADDRESS_FIELDS = [
   ["postalCode", "Code postal", "Postal code"],
 ] as const;
 
+const SECTION_ICON_CLASS =
+  "flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary";
+const SHORTCUT_CLASS =
+  "group flex min-h-14 items-center justify-between gap-3 rounded-xl border border-border/70 bg-muted/20 p-3 transition-colors hover:border-primary/30 hover:bg-muted/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
+
 export function ProfilePage() {
   const { language } = useLanguage();
   const en = language === "en";
@@ -53,6 +58,7 @@ export function ProfilePage() {
 
   useEffect(() => {
     if (!query.data) return;
+
     const data = query.data;
     setProfile({
       firstName: data.firstName,
@@ -76,13 +82,16 @@ export function ProfilePage() {
   }
 
   const data = query.data;
-  const fullName = [data.firstName, data.middleName, data.lastName].filter(Boolean).join(" ");
+  const fullName = [data.firstName, data.middleName, data.lastName]
+    .filter(Boolean)
+    .join(" ");
   const initials = [data.firstName, data.lastName]
     .filter(Boolean)
     .map((part) => part.trim().charAt(0))
     .join("")
     .slice(0, 2)
     .toUpperCase();
+
   const field = (key: string, label: string, type = "text", locked = false) => (
     <div className="grid min-w-0 gap-2">
       <Label htmlFor={key}>{label}</Label>
@@ -91,16 +100,21 @@ export function ProfilePage() {
         type={type}
         value={profile[key] ?? ""}
         disabled={locked}
-        onChange={(event) => setProfile((current) => ({ ...current, [key]: event.target.value }))}
+        onChange={(event) =>
+          setProfile((current) => ({ ...current, [key]: event.target.value }))
+        }
       />
     </div>
   );
 
   async function submitProfile(event: React.FormEvent) {
     event.preventDefault();
+
     try {
       await saveProfile.mutateAsync(profile);
-      toast.success(en ? "Personal information saved." : "Informations personnelles enregistrées.");
+      toast.success(
+        en ? "Personal information saved." : "Informations personnelles enregistrées.",
+      );
     } catch {
       toast.error(
         en
@@ -112,6 +126,7 @@ export function ProfilePage() {
 
   async function submitAddress(event: React.FormEvent) {
     event.preventDefault();
+
     try {
       await saveAddress.mutateAsync(address);
       toast.success(en ? "Address saved." : "Adresse enregistrée.");
@@ -121,11 +136,6 @@ export function ProfilePage() {
       );
     }
   }
-
-  const sectionIcon =
-    "flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary";
-  const shortcutClass =
-    "group flex min-h-14 items-center justify-between gap-3 rounded-xl border border-border/70 bg-muted/20 p-3 transition-colors hover:border-primary/30 hover:bg-muted/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
 
   return (
     <div className="mx-auto w-full max-w-5xl space-y-5">
@@ -153,6 +163,7 @@ export function ProfilePage() {
             >
               {initials || <UserRound aria-hidden className="size-9" />}
             </div>
+
             <div className="min-w-0 flex-1">
               <p className="text-xs font-medium uppercase tracking-[0.12em] text-muted-foreground">
                 {en ? "Customer identity" : "Identité client"}
@@ -187,9 +198,22 @@ export function ProfilePage() {
                   : "L’ajout de photo sera activé après le déploiement du stockage privé et de ses contrôles d’accès."}
               </p>
             </div>
+
             <div className="grid w-full gap-2 sm:w-auto sm:min-w-44">
-              <ProfileSummary icon="email" en={en} label={en ? "Email" : "E-mail"} value={data.email ?? "—"} verified={data.emailVerified} />
-              <ProfileSummary icon="phone" en={en} label={en ? "Phone" : "Téléphone"} value={data.phone || "—"} verified={data.phoneVerified} />
+              <ProfileSummary
+                icon="email"
+                en={en}
+                label={en ? "Email" : "E-mail"}
+                value={data.email ?? "—"}
+                verified={data.emailVerified}
+              />
+              <ProfileSummary
+                icon="phone"
+                en={en}
+                label={en ? "Phone" : "Téléphone"}
+                value={data.phone || "—"}
+                verified={data.phoneVerified}
+              />
             </div>
           </CardContent>
         </Card>
@@ -197,9 +221,15 @@ export function ProfilePage() {
         <Card>
           <CardHeader>
             <div className="flex items-start gap-3">
-              <span className={sectionIcon}><UserRound aria-hidden className="size-5" /></span>
+              <span className={SECTION_ICON_CLASS}>
+                <UserRound aria-hidden className="size-5" />
+              </span>
               <div className="min-w-0">
-                <CardTitle>{en ? "Personal information and address" : "Informations personnelles et adresse"}</CardTitle>
+                <CardTitle>
+                  {en
+                    ? "Personal information and address"
+                    : "Informations personnelles et adresse"}
+                </CardTitle>
                 <CardDescription className="mt-1">
                   {en
                     ? "Keep your identity and contact details accurate. Verified identity fields may be locked."
@@ -208,31 +238,69 @@ export function ProfilePage() {
               </div>
             </div>
           </CardHeader>
+
           <CardContent className="space-y-6">
             <form onSubmit={submitProfile} className="grid gap-4 sm:grid-cols-2">
               {field("firstName", en ? "First name" : "Prénom", "text", data.identityLocked)}
-              {field("middleName", en ? "Middle names" : "Autres prénoms", "text", data.identityLocked)}
+              {field(
+                "middleName",
+                en ? "Middle names" : "Autres prénoms",
+                "text",
+                data.identityLocked,
+              )}
               {field("lastName", en ? "Last name" : "Nom", "text", data.identityLocked)}
-              {field("dateOfBirth", en ? "Date of birth" : "Date de naissance", "date", data.identityLocked)}
-              {field("nationality", en ? "Nationality" : "Nationalité", "text", data.identityLocked)}
+              {field(
+                "dateOfBirth",
+                en ? "Date of birth" : "Date de naissance",
+                "date",
+                data.identityLocked,
+              )}
+              {field(
+                "nationality",
+                en ? "Nationality" : "Nationalité",
+                "text",
+                data.identityLocked,
+              )}
               {field("countryOfResidence", en ? "Country of residence" : "Pays de résidence")}
               {field("occupation", en ? "Occupation" : "Profession")}
               {field("phone", en ? "Phone number" : "Téléphone", "tel")}
+
               <div className="grid min-w-0 gap-2">
-                <Label htmlFor="profile-email">{en ? "Email address" : "Adresse e-mail"}</Label>
+                <Label htmlFor="profile-email">
+                  {en ? "Email address" : "Adresse e-mail"}
+                </Label>
                 <Input id="profile-email" value={data.email ?? ""} disabled />
                 <StatusBadge
-                  label={data.emailVerified ? (en ? "Verified" : "Vérifiée") : (en ? "Not verified" : "Non vérifiée")}
+                  label={
+                    data.emailVerified
+                      ? en
+                        ? "Verified"
+                        : "Vérifiée"
+                      : en
+                        ? "Not verified"
+                        : "Non vérifiée"
+                  }
                   tone={data.emailVerified ? "success" : "pending"}
                 />
               </div>
+
               <div className="flex flex-col gap-2 border-t border-border/70 pt-4 sm:col-span-2 sm:flex-row sm:items-center sm:justify-between">
                 {data.identityLocked ? (
                   <p className="text-xs text-muted-foreground">
-                    {en ? "Verified identity fields cannot be edited here." : "Les champs d’identité vérifiés ne peuvent pas être modifiés ici."}
+                    {en
+                      ? "Verified identity fields cannot be edited here."
+                      : "Les champs d’identité vérifiés ne peuvent pas être modifiés ici."}
                   </p>
-                ) : <span />}
-                <Button type="submit" className="w-full sm:w-auto" disabled={saveProfile.isPending} loading={saveProfile.isPending} loadingLabel={en ? "Saving…" : "Enregistrement…"}>
+                ) : (
+                  <span />
+                )}
+                <Button
+                  type="submit"
+                  className="w-full sm:w-auto"
+                  disabled={saveProfile.isPending}
+                  loading={saveProfile.isPending}
+                  loadingLabel={en ? "Saving…" : "Enregistrement…"}
+                >
                   {en ? "Save personal details" : "Enregistrer les informations"}
                 </Button>
               </div>
@@ -241,7 +309,9 @@ export function ProfilePage() {
             <div className="border-t border-border/70 pt-5">
               <div className="mb-4 flex items-center gap-2">
                 <MapPin aria-hidden className="size-4 text-muted-foreground" />
-                <h3 className="text-sm font-semibold">{en ? "Primary address" : "Adresse principale"}</h3>
+                <h3 className="text-sm font-semibold">
+                  {en ? "Primary address" : "Adresse principale"}
+                </h3>
               </div>
               <form onSubmit={submitAddress} className="grid gap-4 sm:grid-cols-2">
                 {ADDRESS_FIELDS.map(([key, label, labelEn]) => (
@@ -250,12 +320,23 @@ export function ProfilePage() {
                     <Input
                       id={`profile-address-${key}`}
                       value={address[key] ?? ""}
-                      onChange={(event) => setAddress((current) => ({ ...current, [key]: event.target.value }))}
+                      onChange={(event) =>
+                        setAddress((current) => ({
+                          ...current,
+                          [key]: event.target.value,
+                        }))
+                      }
                     />
                   </div>
                 ))}
                 <div className="flex justify-end border-t border-border/70 pt-4 sm:col-span-2">
-                  <Button type="submit" className="w-full sm:w-auto" disabled={saveAddress.isPending} loading={saveAddress.isPending} loadingLabel={en ? "Saving…" : "Enregistrement…"}>
+                  <Button
+                    type="submit"
+                    className="w-full sm:w-auto"
+                    disabled={saveAddress.isPending}
+                    loading={saveAddress.isPending}
+                    loadingLabel={en ? "Saving…" : "Enregistrement…"}
+                  >
                     {en ? "Save address" : "Enregistrer l’adresse"}
                   </Button>
                 </div>
@@ -267,7 +348,9 @@ export function ProfilePage() {
         <Card>
           <CardHeader>
             <div className="flex items-start gap-3">
-              <span className={sectionIcon}><WalletCards aria-hidden className="size-5" /></span>
+              <span className={SECTION_ICON_CLASS}>
+                <WalletCards aria-hidden className="size-5" />
+              </span>
               <div className="min-w-0">
                 <CardTitle>{en ? "Banking profile" : "Profil bancaire"}</CardTitle>
                 <CardDescription className="mt-1">
@@ -278,25 +361,53 @@ export function ProfilePage() {
               </div>
             </div>
           </CardHeader>
+
           <CardContent className="space-y-3">
-            {data.accounts.length ? data.accounts.map((account) => (
-              <div key={account.reference} className="rounded-xl border border-border/70 bg-muted/20 p-4">
-                <div className="flex flex-wrap items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    <p className="font-semibold text-foreground">{account.displayName}</p>
-                    <p className="mt-1 break-all font-mono text-xs text-muted-foreground">{account.reference} · {account.maskedNumber}</p>
-                    <p className="mt-1 text-xs text-muted-foreground">{en ? "Currency" : "Devise"} : {account.currency}</p>
+            {data.accounts.length ? (
+              data.accounts.map((account) => (
+                <div
+                  key={account.reference}
+                  className="rounded-xl border border-border/70 bg-muted/20 p-4"
+                >
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="font-semibold text-foreground">{account.displayName}</p>
+                      <p className="mt-1 break-all font-mono text-xs text-muted-foreground">
+                        {account.reference} · {account.maskedNumber}
+                      </p>
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        {en ? "Currency" : "Devise"} : {account.currency}
+                      </p>
+                    </div>
+                    <StatusBadge
+                      label={account.status}
+                      tone={account.status === "ACTIVE" ? "success" : "pending"}
+                    />
                   </div>
-                  <StatusBadge label={account.status} tone={account.status === "ACTIVE" ? "success" : "pending"} />
+
+                  {account.iban || account.bic ? (
+                    <div className="mt-3 grid gap-2 border-t border-border/70 pt-3 sm:grid-cols-2">
+                      {account.iban ? (
+                        <div className="min-w-0">
+                          <p className="text-xs text-muted-foreground">IBAN</p>
+                          <p className="break-all font-mono text-xs text-foreground">
+                            {account.iban}
+                          </p>
+                        </div>
+                      ) : null}
+                      {account.bic ? (
+                        <div className="min-w-0">
+                          <p className="text-xs text-muted-foreground">BIC</p>
+                          <p className="break-all font-mono text-xs text-foreground">
+                            {account.bic}
+                          </p>
+                        </div>
+                      ) : null}
+                    </div>
+                  ) : null}
                 </div>
-                {account.iban || account.bic ? (
-                  <div className="mt-3 grid gap-2 border-t border-border/70 pt-3 sm:grid-cols-2">
-                    {account.iban ? <div className="min-w-0"><p className="text-xs text-muted-foreground">IBAN</p><p className="break-all font-mono text-xs text-foreground">{account.iban}</p></div> : null}
-                    {account.bic ? <div className="min-w-0"><p className="text-xs text-muted-foreground">BIC</p><p className="break-all font-mono text-xs text-foreground">{account.bic}</p></div> : null}
-                  </div>
-                ) : null}
-              </div>
-            )) : (
+              ))
+            ) : (
               <p className="rounded-xl border border-dashed border-border p-4 text-sm text-muted-foreground">
                 {en ? "No bank account opened yet." : "Aucun compte bancaire ouvert pour le moment."}
               </p>
@@ -307,9 +418,13 @@ export function ProfilePage() {
         <Card>
           <CardHeader>
             <div className="flex items-start gap-3">
-              <span className={sectionIcon}><LockKeyhole aria-hidden className="size-5" /></span>
+              <span className={SECTION_ICON_CLASS}>
+                <LockKeyhole aria-hidden className="size-5" />
+              </span>
               <div className="min-w-0">
-                <CardTitle>{en ? "Security and verification" : "Sécurité et vérifications"}</CardTitle>
+                <CardTitle>
+                  {en ? "Security and verification" : "Sécurité et vérifications"}
+                </CardTitle>
                 <CardDescription className="mt-1">
                   {en
                     ? "Review verification progress and manage your password and active sessions."
@@ -318,21 +433,43 @@ export function ProfilePage() {
               </div>
             </div>
           </CardHeader>
+
           <CardContent className="space-y-3">
             <div className="grid gap-3 sm:grid-cols-3">
-              <VerificationItem label={en ? "Email" : "E-mail"} verified={data.emailVerified} en={en} />
-              <VerificationItem label={en ? "Phone" : "Téléphone"} verified={data.phoneVerified} en={en} />
-              <VerificationItem label={en ? "Identity" : "Identité"} verified={data.identityStatus === "VERIFIED"} en={en} />
+              <VerificationItem
+                label={en ? "Email" : "E-mail"}
+                verified={data.emailVerified}
+                en={en}
+              />
+              <VerificationItem
+                label={en ? "Phone" : "Téléphone"}
+                verified={data.phoneVerified}
+                en={en}
+              />
+              <VerificationItem
+                label={en ? "Identity" : "Identité"}
+                verified={data.identityStatus === "VERIFIED"}
+                en={en}
+              />
             </div>
-            <Link to="/app/security" className={shortcutClass}>
+            <Link to="/app/security" className={SHORTCUT_CLASS}>
               <span className="flex min-w-0 items-center gap-3">
                 <LockKeyhole aria-hidden className="size-5 shrink-0 text-primary" />
                 <span className="min-w-0">
-                  <span className="block text-sm font-semibold">{en ? "Open security center" : "Ouvrir le centre de sécurité"}</span>
-                  <span className="block text-xs text-muted-foreground">{en ? "Password, devices and sessions" : "Mot de passe, appareils et sessions"}</span>
+                  <span className="block text-sm font-semibold">
+                    {en ? "Open security center" : "Ouvrir le centre de sécurité"}
+                  </span>
+                  <span className="block text-xs text-muted-foreground">
+                    {en
+                      ? "Password, devices and sessions"
+                      : "Mot de passe, appareils et sessions"}
+                  </span>
                 </span>
               </span>
-              <ArrowUpRight aria-hidden className="size-4 shrink-0 text-muted-foreground transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+              <ArrowUpRight
+                aria-hidden
+                className="size-4 shrink-0 text-muted-foreground transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+              />
             </Link>
           </CardContent>
         </Card>
@@ -340,9 +477,13 @@ export function ProfilePage() {
         <Card>
           <CardHeader>
             <div className="flex items-start gap-3">
-              <span className={sectionIcon}><Settings2 aria-hidden className="size-5" /></span>
+              <span className={SECTION_ICON_CLASS}>
+                <Settings2 aria-hidden className="size-5" />
+              </span>
               <div className="min-w-0">
-                <CardTitle>{en ? "Application and preferences" : "Application et préférences"}</CardTitle>
+                <CardTitle>
+                  {en ? "Application and preferences" : "Application et préférences"}
+                </CardTitle>
                 <CardDescription className="mt-1">
                   {en
                     ? "Customize language, appearance, privacy and notification channels."
@@ -351,16 +492,26 @@ export function ProfilePage() {
               </div>
             </div>
           </CardHeader>
+
           <CardContent>
-            <Link to="/app/settings" className={shortcutClass}>
+            <Link to="/app/settings" className={SHORTCUT_CLASS}>
               <span className="flex min-w-0 items-center gap-3">
                 <Settings2 aria-hidden className="size-5 shrink-0 text-primary" />
                 <span className="min-w-0">
-                  <span className="block text-sm font-semibold">{en ? "Manage my preferences" : "Gérer mes préférences"}</span>
-                  <span className="block text-xs text-muted-foreground">{en ? "Language, theme, privacy and alerts" : "Langue, thème, confidentialité et alertes"}</span>
+                  <span className="block text-sm font-semibold">
+                    {en ? "Manage my preferences" : "Gérer mes préférences"}
+                  </span>
+                  <span className="block text-xs text-muted-foreground">
+                    {en
+                      ? "Language, theme, privacy and alerts"
+                      : "Langue, thème, confidentialité et alertes"}
+                  </span>
                 </span>
               </span>
-              <ArrowUpRight aria-hidden className="size-4 shrink-0 text-muted-foreground transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+              <ArrowUpRight
+                aria-hidden
+                className="size-4 shrink-0 text-muted-foreground transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+              />
             </Link>
           </CardContent>
         </Card>
@@ -368,9 +519,13 @@ export function ProfilePage() {
         <Card>
           <CardHeader>
             <div className="flex items-start gap-3">
-              <span className={sectionIcon}><MessageCircle aria-hidden className="size-5" /></span>
+              <span className={SECTION_ICON_CLASS}>
+                <MessageCircle aria-hidden className="size-5" />
+              </span>
               <div className="min-w-0">
-                <CardTitle>{en ? "Support and account assistance" : "Assistance et gestion du compte"}</CardTitle>
+                <CardTitle>
+                  {en ? "Support and account assistance" : "Assistance et gestion du compte"}
+                </CardTitle>
                 <CardDescription className="mt-1">
                   {en
                     ? "Contact the bank securely or find answers in the help center."
@@ -379,23 +534,32 @@ export function ProfilePage() {
               </div>
             </div>
           </CardHeader>
+
           <CardContent className="grid gap-3 sm:grid-cols-2">
-            <Link to="/app/messages" className={shortcutClass}>
+            <Link to="/app/messages" className={SHORTCUT_CLASS}>
               <span className="flex min-w-0 items-center gap-3">
                 <MessageCircle aria-hidden className="size-5 shrink-0 text-primary" />
                 <span className="min-w-0">
-                  <span className="block text-sm font-semibold">{en ? "Secure messages" : "Messagerie sécurisée"}</span>
-                  <span className="block text-xs text-muted-foreground">{en ? "Talk to customer support" : "Échanger avec le service client"}</span>
+                  <span className="block text-sm font-semibold">
+                    {en ? "Secure messages" : "Messagerie sécurisée"}
+                  </span>
+                  <span className="block text-xs text-muted-foreground">
+                    {en ? "Talk to customer support" : "Échanger avec le service client"}
+                  </span>
                 </span>
               </span>
               <ArrowUpRight aria-hidden className="size-4 shrink-0 text-muted-foreground" />
             </Link>
-            <Link to="/help" className={shortcutClass}>
+            <Link to="/help" className={SHORTCUT_CLASS}>
               <span className="flex min-w-0 items-center gap-3">
                 <CircleHelp aria-hidden className="size-5 shrink-0 text-primary" />
                 <span className="min-w-0">
-                  <span className="block text-sm font-semibold">{en ? "Help center" : "Centre d’aide"}</span>
-                  <span className="block text-xs text-muted-foreground">{en ? "Guides and common questions" : "Guides et questions fréquentes"}</span>
+                  <span className="block text-sm font-semibold">
+                    {en ? "Help center" : "Centre d’aide"}
+                  </span>
+                  <span className="block text-xs text-muted-foreground">
+                    {en ? "Guides and common questions" : "Guides et questions fréquentes"}
+                  </span>
                 </span>
               </span>
               <ArrowUpRight aria-hidden className="size-4 shrink-0 text-muted-foreground" />
@@ -407,7 +571,23 @@ export function ProfilePage() {
   );
 }
 
-function VerificationItem({ label, verified, en }: { label: string; verified: boolean; en: boolean }) {
+function VerificationItem({
+  label,
+  verified,
+  en,
+}: {
+  label: string;
+  verified: boolean;
+  en: boolean;
+}) {
+  const statusLabel = verified
+    ? en
+      ? "Verified"
+      : "Vérifié"
+    : en
+      ? "To verify"
+      : "À vérifier";
+
   return (
     <div className="rounded-xl border border-border/70 bg-muted/20 p-3">
       <div className="flex items-center gap-2">
@@ -415,10 +595,7 @@ function VerificationItem({ label, verified, en }: { label: string; verified: bo
         <p className="text-sm font-medium">{label}</p>
       </div>
       <div className="mt-2">
-        <StatusBadge
-          label={verified ? (en ? "Verified" : "Vérifié") : (en ? "To verify" : "À vérifier")}
-          tone={verified ? "success" : "pending"}
-        />
+        <StatusBadge label={statusLabel} tone={verified ? "success" : "pending"} />
       </div>
     </div>
   );
@@ -438,6 +615,13 @@ function ProfileSummary({
   verified: boolean;
 }) {
   const Icon = icon === "email" ? Mail : Phone;
+  const statusLabel = verified
+    ? en
+      ? "Verified"
+      : "Vérifiée"
+    : en
+      ? "To verify"
+      : "À vérifier";
 
   return (
     <div className="flex min-w-0 items-center gap-3">
@@ -447,10 +631,7 @@ function ProfileSummary({
       <div className="min-w-0">
         <p className="text-xs text-muted-foreground">{label}</p>
         <p className="truncate text-sm font-medium text-foreground">{value}</p>
-        <StatusBadge
-          label={verified ? (en ? "Verified" : "Vérifiée") : (en ? "To verify" : "À vérifier")}
-          tone={verified ? "success" : "pending"}
-        />
+        <StatusBadge label={statusLabel} tone={verified ? "success" : "pending"} />
       </div>
     </div>
   );
