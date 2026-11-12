@@ -91,9 +91,7 @@ function AboutPage() {
                     {String(index + 1).padStart(2, "0")}
                   </span>
                   <div className="min-w-0 space-y-3">
-                    <h2 className="text-heading-md text-foreground">
-                      {section.title}
-                    </h2>
+                    <h2 className="text-heading-md text-foreground">{section.title}</h2>
                     {section.paragraphs.map((paragraph, paragraphIndex) => (
                       <p
                         key={paragraphIndex}
@@ -113,11 +111,7 @@ function AboutPage() {
       <PublicSection tone="sunken">
         <SectionHeader
           eyebrow={en ? "Our values" : "Nos valeurs"}
-          title={
-            en
-              ? "What guides our decisions"
-              : "Ce qui guide nos décisions produit"
-          }
+          title={en ? "What guides our decisions" : "Ce qui guide nos décisions produit"}
         />
         <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {values.map((value, index) => (
@@ -128,12 +122,8 @@ function AboutPage() {
               <span className="text-overline inline-flex size-9 items-center justify-center rounded-xl bg-brand/10 text-brand">
                 {String(index + 1).padStart(2, "0")}
               </span>
-              <h3 className="text-heading-sm mt-4 text-foreground">
-                {value.title}
-              </h3>
-              <p className="text-body-sm mt-2 text-muted-foreground">
-                {value.description}
-              </p>
+              <h3 className="text-heading-sm mt-4 text-foreground">{value.title}</h3>
+              <p className="text-body-sm mt-2 text-muted-foreground">{value.description}</p>
             </article>
           ))}
         </div>
@@ -149,15 +139,9 @@ function AboutPage() {
             />
             <ul className="mt-6 space-y-4">
               {commitment.points.map((point) => (
-                <li
-                  key={point}
-                  className="text-body-sm flex items-start gap-3 text-foreground"
-                >
+                <li key={point} className="text-body-sm flex items-start gap-3 text-foreground">
                   <span className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-success/10">
-                    <Check
-                      className="size-3.5 text-success"
-                      aria-hidden="true"
-                    />
+                    <Check className="size-3.5 text-success" aria-hidden="true" />
                   </span>
                   <span className="min-w-0">{point}</span>
                 </li>
@@ -165,17 +149,10 @@ function AboutPage() {
             </ul>
           </div>
           <div className="relative overflow-hidden rounded-2xl border border-brand/20 bg-surface-sunken p-6 shadow-sm sm:p-7">
-            <div
-              className="absolute inset-y-0 left-0 w-1 bg-brand"
-              aria-hidden="true"
-            />
+            <div className="absolute inset-y-0 left-0 w-1 bg-brand" aria-hidden="true" />
             <div className="pl-3">
-              <p className="text-overline text-brand">
-                {en ? "Governance" : "Gouvernance"}
-              </p>
-              <h2 className="text-heading-sm mt-3 text-foreground">
-                {governance.title}
-              </h2>
+              <p className="text-overline text-brand">{en ? "Governance" : "Gouvernance"}</p>
+              <h2 className="text-heading-sm mt-3 text-foreground">{governance.title}</h2>
               <p className="text-body-sm mt-3 max-w-prose text-muted-foreground">
                 {governance.description}
               </p>
