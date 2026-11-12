@@ -10,10 +10,7 @@ const service = fs.readFileSync(
   "src/features/admin/services/simulated-external-transfer.server.ts",
   "utf8",
 );
-const functions = fs.readFileSync(
-  "src/features/admin/services/admin.functions.ts",
-  "utf8",
-);
+const functions = fs.readFileSync("src/features/admin/services/admin.functions.ts", "utf8");
 
 test("Simulated external queue submits through the simulation provider", () => {
   assert.match(service, /getSettlementProvider/);
