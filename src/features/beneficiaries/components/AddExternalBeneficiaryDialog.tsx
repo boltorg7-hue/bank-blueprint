@@ -111,13 +111,24 @@ export function AddExternalBeneficiaryDialog({
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="safe-pb max-h-[85vh] max-w-md overflow-y-auto">
+      <DialogContent className="safe-pb max-h-[88vh] max-w-lg overflow-y-auto rounded-2xl">
         <DialogHeader>
           <DialogTitle>{en ? "Beneficiary at another bank" : "Bénéficiaire dans une autre banque"}</DialogTitle>
           <DialogDescription>
             {en ? "A transfer to another bank requires checks and is not instant. You can follow each step from the transfer details." : "Un virement vers une autre banque demande des vérifications et n'est pas instantané. Vous suivrez chaque étape depuis le détail du virement."}
           </DialogDescription>
         </DialogHeader>
+
+        <div className="flex items-start gap-3 rounded-xl border border-border bg-surface-sunken/60 p-3">
+          <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+            <Landmark className="size-4" aria-hidden="true" />
+          </span>
+          <p className="text-caption leading-relaxed text-muted-foreground">
+            {en
+              ? "Choose a supported destination, then enter the recipient's bank details. Your information is checked before the beneficiary is saved."
+              : "Choisissez une destination desservie, puis renseignez les coordonnées du bénéficiaire. Les informations sont vérifiées avant l'enregistrement."}
+          </p>
+        </div>
 
         {rails.length === 0 ? (
           <p className="text-sm text-muted-foreground">
