@@ -37,6 +37,7 @@ const DIRECTIONS = [
   { value: "ALL", label: "Toutes les opérations" },
   { value: "INCOMING", label: "Entrées d'argent" },
   { value: "OUTGOING", label: "Sorties d'argent" },
+  { value: "NEUTRAL", label: "Autres opérations" },
 ];
 
 const STATUSES = [
@@ -46,6 +47,7 @@ const STATUSES = [
   { value: "PROCESSING", label: "En cours" },
   { value: "REVERSED", label: "Contre-passé" },
   { value: "FAILED", label: "Échoué" },
+  { value: "CANCELLED", label: "Annulé" },
 ];
 
 const CATEGORIES = [
@@ -157,7 +159,7 @@ function FilterFields({
           <SelectContent>
             {DIRECTIONS.map((option) => (
               <SelectItem key={option.value} value={option.value}>
-                {en ? ({ ALL: "All transactions", INCOMING: "Money in", OUTGOING: "Money out" } as Record<string, string>)[option.value] : option.label}
+                {en ? ({ ALL: "All transactions", INCOMING: "Money in", OUTGOING: "Money out", NEUTRAL: "Other transactions" } as Record<string, string>)[option.value] : option.label}
               </SelectItem>
             ))}
           </SelectContent>
@@ -176,7 +178,7 @@ function FilterFields({
           <SelectContent>
             {STATUSES.map((option) => (
               <SelectItem key={option.value} value={option.value}>
-                {en ? ({ ALL: "All statuses", COMPLETED: "Completed", PENDING: "Pending", PROCESSING: "Processing", REVERSED: "Reversed", FAILED: "Failed" } as Record<string, string>)[option.value] : option.label}
+                {en ? ({ ALL: "All statuses", COMPLETED: "Completed", PENDING: "Pending", PROCESSING: "Processing", REVERSED: "Reversed", FAILED: "Failed", CANCELLED: "Cancelled" } as Record<string, string>)[option.value] : option.label}
               </SelectItem>
             ))}
           </SelectContent>
