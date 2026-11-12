@@ -159,9 +159,7 @@ export function HelpCenter() {
         <section aria-label={en ? "Help search results" : "Résultats du centre d’aide"}>
           <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
             <div className="min-w-0">
-              <h2 className="text-heading-sm text-foreground">
-                {en ? "Answers" : "Réponses"}
-              </h2>
+              <h2 className="text-heading-sm text-foreground">{en ? "Answers" : "Réponses"}</h2>
               {activeCategoryLabel && (
                 <p className="text-caption mt-1 text-muted-foreground">{activeCategoryLabel}</p>
               )}
