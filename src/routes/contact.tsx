@@ -86,10 +86,12 @@ function ContactPage() {
             return (
               <article
                 key={channel.title}
-                className="flex flex-col rounded-2xl border border-border bg-surface p-5"
+                className="group flex flex-col rounded-2xl border border-border/80 bg-card p-5 shadow-sm transition-all duration-200 hover:-translate-y-1 hover:border-brand/30 hover:shadow-md motion-reduce:transform-none motion-reduce:transition-none"
               >
-                <Icon className="size-6 text-brand" aria-hidden="true" />
-                <h2 className="text-heading-sm mt-4 text-foreground">
+                <div className="flex size-12 items-center justify-center rounded-2xl bg-brand/10 text-brand transition-colors duration-200 group-hover:bg-brand/15 motion-reduce:transition-none">
+                  <Icon className="size-6" aria-hidden="true" />
+                </div>
+                <h2 className="text-heading-sm mt-5 text-foreground">
                   {en ? CHANNELS_EN[index]?.title : channel.title}
                 </h2>
                 <p className="text-body-sm mt-2 flex-1 text-muted-foreground">
@@ -98,7 +100,7 @@ function ContactPage() {
                 {channel.action && (
                   <Link
                     to={channel.action.to}
-                    className="text-body-sm mt-4 font-medium text-brand underline-offset-4 hover:underline"
+                    className="text-body-sm mt-5 inline-flex min-h-10 w-fit items-center rounded-lg px-2 font-semibold text-brand underline-offset-4 transition-colors hover:bg-brand/5 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   >
                     {en ? CHANNELS_EN[index]?.label : channel.action.label}
                   </Link>
@@ -110,7 +112,7 @@ function ContactPage() {
       </PublicSection>
 
       <PublicSection tone="sunken">
-        <div className="grid grid-cols-[minmax(0,1fr)] gap-10 lg:grid-cols-[1.1fr_0.9fr]">
+        <div className="grid grid-cols-[minmax(0,1fr)] items-start gap-8 lg:grid-cols-[minmax(0,1.15fr)_minmax(280px,0.85fr)] lg:gap-10">
           <div className="min-w-0">
             <SectionHeader
               as="h2"
@@ -122,18 +124,18 @@ function ContactPage() {
                   : "Nous ne demandons que le strict nécessaire : nom, e-mail, sujet et message."
               }
             />
-            <div className="mt-6">
+            <div className="mt-6 rounded-2xl border border-border/80 bg-card p-4 shadow-sm sm:p-6">
               <PublicContactForm />
             </div>
           </div>
 
-          <aside className="min-w-0">
+          <aside className="min-w-0 rounded-2xl border border-border/80 bg-card p-5 shadow-sm sm:p-6">
             <h2 className="text-heading-sm text-foreground">
               {en ? "Bank contact details" : "Coordonnées de la banque"}
             </h2>
             <LegalIdentityList
               variant="summary"
-              className="mt-4 rounded-2xl border border-border bg-surface p-5"
+              className="mt-4 rounded-xl border border-border/70 bg-surface-sunken/50 p-4"
             />
             <p className="text-caption mt-4 text-muted-foreground">{LEGAL_IDENTITY_NOTICE}</p>
           </aside>
