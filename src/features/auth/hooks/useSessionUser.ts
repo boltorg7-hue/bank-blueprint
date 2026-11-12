@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import type { User } from "@supabase/supabase-js";
+import { toast } from "sonner";
 
 import { supabase } from "@/integrations/supabase/client";
 
@@ -40,12 +41,17 @@ export function useSignOut() {
   const navigate = useNavigate();
 
   return async function signOut() {
-    await queryClient.cancelQueries();
-    queryClient.clear();
-    const { error } = await supabase.auth.signOut();
-    if (error) {
-      throw error;
+    try {
+      await queryClient.cancelQueries();
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+    } catch {
+      toast.error("La déconnexion n’a pas abouti. Réessayez.");
+      return false;
     }
+
+    queryClient.clear();
     await navigate({ to: "/login", replace: true });
+    return true;
   };
 }
