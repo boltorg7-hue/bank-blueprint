@@ -69,12 +69,24 @@ export function AccountBalanceCard({
             {account.displayName}
           </h2>
           <p className="text-caption text-numeric mt-0.5 text-muted-foreground sm:text-body-sm">
-            {accountTypeLabel(account.accountType)} · ••••{account.maskedNumber.slice(-4)} ·{" "}
+            {en
+              ? account.accountType === "CURRENT" ? "Current account" : "Savings account"
+              : accountTypeLabel(account.accountType)} · ••••{account.maskedNumber.slice(-4)} ·{" "}
             {account.currency}
           </p>
         </div>
         <StatusBadge
-          label={accountStatusLabel(account.status)}
+          label={en
+            ? {
+                PENDING: "In preparation",
+                ACTIVE: "Active",
+                RESTRICTED: "Limited",
+                SUSPENDED: "Suspended",
+                FROZEN: "Blocked",
+                CLOSING: "Closing",
+                CLOSED: "Closed",
+              }[account.status]
+            : accountStatusLabel(account.status)}
           tone={accountStatusTone(account.status)}
         />
       </div>
@@ -98,11 +110,11 @@ export function AccountBalanceCard({
           </p>
         ) : (
           <div className="mt-1">
-            <p className="text-heading-sm text-muted-foreground">{en ? "Balance unavailable" : "Solde indisponible"}</p>
+            <p className="text-heading-sm text-muted-foreground">{en ? "Balance details are being updated" : "Mise à jour des informations de solde"}</p>
             <p className="text-caption mt-1 text-muted-foreground">
               {en
-                ? "We couldn't retrieve your balance. No approximate amount is shown."
-                : "Nous n'avons pas pu récupérer votre solde. Aucun montant approximatif n'est affiché."}
+                ? "Your balance will appear as soon as the latest account data is available. No estimated amount is displayed."
+                : "Votre solde sera affiché dès que les dernières données du compte seront disponibles. Aucun montant estimé n'est affiché."}
             </p>
             {onRetry && (
               <Button variant="outline" size="sm" className="mt-3" onClick={onRetry}>
