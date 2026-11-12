@@ -217,9 +217,9 @@ function TransitionPage() {
               >
                 {state === "active" ? (
                   <Loader2
-                  className="size-5 shrink-0 animate-spin text-primary"
-                  aria-hidden="true"
-                />
+                    className="size-5 shrink-0 animate-spin text-primary"
+                    aria-hidden="true"
+                  />
                 ) : (
                   <StepIcon
                     className={`size-5 shrink-0 ${
