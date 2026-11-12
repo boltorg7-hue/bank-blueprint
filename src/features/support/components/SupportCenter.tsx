@@ -105,7 +105,11 @@ export function SupportCenter() {
     const cleanSubject = subject.trim();
     const cleanBody = body.trim();
     if (cleanSubject.length < 5 || !cleanBody) {
-      toast.error(en ? "Add a clear subject and your message." : "Ajoutez un sujet précis et votre message.");
+      toast.error(
+        en
+          ? "Add a clear subject and your message."
+          : "Ajoutez un sujet précis et votre message.",
+      );
       return;
     }
 
@@ -270,7 +274,11 @@ export function SupportCenter() {
         />
         <SummaryTile
           label={en ? "Awaiting your reply" : "Votre réponse attendue"}
-          value={(query.data?.items ?? []).filter((thread) => thread.status === "WAITING_CUSTOMER").length}
+          value={
+            (query.data?.items ?? [])
+              .filter((thread) => thread.status === "WAITING_CUSTOMER")
+              .length
+          }
           icon="reply"
         />
         <SummaryTile
@@ -307,7 +315,9 @@ export function SupportCenter() {
             <Input
               value={search}
               onChange={(event) => setSearch(event.target.value)}
-              placeholder={en ? "Search by subject or reference" : "Rechercher par sujet ou référence"}
+              placeholder={
+                en ? "Search by subject or reference" : "Rechercher par sujet ou référence"
+              }
               aria-label={en ? "Search conversations" : "Rechercher des conversations"}
               className="pl-9"
             />
