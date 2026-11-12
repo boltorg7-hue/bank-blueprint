@@ -32,7 +32,9 @@ test("OAuth consent is stored by the server with provider identity and current d
   assert.ok(migration.includes("terms_version"));
   assert.ok(migration.includes("privacy_version"));
   assert.ok(migration.includes("raw_app_meta_data ->> 'provider'"));
-  assert.ok(migration.includes("GRANT EXECUTE ON FUNCTION public.record_oauth_registration_consent"));
+  assert.ok(
+    migration.includes("GRANT EXECUTE ON FUNCTION public.record_oauth_registration_consent"),
+  );
   assert.ok(migration.includes("TO service_role"));
   assert.ok(migration.includes("REVOKE ALL ON FUNCTION public.record_oauth_registration_consent"));
 });

@@ -2,7 +2,11 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { areOAuthConsentDocumentsPublished, PRIVACY_DOCUMENT, TERMS_DOCUMENT } from "@/features/public/content/legal";
+import {
+  areOAuthConsentDocumentsPublished,
+  PRIVACY_DOCUMENT,
+  TERMS_DOCUMENT,
+} from "@/features/public/content/legal";
 
 type AuthClaims = {
   sub?: string;
@@ -67,7 +71,11 @@ export const recordOAuthConsent = createServerFn({ method: "POST" })
       throw new Error("UNSUPPORTED_OAUTH_PROVIDER");
     }
 
-    if (!areOAuthConsentDocumentsPublished() || !TERMS_DOCUMENT.lastUpdated || !PRIVACY_DOCUMENT.lastUpdated) {
+    if (
+      !areOAuthConsentDocumentsPublished() ||
+      !TERMS_DOCUMENT.lastUpdated ||
+      !PRIVACY_DOCUMENT.lastUpdated
+    ) {
       throw new Error("LEGAL_DOCUMENTS_NOT_PUBLISHED");
     }
 

@@ -35,7 +35,11 @@ export const TERMS_DOCUMENT: LegalDocument = {
   lastUpdated: null,
   sections: [
     { id: "scope", title: "1. Objet et champ d'application", paragraphs: [] },
-    { id: "account-opening", title: "2. Ouverture de compte et vérification d'identité", paragraphs: [] },
+    {
+      id: "account-opening",
+      title: "2. Ouverture de compte et vérification d'identité",
+      paragraphs: [],
+    },
     { id: "services", title: "3. Services fournis", paragraphs: [] },
     { id: "access", title: "4. Accès en ligne et sécurité des identifiants", paragraphs: [] },
     { id: "operations", title: "5. Opérations et virements", paragraphs: [] },
