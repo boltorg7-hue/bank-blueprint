@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useCallback, useEffect, useState } from "react";
-import { CheckCircle2, Clock, MailCheck, PencilLine, RefreshCw } from "lucide-react";
+import { CheckCircle2, Clock, MailCheck, PencilLine, RefreshCw, ShieldCheck } from "lucide-react";
 import { useLanguage } from "@/components/providers/LanguageProvider";
 
 import { AuthShell } from "@/features/auth/components/AuthShell";
@@ -205,7 +205,7 @@ function VerifyEmailPage() {
     verified === true ? (
       <div
         role="status"
-        className="flex items-start gap-3 rounded-xl border border-success/40 bg-success-muted px-4 py-3"
+        className="flex items-start gap-3 rounded-2xl border border-success/40 bg-success-muted p-4 sm:p-5"
       >
         <CheckCircle2 className="mt-0.5 size-5 shrink-0 text-success" aria-hidden="true" />
         <div>
@@ -220,7 +220,7 @@ function VerifyEmailPage() {
     ) : (
       <div
         role="status"
-        className="flex items-start gap-3 rounded-xl border border-border bg-surface px-4 py-3"
+        className="flex items-start gap-3 rounded-2xl border border-border bg-surface p-4 sm:p-5"
       >
         <Clock className="mt-0.5 size-5 shrink-0 text-muted-foreground" aria-hidden="true" />
         <div className="min-w-0 flex-1">
@@ -242,6 +242,7 @@ function VerifyEmailPage() {
 
   return (
     <AuthShell
+      eyebrow={en ? "ACCOUNT VERIFICATION" : "VÉRIFICATION DU COMPTE"}
       title={
         verified
           ? en
@@ -258,8 +259,23 @@ function VerifyEmailPage() {
             ? "We sent a confirmation link to your email address."
             : "Nous avons envoyé un lien de confirmation à votre adresse e-mail."
       }
+      aside={
+        <div className="rounded-2xl border border-brand/15 bg-brand/5 p-4 sm:p-5">
+          <div className="mb-3 flex size-10 items-center justify-center rounded-xl bg-background text-brand shadow-sm">
+            <ShieldCheck className="size-5" aria-hidden="true" />
+          </div>
+          <h2 className="text-heading-sm font-semibold text-foreground">
+            {en ? "Keep your account secure" : "Protégez votre compte"}
+          </h2>
+          <p className="text-body-sm mt-2 leading-relaxed text-muted-foreground">
+            {en
+              ? "Only use confirmation links sent to your own email address. Never forward a verification link or share a security code."
+              : "Utilisez uniquement les liens envoyés à votre propre adresse e-mail. Ne transférez jamais un lien de vérification et ne partagez aucun code de sécurité."}
+          </p>
+        </div>
+      }
     >
-      <div className="space-y-4">
+      <div className="space-y-5">
         {statusCard}
 
         {verified ? (
@@ -270,7 +286,7 @@ function VerifyEmailPage() {
           </Button>
         ) : (
           <>
-            <p className="text-body-sm flex items-start gap-2 rounded-xl border border-border bg-surface px-4 py-3 text-muted-foreground">
+            <p className="text-body-sm flex items-start gap-2 rounded-2xl border border-border bg-surface px-4 py-4 leading-relaxed text-muted-foreground">
               <MailCheck className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
               {en
                 ? "Open the link on this device if possible and check your spam folder."
@@ -280,7 +296,7 @@ function VerifyEmailPage() {
             {notice ? (
               <p
                 role="status"
-                className={`text-body-sm ${notice.tone === "error" ? "text-destructive" : "text-foreground"}`}
+                className={`text-body-sm rounded-xl border px-4 py-3 ${notice.tone === "error" ? "border-destructive/20 bg-destructive/10 text-destructive" : "border-success/20 bg-success-muted text-foreground"}`}
               >
                 {notice.text}
               </p>
@@ -318,7 +334,7 @@ function VerifyEmailPage() {
           editing ? (
             <form
               onSubmit={(event) => void handleChangeEmail(event)}
-              className="space-y-3 rounded-xl border border-border bg-surface p-4"
+              className="space-y-4 rounded-2xl border border-border bg-surface p-4 sm:p-5"
             >
               <Label htmlFor="new-email">
                 {en ? "New email address" : "Nouvelle adresse e-mail"}
@@ -374,7 +390,7 @@ function VerifyEmailPage() {
             <Button
               type="button"
               variant="ghost"
-              className="w-full touch-target"
+              className="w-full touch-target rounded-xl transition-colors hover:bg-surface-sunken focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 motion-reduce:transition-none"
               onClick={() => {
                 setNotice(null);
                 setNewEmail(target ?? "");
@@ -387,7 +403,7 @@ function VerifyEmailPage() {
           )
         ) : null}
 
-        <div className="flex flex-col gap-2">
+        <div className="border-t border-border pt-3">
           <Button asChild variant="ghost" className="touch-target">
             <Link to="/login">{en ? "Back to sign in" : "Retour à la connexion"}</Link>
           </Button>
