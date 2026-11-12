@@ -23,7 +23,8 @@ export function PricingTable({
     "Opérations de virement depuis votre compte. Le montant applicable vous est affiché avant confirmation, dans la devise du compte débité.":
       "Transfers from your account. Applicable charges are shown before confirmation in the account currency.",
     "Relevés et documents": "Statements and documents",
-    "Documents générés depuis votre espace client.": "Documents generated in your customer account.",
+    "Documents générés depuis votre espace client.":
+      "Documents generated in your customer account.",
     Assistance: "Support",
     "Canaux d'assistance mis à disposition.": "Available support channels.",
     "Services additionnels": "Additional services",
@@ -37,14 +38,14 @@ export function PricingTable({
     "Clôture de compte": "Account closure",
     "Virement interne entre comptes RFC": "Internal transfer between RFC accounts",
     "Virement vers une autre banque": "Transfer to another bank",
-    "Virement nécessitant une vérification complémentaire":
-      "Transfer requiring additional review",
+    "Virement nécessitant une vérification complémentaire": "Transfer requiring additional review",
     "Relevé numérique (PDF)": "Digital statement (PDF)",
     "Duplicata de relevé": "Duplicate statement",
     "Prélevée le premier jour ouvré du mois.": "Charged on the first business day of the month.",
     "Exécution immédiate entre comptes tenus par la banque.":
       "Immediate execution between accounts held with the bank.",
-    "Frais de règlement interbancaire, par virement sortant.": "Interbank settlement fee per outgoing transfer.",
+    "Frais de règlement interbancaire, par virement sortant.":
+      "Interbank settlement fee per outgoing transfer.",
     "Les contrôles de conformité ne sont jamais facturés.": "Compliance reviews are never charged.",
     "Sans frais": "No fee",
     "À définir": "To be confirmed",
@@ -62,19 +63,14 @@ export function PricingTable({
           <header className="border-b border-border bg-surface-sunken/80 px-5 py-5 sm:px-6">
             <div className="flex items-start justify-between gap-4">
               <div className="min-w-0">
-                <h3
-                  id={`pricing-${category.id}`}
-                  className="text-heading-sm text-foreground"
-                >
+                <h3 id={`pricing-${category.id}`} className="text-heading-sm text-foreground">
                   {text(category.title)}
                 </h3>
                 <p className="text-body-sm mt-1.5 max-w-3xl text-muted-foreground">
                   {text(category.description)}
                 </p>
               </div>
-              <span
-                className="hidden size-9 shrink-0 items-center justify-center rounded-xl bg-brand/10 text-caption font-semibold text-brand sm:inline-flex"
-              >
+              <span className="hidden size-9 shrink-0 items-center justify-center rounded-xl bg-brand/10 text-caption font-semibold text-brand sm:inline-flex">
                 {String(category.lines.length).padStart(2, "0")}
               </span>
             </div>
@@ -86,9 +82,7 @@ export function PricingTable({
                 className="flex flex-col gap-2 px-5 py-4 transition-colors duration-150 hover:bg-surface-sunken/50 motion-reduce:transition-none sm:flex-row sm:items-center sm:justify-between sm:gap-6 sm:px-6"
               >
                 <div className="min-w-0">
-                  <dt className="text-body-sm font-medium text-foreground">
-                    {text(line.label)}
-                  </dt>
+                  <dt className="text-body-sm font-medium text-foreground">{text(line.label)}</dt>
                   {line.note && (
                     <p className="text-caption mt-1 text-muted-foreground">{text(line.note)}</p>
                   )}
