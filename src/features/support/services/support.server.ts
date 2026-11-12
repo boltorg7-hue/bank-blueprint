@@ -62,18 +62,18 @@ function decodeSupportCursor(value?: string | null): SupportCursor | null {
 
   const cursor = parsed as Record<string, unknown>;
   const validTimestamp =
-    typeof cursor.lastMessageAt === "string" &&
-    SUPPORT_CURSOR_TIMESTAMP.test(cursor.lastMessageAt) &&
-    Number.isFinite(Date.parse(cursor.lastMessageAt));
-  const validId = typeof cursor.id === "string" && SUPPORT_CURSOR_UUID.test(cursor.id);
+    typeof cursor["lastMessageAt"] === "string" &&
+    SUPPORT_CURSOR_TIMESTAMP.test(cursor["lastMessageAt"]) &&
+    Number.isFinite(Date.parse(cursor["lastMessageAt"]));
+  const validId = typeof cursor["id"] === "string" && SUPPORT_CURSOR_UUID.test(cursor["id"]);
 
   if (!validTimestamp || !validId) {
     throw new Error("INVALID_SUPPORT_CURSOR");
   }
 
   return {
-    lastMessageAt: cursor.lastMessageAt as string,
-    id: cursor.id as string,
+    lastMessageAt: cursor["lastMessageAt"] as string,
+    id: cursor["id"] as string,
   };
 }
 

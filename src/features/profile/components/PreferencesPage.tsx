@@ -77,6 +77,7 @@ export function PreferencesPage() {
   ).length;
 
   async function submit() {
+    if (!form) return;
     try {
       const result = await save.mutateAsync(form);
       setForm(result);

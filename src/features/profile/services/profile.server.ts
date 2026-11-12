@@ -1,4 +1,6 @@
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import type { Database } from "@/integrations/supabase/types";
 import {
   permanentAddressSchema,
   permanentProfileSchema,
@@ -6,7 +8,20 @@ import {
 } from "@/features/profile/schemas/profile.schemas";
 import type { CustomerPreferencesDto, ProfileOverviewDto } from "@/features/profile/types/profile";
 
-const admin = supabaseAdmin;
+// Keep the migrated avatar column local until managed types include it.
+type ProfileTable = Database["public"]["Tables"]["profiles"];
+type ProfileDatabase = Omit<Database, "public"> & {
+  public: Omit<Database["public"], "Tables"> & {
+    Tables: Omit<Database["public"]["Tables"], "profiles"> & {
+      profiles: Omit<ProfileTable, "Row" | "Insert" | "Update"> & {
+        Row: ProfileTable["Row"] & { avatar_storage_path: string | null };
+        Insert: ProfileTable["Insert"] & { avatar_storage_path?: string | null };
+        Update: ProfileTable["Update"] & { avatar_storage_path?: string | null };
+      };
+    };
+  };
+};
+const admin = supabaseAdmin as SupabaseClient<ProfileDatabase>;
 
 export class ProfileError extends Error {}
 
@@ -102,7 +117,7 @@ export async function updateProfile(userId: string, input: unknown) {
   }
 
   const phoneChanged = (currentProfile.phone ?? "") !== data.phone;
-  const payload: Record<string, unknown> = {
+  const payload: ProfileTable["Update"] = {
     country_of_residence: data.countryOfResidence,
     occupation: data.occupation,
     phone: data.phone || null,
@@ -234,8 +249,8 @@ export async function loadPreferences(userId: string): Promise<CustomerPreferenc
   if (error) throw new ProfileError("PREFERENCES_UNAVAILABLE");
 
   return {
-    language: data?.language ?? "fr",
-    theme: data?.theme ?? "system",
+    language: data?.language === "en" ? "en" : "fr",
+    theme: data?.theme === "light" || data?.theme === "dark" ? data.theme : "system",
     privacyModeDefault: data?.privacy_mode_default ?? false,
     smsTransactions: data?.sms_transactions ?? true,
     smsSecurity: data?.sms_security ?? true,
