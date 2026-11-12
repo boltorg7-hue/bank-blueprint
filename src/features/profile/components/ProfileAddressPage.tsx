@@ -30,12 +30,48 @@ const FIELDS: {
   required: boolean;
   autoComplete: string;
 }[] = [
-  { key: "country", label: "Pays", labelEn: "Country", required: true, autoComplete: "country-name" },
-  { key: "addressLine1", label: "Adresse", labelEn: "Address line", required: true, autoComplete: "address-line1" },
-  { key: "addressLine2", label: "Complément d’adresse", labelEn: "Address line 2", required: false, autoComplete: "address-line2" },
-  { key: "city", label: "Ville", labelEn: "City", required: true, autoComplete: "address-level2" },
-  { key: "region", label: "Région / État", labelEn: "Region / State", required: false, autoComplete: "address-level1" },
-  { key: "postalCode", label: "Code postal", labelEn: "Postal code", required: false, autoComplete: "postal-code" },
+  {
+    key: "country",
+    label: "Pays",
+    labelEn: "Country",
+    required: true,
+    autoComplete: "country-name",
+  },
+  {
+    key: "addressLine1",
+    label: "Adresse",
+    labelEn: "Address line",
+    required: true,
+    autoComplete: "address-line1",
+  },
+  {
+    key: "addressLine2",
+    label: "Complément d’adresse",
+    labelEn: "Address line 2",
+    required: false,
+    autoComplete: "address-line2",
+  },
+  {
+    key: "city",
+    label: "Ville",
+    labelEn: "City",
+    required: true,
+    autoComplete: "address-level2",
+  },
+  {
+    key: "region",
+    label: "Région / État",
+    labelEn: "Region / State",
+    required: false,
+    autoComplete: "address-level1",
+  },
+  {
+    key: "postalCode",
+    label: "Code postal",
+    labelEn: "Postal code",
+    required: false,
+    autoComplete: "postal-code",
+  },
 ];
 
 export function ProfileAddressPage() {
