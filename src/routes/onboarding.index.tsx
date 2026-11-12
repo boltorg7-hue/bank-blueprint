@@ -24,7 +24,9 @@ function OnboardingHome() {
       <OnboardingShell title={en ? "Open your account" : "Votre ouverture de compte"}>
         <div className="flex items-center gap-3 text-muted-foreground">
           <Spinner className="size-5" />
-          <span className="text-body-sm">{en ? "Loading your application…" : "Chargement de votre suivi…"}</span>
+          <span className="text-body-sm">
+            {en ? "Loading your application…" : "Chargement de votre suivi…"}
+          </span>
         </div>
       </OnboardingShell>
     );
@@ -79,7 +81,8 @@ function OnboardingHome() {
               )}
             </span>
             <span className="min-w-0 flex-1">
-              <span className="block text-label font-semibold text-foreground">{en
+              <span className="block text-label font-semibold text-foreground">
+                {en
                   ? (
                       {
                         email: "Email address confirmed",
@@ -90,7 +93,8 @@ function OnboardingHome() {
                         activation: "Account opening",
                       } as Record<string, string>
                     )[task.id] ?? task.title
-                  : task.title}</span>
+                  : task.title}
+              </span>
               <span className="mt-1.5 block text-body-sm leading-relaxed text-muted-foreground">
                 {en
                   ? (
@@ -125,8 +129,7 @@ function OnboardingHome() {
           {tasks.filter((task) => task.status === "done").length}/{tasks.length}{" "}
           {en
             ? "steps completed — pick up where you left off."
-            : "étapes terminées — reprenez là où vous vous êtes arrêté."
-          }
+            : "étapes terminées — reprenez là où vous vous êtes arrêté."}
         </p>
         <div className="mb-4 h-2 overflow-hidden rounded-full bg-muted" aria-hidden="true">
           <div
