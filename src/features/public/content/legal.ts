@@ -23,8 +23,7 @@ export type LegalDocument = {
   sections: LegalSection[];
 };
 
-export const PENDING_SECTION_NOTICE =
-  "La finalisation de cette rubrique est en cours. Nous préparons ses informations détaillées afin de vous présenter une documentation claire et cohérente.";
+export const PENDING_SECTION_NOTICE = "La finalisation de cette rubrique est en cours. Nous préparons ses informations détaillées afin de vous présenter une documentation claire et cohérente.";
 
 export const TERMS_DOCUMENT: LegalDocument = {
   slug: "terms",
@@ -94,7 +93,8 @@ export const COOKIE_POSTURE = {
     {
       name: "Session d'authentification",
       purpose: "Maintenir votre connexion à l'espace client.",
-      storage: "Stockage local du navigateur sur le site publié ; stockage de session partagé dans l’aperçu Lovable.",
+      storage:
+        "Stockage local du navigateur sur le site publié ; stockage de session partagé dans l’aperçu Lovable.",
     },
   ],
 } as const;
