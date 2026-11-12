@@ -308,7 +308,10 @@ function OnboardingStatusPage() {
           </div>
         </div>
 
-        <section aria-labelledby="lifecycle-progress" className="space-y-4 rounded-2xl border border-border bg-card px-5 py-5 shadow-sm">
+        <section
+          aria-labelledby="lifecycle-progress"
+          className="space-y-4 rounded-2xl border border-border bg-card px-5 py-5 shadow-sm"
+        >
           <div className="flex items-center justify-between gap-3">
             <h2 id="lifecycle-progress" className="text-label text-foreground">
               {en ? "Application progress" : "Progression du dossier"}
