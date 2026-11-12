@@ -19,7 +19,9 @@ test("Simulated external queue submits through the simulation provider", () => {
   assert.match(service, /idempotencyKey: "settlement:" \+ row\.id/);
   assert.match(service, /"SUBMITTED", "PENDING"/);
   assert.match(functions, /submitAdminExternalSettlement/);
-  assert.match(functions, /_provider_status: providerResult\.status/);
+  assert.match(service, /_provider_status: outcome\.state/);
+  assert.match(migration, /TO service_role/);
+  assert.match(migration, /FROM PUBLIC, anon, authenticated/);
   assert.match(migration, /DROP FUNCTION IF EXISTS public\.admin_queue_simulated_external\(text\)/);
   assert.match(migration, /_provider_status public\.external_settlement_status/);
   assert.match(migration, /public\.apply_external_settlement_result\(/);

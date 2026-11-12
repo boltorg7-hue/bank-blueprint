@@ -6,6 +6,7 @@ BEGIN;
 DROP FUNCTION IF EXISTS public.admin_queue_simulated_external(text);
 
 CREATE OR REPLACE FUNCTION public.admin_queue_simulated_external(
+  _staff_id uuid,
   _reference text,
   _provider_status public.external_settlement_status,
   _provider_reference text
@@ -19,7 +20,7 @@ DECLARE
   _t public.transfers%ROWTYPE;
   _simulated boolean;
 BEGIN
-  IF NOT public.has_permission(auth.uid(), 'transfers.approve') THEN
+  IF _staff_id IS NULL OR NOT public.has_permission(_staff_id, 'transfers.approve') THEN
     RAISE EXCEPTION 'FORBIDDEN';
   END IF;
 
@@ -45,7 +46,7 @@ BEGIN
   END IF;
 
   IF _t.simulation_approved_by IS NULL
-     OR _t.simulation_approved_by = auth.uid() THEN
+     OR _t.simulation_approved_by = _staff_id THEN
     RAISE EXCEPTION 'FOUR_EYES_REQUIRED';
   END IF;
 
@@ -61,7 +62,7 @@ BEGIN
   );
 
   UPDATE public.transfers
-     SET simulation_submitted_by = auth.uid(),
+     SET simulation_submitted_by = _staff_id,
          external_provider_reference = _provider_reference
    WHERE id = _t.id;
 
@@ -69,7 +70,7 @@ BEGIN
     actor_user_id, action, resource_type, resource_reference,
     permission_checked, result, context
   ) VALUES (
-    auth.uid(),
+    _staff_id,
     'external_transfer.queued',
     'transfer',
     _reference,
@@ -158,11 +159,11 @@ END;
 $$;
 
 REVOKE ALL ON FUNCTION public.admin_queue_simulated_external(
-  text, public.external_settlement_status, text
-) FROM PUBLIC, anon;
+  uuid, text, public.external_settlement_status, text
+) FROM PUBLIC, anon, authenticated;
 GRANT EXECUTE ON FUNCTION public.admin_queue_simulated_external(
-  text, public.external_settlement_status, text
-) TO authenticated;
+  uuid, text, public.external_settlement_status, text
+) TO service_role;
 
 REVOKE ALL ON FUNCTION public.admin_finalize_simulated_external(text)
   FROM PUBLIC, anon;

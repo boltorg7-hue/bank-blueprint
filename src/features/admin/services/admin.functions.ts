@@ -406,31 +406,11 @@ export const advanceAdminExternalTransfer = createServerFn({ method: "POST" })
     if (data.action === "QUEUE") {
       const settlement =
         await import("@/features/admin/services/simulated-external-transfer.server");
-      const providerResult = await settlement.submitAdminExternalSettlement(
+      return settlement.submitAdminExternalSettlement(
         context.supabase,
         context.userId,
         data.reference,
       );
-      const { error } = await context.supabase.rpc(
-        "admin_queue_simulated_external" as never,
-        {
-          _reference: data.reference,
-          _provider_status: providerResult.status,
-          _provider_reference: providerResult.providerReference,
-        } as never,
-      );
-      if (error) {
-        const message = error.message.toLowerCase();
-        if (
-          message.includes("four-eyes") ||
-          message.includes("four_eyes_required") ||
-          message.includes("three_person_approval_required")
-        ) {
-          throw new Error("FOUR_EYES_REQUIRED");
-        }
-        throw new Error("TRANSFER_ACTION_FAILED");
-      }
-      return { ok: true };
     }
 
     const rpc =

@@ -79,8 +79,20 @@ export async function submitAdminExternalSettlement(
     throw new Error("INVALID_SIMULATED_PROVIDER_RESULT");
   }
 
-  return {
-    status: outcome.state as QueueProviderStatus,
-    providerReference: outcome.providerReference,
-  };
+  const { error: queueError } = await supabaseAdmin.rpc(
+    "admin_queue_simulated_external" as never,
+    {
+      _staff_id: actorUserId,
+      _reference: reference,
+      _provider_status: outcome.state,
+      _provider_reference: outcome.providerReference,
+    } as never,
+  );
+  if (queueError) {
+    const message = queueError.message.toLowerCase();
+    if (message.includes("four_eyes_required")) throw new Error("FOUR_EYES_REQUIRED");
+    throw new Error("TRANSFER_ACTION_FAILED");
+  }
+
+  return { ok: true };
 }
