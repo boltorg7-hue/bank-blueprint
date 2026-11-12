@@ -571,9 +571,7 @@ function VerificationItem({
   en: boolean;
 }) {
   const statusLabel = verified
-    ? en
-      ? "Verified"
-      : "Vérifié"
+    ? (en ? "Verified" : "Vérifié")
     : en
       ? "To verify"
       : "À vérifier";
@@ -606,9 +604,7 @@ function ProfileSummary({
 }) {
   const Icon = icon === "email" ? Mail : Phone;
   const statusLabel = verified
-    ? en
-      ? "Verified"
-      : "Vérifiée"
+    ? (en ? "Verified" : "Vérifiée")
     : en
       ? "To verify"
       : "À vérifier";
