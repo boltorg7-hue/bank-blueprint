@@ -28,7 +28,8 @@ CREATE INDEX transfer_document_review_history_transfer_idx
 
 ALTER TABLE public.transfer_document_review_history ENABLE ROW LEVEL SECURITY;
 GRANT SELECT ON public.transfer_document_review_history TO authenticated;
-GRANT ALL ON public.transfer_document_review_history TO service_role;
+REVOKE ALL ON public.transfer_document_review_history FROM service_role;
+GRANT SELECT ON public.transfer_document_review_history TO service_role;
 
 CREATE POLICY "Transfer document review history compliance readers"
   ON public.transfer_document_review_history
@@ -37,6 +38,36 @@ CREATE POLICY "Transfer document review history compliance readers"
     public.has_permission(auth.uid(), 'compliance.review')
     OR public.has_permission(auth.uid(), 'transfers.approve')
   );
+
+-- Review history is append-only: even privileged application roles cannot
+-- rewrite, delete or truncate the evidence after a decision has been recorded.
+CREATE OR REPLACE FUNCTION public.prevent_transfer_document_review_history_mutation()
+RETURNS trigger
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = pg_catalog, public
+AS $
+BEGIN
+  RAISE EXCEPTION 'TRANSFER_DOCUMENT_REVIEW_HISTORY_IMMUTABLE';
+END;
+$;
+REVOKE ALL ON FUNCTION public.prevent_transfer_document_review_history_mutation()
+  FROM PUBLIC, anon, authenticated, service_role;
+
+DROP TRIGGER IF EXISTS transfer_document_review_history_no_row_mutation
+  ON public.transfer_document_review_history;
+CREATE TRIGGER transfer_document_review_history_no_row_mutation
+  BEFORE UPDATE OR DELETE ON public.transfer_document_review_history
+  FOR EACH ROW EXECUTE FUNCTION public.prevent_transfer_document_review_history_mutation();
+
+DROP TRIGGER IF EXISTS transfer_document_review_history_no_truncate
+  ON public.transfer_document_review_history;
+CREATE TRIGGER transfer_document_review_history_no_truncate
+  BEFORE TRUNCATE ON public.transfer_document_review_history
+  FOR EACH STATEMENT EXECUTE FUNCTION public.prevent_transfer_document_review_history_mutation();
+
+REVOKE INSERT, UPDATE, DELETE, TRUNCATE ON public.transfer_document_review_history
+  FROM PUBLIC, anon, authenticated, service_role;
 
 CREATE OR REPLACE FUNCTION public.review_transfer_document(
   _staff_id uuid,
