@@ -16,7 +16,9 @@ test("SQL migrations do not contain malformed single-dollar function delimiters"
         malformed.push(file + ":" + (index + 1));
       }
     });
-    if (/SELECT\\s+tr\\s*,\\s*rail\\.is_simulation\\s+INTO\\s+_t\\s*,\\s*_simulated/i.test(source)) {
+    if (
+      /SELECT\\s+tr\\s*,\\s*rail\\.is_simulation\\s+INTO\\s+_t\\s*,\\s*_simulated/i.test(source)
+    ) {
       malformed.push(file + ": composite row in multi-target INTO");
     }
   }
