@@ -29,9 +29,6 @@ export type AdminExternalTransferWithDocumentsDto = AdminExternalTransferDto & {
   documents: AdminTransferDocumentDto[];
 };
 
-export type AdminExternalTransferReviewPageDto = Omit<
-  AdminExternalTransferPageDto,
-  "items"
-> & {
+export type AdminExternalTransferReviewPageDto = Omit<AdminExternalTransferPageDto, "items"> & {
   items: AdminExternalTransferWithDocumentsDto[];
 };

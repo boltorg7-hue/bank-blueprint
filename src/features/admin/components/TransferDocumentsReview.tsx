@@ -19,11 +19,7 @@ function statusTone(status: string): "success" | "failed" | "pending" | "info" {
   return "info";
 }
 
-export function TransferDocumentsReview({
-  documents,
-}: {
-  documents: AdminTransferDocumentDto[];
-}) {
+export function TransferDocumentsReview({ documents }: { documents: AdminTransferDocumentDto[] }) {
   const { language } = useLanguage();
   const en = language === "en";
   const [reasons, setReasons] = useState<Record<string, string>>({});
@@ -41,7 +37,9 @@ export function TransferDocumentsReview({
       else window.location.assign(result.url);
     } catch {
       preview?.close();
-      toast.error(en ? "The document could not be opened." : "Le document ne peut pas être ouvert.");
+      toast.error(
+        en ? "The document could not be opened." : "Le document ne peut pas être ouvert.",
+      );
     }
   }
 
@@ -52,15 +50,23 @@ export function TransferDocumentsReview({
       setReasons((current) => ({ ...current, [documentId]: "" }));
       toast.success(
         accept
-          ? (en ? "Document accepted." : "Justificatif accepté.")
-          : (en ? "Replacement requested." : "Remplacement demandé."),
+          ? en
+            ? "Document accepted."
+            : "Justificatif accepté."
+          : en
+            ? "Replacement requested."
+            : "Remplacement demandé.",
       );
     } catch (error) {
       const message = error instanceof Error ? error.message : "";
       toast.error(
         message === "DOCUMENT_ALREADY_FINALIZED"
-          ? (en ? "This document has already been reviewed." : "Ce justificatif a déjà été examiné.")
-          : (en ? "The document decision could not be saved." : "La décision documentaire n’a pas été enregistrée."),
+          ? en
+            ? "This document has already been reviewed."
+            : "Ce justificatif a déjà été examiné."
+          : en
+            ? "The document decision could not be saved."
+            : "La décision documentaire n’a pas été enregistrée.",
       );
     }
   }

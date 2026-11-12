@@ -12,7 +12,8 @@ export const listAdminExternalTransfersWithDocuments = createServerFn({ method: 
   .inputValidator(cursorInput)
   .handler(async ({ data, context }): Promise<AdminExternalTransferReviewPageDto> => {
     const adminService = await import("@/features/admin/services/admin.server");
-    const documentService = await import("@/features/admin/services/transfer-document-review.server");
+    const documentService =
+      await import("@/features/admin/services/transfer-document-review.server");
     const page = await adminService.loadExternalTransfers(context.supabase, data.cursor);
     const documents = await documentService.loadTransferDocumentsForReferences(
       context.supabase,
@@ -31,7 +32,9 @@ export const getAdminTransferDocumentUrl = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: { documentId: string }) => {
     const documentId = String(input?.documentId ?? "").trim();
-    if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(documentId)) {
+    if (
+      !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(documentId)
+    ) {
       throw new Error("INVALID_DOCUMENT_REFERENCE");
     }
     return { documentId };
@@ -48,7 +51,9 @@ export const reviewAdminTransferDocument = createServerFn({ method: "POST" })
     const accept = input?.accept;
     const reason = String(input?.reason ?? "").trim();
     if (
-      !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(documentId) ||
+      !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+        documentId,
+      ) ||
       typeof accept !== "boolean" ||
       (!accept && (reason.length < 8 || reason.length > 500))
     ) {

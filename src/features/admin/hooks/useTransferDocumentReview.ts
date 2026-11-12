@@ -36,9 +36,7 @@ export function useReviewAdminTransferDocument() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: { documentId: string; accept: boolean; reason?: string }) =>
-      fn({ data }),
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: ADMIN_EXTERNAL_TRANSFERS_KEY }),
+    mutationFn: (data: { documentId: string; accept: boolean; reason?: string }) => fn({ data }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ADMIN_EXTERNAL_TRANSFERS_KEY }),
   });
 }
