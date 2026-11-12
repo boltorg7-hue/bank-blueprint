@@ -82,9 +82,7 @@ export function ProfilePage() {
   }
 
   const data = query.data;
-  const fullName = [data.firstName, data.middleName, data.lastName]
-    .filter(Boolean)
-    .join(" ");
+  const fullName = [data.firstName, data.middleName, data.lastName].filter(Boolean).join(" ");
   const initials = [data.firstName, data.lastName]
     .filter(Boolean)
     .map((part) => part.trim().charAt(0))
@@ -100,9 +98,7 @@ export function ProfilePage() {
         type={type}
         value={profile[key] ?? ""}
         disabled={locked}
-        onChange={(event) =>
-          setProfile((current) => ({ ...current, [key]: event.target.value }))
-        }
+        onChange={(event) => setProfile((current) => ({ ...current, [key]: event.target.value }))}
       />
     </div>
   );
@@ -112,9 +108,7 @@ export function ProfilePage() {
 
     try {
       await saveProfile.mutateAsync(profile);
-      toast.success(
-        en ? "Personal information saved." : "Informations personnelles enregistrées.",
-      );
+      toast.success(en ? "Personal information saved." : "Informations personnelles enregistrées.");
     } catch {
       toast.error(
         en
@@ -226,9 +220,7 @@ export function ProfilePage() {
               </span>
               <div className="min-w-0">
                 <CardTitle>
-                  {en
-                    ? "Personal information and address"
-                    : "Informations personnelles et adresse"}
+                  {en ? "Personal information and address" : "Informations personnelles et adresse"}
                 </CardTitle>
                 <CardDescription className="mt-1">
                   {en
@@ -266,9 +258,7 @@ export function ProfilePage() {
               {field("phone", en ? "Phone number" : "Téléphone", "tel")}
 
               <div className="grid min-w-0 gap-2">
-                <Label htmlFor="profile-email">
-                  {en ? "Email address" : "Adresse e-mail"}
-                </Label>
+                <Label htmlFor="profile-email">{en ? "Email address" : "Adresse e-mail"}</Label>
                 <Input id="profile-email" value={data.email ?? ""} disabled />
                 <StatusBadge
                   label={
@@ -409,7 +399,9 @@ export function ProfilePage() {
               ))
             ) : (
               <p className="rounded-xl border border-dashed border-border p-4 text-sm text-muted-foreground">
-                {en ? "No bank account opened yet." : "Aucun compte bancaire ouvert pour le moment."}
+                {en
+                  ? "No bank account opened yet."
+                  : "Aucun compte bancaire ouvert pour le moment."}
               </p>
             )}
           </CardContent>
@@ -460,9 +452,7 @@ export function ProfilePage() {
                     {en ? "Open security center" : "Ouvrir le centre de sécurité"}
                   </span>
                   <span className="block text-xs text-muted-foreground">
-                    {en
-                      ? "Password, devices and sessions"
-                      : "Mot de passe, appareils et sessions"}
+                    {en ? "Password, devices and sessions" : "Mot de passe, appareils et sessions"}
                   </span>
                 </span>
               </span>
