@@ -64,7 +64,7 @@ assert.match(server, /createSignedUrl\(document\.storage_path, 60\)/);
 assert.match(uploader, /extensionByMime/);
 assert.match(uploader, /cacheControl: "0"/);
 assert.match(schema, /storagePath: z\.string\(\)\.min\(1\)\.max\(256\)/);
-assert.match(schema, /originalFilename: z\.string\(\)\.trim\(\)\.min\(1\)\.max\(255\)/);
+assert.match(schema, /originalFilename:\s*z\s*\.string\(\)\s*\.trim\(\)\s*\.min\(1\)\s*\.max\(255\)/);
 assert.match(addressRoute, /saveAddressStep/);
 assert.match(addressRoute, /addressStepSchema\.safeParse/);
 
