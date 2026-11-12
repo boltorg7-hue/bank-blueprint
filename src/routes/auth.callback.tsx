@@ -160,7 +160,9 @@ function AuthCallbackPage() {
     <AuthShell
       eyebrow={en ? "Secure sign-in" : "Connexion sécurisée"}
       title={en ? "Signing you in" : "Connexion en cours"}
-      description={en ? "We are preparing your secure banking space." : "Nous préparons votre espace sécurisé."}
+      description={
+        en ? "We are preparing your secure banking space." : "Nous préparons votre espace sécurisé."
+      }
     >
       <div className="space-y-5" role="status" aria-live="polite">
         <div className="flex items-center gap-3 rounded-2xl border border-brand/15 bg-brand/5 p-4">
