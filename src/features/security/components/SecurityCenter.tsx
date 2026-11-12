@@ -13,13 +13,7 @@ import { toast } from "sonner";
 import { useLanguage } from "@/components/providers/LanguageProvider";
 import { EmptyState, ErrorState, LoadingState } from "@/components/feedback";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { StatusBadge } from "@/components/ui/status-badge";
@@ -64,9 +58,7 @@ export function SecurityCenter() {
       met: newPassword.length >= 12,
     },
     {
-      label: en
-        ? "Uppercase and lowercase letters"
-        : "Une lettre majuscule et une minuscule",
+      label: en ? "Uppercase and lowercase letters" : "Une lettre majuscule et une minuscule",
       met: /[a-z]/.test(newPassword) && /[A-Z]/.test(newPassword),
     },
     {
@@ -103,18 +95,12 @@ export function SecurityCenter() {
     }
     if (newPassword !== confirmation) {
       toast.error(
-        en
-          ? "New passwords do not match."
-          : "Les nouveaux mots de passe ne correspondent pas.",
+        en ? "New passwords do not match." : "Les nouveaux mots de passe ne correspondent pas.",
       );
       return;
     }
     if (!user?.email || !currentPassword) {
-      toast.error(
-        en
-          ? "Enter your current password."
-          : "Saisissez votre mot de passe actuel.",
-      );
+      toast.error(en ? "Enter your current password." : "Saisissez votre mot de passe actuel.");
       return;
     }
 
@@ -192,10 +178,7 @@ export function SecurityCenter() {
               </p>
             </div>
           </div>
-          <StatusBadge
-            label={en ? "Protected area" : "Espace protégé"}
-            tone="success"
-          />
+          <StatusBadge label={en ? "Protected area" : "Espace protégé"} tone="success" />
         </CardContent>
       </Card>
 
@@ -295,12 +278,7 @@ export function SecurityCenter() {
               <Button
                 type="submit"
                 className="w-full sm:w-auto"
-                disabled={
-                  changing ||
-                  !currentPassword ||
-                  !newPassword ||
-                  !confirmation
-                }
+                disabled={changing || !currentPassword || !newPassword || !confirmation}
                 loading={changing}
                 loadingLabel={en ? "Updating…" : "Modification…"}
               >
@@ -385,13 +363,7 @@ export function SecurityCenter() {
                   </div>
                   <StatusBadge
                     label={statusLabel}
-                    tone={
-                      session.current
-                        ? "success"
-                        : session.revokedAt
-                          ? "neutral"
-                          : "info"
-                    }
+                    tone={session.current ? "success" : session.revokedAt ? "neutral" : "info"}
                   />
                 </div>
               );
