@@ -19,3 +19,11 @@ export const getPreferences = createServerFn({ method: "GET" }).middleware([requ
 export const savePreferences = createServerFn({ method: "POST" }).middleware([requireSupabaseAuth]).inputValidator((input: unknown) => input).handler(async ({ data, context }): Promise<CustomerPreferencesDto> => {
   const service = await import("@/features/profile/services/profile.server"); return service.updatePreferences(context.userId, data);
 });
+
+export const saveProfileAvatar = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => input)
+  .handler(async ({ data, context }) => {
+    const service = await import("@/features/profile/services/profile.server");
+    return service.updateProfileAvatar(context.userId, (data as { storagePath?: unknown })?.storagePath);
+  });
