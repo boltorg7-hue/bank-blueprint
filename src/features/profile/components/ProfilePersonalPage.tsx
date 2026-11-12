@@ -61,11 +61,7 @@ export function ProfilePersonalPage() {
   if (query.isPending) {
     return (
       <LoadingState
-        label={
-          en
-            ? "Loading personal information…"
-            : "Chargement des informations personnelles…"
-        }
+        label={en ? "Loading personal information…" : "Chargement des informations personnelles…"}
       />
     );
   }
@@ -87,9 +83,7 @@ export function ProfilePersonalPage() {
     if (!validation.success) {
       toast.error(
         validation.error.issues[0]?.message ??
-          (en
-            ? "Check the entered information."
-            : "Vérifiez les informations saisies."),
+          (en ? "Check the entered information." : "Vérifiez les informations saisies."),
       );
       return;
     }
