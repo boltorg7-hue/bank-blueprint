@@ -82,7 +82,9 @@ function ContactPage() {
       <PublicSection>
         <div className="mb-6 flex items-center gap-3 text-sm text-muted-foreground">
           <span className="h-px flex-1 bg-border" />
-          <span className="font-medium uppercase tracking-[0.16em]">{en ? "Choose your channel" : "Choisissez votre canal"}</span>
+          <span className="font-medium uppercase tracking-[0.16em]">
+            {en ? "Choose your channel" : "Choisissez votre canal"}
+          </span>
           <span className="h-px flex-1 bg-border" />
         </div>
         <div className="grid grid-cols-[minmax(0,1fr)] gap-4 md:grid-cols-3">
@@ -92,7 +94,6 @@ function ContactPage() {
               <article
                 key={channel.title}
                 className="group relative flex min-h-60 flex-col overflow-hidden rounded-2xl border border-border/80 bg-card p-5 shadow-sm transition-all duration-200 hover:-translate-y-1 hover:border-brand/40 hover:shadow-lg motion-reduce:transform-none motion-reduce:transition-none sm:p-6"
-
               >
                 <div className="flex size-12 items-center justify-center rounded-2xl border border-brand/10 bg-brand/10 text-brand transition-colors duration-200 group-hover:bg-brand/15 motion-reduce:transition-none">
                   <Icon className="size-6" aria-hidden="true" />
