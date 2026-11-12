@@ -6,16 +6,22 @@ import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { OnboardingShell } from "@/features/onboarding/components/OnboardingShell";
 import { useCustomerContext } from "@/features/onboarding/hooks/useCustomerContext";
+import { getOAuthConsentStatus } from "@/features/auth/services/oauth-consent.functions";
 import { buildOnboardingTasks, nextOnboardingRoute } from "@/features/onboarding/lib/tasks";
 import { LIFECYCLE_LABELS } from "@/types/customer-lifecycle";
 
 export const Route = createFileRoute("/onboarding/")({
+  beforeLoad: async () => {
+    const consent = await getOAuthConsentStatus();
+    return { consentRequired: consent.required };
+  },
   component: OnboardingHome,
 });
 
 /** Lightweight onboarding home used when the customer returns later (§62). */
 function OnboardingHome() {
   const { data: context, isPending, isError } = useCustomerContext();
+  const { consentRequired } = Route.useRouteContext();
   const { language } = useLanguage();
   const en = language === "en";
 
@@ -50,6 +56,17 @@ function OnboardingHome() {
   }
 
   const tasks = buildOnboardingTasks(context);
+  if (consentRequired) {
+    tasks.push({
+      id: "legal-consent",
+      title: "Consentement juridique",
+      description:
+        "À accepter lorsque les documents officiels sont publiés. Cette étape ne bloque pas la poursuite de votre inscription.",
+      status: "todo",
+      required: true,
+      route: "/auth/consent",
+    });
+  }
   const resume = nextOnboardingRoute(context);
   const englishTaskTitles: Record<string, string> = {
     email: "Email address confirmed",
@@ -58,6 +75,7 @@ function OnboardingHome() {
     documents: "Identity verification",
     review: "Submit your application",
     activation: "Account opening",
+    "legal-consent": "Legal consent",
   };
   const englishTaskDescriptions: Record<string, string> = {
     email: context.emailVerified
@@ -68,6 +86,8 @@ function OnboardingHome() {
     documents: "An identity document and proof of address.",
     review: "Review your details, then submit your application for verification.",
     activation: "After identity checks, account opening is reviewed separately.",
+    "legal-consent":
+      "To be accepted when the official documents are published. This step does not prevent you from continuing your registration.",
   };
 
   return (

@@ -47,25 +47,27 @@ function OAuthConsentPage() {
   const documentsPublished = areOAuthConsentDocumentsPublished();
 
   async function handleContinue() {
-    if (!documentsPublished || !termsAccepted || !privacyAccepted || pending) return;
+    if (pending) return;
 
     setPending(true);
     setError(null);
     try {
-      await saveConsent({
-        data: {
-          termsAccepted: true,
-          privacyAccepted: true,
-          marketingConsent,
-        },
-      });
+      if (documentsPublished && termsAccepted && privacyAccepted) {
+        await saveConsent({
+          data: {
+            termsAccepted: true,
+            privacyAccepted: true,
+            marketingConsent,
+          },
+        });
+      }
       const target = await resolvePostLoginRoute();
       await navigate({ to: target, replace: true });
     } catch {
       setError(
         en
-          ? "We could not securely record your consent. Please try again."
-          : "Nous n’avons pas pu enregistrer votre consentement de manière sécurisée. Réessayez.",
+          ? "We could not securely record your consent. Please try again, or continue without accepting for now."
+          : "Nous n’avons pas pu enregistrer votre consentement. Réessayez ou poursuivez votre inscription sans accepter pour le moment.",
       );
     } finally {
       setPending(false);
@@ -130,12 +132,12 @@ function OAuthConsentPage() {
               </p>
               <p className="text-sm leading-relaxed text-muted-foreground">
                 {en
-                  ? "The official Terms and Privacy Policy are not yet fully published. Their final text and publication dates are required before you can accept them. No consent will be recorded and you cannot continue onboarding yet."
-                  : "Les Conditions générales et la Politique de confidentialité officielles ne sont pas encore intégralement publiées. Leur texte définitif et leur date de publication sont nécessaires avant toute acceptation. Aucun consentement ne sera enregistré et vous ne pouvez pas encore poursuivre l’inscription."}
+                  ? "The official Terms and Privacy Policy are not yet fully published. You can continue your registration and provide available information or documents. Your consent will remain pending until the final documents are published and accepted."
+                  : "Les Conditions générales et la Politique de confidentialité officielles ne sont pas encore intégralement publiées. Vous pouvez poursuivre votre inscription et renseigner les informations ou justificatifs disponibles. Votre consentement restera en attente jusqu’à la publication et à l’acceptation des documents définitifs."}
               </p>
             </div>
             <p className="text-xs text-muted-foreground">
-              {en ? "You may leave securely and return later when the documents are available." : "Vous pouvez quitter votre session en toute sécurité et revenir lorsque les documents seront disponibles."}
+              {en ? "You may continue now; the pending legal step will remain visible in your application dashboard." : "Vous pouvez continuer maintenant ; cette étape juridique en attente restera visible dans le suivi de votre dossier."}
             </p>
           </div>
         ) : null}
@@ -246,16 +248,22 @@ function OAuthConsentPage() {
             variant="brand"
             size="block"
             loading={pending}
-            disabled={!documentsPublished || !termsAccepted || !privacyAccepted || pending}
+            disabled={pending}
             onClick={() => void handleContinue()}
             className="rounded-xl shadow-md shadow-brand/15"
           >
-            {en ? "Accept and continue" : "Accepter et continuer"}
+            {documentsPublished && termsAccepted && privacyAccepted
+              ? en
+                ? "Accept and continue"
+                : "Accepter et continuer"
+              : en
+                ? "Continue my registration"
+                : "Continuer mon inscription"}
           </Button>
           <p className="text-center text-xs leading-relaxed text-muted-foreground">
             {en
-              ? "After consent, you will continue through the required profile, contact, address, document and KYC checks. Banking access remains subject to review and approval."
-              : "Après les consentements, vous poursuivrez les étapes du profil, des coordonnées, de l’adresse, des documents et du contrôle KYC. L’accès bancaire restera soumis à vérification et approbation."}
+              ? "You can continue through your profile, contact, address and document steps now. Legal consent and identity checks may remain pending; banking services stay unavailable until all required approvals are complete."
+              : "Vous pouvez poursuivre les étapes du profil, des coordonnées, de l’adresse et des justificatifs. Le consentement juridique et les vérifications d’identité peuvent rester en attente ; les services bancaires resteront indisponibles jusqu’aux validations requises."}
           </p>
           <Button type="button" variant="outline" size="block" disabled={pending} onClick={() => void handleLeave()} className="rounded-xl">
             <LogOut className="mr-2 size-4" aria-hidden="true" />

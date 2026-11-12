@@ -5,7 +5,6 @@ import { createFileRoute, Outlet, redirect, useRouter } from "@tanstack/react-ro
 import { Button } from "@/components/ui/button";
 import { BrandMark } from "@/components/navigation/BrandMark";
 import { useSignOut } from "@/features/auth/hooks/useSessionUser";
-import { getOAuthConsentStatus } from "@/features/auth/services/oauth-consent.functions";
 import { supabase } from "@/integrations/supabase/client";
 
 /**
@@ -19,11 +18,6 @@ export const Route = createFileRoute("/onboarding")({
     const { data, error } = await supabase.auth.getUser();
     if (error || !data.user) {
       throw redirect({ to: "/login", search: { redirect: location.href } });
-    }
-
-    const consent = await getOAuthConsentStatus();
-    if (consent.required) {
-      throw redirect({ to: "/auth/consent", replace: true });
     }
 
     return { user: data.user };

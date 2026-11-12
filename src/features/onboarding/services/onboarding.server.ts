@@ -12,7 +12,6 @@ import {
   profileStepSchema,
 } from "@/features/onboarding/schemas/onboarding.schemas";
 import type { CustomerContext } from "@/domain/onboarding/types";
-import { assertCustomerConsent } from "@/features/auth/services/oauth-consent.server";
 
 const PROFILE_COLUMNS =
   "id, first_name, middle_name, last_name, date_of_birth, nationality, country_of_residence, occupation, phone, phone_verified_at, lifecycle_state, onboarding_step";
@@ -136,7 +135,6 @@ async function requireEditableLifecycle(
   userId: string,
   allowedStates: readonly string[] = ONBOARDING_EDITABLE_LIFECYCLE_STATES,
 ) {
-  await assertCustomerConsent(userId);
   const { data: profile, error } = await supabaseAdmin
     .from("profiles")
     .select("lifecycle_state")
@@ -337,7 +335,6 @@ export async function saveProfileStep(userId: string, input: unknown) {
 }
 
 export async function saveAddressStep(userId: string, input: unknown) {
-  await assertCustomerConsent(userId);
   const data = addressStepSchema.parse(input);
   const { error } = await supabaseAdmin.rpc(
     "customer_save_onboarding_address" as never,
@@ -357,7 +354,6 @@ export async function saveAddressStep(userId: string, input: unknown) {
 }
 
 export async function registerDocument(userId: string, input: unknown) {
-  await assertCustomerConsent(userId);
   const data = documentUploadSchema.parse(input);
   await validateUploadedDocument(userId, data);
 
@@ -381,7 +377,6 @@ export async function registerDocument(userId: string, input: unknown) {
 }
 
 export async function removeDocument(userId: string, documentId: string) {
-  await assertCustomerConsent(userId);
   const { data: storagePath, error } = await supabaseAdmin.rpc(
     "customer_remove_onboarding_document" as never,
     { _user_id: userId, _document_id: documentId } as never,
@@ -401,7 +396,6 @@ export async function removeDocument(userId: string, documentId: string) {
 }
 
 export async function createDocumentPreviewUrl(userId: string, documentId: string) {
-  await assertCustomerConsent(userId);
   const { data: document, error } = await supabaseAdmin
     .from("verification_documents")
     .select("storage_path")
@@ -424,7 +418,6 @@ export async function createDocumentPreviewUrl(userId: string, documentId: strin
 }
 
 export async function submitForVerification(userId: string) {
-  await assertCustomerConsent(userId);
   const { data, error } = await supabaseAdmin.rpc(
     "customer_submit_onboarding_for_verification" as never,
     { _user_id: userId } as never,

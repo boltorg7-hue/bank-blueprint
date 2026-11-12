@@ -5,15 +5,9 @@ import { internationalPhoneSchema } from "@/features/onboarding/schemas/onboardi
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import type { CustomerContext } from "@/domain/onboarding/types";
 
-async function assertConsent(userId: string) {
-  const { assertCustomerConsent } = await import("@/features/auth/services/oauth-consent.server");
-  await assertCustomerConsent(userId);
-}
-
 export const getCustomerContext = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<CustomerContext> => {
-    await assertConsent(context.userId);
     const { loadCustomerContext } =
       await import("@/features/onboarding/services/onboarding.server");
     const claims = context.claims as { email?: string; email_verified?: boolean } | null;
@@ -31,7 +25,6 @@ export const saveProfileStep = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => input)
   .handler(async ({ data, context }) => {
-    await assertConsent(context.userId);
     const service = await import("@/features/onboarding/services/onboarding.server");
     return service.saveProfileStep(context.userId, data);
   });
@@ -40,7 +33,6 @@ export const saveAddressStep = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => input)
   .handler(async ({ data, context }) => {
-    await assertConsent(context.userId);
     const service = await import("@/features/onboarding/services/onboarding.server");
     return service.saveAddressStep(context.userId, data);
   });
@@ -49,7 +41,6 @@ export const registerDocument = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => input)
   .handler(async ({ data, context }) => {
-    await assertConsent(context.userId);
     const service = await import("@/features/onboarding/services/onboarding.server");
     return service.registerDocument(context.userId, data);
   });
@@ -58,7 +49,6 @@ export const removeDocument = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: { documentId: string }) => input)
   .handler(async ({ data, context }) => {
-    await assertConsent(context.userId);
     const service = await import("@/features/onboarding/services/onboarding.server");
     return service.removeDocument(context.userId, data.documentId);
   });
@@ -67,7 +57,6 @@ export const getDocumentPreviewUrl = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: { documentId: string }) => input)
   .handler(async ({ data, context }) => {
-    await assertConsent(context.userId);
     const service = await import("@/features/onboarding/services/onboarding.server");
     return service.createDocumentPreviewUrl(context.userId, data.documentId);
   });
@@ -75,7 +64,6 @@ export const getDocumentPreviewUrl = createServerFn({ method: "POST" })
 export const submitVerification = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    await assertConsent(context.userId);
     const service = await import("@/features/onboarding/services/onboarding.server");
     return service.submitForVerification(context.userId);
   });
@@ -84,7 +72,6 @@ export const changePendingPhone = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => z.object({ phone: internationalPhoneSchema }).parse(input))
   .handler(async ({ data, context }) => {
-    await assertConsent(context.userId);
     const service = await import("@/features/onboarding/services/contact-verification.server");
     return service.changePendingPhone(context.userId, data.phone);
   });
@@ -92,7 +79,6 @@ export const changePendingPhone = createServerFn({ method: "POST" })
 export const sendContactVerificationCode = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    await assertConsent(context.userId);
     const service = await import("@/features/onboarding/services/contact-verification.server");
     return service.sendContactVerificationCode(context.userId);
   });
@@ -101,7 +87,6 @@ export const verifyContactCode = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => z.object({ code: z.string().regex(/^\\d{6}$/) }).parse(input))
   .handler(async ({ data, context }) => {
-    await assertConsent(context.userId);
     const service = await import("@/features/onboarding/services/contact-verification.server");
     return service.verifyContactCode(context.userId, data.code);
   });
