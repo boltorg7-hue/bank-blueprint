@@ -8,7 +8,7 @@ RETURNS void
 LANGUAGE plpgsql
 SECURITY DEFINER
 SET search_path = pg_catalog, public
-AS $
+AS $$
 DECLARE
   _t public.transfers%ROWTYPE;
   _simulated boolean;
@@ -73,7 +73,7 @@ BEGIN
     jsonb_build_object('progress_percent', 95, 'simulation', true)
   );
 END;
-$;
+$$;
 
 REVOKE ALL ON FUNCTION public.admin_approve_simulated_external(text)
   FROM PUBLIC, anon;

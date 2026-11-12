@@ -22,6 +22,8 @@ test("Simulated external queue submits through the simulation provider", () => {
   assert.match(service, /_provider_status: outcome\.state/);
   assert.match(migration, /TO service_role/);
   assert.match(migration, /FROM PUBLIC, anon, authenticated/);
+  assert.doesNotMatch(migration, /^AS \$/m);
+  assert.doesNotMatch(migration, /^\$;$/m);
   assert.match(migration, /DROP FUNCTION IF EXISTS public\.admin_queue_simulated_external\(text\)/);
   assert.match(migration, /_provider_status public\.external_settlement_status/);
   assert.match(migration, /public\.apply_external_settlement_result\(/);
