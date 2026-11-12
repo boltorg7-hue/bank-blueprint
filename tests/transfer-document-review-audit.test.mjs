@@ -21,7 +21,10 @@ test("Lot 1 — review history is durable and records the authenticated actor an
   assert.match(migration, /new_status public\.transfer_document_status NOT NULL/);
   assert.match(migration, /INSERT INTO public\.transfer_document_review_history/);
   assert.match(migration, /INSERT INTO public\.transfer_document_review_history/);
-  assert.match(migration, /actor_user_id, previous_status, new_status, decision, reason_code/);
+  assert.match(
+    migration,
+    /actor_user_id,\\s*previous_status,\\s*new_status,\\s*decision,\\s*reason_code/,
+  );
   assert.doesNotMatch(migration, /public\.admin_audit_events/);
   assert.match(migration, /prevent_transfer_document_review_history_mutation/);
   assert.match(migration, /BEFORE UPDATE OR DELETE ON public\.transfer_document_review_history/);
@@ -38,10 +41,16 @@ test("Lot 1 — replacement requests require a meaningful reason and valid revie
 });
 
 test("Lot 1 — document history is readable only by specifically authorized staff", () => {
-  assert.match(migration, /ALTER TABLE public\.transfer_document_review_history ENABLE ROW LEVEL SECURITY/);
+  assert.match(
+    migration,
+    /ALTER TABLE public\.transfer_document_review_history ENABLE ROW LEVEL SECURITY/,
+  );
   assert.match(migration, /public\.has_permission\(auth\.uid\(\), 'compliance\.review'\)/);
   assert.match(migration, /public\.has_permission\(auth\.uid\(\), 'transfers\.approve'\)/);
-  assert.match(migration, /ON public\.transfer_document_review_history[\s\S]*FOR SELECT TO authenticated/);
+  assert.match(
+    migration,
+    /ON public\.transfer_document_review_history[\s\S]*FOR SELECT TO authenticated/,
+  );
 });
 
 console.log("LOT 1 DOCUMENT REVIEW SECURITY CERTIFICATION: PASS");
