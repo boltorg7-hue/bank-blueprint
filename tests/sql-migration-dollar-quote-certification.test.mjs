@@ -7,12 +7,27 @@ test("SQL migrations do not contain malformed single-dollar function delimiters"
   const directory = "supabase/migrations";
   const files = fs.readdirSync(directory).filter((file) => file.endsWith(".sql"));
   const malformed = [];
-  let customerPreferencesCreates = 0;
+  const uniqueTableNames = [
+    "customer_preferences",
+    "support_threads",
+    "support_messages",
+    "customer_security_sessions",
+    "customer_security_events",
+    "security_step_up_grants",
+  ];
+  const tableCreateCounts = new Map(uniqueTableNames.map((name) => [name, 0]));
 
   for (const file of files) {
     const source = fs.readFileSync(path.join(directory, file), "utf8");
-    if (/CREATE TABLE\s+(?:IF NOT EXISTS\s+)?public\.customer_preferences\s*\(/i.test(source)) {
-      customerPreferencesCreates += 1;
+    for (const tableName of uniqueTableNames) {
+      const expression = new RegExp(
+        "CREATE TABLE\\s+(?:IF NOT EXISTS\\s+)?public\\." + tableName + "\\s*\\(",
+        "gi",
+      );
+      tableCreateCounts.set(
+        tableName,
+        (tableCreateCounts.get(tableName) ?? 0) + [...source.matchAll(expression)].length,
+      );
     }
     const lines = source.split(/\r?\n/);
     lines.forEach((line, index) => {
@@ -28,5 +43,7 @@ test("SQL migrations do not contain malformed single-dollar function delimiters"
   }
 
   assert.deepEqual(malformed, []);
-  assert.equal(customerPreferencesCreates, 1);
+  for (const [tableName, count] of tableCreateCounts) {
+    assert.equal(count, 1, tableName + " must have one authoritative table creation");
+  }
 });

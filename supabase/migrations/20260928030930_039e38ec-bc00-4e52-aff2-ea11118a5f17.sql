@@ -130,36 +130,6 @@ DROP TRIGGER IF EXISTS external_transfer_progress_notification ON public.transfe
 CREATE TRIGGER external_transfer_progress_notification AFTER UPDATE OF status ON public.transfers FOR EACH ROW EXECUTE FUNCTION public.notify_external_transfer_progress();
 REVOKE ALL ON FUNCTION public.notify_external_transfer_progress() FROM PUBLIC,anon,authenticated;
 INSERT INTO public.role_permissions(role,permission) VALUES ('support_agent','support.read'),('support_agent','support.reply'),('supervisor','support.read'),('supervisor','support.reply'),('administrator','support.read'),('administrator','support.reply'),('super_admin','support.read'),('super_admin','support.reply') ON CONFLICT DO NOTHING;
-CREATE TABLE public.support_threads (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  public_reference text NOT NULL UNIQUE DEFAULT ('SUP-' || to_char(now(),'YYYY') || '-' || upper(substr(replace(gen_random_uuid()::text,'-',''),1,10))),
-  customer_user_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE RESTRICT,
-  subject text NOT NULL CHECK (char_length(subject) BETWEEN 5 AND 120),
-  category text NOT NULL CHECK (category IN ('ACCOUNT','TRANSFER','DOCUMENT','SECURITY','OTHER')),
-  status text NOT NULL DEFAULT 'OPEN' CHECK (status IN ('OPEN','WAITING_SUPPORT','WAITING_CUSTOMER','RESOLVED','CLOSED')),
-  assigned_staff_id uuid REFERENCES auth.users(id) ON DELETE SET NULL,
-  last_message_at timestamptz NOT NULL DEFAULT now(),
-  created_at timestamptz NOT NULL DEFAULT now(),
-  updated_at timestamptz NOT NULL DEFAULT now(),
-  closed_at timestamptz
-);
-CREATE TABLE public.support_messages (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  thread_id uuid NOT NULL REFERENCES public.support_threads(id) ON DELETE CASCADE,
-  author_user_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE RESTRICT,
-  author_kind text NOT NULL CHECK (author_kind IN ('CUSTOMER','STAFF')),
-  body text NOT NULL CHECK (char_length(body) BETWEEN 1 AND 4000),
-  created_at timestamptz NOT NULL DEFAULT now()
-);
-CREATE INDEX support_threads_customer_updated_idx ON public.support_threads(customer_user_id,last_message_at DESC);
-CREATE INDEX support_threads_status_updated_idx ON public.support_threads(status,last_message_at DESC);
-CREATE INDEX support_messages_thread_created_idx ON public.support_messages(thread_id,created_at);
-ALTER TABLE public.support_threads ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.support_messages ENABLE ROW LEVEL SECURITY;
-GRANT SELECT ON public.support_threads,public.support_messages TO authenticated;
-GRANT ALL ON public.support_threads,public.support_messages TO service_role;
-CREATE POLICY "Customers read own support threads" ON public.support_threads FOR SELECT TO authenticated USING (customer_user_id=auth.uid() OR public.has_permission(auth.uid(),'support.read'));
-CREATE POLICY "Customers read own support messages" ON public.support_messages FOR SELECT TO authenticated USING (EXISTS (SELECT 1 FROM public.support_threads t WHERE t.id=thread_id AND (t.customer_user_id=auth.uid() OR public.has_permission(auth.uid(),'support.read'))));
 CREATE OR REPLACE FUNCTION public.create_support_thread(_subject text,_category text,_body text)
 RETURNS uuid LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$
 DECLARE _thread_id uuid;
@@ -218,46 +188,6 @@ GRANT EXECUTE ON FUNCTION public.create_support_thread(text,text,text) TO authen
 GRANT EXECUTE ON FUNCTION public.reply_support_thread(uuid,text) TO authenticated;
 GRANT EXECUTE ON FUNCTION public.staff_reply_support_thread(uuid,text) TO authenticated;
 GRANT EXECUTE ON FUNCTION public.staff_set_support_status(uuid,text) TO authenticated;
-CREATE TABLE public.customer_security_sessions (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-  auth_session_id text NOT NULL,
-  device_label text NOT NULL DEFAULT 'Navigateur' CHECK (char_length(device_label) BETWEEN 2 AND 240),
-  first_seen_at timestamptz NOT NULL DEFAULT now(),
-  last_seen_at timestamptz NOT NULL DEFAULT now(),
-  revoked_at timestamptz,
-  UNIQUE(user_id,auth_session_id)
-);
-CREATE TABLE public.customer_security_events (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-  event_type text NOT NULL CHECK (event_type IN ('SESSION_SEEN','OTHER_SESSIONS_CLOSED','PASSWORD_CHANGED','SECURITY_ALERT')),
-  title text NOT NULL CHECK (char_length(title) BETWEEN 2 AND 120),
-  detail text NOT NULL CHECK (char_length(detail) BETWEEN 2 AND 500),
-  auth_session_id text,
-  created_at timestamptz NOT NULL DEFAULT now()
-);
-CREATE TABLE public.security_step_up_grants (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-  auth_session_id text NOT NULL,
-  action text NOT NULL CHECK (action IN ('TRANSFER_CONFIRM')),
-  resource_reference text NOT NULL,
-  expires_at timestamptz NOT NULL,
-  consumed_at timestamptz,
-  created_at timestamptz NOT NULL DEFAULT now()
-);
-CREATE INDEX security_step_up_grants_lookup_idx ON public.security_step_up_grants(user_id,auth_session_id,action,resource_reference,expires_at DESC);
-ALTER TABLE public.security_step_up_grants ENABLE ROW LEVEL SECURITY;
-GRANT ALL ON public.security_step_up_grants TO service_role;
-CREATE INDEX customer_security_sessions_user_seen_idx ON public.customer_security_sessions(user_id,last_seen_at DESC);
-CREATE INDEX customer_security_events_user_created_idx ON public.customer_security_events(user_id,created_at DESC);
-ALTER TABLE public.customer_security_sessions ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.customer_security_events ENABLE ROW LEVEL SECURITY;
-GRANT SELECT ON public.customer_security_sessions,public.customer_security_events TO authenticated;
-GRANT ALL ON public.customer_security_sessions,public.customer_security_events TO service_role;
-CREATE POLICY "Customers read own security sessions" ON public.customer_security_sessions FOR SELECT TO authenticated USING(user_id=auth.uid());
-CREATE POLICY "Customers read own security events" ON public.customer_security_events FOR SELECT TO authenticated USING(user_id=auth.uid());
 CREATE OR REPLACE FUNCTION public.register_current_security_session(_device_label text)
 RETURNS text LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$
 DECLARE _session_id text := auth.jwt()->>'session_id'; _existing timestamptz;
