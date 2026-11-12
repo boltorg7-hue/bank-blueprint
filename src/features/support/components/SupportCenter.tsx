@@ -312,9 +312,7 @@ export function SupportCenter() {
             <Input
               value={search}
               onChange={(event) => setSearch(event.target.value)}
-              placeholder={
-                en ? "Search this page" : "Rechercher sur cette page"
-              }
+              placeholder={en ? "Search this page" : "Rechercher sur cette page"}
               aria-label={en ? "Search conversations" : "Rechercher des conversations"}
               className="pl-9"
             />
