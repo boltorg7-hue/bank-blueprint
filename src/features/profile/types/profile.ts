@@ -16,8 +16,23 @@ export type ProfileOverviewDto = {
   lifecycleState: CustomerLifecycleState;
   identityStatus: string;
   identityLocked: boolean;
-  address: { country: string; addressLine1: string; addressLine2: string; city: string; region: string; postalCode: string };
-  accounts: { reference: string; displayName: string; currency: string; status: string; maskedNumber: string; iban: string | null; bic: string | null }[];
+  address: {
+    country: string;
+    addressLine1: string;
+    addressLine2: string;
+    city: string;
+    region: string;
+    postalCode: string;
+  };
+  accounts: {
+    reference: string;
+    displayName: string;
+    currency: string;
+    status: string;
+    maskedNumber: string;
+    iban: string | null;
+    bic: string | null;
+  }[];
 };
 
 export type CustomerPreferencesDto = {
