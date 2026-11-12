@@ -19,6 +19,7 @@ import {
 import { StatusBadge } from "@/components/ui/status-badge";
 import { Switch } from "@/components/ui/switch";
 import { useTheme } from "@/components/providers/ThemeProvider";
+import { usePrivacyMode } from "@/components/providers/PrivacyModeProvider";
 import { usePreferences, useSavePreferences } from "@/features/profile/hooks/useProfile";
 import type { CustomerPreferencesDto } from "@/features/profile/types/profile";
 
@@ -30,11 +31,16 @@ export function PreferencesPage() {
   const query = usePreferences();
   const save = useSavePreferences();
   const { setTheme } = useTheme();
+  const { setPrivacyMode } = usePrivacyMode();
   const [form, setForm] = useState<CustomerPreferencesDto | null>(null);
 
   useEffect(() => {
-    if (query.data) setForm(query.data);
-  }, [query.data]);
+    if (!query.data) return;
+    setForm(query.data);
+    setTheme(query.data.theme);
+    setLanguage(query.data.language);
+    setPrivacyMode(query.data.privacyModeDefault);
+  }, [query.data, setLanguage, setPrivacyMode, setTheme]);
 
   if (query.isError) {
     return <ErrorState onRetry={() => void query.refetch()} />;
@@ -76,6 +82,7 @@ export function PreferencesPage() {
       setForm(result);
       setTheme(result.theme);
       setLanguage(result.language);
+      setPrivacyMode(result.privacyModeDefault);
       toast.success(
         result.language === "en"
           ? "Your preferences have been saved."
