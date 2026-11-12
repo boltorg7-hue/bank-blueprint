@@ -2,7 +2,7 @@ import { useLanguage } from "@/components/providers/LanguageProvider";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
-import { ClipboardCheck, FileText, MapPin, ShieldCheck, UserRound } from "lucide-react";
+import { ClipboardCheck, FileText, MapPin, UserRound } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
@@ -112,7 +112,7 @@ function ReviewStepPage() {
           : "Une information exacte évite un délai supplémentaire lors de la vérification."
       }
     >
-      <div className="flex items-start gap-3 rounded-2xl border border-brand/20 bg-brand/5 p-4 sm:p-5">
+      <div className="flex items-start gap-3 rounded-2xl border border-brand/20 bg-gradient-to-br from-brand/10 via-card to-card p-4 shadow-sm sm:gap-4 sm:p-5">
         <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-brand/10 text-brand">
           <ClipboardCheck className="size-5" aria-hidden="true" />
         </div>
@@ -128,7 +128,7 @@ function ReviewStepPage() {
         </div>
       </div>
 
-      <div className="space-y-4">
+      <div className="grid gap-4">
         <Section
           title={en ? "Personal information" : "Informations personnelles"}
           editRoute="/onboarding/profile"
@@ -193,15 +193,15 @@ function ReviewStepPage() {
       {error ? (
         <p
           role="alert"
-          className="text-body-sm mt-6 rounded-lg bg-destructive/10 px-3 py-2 text-destructive"
+          className="mt-6 rounded-xl border border-destructive/25 bg-destructive/10 px-4 py-3 text-body-sm text-destructive"
         >
           {error}
         </p>
       ) : null}
 
-      <div className="mt-8 space-y-3">
+      <div className="mt-8 space-y-4 rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5">
         {!complete ? (
-          <p className="text-body-sm rounded-xl border border-warning/30 bg-warning-muted px-4 py-3 text-foreground">
+          <p className="rounded-xl border border-warning/30 bg-warning-muted px-4 py-3 text-body-sm leading-relaxed text-foreground">
             {en
               ? "Required profile information or your residential address is missing. Use the Edit buttons above to complete them."
               : "Des informations personnelles ou votre adresse de résidence manquent encore. Utilisez les boutons Modifier ci-dessus pour les compléter."}
@@ -216,7 +216,7 @@ function ReviewStepPage() {
         ) : null}
         <Button
           type="button"
-          className="w-full touch-target"
+          className="w-full touch-target shadow-sm"
           loading={pending}
           disabled={!complete}
           onClick={() => void handleSubmit()}
@@ -250,10 +250,10 @@ function Section({
   const { language } = useLanguage();
   const en = language === "en";
   return (
-    <section className="rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5">
-      <div className="mb-4 flex items-center justify-between gap-3">
+    <section className="rounded-2xl border border-border/80 bg-card p-4 shadow-sm transition-shadow duration-200 hover:shadow-md sm:p-5">
+      <div className="mb-4 flex items-center justify-between gap-3 border-b border-border/70 pb-3">
         <div className="flex min-w-0 items-center gap-3">
-          <div className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-surface text-brand">
+          <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-brand/10 text-brand">
             <Icon className="size-4" aria-hidden="true" />
           </div>
           <h2 className="text-label font-semibold text-foreground">{title}</h2>
@@ -274,7 +274,7 @@ function Section({
 function Row({ label, value }: { label: string; value?: string | null }) {
   if (!value) return null;
   return (
-    <div className="flex flex-col gap-1.5 sm:flex-row sm:items-baseline sm:justify-between sm:gap-4">
+    <div className="flex flex-col gap-1.5 rounded-lg px-2 py-1.5 -mx-2 sm:flex-row sm:items-baseline sm:justify-between sm:gap-4">
       <dt className="text-body-sm text-muted-foreground">{label}</dt>
       <dd className="break-words text-body-sm font-medium text-foreground sm:text-right">
         {value}
