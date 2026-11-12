@@ -45,6 +45,15 @@ const CATEGORY_LABELS: Record<string, { fr: string; en: string }> = {
   SERVICE: { fr: "Service", en: "Service" },
 };
 
+const CATEGORY_LABEL_EN: Record<string, string> = {
+  ACCOUNT: "Account",
+  TRANSFER: "Transaction",
+  FUNDING: "Funding",
+  PRICING: "Pricing",
+  SECURITY: "Security",
+  SERVICE: "Service",
+};
+
 const SEVERITY_LABELS: Record<NotificationDto["severity"], { fr: string; en: string }> = {
   INFO: { fr: "Information", en: "Information" },
   SUCCESS: { fr: "Confirmation", en: "Confirmation" },
@@ -373,9 +382,9 @@ function NotificationCard({
   const critical = notification.severity === "CRITICAL";
   const warning = notification.severity === "WARNING";
   const Icon = critical ? ShieldAlert : warning ? AlertTriangle : Bell;
-  const category =
-    CATEGORY_LABELS[notification.category]?.[en ? "en" : "fr"] ??
-    notification.category;
+  const category = en
+    ? CATEGORY_LABEL_EN[notification.category] ?? notification.category
+    : CATEGORY_LABELS[notification.category]?.fr ?? notification.category;
   const severity = SEVERITY_LABELS[notification.severity][en ? "en" : "fr"];
 
   return (
