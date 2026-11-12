@@ -238,7 +238,6 @@ export function ProfilePage() {
                     <ArrowUpRight aria-hidden className="size-4" />
                   </Link>
                 </div>
-                </div>
               ))
             ) : (
               <p className="rounded-xl border border-dashed border-border p-4 text-sm text-muted-foreground">
