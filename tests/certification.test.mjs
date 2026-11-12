@@ -395,6 +395,7 @@ test("les écrans métier principaux conservent une composition mobile-first", (
   const history = read("src/features/transactions/components/TransactionHistory.tsx");
   const transfer = read("src/features/transfers/components/TransferWizard.tsx");
   const profile = read("src/features/profile/components/ProfilePage.tsx");
+  const profilePersonal = read("src/features/profile/components/ProfilePersonalPage.tsx");
   const security = read("src/features/security/components/SecurityCenter.tsx");
   const support = read("src/features/support/components/SupportCenter.tsx");
   const stepper = read("src/components/ui/stepper.tsx");
@@ -404,7 +405,7 @@ test("les écrans métier principaux conservent une composition mobile-first", (
   assert.match(history, /lg:hidden/);
   assert.match(history, /hidden lg:block/);
   assert.match(transfer, /w-full sm:w-auto/);
-  assert.match(profile, /w-full sm:w-auto/);
+  assert.match(profilePersonal, /w-full sm:w-auto/);
   assert.match(security, /flex flex-col items-start gap-2 border-b pb-3 sm:flex-row/);
   assert.match(support, /flex flex-col gap-2 sm:flex-row/);
   assert.match(support, /SelectTrigger/);
@@ -925,7 +926,7 @@ test("5.8.9 certifie la modernisation UI/UX 2026 de bout en bout", () => {
 
   assert.match(
     packageJson,
-    /"test:certification": "node --test tests\/certification\.test\.mjs tests\/admin-ui-certification\.test\.mjs tests\/auth-registration-certification\.test\.mjs tests\/auth-contact-change-certification\.test\.mjs tests\/oauth-consent-certification\.test\.mjs tests\/step-09-africastalking-sms-certification\.test\.mjs tests\/step-09-international-phone-otp-flow\.test\.mjs tests\/onboarding-address-document-security\.test\.mjs tests\/transfer-document-storage-security\.test\.mjs tests\/customer-document-bucket-security\.test\.mjs tests\/customer-avatar-storage-security\.test\.mjs tests\/transfer-document-review-audit\.test\.mjs tests\/admin-transfer-document-review-certification\.test\.mjs tests\/simulated-external-three-person-certification\.test\.mjs tests\/sql-migration-dollar-quote-certification\.test\.mjs tests\/kyc-otp-plpgsql-name-resolution\.test\.mjs"/,
+    /"test:certification": "node --test tests\/certification\.test\.mjs tests\/admin-ui-certification\.test\.mjs tests\/auth-registration-certification\.test\.mjs tests\/auth-contact-change-certification\.test\.mjs tests\/oauth-consent-certification\.test\.mjs tests\/step-09-africastalking-sms-certification\.test\.mjs tests\/step-09-international-phone-otp-flow\.test\.mjs tests\/onboarding-address-document-security\.test\.mjs tests\/transfer-document-storage-security\.test\.mjs tests\/customer-document-bucket-security\.test\.mjs tests\/customer-avatar-storage-security\.test\.mjs tests\/customer-profile-personal-address-certification\.test\.mjs tests\/transfer-document-review-audit\.test\.mjs tests\/admin-transfer-document-review-certification\.test\.mjs tests\/simulated-external-three-person-certification\.test\.mjs tests\/sql-migration-dollar-quote-certification\.test\.mjs tests\/kyc-otp-plpgsql-name-resolution\.test\.mjs"/,
   );
 
   // 5.8.1 — thème adaptatif.
