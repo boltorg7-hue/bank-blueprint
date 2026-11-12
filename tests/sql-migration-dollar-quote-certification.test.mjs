@@ -41,6 +41,18 @@ test("SQL migrations do not contain malformed single-dollar function delimiters"
   }
 
   assert.deepEqual(malformed, []);
+  const customerPageContract = fs.readFileSync(
+    path.join(directory, "20261004100000_admin_customer_page_contract.sql"),
+    "utf8",
+  );
+  assert.match(
+    customerPageContract,
+    /DROP FUNCTION IF EXISTS public\.admin_customer_page\(text, text, text, text, timestamp with time zone, uuid, integer, uuid\)/,
+  );
+  assert.match(
+    customerPageContract,
+    /GRANT EXECUTE ON FUNCTION public\.admin_customer_page\([\s\S]*?TO service_role/,
+  );
   const customerStateFix = fs.readFileSync(
     path.join(directory, "20261002110000_fix_customer_notification_signature.sql"),
     "utf8",
