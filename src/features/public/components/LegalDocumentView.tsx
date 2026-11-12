@@ -11,7 +11,10 @@ export function LegalDocumentView({ document }: { document: LegalDocument }) {
   const en = language === "en";
   return (
     <div className="grid grid-cols-[minmax(0,1fr)] gap-10 lg:grid-cols-[220px_1fr]">
-      <nav aria-label={en ? "Document contents" : "Sommaire du document"} className="lg:sticky lg:top-24 lg:self-start">
+      <nav
+        aria-label={en ? "Document contents" : "Sommaire du document"}
+        className="lg:sticky lg:top-24 lg:self-start"
+      >
         <p className="text-overline text-muted-foreground">{en ? "Contents" : "Sommaire"}</p>
         <ul className="mt-3 space-y-1">
           {document.sections.map((section) => (
@@ -33,7 +36,9 @@ export function LegalDocumentView({ document }: { document: LegalDocument }) {
           <span className="size-2 rounded-full bg-brand" aria-hidden="true" />
           {document.lastUpdated
             ? `${en ? "Last updated" : "Dernière mise à jour"}: ${formatDate(document.lastUpdated)}`
-            : en ? "Publication update in preparation" : "Mise à jour avant publication"}
+            : en
+              ? "Publication update in preparation"
+              : "Mise à jour avant publication"}
         </div>
 
         {document.sections.map((section) => (
@@ -48,7 +53,16 @@ export function LegalDocumentView({ document }: { document: LegalDocument }) {
             ) : (
               <div className="flex max-w-3xl items-start gap-3 rounded-xl border border-border/70 bg-surface-sunken/70 px-4 py-4">
                 <span className="mt-0.5 grid size-8 shrink-0 place-items-center rounded-lg bg-card text-brand shadow-sm">
-                  <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" className="size-4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                  <svg
+                    aria-hidden="true"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    className="size-4"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
                     <path d="M12 8v4l2.5 1.5M20 12a8 8 0 1 1-16 0 8 8 0 0 1 16 0Z" />
                   </svg>
                 </span>
