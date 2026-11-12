@@ -2,7 +2,6 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 
 import { requireAdminPermission } from "@/features/admin/services/admin.server";
 import { getSettlementProvider } from "@/features/transfers/services/settlement/provider";
-import type { ExternalSettlementState } from "@/features/transfers/types/transfer";
 
 type Client = SupabaseClient;
 
@@ -21,13 +20,11 @@ type QueueRow = {
   } | null;
 };
 
-type QueueProviderStatus = Extract<ExternalSettlementState, "SUBMITTED" | "PENDING">;
-
 export async function submitAdminExternalSettlement(
   client: Client,
   actorUserId: string,
   reference: string,
-): Promise<{ status: QueueProviderStatus; providerReference: string }> {
+): Promise<{ ok: true }> {
   await requireAdminPermission(client, "transfers.approve");
 
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
