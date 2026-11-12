@@ -64,7 +64,10 @@ export function AccountBalanceCard({
       )}
     >
       <div className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-start gap-2.5 sm:gap-3">
-        <span className="mt-0.5 flex size-10 shrink-0 items-center justify-center rounded-xl bg-brand/5 text-brand ring-1 ring-inset ring-brand/10" aria-hidden="true">
+        <span
+          className="mt-0.5 flex size-10 shrink-0 items-center justify-center rounded-xl bg-brand/5 text-brand ring-1 ring-inset ring-brand/10"
+          aria-hidden="true"
+        >
           <WalletCards className="size-5" strokeWidth={1.8} />
         </span>
         <div className="min-w-0">
