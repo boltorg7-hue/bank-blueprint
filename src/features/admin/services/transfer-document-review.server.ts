@@ -194,9 +194,9 @@ export async function reviewAdminTransferDocument(
   });
   if (error) {
     const message = error.message.toLowerCase();
-    if (message.includes("already finalized")) throw new Error("DOCUMENT_ALREADY_FINALIZED");
-    if (message.includes("not authorised")) throw new Error("ADMIN_FORBIDDEN");
-    if (message.includes("reason required")) throw new Error("DOCUMENT_REJECTION_REASON_REQUIRED");
+    if (message.includes("document_already_finalized")) throw new Error("DOCUMENT_ALREADY_FINALIZED");
+    if (message.includes("not_authorised")) throw new Error("ADMIN_FORBIDDEN");
+    if (message.includes("document_rejection_reason_required")) throw new Error("DOCUMENT_REJECTION_REASON_REQUIRED");
     throw new Error("TRANSFER_DOCUMENT_REVIEW_FAILED");
   }
   return { ok: true };

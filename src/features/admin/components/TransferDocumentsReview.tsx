@@ -102,8 +102,12 @@ export function TransferDocumentsReview({
                 <div className="space-y-2">
                   <Textarea
                     value={reason}
-                    onChange={(value) =>
-                      setReasons((current) => ({ ...current, [document.id]: value }))
+                    maxLength={500}
+                    onChange={(event) =>
+                      setReasons((current) => ({
+                        ...current,
+                        [document.id]: event.target.value,
+                      }))
                     }
                     placeholder={
                       en
