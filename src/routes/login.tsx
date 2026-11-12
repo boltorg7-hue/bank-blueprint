@@ -36,13 +36,13 @@ function LoginPage() {
       title={en ? "Sign in" : "Connexion"}
       description={en ? "Enter your credentials to access your account." : "Saisissez vos identifiants pour accéder à votre espace."}
       aside={
-        <div className="mt-6 space-y-4">
+        <div className="mt-6 space-y-4 rounded-2xl border border-border/70 bg-surface-sunken p-4 sm:p-5">
           <div className="flex items-center gap-3">
             <span className="h-px flex-1 bg-border" />
-            <span className="text-caption text-muted-foreground">{en ? "or" : "ou"}</span>
+            <span className="text-caption font-medium text-muted-foreground">{en ? "or continue with" : "ou continuer avec"}</span>
             <span className="h-px flex-1 bg-border" />
           </div>
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className="grid gap-3 sm:grid-cols-2 [&>button]:min-h-11 [&>button]:rounded-xl [&>button]:transition-all [&>button]:duration-200 [&>button]:hover:-translate-y-0.5 [&>button]:hover:shadow-sm motion-reduce:[&>button]:transform-none motion-reduce:[&>button]:transition-none">
             <GoogleSignInButton onError={setOauthError} />
             <AppleSignInButton onError={setOauthError} />
           </div>
