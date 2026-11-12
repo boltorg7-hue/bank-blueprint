@@ -1,10 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useLanguage } from "@/components/providers/LanguageProvider";
 
+import { EmptyState, ErrorState, SkeletonBlock } from "@/components/feedback";
 import { BankingContentContainer } from "@/components/layout/BankingAppLayout";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { PageSection } from "@/components/ui/page-section";
-import { EmptyState, ErrorState, SkeletonBlock } from "@/components/feedback";
 import { TransactionDetailCard } from "@/features/transactions/components/TransactionDetailCard";
 import { useTransactionDetail } from "@/features/transactions/hooks/useTransactions";
 
@@ -32,27 +32,39 @@ function TransactionDetailRoute() {
     <BankingContentContainer width="narrow">
       <PageHeader
         title={en ? "Transaction details" : "Détail de l'opération"}
-        description={en ? "The recorded details of this transaction." : "Les informations enregistrées pour cette opération."}
+        description={
+          en
+            ? "The recorded details of this transaction."
+            : "Retrouvez les informations enregistrées pour cette opération."
+        }
         backTo="/app/transactions"
       />
 
       <PageSection>
-      {isPending ? (
-        <SkeletonBlock lines={6} />
-      ) : isError ? (
-        <ErrorState
-          title={en ? "Transaction temporarily unavailable" : "Opération momentanément indisponible"}
-          description={en ? "We could not load this transaction. Please try again shortly." : "Nous n'avons pas pu charger cette opération. Réessayez dans un instant."}
-          onRetry={() => void refetch()}
-        />
-      ) : !data ? (
-        <EmptyState
-          title={en ? "Transaction not found" : "Opération introuvable"}
-          description={en ? "This reference does not match any transaction on your accounts." : "Cette référence ne correspond à aucune opération de vos comptes."}
-        />
-      ) : (
-        <TransactionDetailCard transaction={data} />
-      )}
+        {isPending ? (
+          <SkeletonBlock lines={6} />
+        ) : isError ? (
+          <ErrorState
+            title={en ? "Transaction temporarily unavailable" : "Opération momentanément indisponible"}
+            description={
+              en
+                ? "We could not load this transaction. Please try again shortly."
+                : "Les informations de cette opération sont en cours de chargement. Réessayez dans un instant."
+            }
+            onRetry={() => void refetch()}
+          />
+        ) : !data ? (
+          <EmptyState
+            title={en ? "Transaction not found" : "Opération introuvable"}
+            description={
+              en
+                ? "This reference does not match any transaction on your accounts."
+                : "Cette référence ne correspond à aucune opération de vos comptes."
+            }
+          />
+        ) : (
+          <TransactionDetailCard transaction={data} />
+        )}
       </PageSection>
     </BankingContentContainer>
   );
