@@ -127,7 +127,9 @@ function EmailVerifiedPage() {
             </p>
             {context ? (
               <p className="mt-2 text-body-sm text-muted-foreground">
-                {en ? "Registration details received for" : "Premières informations enregistrées pour"}{" "}
+                {en
+                  ? "Registration details received for"
+                  : "Premières informations enregistrées pour"}{" "}
                 <span className="font-medium text-foreground">
                   {[context.profile.first_name, context.profile.last_name]
                     .filter(Boolean)
@@ -171,7 +173,10 @@ function EmailVerifiedPage() {
                   <p className="text-label font-medium text-foreground">{title}</p>
                   <p className="mt-1 text-body-sm leading-relaxed text-muted-foreground">{text}</p>
                 </div>
-                <Circle className="mt-1 size-4 shrink-0 text-muted-foreground/60" aria-hidden="true" />
+                <Circle
+                  className="mt-1 size-4 shrink-0 text-muted-foreground/60"
+                  aria-hidden="true"
+                />
               </li>
             ))}
           </ol>
