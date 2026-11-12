@@ -1,12 +1,5 @@
 import { useState } from "react";
-import {
-  AlertTriangle,
-  Archive,
-  Bell,
-  CheckCheck,
-  Search,
-  ShieldAlert,
-} from "lucide-react";
+import { AlertTriangle, Archive, Bell, CheckCheck, Search, ShieldAlert } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { toast } from "sonner";
 
@@ -91,11 +84,7 @@ export function NotificationCenter() {
     const matchesRead =
       readFilter === "ALL" ||
       (readFilter === "UNREAD" ? !notification.readAt : Boolean(notification.readAt));
-    const matchesSearch = [
-      notification.title,
-      notification.body,
-      notification.category,
-    ]
+    const matchesSearch = [notification.title, notification.body, notification.category]
       .join(" ")
       .toLocaleLowerCase()
       .includes(term);
@@ -134,7 +123,9 @@ export function NotificationCenter() {
     markAll.mutate(undefined, {
       onSuccess: () => {
         toast.success(
-          en ? "All notifications are marked as read." : "Toutes les notifications sont marquées comme lues.",
+          en
+            ? "All notifications are marked as read."
+            : "Toutes les notifications sont marquées comme lues.",
         );
       },
       onError: () => {
@@ -194,12 +185,18 @@ export function NotificationCenter() {
           <SummaryItem
             icon="priority"
             label={en ? "Priority alerts" : "Alertes prioritaires"}
-            value={items.filter((item) => item.severity === "CRITICAL" || item.severity === "WARNING").length}
+            value={
+              items.filter((item) => item.severity === "CRITICAL" || item.severity === "WARNING")
+                .length
+            }
           />
         </CardContent>
       </Card>
 
-      <section className="space-y-3" aria-label={en ? "Notification inbox" : "Centre de notifications"}>
+      <section
+        className="space-y-3"
+        aria-label={en ? "Notification inbox" : "Centre de notifications"}
+      >
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h2 className="font-semibold text-foreground">
@@ -219,11 +216,7 @@ export function NotificationCenter() {
             <Input
               value={search}
               onChange={(event) => setSearch(event.target.value)}
-              placeholder={
-                en
-                  ? "Search notifications"
-                  : "Rechercher dans les notifications"
-              }
+              placeholder={en ? "Search notifications" : "Rechercher dans les notifications"}
               aria-label={en ? "Search notifications" : "Rechercher des notifications"}
               className="pl-9"
             />
@@ -250,7 +243,11 @@ export function NotificationCenter() {
           ))}
         </div>
 
-        <div className="flex flex-wrap gap-2" role="group" aria-label={en ? "Filter by read status" : "Filtrer par statut de lecture"}>
+        <div
+          className="flex flex-wrap gap-2"
+          role="group"
+          aria-label={en ? "Filter by read status" : "Filtrer par statut de lecture"}
+        >
           {(["ALL", "UNREAD", "READ"] as const).map((value) => (
             <Button
               key={value}
@@ -308,7 +305,7 @@ export function NotificationCenter() {
           </div>
         )}
 
-        {(query.data?.hasNext || history.length > 0) ? (
+        {query.data?.hasNext || history.length > 0 ? (
           <div className="flex justify-between gap-2 border-t border-border/70 pt-3">
             <Button
               variant="outline"
@@ -350,8 +347,7 @@ function SummaryItem({
   label: string;
   value: number;
 }) {
-  const Icon =
-    icon === "priority" ? ShieldAlert : icon === "unread" ? Bell : CheckCheck;
+  const Icon = icon === "priority" ? ShieldAlert : icon === "unread" ? Bell : CheckCheck;
 
   return (
     <div className="flex items-center gap-3">
@@ -383,8 +379,8 @@ function NotificationCard({
   const warning = notification.severity === "WARNING";
   const Icon = critical ? ShieldAlert : warning ? AlertTriangle : Bell;
   const category = en
-    ? CATEGORY_LABEL_EN[notification.category] ?? notification.category
-    : CATEGORY_LABELS[notification.category]?.fr ?? notification.category;
+    ? (CATEGORY_LABEL_EN[notification.category] ?? notification.category)
+    : (CATEGORY_LABELS[notification.category]?.fr ?? notification.category);
   const severity = SEVERITY_LABELS[notification.severity][en ? "en" : "fr"];
 
   return (
@@ -407,10 +403,7 @@ function NotificationCard({
             </div>
             <div className="flex flex-wrap items-center gap-2">
               <StatusBadge label={category} tone="neutral" />
-              <StatusBadge
-                label={severity}
-                tone={SEVERITY_TONES[notification.severity]}
-              />
+              <StatusBadge label={severity} tone={SEVERITY_TONES[notification.severity]} />
             </div>
           </div>
         </div>
@@ -420,17 +413,10 @@ function NotificationCard({
         </p>
 
         <div className="mt-auto flex flex-wrap items-center justify-between gap-3 border-t border-border/70 pt-3">
-          <p className="text-xs text-muted-foreground">
-            {formatDateTime(notification.createdAt)}
-          </p>
+          <p className="text-xs text-muted-foreground">{formatDateTime(notification.createdAt)}</p>
           <div className="flex flex-wrap items-center gap-2">
             {!notification.readAt ? (
-              <Button
-                size="sm"
-                variant="outline"
-                disabled={updating}
-                onClick={onRead}
-              >
+              <Button size="sm" variant="outline" disabled={updating} onClick={onRead}>
                 {en ? "Mark as read" : "Marquer comme lue"}
               </Button>
             ) : null}
