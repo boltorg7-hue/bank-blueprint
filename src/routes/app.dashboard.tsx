@@ -88,7 +88,10 @@ function DashboardPage() {
               : "Vos soldes et opérations sont présentés à partir des données disponibles sur vos comptes."}
           </p>
         </div>
-        <div className="relative mr-1 flex size-14 shrink-0 items-center justify-center rounded-2xl bg-brand/10 text-brand sm:size-16" aria-hidden="true">
+        <div
+          className="relative mr-1 flex size-14 shrink-0 items-center justify-center rounded-2xl bg-brand/10 text-brand sm:size-16"
+          aria-hidden="true"
+        >
           <Landmark className="size-7 sm:size-8" strokeWidth={1.7} />
           <span className="absolute -bottom-1 -right-1 flex size-6 items-center justify-center rounded-full border-2 border-surface bg-success text-success-foreground">
             <ShieldCheck className="size-3.5" strokeWidth={2.2} />
@@ -153,9 +156,7 @@ function DashboardPage() {
 
             <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
               <p className="text-body-sm text-muted-foreground">
-                {en
-                  ? "Access your transfer journey."
-                  : "Accédez à votre parcours de virement."}
+                {en ? "Access your transfer journey." : "Accédez à votre parcours de virement."}
               </p>
               {canTransact ? (
                 <Link
@@ -168,7 +169,7 @@ function DashboardPage() {
               ) : (
                 <span
                   aria-disabled="true"
-                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-brand px-5 py-2.5 text-sm font-semibold text-brand-foreground opacity-50"
+                  className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-brand px-5 py-2.5 text-sm font-semibold text-brand-foreground opacity-50 sm:w-auto"
                 >
                   <Send className="size-4" aria-hidden="true" />
                   {en ? "Make a transfer" : "Faire un virement"}
@@ -386,7 +387,9 @@ function QuickAction({
       <div
         className={cn(
           "flex size-9 shrink-0 items-center justify-center rounded-xl ring-1 ring-inset ring-brand/10 transition-[background-color,transform] duration-200 sm:size-10",
-          !disabled ? "bg-brand/5 text-brand group-hover:scale-105 group-hover:bg-brand/10" : "bg-muted/50 text-muted-foreground",
+          !disabled
+            ? "bg-brand/5 text-brand group-hover:scale-105 group-hover:bg-brand/10"
+            : "bg-muted/50 text-muted-foreground",
         )}
       >
         <Icon className="size-5" aria-hidden="true" />
