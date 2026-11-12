@@ -151,7 +151,12 @@ function ReviewStepPage() {
           <Row label={en ? "Phone" : "Téléphone"} value={profile.phone} />
         </Section>
 
-        <Section title={en ? "Address" : "Adresse"} editRoute="/onboarding/address" editable={true} icon={MapPin}>
+        <Section
+          title={en ? "Address" : "Adresse"}
+          editRoute="/onboarding/address"
+          editable={true}
+          icon={MapPin}
+        >
           <Row label={en ? "Country" : "Pays"} value={address?.country ?? null} />
           <Row label={en ? "Address" : "Adresse"} value={address?.address_line1 ?? null} />
           <Row
@@ -259,7 +264,9 @@ function Section({
           </Button>
         ) : null}
       </div>
-      <dl className="space-y-3 divide-y divide-border/70 [&>div]:pt-3 [&>div:first-child]:pt-0">{children}</dl>
+      <dl className="space-y-3 divide-y divide-border/70 [&>div]:pt-3 [&>div:first-child]:pt-0">
+        {children}
+      </dl>
     </section>
   );
 }
@@ -269,7 +276,9 @@ function Row({ label, value }: { label: string; value?: string | null }) {
   return (
     <div className="flex flex-col gap-1.5 sm:flex-row sm:items-baseline sm:justify-between sm:gap-4">
       <dt className="text-body-sm text-muted-foreground">{label}</dt>
-      <dd className="break-words text-body-sm font-medium text-foreground sm:text-right">{value}</dd>
+      <dd className="break-words text-body-sm font-medium text-foreground sm:text-right">
+        {value}
+      </dd>
     </div>
   );
 }
