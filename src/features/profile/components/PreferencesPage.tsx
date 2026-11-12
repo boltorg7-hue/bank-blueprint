@@ -41,7 +41,9 @@ export function PreferencesPage() {
   }
 
   if (query.isPending || !form) {
-    return <LoadingState label={en ? "Loading your preferences…" : "Chargement de vos préférences…"} />;
+    return (
+      <LoadingState label={en ? "Loading your preferences…" : "Chargement de vos préférences…"} />
+    );
   }
 
   const updateToggle = (key: ToggleKey, value: boolean) => {
