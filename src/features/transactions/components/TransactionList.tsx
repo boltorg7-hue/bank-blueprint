@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import { useLanguage } from "@/components/providers/LanguageProvider";
 
 import { EmptyState } from "@/components/feedback";
 import { TransactionRow } from "@/components/data-display";
@@ -8,6 +9,7 @@ import {
   transactionAmountAriaLabel,
   transactionStatusLabel,
   transactionStatusTone,
+  transactionTypeLabel,
 } from "@/features/transactions/utils/transaction-display";
 
 /**
@@ -23,6 +25,9 @@ export function TransactionList({
   emptyTitle?: string;
   emptyDescription?: string;
 }) {
+  const { language } = useLanguage();
+  const en = language === "en";
+
   if (items.length === 0) {
     return <EmptyState title={emptyTitle} description={emptyDescription} />;
   }
@@ -35,7 +40,7 @@ export function TransactionList({
             to="/app/transactions/$transactionRef"
             params={{ transactionRef: item.reference }}
             className="block rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-            aria-label={`${item.displayTitle}. ${transactionAmountAriaLabel(
+            aria-label={`${transactionTypeLabel(item.type, item.direction, en ? "en" : "fr")}. ${transactionAmountAriaLabel(
               item.amountMinor,
               item.currency,
               item.minorUnit,
@@ -44,7 +49,7 @@ export function TransactionList({
           >
             <TransactionRow
               className="px-3"
-              title={item.displayTitle}
+              title={transactionTypeLabel(item.type, item.direction, en ? "en" : "fr")}
               {...(item.counterpartyDisplay || item.displayDescription
                 ? { subtitle: item.counterpartyDisplay ?? item.displayDescription ?? "" }
                 : {})}
@@ -52,7 +57,7 @@ export function TransactionList({
               currency={item.currency}
               direction={item.direction === "INCOMING" ? "credit" : "debit"}
               date={item.occurredAt}
-              statusLabel={transactionStatusLabel(item.status)}
+              statusLabel={transactionStatusLabel(item.status, en ? "en" : "fr")}
               statusTone={transactionStatusTone(item.status)}
             />
           </Link>
