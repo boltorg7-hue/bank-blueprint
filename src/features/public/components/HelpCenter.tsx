@@ -61,7 +61,9 @@ export function HelpCenter() {
               type="search"
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              placeholder={en ? "Transfers, statements, sign-in…" : "Virement, relevé, connexion…"}
+              placeholder={
+                en ? "Transfers, statements, sign-in…" : "Virement, relevé, connexion…"
+              }
               className="h-12 rounded-xl border-border bg-card pl-11 shadow-sm focus-visible:ring-2 focus-visible:ring-ring"
               autoComplete="off"
             />
