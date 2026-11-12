@@ -2,7 +2,9 @@
 -- Selection, attention semantics, pagination ordering, and derived attention metadata
 -- remain server-side so the Admin service does not rebuild business rules in TypeScript.
 
-create or replace function public.admin_customer_page(
+DROP FUNCTION IF EXISTS public.admin_customer_page(text, text, text, text, timestamp with time zone, uuid, integer, uuid);
+
+create function public.admin_customer_page(
   p_search text default '',
   p_lifecycle text default 'ALL',
   p_accounts_filter text default 'ALL',
@@ -309,3 +311,6 @@ as $$
     ) as oldest_attention_at
   from filtered f;
 $$;
+
+REVOKE ALL ON FUNCTION public.admin_customer_page(text, text, text, text, timestamp with time zone, uuid, integer, uuid) FROM PUBLIC, anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.admin_customer_page(text, text, text, text, timestamp with time zone, uuid, integer, uuid) TO service_role;

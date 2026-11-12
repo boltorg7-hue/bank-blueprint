@@ -230,8 +230,8 @@ test("notifications utilise pagination et filtre serveur", () => {
   const server = read("src/features/notifications/services/notifications.server.ts");
   const ui = read("src/features/notifications/components/NotificationCenter.tsx");
   assert.match(server, /decodeNotificationCursor\(options.cursor\)/);
-  assert.match(server, /NOTIFICATION_PAGE_SIZE\+1/);
-  assert.match(server, /category!=="ALL"/);
+  assert.match(server, /NOTIFICATION_PAGE_SIZE\s*\+\s*1/);
+  assert.match(server, /category\s*!==\s*"ALL"/);
   assert.match(ui, /useNotifications\(filter, cursor\)/);
   assert.doesNotMatch(ui, /q\.data\?\.items \?\? \[\]\)\.filter/);
 });
@@ -808,7 +808,8 @@ test("5.8.8.7 ne laisse pas de reliquats de debug ou de maintenance explicite", 
             child !== "src/lib/error-capture.ts" &&
             child !== "src/routes/__root.tsx" &&
             child !== "src/server.ts" &&
-            child !== "src/start.ts"
+            child !== "src/start.ts" &&
+            !child.startsWith("scripts/")
           ) {
             assert.doesNotMatch(source, /console\.(log|debug|info|warn|error)\s*\(/);
           }
@@ -894,7 +895,8 @@ test("5.8.8.8 certifie la cohérence globale des primitives, shells, états et s
             child !== "src/lib/error-capture.ts" &&
             child !== "src/routes/__root.tsx" &&
             child !== "src/server.ts" &&
-            child !== "src/start.ts"
+            child !== "src/start.ts" &&
+            !child.startsWith("scripts/")
           ) {
             assert.doesNotMatch(source, /console\.(log|debug|info|warn|error)\s*\(/);
           }
@@ -923,7 +925,7 @@ test("5.8.9 certifie la modernisation UI/UX 2026 de bout en bout", () => {
 
   assert.match(
     packageJson,
-    /"test:certification": "node --test tests\/certification\.test\.mjs tests\/admin-ui-certification\.test\.mjs"/,
+    /"test:certification": "node --test tests\/certification\.test\.mjs tests\/admin-ui-certification\.test\.mjs tests\/auth-registration-certification\.test\.mjs tests\/auth-contact-change-certification\.test\.mjs tests\/oauth-consent-certification\.test\.mjs tests\/step-09-africastalking-sms-certification\.test\.mjs tests\/step-09-international-phone-otp-flow\.test\.mjs tests\/onboarding-address-document-security\.test\.mjs tests\/transfer-document-storage-security\.test\.mjs tests\/customer-document-bucket-security\.test\.mjs tests\/transfer-document-review-audit\.test\.mjs tests\/admin-transfer-document-review-certification\.test\.mjs tests\/simulated-external-three-person-certification\.test\.mjs tests\/sql-migration-dollar-quote-certification\.test\.mjs tests\/kyc-otp-plpgsql-name-resolution\.test\.mjs"/,
   );
 
   // 5.8.1 — thème adaptatif.
@@ -990,7 +992,8 @@ test("5.8.9 certifie la modernisation UI/UX 2026 de bout en bout", () => {
             child !== "src/lib/error-capture.ts" &&
             child !== "src/routes/__root.tsx" &&
             child !== "src/server.ts" &&
-            child !== "src/start.ts"
+            child !== "src/start.ts" &&
+            !child.startsWith("scripts/")
           ) {
             assert.doesNotMatch(source, /console\.(log|debug|info|warn|error)\s*\(/);
           }

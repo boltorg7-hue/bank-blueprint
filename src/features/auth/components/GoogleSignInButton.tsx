@@ -6,14 +6,24 @@ import { genericErrorMessage } from "@/features/auth/lib/auth-errors";
 import { useLanguage } from "@/components/providers/LanguageProvider";
 
 /**
- * Managed Google sign-in. The redirect target is a public same-origin callback
- * that resolves the trusted lifecycle state before routing (§26).
+ * Managed Google sign-in. The parent coordinates provider state so Google and
+ * Apple cannot start competing OAuth redirects from the same registration page.
  */
-export function GoogleSignInButton({ onError }: { onError: (message: string) => void }) {
+export function GoogleSignInButton({
+  onError,
+  onStart,
+  disabled = false,
+}: {
+  onError: (message: string) => void;
+  onStart?: () => boolean | void;
+  disabled?: boolean;
+}) {
   const { language } = useLanguage();
   const [pending, setPending] = useState(false);
 
   async function handleClick() {
+    if (pending || disabled) return;
+    if (onStart?.() === false) return;
     setPending(true);
     try {
       const result = await lovable.auth.signInWithOAuth("google", {
@@ -36,8 +46,9 @@ export function GoogleSignInButton({ onError }: { onError: (message: string) => 
     <Button
       type="button"
       variant="outline"
-      className="w-full touch-target"
+      className="w-full touch-target bg-background"
       loading={pending}
+      disabled={disabled}
       onClick={handleClick}
     >
       {language === "en" ? "Continue with Google" : "Continuer avec Google"}

@@ -60,8 +60,10 @@ export const checkConfirmationLink = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { data: userData } = await context.supabase.auth.getUser();
-    const mail = userData.user?.email;
-    if (!mail) return { valid: false };
+    const user = userData.user;
+    // A valid nonce alone is not proof of confirmation: GoTrue must report the
+    // address as confirmed before this callback can advance the customer flow.
+    if (!user?.email || !user.email_confirmed_at) return { valid: false };
     const { isLatestConfirmationLink } = await import("./email-confirmation.server");
-    return { valid: await isLatestConfirmationLink(mail, data.nonce) };
+    return { valid: await isLatestConfirmationLink(user.email, data.nonce) };
   });

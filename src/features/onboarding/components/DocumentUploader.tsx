@@ -68,7 +68,8 @@ export function DocumentUploader({
   // Pre-select the document still missing, so the customer never has to think about it.
   useEffect(() => {
     if (idDone && !proofDone) setDocumentType("PROOF_OF_ADDRESS");
-    else if (!idDone && documentType === "PROOF_OF_ADDRESS" && proofDone) setDocumentType("IDENTITY_CARD");
+    else if (!idDone && documentType === "PROOF_OF_ADDRESS" && proofDone)
+      setDocumentType("IDENTITY_CARD");
   }, [idDone, proofDone]); // eslint-disable-line react-hooks/exhaustive-deps
 
   async function handleFile(file: File) {
@@ -76,11 +77,15 @@ export function DocumentUploader({
     setUploadSuccess(null);
 
     if (!(ALLOWED_DOCUMENT_MIME_TYPES as readonly string[]).includes(file.type)) {
-      setError((en ? "Accepted formats: JPEG, PNG, HEIC, WEBP or PDF." : "Formats acceptés : JPEG, PNG, HEIC, WEBP ou PDF."));
+      setError(
+        en
+          ? "Accepted formats: JPEG, PNG, HEIC, WEBP or PDF."
+          : "Formats acceptés : JPEG, PNG, HEIC, WEBP ou PDF.",
+      );
       return;
     }
     if (file.size > MAX_DOCUMENT_BYTES) {
-      setError((en ? "File too large (10 MB maximum)." : "Fichier trop volumineux (10 Mo maximum)."));
+      setError(en ? "File too large (10 MB maximum)." : "Fichier trop volumineux (10 Mo maximum).");
       return;
     }
 
@@ -89,20 +94,42 @@ export function DocumentUploader({
     const userId = session.user?.id;
     if (!userId) {
       setUploading(false);
-      setError((en ? "Your session has expired. Sign in to continue." : "Votre session a expiré. Reconnectez-vous pour continuer."));
+      setError(
+        en
+          ? "Your session has expired. Sign in to continue."
+          : "Votre session a expiré. Reconnectez-vous pour continuer.",
+      );
       return;
     }
 
-    const extension = file.name.split(".").pop()?.toLowerCase() ?? "bin";
+    const extensionByMime: Record<string, string> = {
+      "image/jpeg": "jpg",
+      "image/png": "png",
+      "image/heic": "heic",
+      "image/webp": "webp",
+      "application/pdf": "pdf",
+    };
+    const extension = extensionByMime[file.type];
+    if (!extension) {
+      setUploading(false);
+      setError(
+        en ? "This file type is not supported." : "Ce format de fichier n'est pas pris en charge.",
+      );
+      return;
+    }
     const storagePath = `${userId}/${crypto.randomUUID()}.${extension}`;
 
     const upload = await supabase.storage
       .from("identity-documents")
-      .upload(storagePath, file, { contentType: file.type, upsert: false });
+      .upload(storagePath, file, { contentType: file.type, cacheControl: "0", upsert: false });
 
     if (upload.error) {
       setUploading(false);
-      setError((en ? "The document could not be uploaded. Please try again." : "L'envoi du document a échoué. Réessayez."));
+      setError(
+        en
+          ? "The document could not be uploaded. Please try again."
+          : "L'envoi du document a échoué. Réessayez.",
+      );
       return;
     }
 
@@ -118,9 +145,18 @@ export function DocumentUploader({
       });
       await invalidate();
       setUploadSuccess(en ? "Document saved successfully." : "Document enregistré avec succès.");
-    } catch {
+    } catch (error) {
       await supabase.storage.from("identity-documents").remove([storagePath]);
-      setError((en ? "We could not save this document. Please try again." : "Nous n'avons pas pu enregistrer ce document. Réessayez."));
+      const code = error instanceof Error ? error.message : "";
+      setError(
+        code.includes("INVALID_DOCUMENT_CONTENT") || code.includes("DOCUMENT_EXTENSION_MISMATCH")
+          ? en
+            ? "The file content does not match its declared format. Choose a valid document."
+            : "Le contenu du fichier ne correspond pas à son format déclaré. Choisissez un document valide."
+          : en
+            ? "We could not save this document. Please try again."
+            : "Nous n'avons pas pu enregistrer ce document. Réessayez.",
+      );
     } finally {
       setUploading(false);
       if (inputRef.current) inputRef.current.value = "";
@@ -133,7 +169,7 @@ export function DocumentUploader({
       await remove({ data: { documentId } });
       await invalidate();
     } catch {
-      setError((en ? "This document could not be removed." : "Ce document n'a pas pu être retiré."));
+      setError(en ? "This document could not be removed." : "Ce document n'a pas pu être retiré.");
     } finally {
       setPendingRemoval(null);
     }
@@ -141,7 +177,10 @@ export function DocumentUploader({
 
   return (
     <div className="space-y-6">
-      <ul className="grid gap-2 sm:grid-cols-2" aria-label={en ? "Required documents" : "Documents requis"}>
+      <ul
+        className="grid gap-2 sm:grid-cols-2"
+        aria-label={en ? "Required documents" : "Documents requis"}
+      >
         {[
           { done: idDone, label: en ? "Identity document" : "Pièce d'identité" },
           { done: proofDone, label: en ? "Proof of address" : "Justificatif de domicile" },
@@ -151,14 +190,23 @@ export function DocumentUploader({
             className={`flex items-center gap-3 rounded-xl border px-4 py-3 transition-colors duration-500 ${slot.done ? "border-success/40 bg-success-muted" : "border-border bg-surface"}`}
           >
             {slot.done ? (
-              <CheckCircle2 className="size-5 shrink-0 text-success animate-in zoom-in-50 duration-500" aria-hidden="true" />
+              <CheckCircle2
+                className="size-5 shrink-0 text-success animate-in zoom-in-50 duration-500"
+                aria-hidden="true"
+              />
             ) : (
               <Circle className="size-5 shrink-0 text-muted-foreground" aria-hidden="true" />
             )}
             <div>
               <p className="text-label text-foreground">{slot.label}</p>
               <p className="text-caption text-muted-foreground">
-                {slot.done ? (en ? "Already provided" : "Déjà renseigné") : (en ? "To provide" : "À fournir")}
+                {slot.done
+                  ? en
+                    ? "Already provided"
+                    : "Déjà renseigné"
+                  : en
+                    ? "To provide"
+                    : "À fournir"}
               </p>
             </div>
           </li>
@@ -167,7 +215,9 @@ export function DocumentUploader({
 
       {editable && allDone ? (
         <p className="text-body-sm rounded-xl border border-border bg-surface px-4 py-3 text-muted-foreground">
-          {en ? "Both documents are provided. You can still add or replace a document below." : "Les deux documents sont renseignés. Vous pouvez encore ajouter ou remplacer un document ci-dessous."}
+          {en
+            ? "Both documents are provided. You can still add or replace a document below."
+            : "Les deux documents sont renseignés. Vous pouvez encore ajouter ou remplacer un document ci-dessous."}
         </p>
       ) : null}
 
@@ -208,17 +258,24 @@ export function DocumentUploader({
             onClick={() => inputRef.current?.click()}
           >
             <UploadCloud className="size-4" aria-hidden="true" />
-            {en ? `Add: ${documentType === "PROOF_OF_ADDRESS" ? "proof of address" : "identity document"}` : `Ajouter : ${DOCUMENT_TYPE_LABELS[documentType as keyof typeof DOCUMENT_TYPE_LABELS]?.toLowerCase() ?? "document"}`}
+            {en
+              ? `Add: ${documentType === "PROOF_OF_ADDRESS" ? "proof of address" : "identity document"}`
+              : `Ajouter : ${DOCUMENT_TYPE_LABELS[documentType as keyof typeof DOCUMENT_TYPE_LABELS]?.toLowerCase() ?? "document"}`}
           </Button>
           <p className="text-caption text-muted-foreground">
-            {en ? "JPEG, PNG, HEIC, WEBP or PDF — 10 MB maximum. Your documents are stored privately and never published." : "JPEG, PNG, HEIC, WEBP ou PDF — 10 Mo maximum. Vos documents sont stockés dans un espace privé et ne sont jamais publiés."}
+            {en
+              ? "JPEG, PNG, HEIC, WEBP or PDF — 10 MB maximum. Your documents are stored privately and never published."
+              : "JPEG, PNG, HEIC, WEBP ou PDF — 10 Mo maximum. Vos documents sont stockés dans un espace privé et ne sont jamais publiés."}
           </p>
           {error ? (
             <p role="alert" className="text-caption text-destructive">
               {error}
             </p>
           ) : uploadSuccess ? (
-            <p role="status" className="text-body-sm rounded-xl border border-success/40 bg-success-muted px-3 py-2 text-foreground">
+            <p
+              role="status"
+              className="text-body-sm rounded-xl border border-success/40 bg-success-muted px-3 py-2 text-foreground"
+            >
               {uploadSuccess}
             </p>
           ) : null}
@@ -226,9 +283,13 @@ export function DocumentUploader({
       ) : null}
 
       <div className="space-y-3">
-        <h2 className="text-label text-foreground">{en ? "Uploaded documents" : "Documents envoyés"}</h2>
+        <h2 className="text-label text-foreground">
+          {en ? "Uploaded documents" : "Documents envoyés"}
+        </h2>
         {context.documents.length === 0 ? (
-          <p className="text-body-sm text-muted-foreground">{en ? "No documents yet." : "Aucun document pour le moment."}</p>
+          <p className="text-body-sm text-muted-foreground">
+            {en ? "No documents yet." : "Aucun document pour le moment."}
+          </p>
         ) : (
           <ul className="space-y-2">
             {context.documents.map((document) => (
@@ -236,21 +297,38 @@ export function DocumentUploader({
                 key={document.id}
                 className="flex items-start gap-3 rounded-xl border border-border bg-surface px-4 py-3"
               >
-                <FileText className="mt-0.5 size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+                <FileText
+                  className="mt-0.5 size-4 shrink-0 text-muted-foreground"
+                  aria-hidden="true"
+                />
                 <div className="min-w-0 flex-1">
                   <p className="text-body-sm text-foreground">
-                    {en ? DOCUMENT_TYPE_LABELS_EN[document.document_type] : DOCUMENT_TYPE_LABELS[document.document_type]}
+                    {en
+                      ? DOCUMENT_TYPE_LABELS_EN[document.document_type]
+                      : DOCUMENT_TYPE_LABELS[document.document_type]}
                   </p>
-                  <p className="text-caption truncate text-muted-foreground">{document.original_filename ?? "Document"}</p>
-                  <span className={`mt-1 inline-flex min-h-7 items-center rounded-full px-2.5 text-caption font-medium ${
-                    document.status === "ACCEPTED" ? "bg-success-muted text-success" :
-                    document.status === "ACTION_REQUIRED" || document.status === "REJECTED" || document.status === "EXPIRED" ? "bg-warning-muted text-warning" :
-                    "bg-muted text-muted-foreground"
-                  }`}>
-                    {en ? document.status.replaceAll("_", " ").toLowerCase() : DOCUMENT_STATUS_LABELS[document.status]}
+                  <p className="text-caption truncate text-muted-foreground">
+                    {document.original_filename ?? "Document"}
+                  </p>
+                  <span
+                    className={`mt-1 inline-flex min-h-7 items-center rounded-full px-2.5 text-caption font-medium ${
+                      document.status === "ACCEPTED"
+                        ? "bg-success-muted text-success"
+                        : document.status === "ACTION_REQUIRED" ||
+                            document.status === "REJECTED" ||
+                            document.status === "EXPIRED"
+                          ? "bg-warning-muted text-warning"
+                          : "bg-muted text-muted-foreground"
+                    }`}
+                  >
+                    {en
+                      ? document.status.replaceAll("_", " ").toLowerCase()
+                      : DOCUMENT_STATUS_LABELS[document.status]}
                   </span>
                   {document.rejection_reason ? (
-                    <p className="text-caption mt-1 text-destructive">{document.rejection_reason}</p>
+                    <p className="text-caption mt-1 text-destructive">
+                      {document.rejection_reason}
+                    </p>
                   ) : null}
                 </div>
                 {editable ? (
@@ -262,7 +340,9 @@ export function DocumentUploader({
                     onClick={() => void handleRemove(document.id)}
                   >
                     <Trash2 className="size-4" aria-hidden="true" />
-                    <span className="sr-only">{en ? "Remove this document" : "Retirer ce document"}</span>
+                    <span className="sr-only">
+                      {en ? "Remove this document" : "Retirer ce document"}
+                    </span>
                   </Button>
                 ) : null}
               </li>

@@ -10,7 +10,17 @@ export const MAX_SENDS_PER_HOUR = 5;
 
 export type SendResult =
   | { ok: true; retryAfter: number; remaining: number }
-  | { ok: false; code: "RATE_LIMITED" | "INVALID" | "ALREADY_VERIFIED" | "AUTH_FAILED" | "EMAIL_TAKEN" | "SEND_FAILED"; retryAfter?: number };
+  | {
+      ok: false;
+      code:
+        | "RATE_LIMITED"
+        | "INVALID"
+        | "ALREADY_VERIFIED"
+        | "AUTH_FAILED"
+        | "EMAIL_TAKEN"
+        | "SEND_FAILED";
+      retryAfter?: number;
+    };
 
 async function admin() {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -19,29 +29,41 @@ async function admin() {
 
 function publicClient() {
   const url = process.env["SUPABASE_URL"] ?? process.env["VITE_SUPABASE_URL"];
-  const key = process.env["SUPABASE_PUBLISHABLE_KEY"] ?? process.env["VITE_SUPABASE_PUBLISHABLE_KEY"];
+  const key =
+    process.env["SUPABASE_PUBLISHABLE_KEY"] ?? process.env["VITE_SUPABASE_PUBLISHABLE_KEY"];
   if (!url || !key) throw new Error("Auth configuration missing");
   return createClient(url, key, { auth: { persistSession: false, autoRefreshToken: false } });
 }
 
-async function checkQuota(email: string): Promise<{ allowed: boolean; retryAfter: number; remaining: number }> {
+async function checkQuota(
+  email: string,
+): Promise<{ allowed: boolean; retryAfter: number; remaining: number }> {
   const db = await admin();
   const since = new Date(Date.now() - 3600_000).toISOString();
-  const { data } = await db
+  const { data, error } = await db
     .from("email_confirmation_sends")
     .select("created_at")
     .eq("email", email)
     .gte("created_at", since)
     .order("created_at", { ascending: false });
+  if (error) throw new Error("Email confirmation quota could not be checked.");
   const rows = data ?? [];
   if (rows.length >= MAX_SENDS_PER_HOUR) {
     const oldest = new Date(rows[rows.length - 1]!.created_at).getTime();
-    return { allowed: false, retryAfter: Math.max(1, Math.ceil((oldest + 3600_000 - Date.now()) / 1000)), remaining: 0 };
+    return {
+      allowed: false,
+      retryAfter: Math.max(1, Math.ceil((oldest + 3600_000 - Date.now()) / 1000)),
+      remaining: 0,
+    };
   }
   if (rows[0]) {
     const elapsed = (Date.now() - new Date(rows[0].created_at).getTime()) / 1000;
     if (elapsed < RESEND_SPACING_SECONDS) {
-      return { allowed: false, retryAfter: Math.ceil(RESEND_SPACING_SECONDS - elapsed), remaining: MAX_SENDS_PER_HOUR - rows.length };
+      return {
+        allowed: false,
+        retryAfter: Math.ceil(RESEND_SPACING_SECONDS - elapsed),
+        remaining: MAX_SENDS_PER_HOUR - rows.length,
+      };
     }
   }
   return { allowed: true, retryAfter: 0, remaining: MAX_SENDS_PER_HOUR - rows.length - 1 };
@@ -50,15 +72,24 @@ async function checkQuota(email: string): Promise<{ allowed: boolean; retryAfter
 async function rotateNonce(email: string, userId: string | null): Promise<string> {
   const db = await admin();
   const nonce = crypto.randomUUID();
-  await db.from("email_confirmation_links").upsert({ email, user_id: userId, current_nonce: nonce, updated_at: new Date().toISOString() });
+  const { error } = await db
+    .from("email_confirmation_links")
+    .upsert({ email, user_id: userId, current_nonce: nonce, updated_at: new Date().toISOString() });
+  if (error) throw new Error("Email confirmation link could not be recorded.");
   return nonce;
 }
 
-async function sendSignupLink(email: string, userId: string | null, origin: string, kind: string): Promise<SendResult> {
+async function sendSignupLink(
+  email: string,
+  userId: string | null,
+  origin: string,
+  kind: string,
+): Promise<SendResult> {
   const quota = await checkQuota(email);
   if (!quota.allowed) return { ok: false, code: "RATE_LIMITED", retryAfter: quota.retryAfter };
   const db = await admin();
-  await db.from("email_confirmation_sends").insert({ email, kind });
+  const { error: logError } = await db.from("email_confirmation_sends").insert({ email, kind });
+  if (logError) throw new Error("Email confirmation send could not be recorded.");
   const nonce = await rotateNonce(email, userId);
   const { error } = await publicClient().auth.resend({
     type: "signup",
@@ -66,7 +97,9 @@ async function sendSignupLink(email: string, userId: string | null, origin: stri
     options: { emailRedirectTo: `${origin}/auth/callback?next=verified&v=${nonce}` },
   });
   if (error) {
-    if (/rate|seconds|429/i.test(error.message)) return { ok: false, code: "RATE_LIMITED", retryAfter: RESEND_SPACING_SECONDS };
+    if (/rate|seconds|429/i.test(error.message)) {
+      return { ok: false, code: "RATE_LIMITED", retryAfter: RESEND_SPACING_SECONDS };
+    }
     return { ok: false, code: "SEND_FAILED" };
   }
   return { ok: true, retryAfter: RESEND_SPACING_SECONDS, remaining: quota.remaining };
@@ -74,7 +107,8 @@ async function sendSignupLink(email: string, userId: string | null, origin: stri
 
 async function lookupUser(email: string) {
   const db = await admin();
-  const { data } = await db.rpc("auth_user_for_email", { _email: email });
+  const { data, error } = await db.rpc("auth_user_for_email", { _email: email });
+  if (error) throw new Error("Email account lookup failed.");
   const row = Array.isArray(data) ? data[0] : null;
   return row as { id: string; email_confirmed_at: string | null } | null;
 }
@@ -82,16 +116,35 @@ async function lookupUser(email: string) {
 export async function resendConfirmation(emailRaw: string, origin: string): Promise<SendResult> {
   const email = emailRaw.trim().toLowerCase();
   const user = await lookupUser(email);
-  if (user?.email_confirmed_at) return { ok: false, code: "ALREADY_VERIFIED" };
-  // Unknown addresses get the same neutral answer (no account enumeration), but still count against quota.
-  if (!user) {
+  // Keep the response indistinguishable for unknown and already-verified addresses.
+  // This prevents the public resend endpoint from becoming an account-enumeration oracle.
+  if (user?.email_confirmed_at) {
     const quota = await checkQuota(email);
-    if (!quota.allowed) return { ok: false, code: "RATE_LIMITED", retryAfter: quota.retryAfter };
+    if (!quota.allowed) return { ok: true, retryAfter: quota.retryAfter, remaining: 0 };
     const db = await admin();
-    await db.from("email_confirmation_sends").insert({ email, kind: "resend_unknown" });
+    const { error } = await db
+      .from("email_confirmation_sends")
+      .insert({ email, kind: "resend_verified" });
+    if (error) throw new Error("Email confirmation send could not be recorded.");
     return { ok: true, retryAfter: RESEND_SPACING_SECONDS, remaining: quota.remaining };
   }
-  return sendSignupLink(email, user.id, origin, "resend");
+  // Unknown addresses receive the same neutral result and are also rate limited.
+  if (!user) {
+    const quota = await checkQuota(email);
+    if (!quota.allowed) return { ok: true, retryAfter: quota.retryAfter, remaining: 0 };
+    const db = await admin();
+    const { error } = await db
+      .from("email_confirmation_sends")
+      .insert({ email, kind: "resend_unknown" });
+    if (error) throw new Error("Email confirmation send could not be recorded.");
+    return { ok: true, retryAfter: RESEND_SPACING_SECONDS, remaining: quota.remaining };
+  }
+  const result = await sendSignupLink(email, user.id, origin, "resend");
+  // Keep provider-level throttling indistinguishable from the neutral public response.
+  if (!result.ok && result.code === "RATE_LIMITED") {
+    return { ok: true, retryAfter: result.retryAfter ?? RESEND_SPACING_SECONDS, remaining: 0 };
+  }
+  return result;
 }
 
 export async function changeUnverifiedEmail(
@@ -103,8 +156,15 @@ export async function changeUnverifiedEmail(
   if (currentEmail === newEmail) return { ok: false, code: "INVALID" };
 
   // Proves ownership: GoTrue validates the password before reporting "email not confirmed".
-  const { error: signInError } = await publicClient().auth.signInWithPassword({ email: currentEmail, password: input.password });
-  if (signInError && !/not confirmed/i.test(signInError.message) && signInError.code !== "email_not_confirmed") {
+  const { error: signInError } = await publicClient().auth.signInWithPassword({
+    email: currentEmail,
+    password: input.password,
+  });
+  if (
+    signInError &&
+    !/not confirmed/i.test(signInError.message) &&
+    signInError.code !== "email_not_confirmed"
+  ) {
     return { ok: false, code: "AUTH_FAILED" };
   }
 
@@ -113,28 +173,55 @@ export async function changeUnverifiedEmail(
   if (user.email_confirmed_at) return { ok: false, code: "ALREADY_VERIFIED" };
   if (await lookupUser(newEmail)) return { ok: false, code: "EMAIL_TAKEN" };
 
+  const currentQuota = await checkQuota(currentEmail);
+  if (!currentQuota.allowed) {
+    return { ok: false, code: "RATE_LIMITED", retryAfter: currentQuota.retryAfter };
+  }
   const quota = await checkQuota(newEmail);
   if (!quota.allowed) return { ok: false, code: "RATE_LIMITED", retryAfter: quota.retryAfter };
 
   const db = await admin();
-  const { error } = await db.auth.admin.updateUserById(user.id, { email: newEmail, email_confirm: false });
-  if (error) return { ok: false, code: /already/i.test(error.message) ? "EMAIL_TAKEN" : "SEND_FAILED" };
+  const { error: auditError } = await db
+    .from("email_confirmation_sends")
+    .insert({ email: currentEmail, kind: "change_requested" });
+  if (auditError) throw new Error("Email confirmation send could not be recorded.");
 
-  // Invalidate every link issued to the previous address.
-  await db.from("email_confirmation_links").delete().eq("email", currentEmail);
-  await db.from("email_confirmation_links").upsert({ email: currentEmail, user_id: null, current_nonce: crypto.randomUUID() });
+  // Invalidate links for the previous address before changing the Auth record.
+  // If this write fails, the email change is aborted and no old link remains usable.
+  const { error: invalidateError } = await db.from("email_confirmation_links").upsert({
+    email: currentEmail,
+    user_id: null,
+    current_nonce: crypto.randomUUID(),
+    updated_at: new Date().toISOString(),
+  });
+  if (invalidateError) {
+    throw new Error("Previous email confirmation links could not be invalidated.");
+  }
+
+  const { error } = await db.auth.admin.updateUserById(user.id, {
+    email: newEmail,
+    email_confirm: false,
+  });
+  if (error) {
+    return { ok: false, code: /already/i.test(error.message) ? "EMAIL_TAKEN" : "SEND_FAILED" };
+  }
+
   // A fresh signup link regenerates the confirmation token server-side, so old tokens stop working.
   return sendSignupLink(newEmail, user.id, origin, "change");
 }
 
 /** Called after a link is opened: true when the link is the latest one issued for this address. */
-export async function isLatestConfirmationLink(email: string, nonce: string | undefined): Promise<boolean> {
+export async function isLatestConfirmationLink(
+  email: string,
+  nonce: string | undefined,
+): Promise<boolean> {
   const db = await admin();
-  const { data } = await db
+  const { data, error } = await db
     .from("email_confirmation_links")
     .select("current_nonce")
     .eq("email", email.toLowerCase())
     .maybeSingle();
+  if (error) throw new Error("Email confirmation link could not be verified.");
   if (!data) return true; // original sign-up link, never superseded
   return Boolean(nonce) && data.current_nonce === nonce;
 }

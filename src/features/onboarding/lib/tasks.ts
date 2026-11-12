@@ -29,22 +29,38 @@ export function isProfileComplete(context: CustomerContext): boolean {
   const profile = context.profile;
   return Boolean(
     profile.first_name &&
-      profile.last_name &&
-      profile.date_of_birth &&
-      profile.nationality &&
-      profile.country_of_residence &&
-      profile.occupation,
+    profile.last_name &&
+    profile.date_of_birth &&
+    profile.nationality &&
+    profile.country_of_residence &&
+    profile.occupation,
   );
 }
 
+const REVIEWABLE_DOCUMENT_STATUSES = ["UPLOADED", "UNDER_REVIEW", "ACCEPTED"];
+
 export function hasIdentityDocument(context: CustomerContext): boolean {
-  return context.documents.some((document) =>
-    ["IDENTITY_CARD", "PASSPORT", "RESIDENCE_PERMIT"].includes(document.document_type),
+  return context.documents.some(
+    (document) =>
+      ["IDENTITY_CARD", "PASSPORT", "RESIDENCE_PERMIT"].includes(document.document_type) &&
+      REVIEWABLE_DOCUMENT_STATUSES.includes(document.status),
   );
 }
 
 export function hasProofOfAddress(context: CustomerContext): boolean {
-  return context.documents.some((document) => document.document_type === "PROOF_OF_ADDRESS");
+  return context.documents.some(
+    (document) =>
+      document.document_type === "PROOF_OF_ADDRESS" &&
+      REVIEWABLE_DOCUMENT_STATUSES.includes(document.status),
+  );
+}
+
+export function hasDeferredDocuments(context: CustomerContext): boolean {
+  return (
+    context.profile.lifecycle_state === "IDENTITY_REQUIRED" &&
+    context.profile.onboarding_step === "COMPLETED" &&
+    context.verification.status === "NOT_STARTED"
+  );
 }
 
 export function isSubmitted(context: CustomerContext): boolean {
@@ -57,6 +73,7 @@ export function buildOnboardingTasks(context: CustomerContext): OnboardingTask[]
   const contactDone = Boolean(context.profile.phone_verified_at);
   const addressDone = Boolean(context.address);
   const documentsDone = hasIdentityDocument(context) && hasProofOfAddress(context);
+  const documentsDeferred = hasDeferredDocuments(context);
   const submitted = isSubmitted(context);
 
   const tasks: OnboardingTask[] = [
@@ -97,16 +114,26 @@ export function buildOnboardingTasks(context: CustomerContext): OnboardingTask[]
     {
       id: "documents",
       title: "Vérification d'identité",
-      description: "Une pièce d'identité et un justificatif de domicile.",
-      status: documentsDone ? "done" : addressDone ? "current" : "todo",
-      required: true,
+      description: documentsDeferred
+        ? "Vous pourrez transmettre vos justificatifs plus tard. La vérification d'identité reste en attente."
+        : "Une pièce d'identité et un justificatif de domicile à transmettre maintenant ou ultérieurement.",
+      status: documentsDone
+        ? "done"
+        : documentsDeferred
+          ? "blocked"
+          : addressDone
+            ? "current"
+            : "todo",
+      required: false,
       route: "/onboarding/documents",
     },
     {
       id: "review",
       title: "Envoi du dossier",
-      description: "Relisez vos informations, puis envoyez votre dossier pour vérification.",
-      status: submitted ? "done" : documentsDone ? "current" : "todo",
+      description: documentsDeferred
+        ? "Votre inscription est enregistrée. Les justificatifs restent à transmettre pour démarrer le KYC."
+        : "Relisez vos informations, puis envoyez votre dossier pour vérification.",
+      status: submitted || documentsDeferred ? "done" : documentsDone ? "current" : "todo",
       required: true,
       route: "/onboarding/review",
     },
@@ -115,7 +142,8 @@ export function buildOnboardingTasks(context: CustomerContext): OnboardingTask[]
       title: "Ouverture du compte",
       description:
         "Après la vérification d'identité, l'ouverture du compte fait l'objet d'un examen distinct.",
-      status: context.profile.lifecycle_state === "ACTIVE" ? "done" : submitted ? "current" : "todo",
+      status:
+        context.profile.lifecycle_state === "ACTIVE" ? "done" : submitted ? "current" : "todo",
       required: true,
       route: "/onboarding/status",
     },
@@ -126,7 +154,7 @@ export function buildOnboardingTasks(context: CustomerContext): OnboardingTask[]
 
 /** Next incomplete step, used to resume onboarding where the customer left off (§29). */
 export function nextOnboardingRoute(context: CustomerContext): AppPath {
-  if (isSubmitted(context)) return "/onboarding/status";
+  if (isSubmitted(context) || hasDeferredDocuments(context)) return "/onboarding/status";
   if (!isProfileComplete(context)) return "/onboarding/profile";
   if (!context.profile.phone_verified_at) return "/verify-contact";
   if (!context.address) return "/onboarding/address";

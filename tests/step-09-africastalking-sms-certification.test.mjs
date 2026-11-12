@@ -12,13 +12,17 @@ const env = read(".env.example");
 
 assert.match(provider, /https:\/\/api\.sandbox\.africastalking\.com\/version1\/messaging/);
 assert.match(provider, /https:\/\/api\.africastalking\.com\/version1\/messaging/);
-assert.match(provider, /process\.env\.AFRICASTALKING_API_KEY/);
-assert.match(provider, /process\.env\.AFRICASTALKING_SENDER_ID/);
+assert.match(provider, /requiredEnv\("AFRICASTALKING_API_KEY"\)/);
+assert.match(provider, /requiredEnv\("AFRICASTALKING_SENDER_ID"\)/);
 assert.match(provider, /apiKey/);
 assert.match(provider, /application\/x-www-form-urlencoded/);
 assert.match(provider, /username/);
 assert.match(provider, /from: senderId/);
 assert.match(provider, /statusCode === 100/);
+assert.match(provider, /state: "ACCEPTED"/);
+assert.match(provider, /createDecipheriv/);
+assert.match(provider, /AbortSignal.timeout/);
+assert.match(provider, /SMS_PROVIDER_ENV_UNSUPPORTED/);
 assert.match(provider, /statusCode === 101/);
 assert.match(provider, /statusCode === 102/);
 assert.match(provider, /providerReference/);
@@ -27,19 +31,24 @@ assert.match(provider, /CONTACT_VERIFICATION_CODE/);
 assert.doesNotMatch(provider, /console\.(log|error|warn)/);
 
 assert.match(notifications, /dispatchPendingSms/);
-assert.match(notifications, /process\.env\.SMS_PROVIDER/);
+assert.match(notifications, /process\.env\["SMS_PROVIDER"\]/);
 assert.match(notifications, /africastalking-provider/);
-assert.match(notifications, /status:result\.state/);
-assert.match(notifications, /provider_reference:result\.providerReference/);
+assert.match(notifications, /status: result\.state/);
+assert.match(notifications, /provider_reference: result\.providerReference/);
 
 assert.match(onboarding, /dispatchPendingSms/);
+assert.match(onboarding, /encryptOtpPayload/);
+assert.match(onboarding, /_payload: encryptedPayload/);
 assert.doesNotMatch(onboarding, /simulatePendingSms/);
 
 assert.match(env, /SMS_PROVIDER="africastalking"/);
+assert.match(env, /SMS_PAYLOAD_ENCRYPTION_KEY/);
 assert.match(env, /AFRICASTALKING_ENV="sandbox"/);
 assert.match(env, /AFRICASTALKING_USERNAME="sandbox"/);
 assert.match(env, /AFRICASTALKING_SENDER_ID="RFCBANK"/);
 assert.match(env, /AFRICASTALKING_API_KEY=""/);
 
 console.log("STEP 09 SMS PROVIDER STATIC CERTIFICATION: PASS");
-console.log("Covered: server-only Africa's Talking credentials, sandbox/live endpoints, form-encoded API request, accepted API statuses, provider reference/error handling, OTP template rendering, outbox dispatch, and safe environment placeholders.");
+console.log(
+  "Covered: server-only Africa's Talking credentials, sandbox/live endpoints, form-encoded API request, accepted API statuses, provider reference/error handling, OTP template rendering, outbox dispatch, and safe environment placeholders.",
+);

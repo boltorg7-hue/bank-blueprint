@@ -19,13 +19,29 @@ import type {
   AdminExternalTransferPageDto,
 } from "@/features/admin/types/admin";
 
-function customerSearchInput(input: { search?: string; cursor?: string | null; lifecycle?: string; accounts?: string; attention?: string } | undefined) {
+function customerSearchInput(
+  input:
+    | {
+        search?: string;
+        cursor?: string | null;
+        lifecycle?: string;
+        accounts?: string;
+        attention?: string;
+      }
+    | undefined,
+) {
   const lifecycle = String(input?.lifecycle ?? "ALL");
   const accounts = String(input?.accounts ?? "ALL");
   const attention = String(input?.attention ?? "ALL");
-  if (!["ALL", "WITH_ACCOUNTS", "WITHOUT_ACCOUNTS"].includes(accounts) || !["ALL", "NEEDS_ATTENTION", "CLEAR"].includes(attention)) throw new Error("INVALID_CUSTOMER_FILTER");
+  if (
+    !["ALL", "WITH_ACCOUNTS", "WITHOUT_ACCOUNTS"].includes(accounts) ||
+    !["ALL", "NEEDS_ATTENTION", "CLEAR"].includes(attention)
+  )
+    throw new Error("INVALID_CUSTOMER_FILTER");
   return {
-    search: String(input?.search ?? "").trim().slice(0, 80),
+    search: String(input?.search ?? "")
+      .trim()
+      .slice(0, 80),
     cursor: input?.cursor ? String(input.cursor).slice(0, 512) : null,
     lifecycle,
     accounts,
@@ -33,14 +49,32 @@ function customerSearchInput(input: { search?: string; cursor?: string | null; l
   };
 }
 function searchInput(input: { search?: string; cursor?: string | null } | undefined) {
-  return { search: String(input?.search ?? "").trim().slice(0, 80), cursor: input?.cursor ? String(input.cursor).slice(0, 512) : null };
+  return {
+    search: String(input?.search ?? "")
+      .trim()
+      .slice(0, 80),
+    cursor: input?.cursor ? String(input.cursor).slice(0, 512) : null,
+  };
 }
-function onboardingSearchInput(input: { search?: string; cursor?: string | null; status?: string } | undefined) {
+function onboardingSearchInput(
+  input: { search?: string; cursor?: string | null; status?: string } | undefined,
+) {
   const status = String(input?.status ?? "ALL");
-  const allowed = ["ALL", "NOT_STARTED", "IN_PROGRESS", "SUBMITTED", "UNDER_REVIEW", "ADDITIONAL_INFORMATION_REQUIRED", "VERIFIED", "REJECTED"];
+  const allowed = [
+    "ALL",
+    "NOT_STARTED",
+    "IN_PROGRESS",
+    "SUBMITTED",
+    "UNDER_REVIEW",
+    "ADDITIONAL_INFORMATION_REQUIRED",
+    "VERIFIED",
+    "REJECTED",
+  ];
   if (!allowed.includes(status)) throw new Error("INVALID_ONBOARDING_FILTER");
   return {
-    search: String(input?.search ?? "").trim().slice(0, 80),
+    search: String(input?.search ?? "")
+      .trim()
+      .slice(0, 80),
     cursor: input?.cursor ? String(input.cursor).slice(0, 512) : null,
     status,
   };
@@ -65,39 +99,77 @@ export const listAdminCustomers = createServerFn({ method: "POST" })
   .inputValidator(customerSearchInput)
   .handler(async ({ data, context }): Promise<AdminCustomerPageDto> => {
     const service = await import("@/features/admin/services/admin.server");
-    return service.loadAdminCustomers(context.supabase, data.search, data.cursor, data.lifecycle as any, data.accounts as any, data.attention as any);
+    return service.loadAdminCustomers(
+      context.supabase,
+      data.search,
+      data.cursor,
+      data.lifecycle as never,
+      data.accounts as never,
+      data.attention as never,
+    );
   });
 
 export const listAdminOnboardingCases = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-   .inputValidator(onboardingSearchInput)
+  .inputValidator(onboardingSearchInput)
   .handler(async ({ data, context }): Promise<AdminOnboardingCasePageDto> => {
     const service = await import("@/features/admin/services/admin.server");
-    return service.loadAdminOnboardingCases(context.supabase, data.search, data.cursor ?? null, String((data as any).status ?? "ALL"));
+    return service.loadAdminOnboardingCases(
+      context.supabase,
+      data.search,
+      data.cursor ?? null,
+      data.status,
+    );
   });
 
 export const inviteAdminCustomer = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: { email: string; firstName: string; lastName: string }) => {
-    const email = String(input?.email ?? "").trim().toLowerCase();
+    const email = String(input?.email ?? "")
+      .trim()
+      .toLowerCase();
     const firstName = String(input?.firstName ?? "").trim();
     const lastName = String(input?.lastName ?? "").trim();
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || firstName.length < 2 || firstName.length > 80 || lastName.length < 2 || lastName.length > 80) throw new Error("INVALID_INVITATION");
+    if (
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ||
+      firstName.length < 2 ||
+      firstName.length > 80 ||
+      lastName.length < 2 ||
+      lastName.length > 80
+    )
+      throw new Error("INVALID_INVITATION");
     return { email, firstName, lastName };
   })
   .handler(async ({ data, context }) => {
     const service = await import("@/features/admin/services/admin.server");
-    return service.inviteCustomer(context.supabase, context.userId, data, "https://rfbank.lovable.app");
+    return service.inviteCustomer(
+      context.supabase,
+      context.userId,
+      data,
+      "https://rfbank.lovable.app",
+    );
   });
 
 export const reviewAdminOnboardingCase = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { customerId: string; recommendation: "APPROVE" | "REJECT" | "REQUEST_INFO"; note: string }) => {
-    const customerId = String(input?.customerId ?? "");
-    const note = String(input?.note ?? "").trim();
-    if (!/^[0-9a-f-]{36}$/i.test(customerId) || !["APPROVE", "REJECT", "REQUEST_INFO"].includes(input?.recommendation) || note.length < 8 || note.length > 500) throw new Error("INVALID_REVIEW");
-    return { customerId, recommendation: input.recommendation, note };
-  })
+  .inputValidator(
+    (input: {
+      customerId: string;
+      recommendation: "APPROVE" | "REJECT" | "REQUEST_INFO";
+      note: string;
+    }) => {
+      const customerId = String(input?.customerId ?? "");
+      const note = String(input?.note ?? "").trim();
+      if (
+        !/^[0-9a-f-]{36}$/i.test(customerId) ||
+        !["APPROVE", "REJECT", "REQUEST_INFO"].includes(input?.recommendation) ||
+        note.length < 8 ||
+        note.length > 500
+      )
+        throw new Error("INVALID_REVIEW");
+      return { customerId, recommendation: input.recommendation, note };
+    },
+  )
   .handler(async ({ data, context }) => {
     const service = await import("@/features/admin/services/admin.server");
     return service.reviewOnboardingCase(context.supabase, context.userId, data);
@@ -108,7 +180,13 @@ export const decideAdminOnboardingCase = createServerFn({ method: "POST" })
   .inputValidator((input: { requestId: string; confirm: boolean; note: string }) => {
     const requestId = String(input?.requestId ?? "");
     const note = String(input?.note ?? "").trim();
-    if (!/^[0-9a-f-]{36}$/i.test(requestId) || typeof input?.confirm !== "boolean" || note.length < 8 || note.length > 500) throw new Error("INVALID_DECISION");
+    if (
+      !/^[0-9a-f-]{36}$/i.test(requestId) ||
+      typeof input?.confirm !== "boolean" ||
+      note.length < 8 ||
+      note.length > 500
+    )
+      throw new Error("INVALID_DECISION");
     return { requestId, confirm: input.confirm, note };
   })
   .handler(async ({ data, context }) => {
@@ -121,7 +199,8 @@ export const activateAdminOnboardingCustomer = createServerFn({ method: "POST" }
   .inputValidator((input: { customerId: string; reason: string }) => {
     const customerId = String(input?.customerId ?? "");
     const reason = String(input?.reason ?? "").trim();
-    if (!/^[0-9a-f-]{36}$/i.test(customerId) || reason.length < 8 || reason.length > 300) throw new Error("INVALID_ACTIVATION");
+    if (!/^[0-9a-f-]{36}$/i.test(customerId) || reason.length < 8 || reason.length > 300)
+      throw new Error("INVALID_ACTIVATION");
     return { customerId, reason };
   })
   .handler(async ({ data, context }) => {
@@ -148,7 +227,9 @@ export const listFundingRequests = createServerFn({ method: "POST" })
 export const searchFundingAccounts = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: { search?: string } | undefined) => ({
-    search: String(input?.search ?? "").trim().slice(0, 80),
+    search: String(input?.search ?? "")
+      .trim()
+      .slice(0, 80),
   }))
   .handler(async ({ data, context }): Promise<FundingAccountOptionDto[]> => {
     const service = await import("@/features/admin/services/admin.server");
@@ -157,17 +238,30 @@ export const searchFundingAccounts = createServerFn({ method: "POST" })
 
 export const createFundingRequest = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { accountReference: string; amountMinor: number; reason: string; idempotencyKey: string }) => {
-    const accountReference = String(input?.accountReference ?? "").trim();
-    const amountMinor = Number(input?.amountMinor);
-    const reason = String(input?.reason ?? "").trim();
-    const idempotencyKey = String(input?.idempotencyKey ?? "").trim();
-    if (!/^ACC-\d{4}-\d{6}$/.test(accountReference)) throw new Error("INVALID_ACCOUNT_REFERENCE");
-    if (!Number.isSafeInteger(amountMinor) || amountMinor <= 0 || amountMinor > 100_000_000_000) throw new Error("INVALID_AMOUNT");
-    if (reason.length < 8 || reason.length > 500) throw new Error("INVALID_REASON");
-    if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(idempotencyKey)) throw new Error("INVALID_IDEMPOTENCY_KEY");
-    return { accountReference, amountMinor, reason, idempotencyKey };
-  })
+  .inputValidator(
+    (input: {
+      accountReference: string;
+      amountMinor: number;
+      reason: string;
+      idempotencyKey: string;
+    }) => {
+      const accountReference = String(input?.accountReference ?? "").trim();
+      const amountMinor = Number(input?.amountMinor);
+      const reason = String(input?.reason ?? "").trim();
+      const idempotencyKey = String(input?.idempotencyKey ?? "").trim();
+      if (!/^ACC-\d{4}-\d{6}$/.test(accountReference)) throw new Error("INVALID_ACCOUNT_REFERENCE");
+      if (!Number.isSafeInteger(amountMinor) || amountMinor <= 0 || amountMinor > 100_000_000_000)
+        throw new Error("INVALID_AMOUNT");
+      if (reason.length < 8 || reason.length > 500) throw new Error("INVALID_REASON");
+      if (
+        !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+          idempotencyKey,
+        )
+      )
+        throw new Error("INVALID_IDEMPOTENCY_KEY");
+      return { accountReference, amountMinor, reason, idempotencyKey };
+    },
+  )
   .handler(async ({ data, context }) => {
     const service = await import("@/features/admin/services/admin.server");
     await service.requireAdminPermission(context.supabase, "finance.adjustment.create");
@@ -185,7 +279,8 @@ export const decideFundingRequest = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: { requestId: string; approve: boolean }) => {
     const requestId = String(input?.requestId ?? "").trim();
-    if (!/^[0-9a-f-]{36}$/i.test(requestId) || typeof input?.approve !== "boolean") throw new Error("INVALID_DECISION");
+    if (!/^[0-9a-f-]{36}$/i.test(requestId) || typeof input?.approve !== "boolean")
+      throw new Error("INVALID_DECISION");
     return { requestId, approve: input.approve };
   })
   .handler(async ({ data, context }) => {
@@ -196,7 +291,8 @@ export const decideFundingRequest = createServerFn({ method: "POST" })
       _approve: data.approve,
     } as never);
     if (error) {
-      if (error.message.toLowerCase().includes("four-eyes")) throw new Error("MAKER_CANNOT_APPROVE");
+      if (error.message.toLowerCase().includes("four-eyes"))
+        throw new Error("MAKER_CANNOT_APPROVE");
       throw new Error("FUNDING_DECISION_FAILED");
     }
     return result;
@@ -204,30 +300,66 @@ export const decideFundingRequest = createServerFn({ method: "POST" })
 
 export const setCustomerState = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { customerId: string; state: "ACTIVE" | "RESTRICTED" | "SUSPENDED"; reason: string }) => {
-    const customerId = String(input?.customerId ?? ""); const reason = String(input?.reason ?? "").trim();
-    if (!/^[0-9a-f-]{36}$/i.test(customerId) || !["ACTIVE", "RESTRICTED", "SUSPENDED"].includes(input?.state) || reason.length < 8 || reason.length > 300) throw new Error("INVALID_STATE_CHANGE");
-    return { customerId, state: input.state, reason };
-  })
+  .inputValidator(
+    (input: {
+      customerId: string;
+      state: "ACTIVE" | "RESTRICTED" | "SUSPENDED";
+      reason: string;
+    }) => {
+      const customerId = String(input?.customerId ?? "");
+      const reason = String(input?.reason ?? "").trim();
+      if (
+        !/^[0-9a-f-]{36}$/i.test(customerId) ||
+        !["ACTIVE", "RESTRICTED", "SUSPENDED"].includes(input?.state) ||
+        reason.length < 8 ||
+        reason.length > 300
+      )
+        throw new Error("INVALID_STATE_CHANGE");
+      return { customerId, state: input.state, reason };
+    },
+  )
   .handler(async ({ data, context }) => {
     const service = await import("@/features/admin/services/admin.server");
     await service.requireAdminPermission(context.supabase, "customers.write");
-    const { error } = await context.supabase.rpc("admin_set_customer_state" as never, { _customer_id: data.customerId, _state: data.state, _reason: data.reason } as never);
+    const { error } = await context.supabase.rpc(
+      "admin_set_customer_state" as never,
+      { _customer_id: data.customerId, _state: data.state, _reason: data.reason } as never,
+    );
     if (error) throw new Error("CUSTOMER_STATE_CHANGE_FAILED");
     return { success: true };
   });
 
 export const setAccountStatus = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { accountReference: string; status: "ACTIVE" | "RESTRICTED" | "SUSPENDED" | "FROZEN"; reason: string }) => {
-    const accountReference = String(input?.accountReference ?? "").trim(); const reason = String(input?.reason ?? "").trim();
-    if (!/^ACC-\d{4}-\d{6}$/.test(accountReference) || !["ACTIVE", "RESTRICTED", "SUSPENDED", "FROZEN"].includes(input?.status) || reason.length < 8 || reason.length > 300) throw new Error("INVALID_STATUS_CHANGE");
-    return { accountReference, status: input.status, reason };
-  })
+  .inputValidator(
+    (input: {
+      accountReference: string;
+      status: "ACTIVE" | "RESTRICTED" | "SUSPENDED" | "FROZEN";
+      reason: string;
+    }) => {
+      const accountReference = String(input?.accountReference ?? "").trim();
+      const reason = String(input?.reason ?? "").trim();
+      if (
+        !/^ACC-\d{4}-\d{6}$/.test(accountReference) ||
+        !["ACTIVE", "RESTRICTED", "SUSPENDED", "FROZEN"].includes(input?.status) ||
+        reason.length < 8 ||
+        reason.length > 300
+      )
+        throw new Error("INVALID_STATUS_CHANGE");
+      return { accountReference, status: input.status, reason };
+    },
+  )
   .handler(async ({ data, context }) => {
     const service = await import("@/features/admin/services/admin.server");
     await service.requireAdminPermission(context.supabase, "accounts.manage");
-    const { error } = await context.supabase.rpc("admin_set_account_status" as never, { _account_reference: data.accountReference, _status: data.status, _reason: data.reason } as never);
+    const { error } = await context.supabase.rpc(
+      "admin_set_account_status" as never,
+      {
+        _account_reference: data.accountReference,
+        _status: data.status,
+        _reason: data.reason,
+      } as never,
+    );
     if (error) throw new Error("ACCOUNT_STATUS_CHANGE_FAILED");
     return { success: true };
   });
@@ -244,14 +376,74 @@ export const listAdminAccountStatusHistory = createServerFn({ method: "GET" })
     return service.loadAdminAccountStatusHistory(context.supabase, data.accountReference);
   });
 
-export const listAdminExternalTransfers=createServerFn({method:"POST"}).middleware([requireSupabaseAuth]).inputValidator(searchInput).handler(async({data,context}):Promise<AdminExternalTransferPageDto>=>{const s=await import("@/features/admin/services/admin.server");return s.loadExternalTransfers(context.supabase,data.cursor??null);});
-export const advanceAdminExternalTransfer=createServerFn({method:"POST"}).middleware([requireSupabaseAuth]).inputValidator((input:{reference:string;action:"APPROVE"|"QUEUE"|"FINALIZE"})=>{const reference=String(input?.reference??"");if(!/^TRF-\d{4}-\d{8}$/.test(reference)||!["APPROVE","QUEUE","FINALIZE"].includes(input?.action))throw new Error("INVALID_TRANSFER_ACTION");return {reference,action:input.action};}).handler(async({data,context})=>{const s=await import("@/features/admin/services/admin.server");await s.requireAdminPermission(context.supabase,data.action==="APPROVE"?"compliance.review":"transfers.approve");const rpc=data.action==="APPROVE"?"admin_approve_simulated_external":data.action==="QUEUE"?"admin_queue_simulated_external":"admin_finalize_simulated_external";const{error}=await context.supabase.rpc(rpc as any,{_reference:data.reference} as never);if(error)throw new Error(error.message.toLowerCase().includes("four-eyes")?"FOUR_EYES_REQUIRED":"TRANSFER_ACTION_FAILED");return{ok:true};});
+export const listAdminExternalTransfers = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator(searchInput)
+  .handler(async ({ data, context }): Promise<AdminExternalTransferPageDto> => {
+    const s = await import("@/features/admin/services/admin.server");
+    return s.loadExternalTransfers(context.supabase, data.cursor ?? null);
+  });
+export const advanceAdminExternalTransfer = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { reference: string; action: "APPROVE" | "QUEUE" | "FINALIZE" }) => {
+    const reference = String(input?.reference ?? "").trim();
+    const action = input?.action;
+    if (
+      !/^TRF-\d{4}-\d{8}$/.test(reference) ||
+      !["APPROVE", "QUEUE", "FINALIZE"].includes(action)
+    ) {
+      throw new Error("INVALID_TRANSFER_ACTION");
+    }
+    return { reference, action };
+  })
+  .handler(async ({ data, context }) => {
+    const service = await import("@/features/admin/services/admin.server");
+    await service.requireAdminPermission(
+      context.supabase,
+      data.action === "APPROVE" ? "compliance.review" : "transfers.approve",
+    );
 
-export const listAdminAuditEvents = createServerFn({ method: "POST" }).middleware([requireSupabaseAuth]).inputValidator(searchInput).handler(async ({ data, context }): Promise<AdminAuditEventPageDto> => {
-  const service = await import("@/features/admin/services/admin.server");
-  return service.loadAdminAuditEvents(context.supabase, data.search, data.cursor ?? null);
-});
+    if (data.action === "QUEUE") {
+      const settlement =
+        await import("@/features/admin/services/simulated-external-transfer.server");
+      return settlement.submitAdminExternalSettlement(
+        context.supabase,
+        context.userId,
+        data.reference,
+      );
+    }
 
+    const rpc =
+      data.action === "APPROVE"
+        ? "admin_approve_simulated_external"
+        : "admin_finalize_simulated_external";
+    const { error } = await context.supabase.rpc(
+      rpc as never,
+      {
+        _reference: data.reference,
+      } as never,
+    );
+    if (error) {
+      const message = error.message.toLowerCase();
+      if (
+        message.includes("four-eyes") ||
+        message.includes("four_eyes_required") ||
+        message.includes("three_person_approval_required")
+      ) {
+        throw new Error("FOUR_EYES_REQUIRED");
+      }
+      throw new Error("TRANSFER_ACTION_FAILED");
+    }
+    return { ok: true };
+  });
+
+export const listAdminAuditEvents = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator(searchInput)
+  .handler(async ({ data, context }): Promise<AdminAuditEventPageDto> => {
+    const service = await import("@/features/admin/services/admin.server");
+    return service.loadAdminAuditEvents(context.supabase, data.search, data.cursor ?? null);
+  });
 
 export const getAdminCustomerDossier = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])

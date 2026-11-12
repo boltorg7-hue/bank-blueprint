@@ -49,6 +49,91 @@ type TransferCreationDatabase = Omit<Database, "public"> & {
 
 export class TransferError extends Error {}
 
+const MAX_TRANSFER_DOCUMENT_BYTES = 15 * 1024 * 1024;
+
+function detectTransferDocumentMimeType(bytes: Uint8Array): string | null {
+  const ascii = (start: number, end: number) => String.fromCharCode(...bytes.subarray(start, end));
+  if (ascii(0, 5) === "%PDF-") return "application/pdf";
+  if (bytes.length >= 3 && bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff)
+    return "image/jpeg";
+  if (
+    bytes.length >= 8 &&
+    bytes[0] === 0x89 &&
+    ascii(1, 4) === "PNG" &&
+    bytes[4] === 0x0d &&
+    bytes[5] === 0x0a &&
+    bytes[6] === 0x1a &&
+    bytes[7] === 0x0a
+  )
+    return "image/png";
+  if (bytes.length >= 12 && ascii(0, 4) === "RIFF" && ascii(8, 12) === "WEBP") return "image/webp";
+  if (
+    bytes.length >= 12 &&
+    ascii(4, 8) === "ftyp" &&
+    ["heic", "heix", "hevc", "hevx", "mif1", "msf1"].includes(ascii(8, 12))
+  )
+    return "image/heic";
+  return null;
+}
+
+async function validateTransferDocumentUpload(
+  admin: Client,
+  userId: string,
+  input: {
+    reference: string;
+    requirementId: string;
+    storagePath: string;
+    mimeType: string | null;
+    sizeBytes: number | null;
+  },
+) {
+  const prefix = userId + "/" + input.reference + "/" + input.requirementId + "-";
+  const segments = input.storagePath.split("/");
+  const filename = segments[2] ?? "";
+  const filenamePattern = new RegExp(
+    "^" + input.requirementId + "-[0-9]{13}\\.(jpg|png|heic|pdf)$",
+    "i",
+  );
+  if (
+    segments.length !== 3 ||
+    !input.storagePath.startsWith(prefix) ||
+    !filenamePattern.test(filename)
+  ) {
+    throw new TransferError("INVALID_DOCUMENT_PATH");
+  }
+
+  const { data: file, error } = await admin.storage
+    .from("transfer-documents")
+    .download(input.storagePath);
+  if (error || !file) throw new TransferError("DOCUMENT_OBJECT_NOT_FOUND");
+
+  const bytes = new Uint8Array(await file.arrayBuffer());
+  const actualMimeType = detectTransferDocumentMimeType(bytes);
+  const allowedMimeTypes = ["image/jpeg", "image/png", "image/heic", "application/pdf"];
+  if (
+    !actualMimeType ||
+    !allowedMimeTypes.includes(actualMimeType) ||
+    actualMimeType !== input.mimeType ||
+    input.sizeBytes !== bytes.byteLength ||
+    bytes.byteLength < 1 ||
+    bytes.byteLength > MAX_TRANSFER_DOCUMENT_BYTES
+  ) {
+    await admin.storage.from("transfer-documents").remove([input.storagePath]);
+    throw new TransferError("INVALID_DOCUMENT_CONTENT");
+  }
+
+  const extensionByMime: Record<string, string[]> = {
+    "image/jpeg": ["jpg"],
+    "image/png": ["png"],
+    "image/heic": ["heic"],
+    "application/pdf": ["pdf"],
+  };
+  const extension = filename.split(".").pop()?.toLowerCase() ?? "";
+  if (!extensionByMime[actualMimeType]?.includes(extension)) {
+    await admin.storage.from("transfer-documents").remove([input.storagePath]);
+    throw new TransferError("DOCUMENT_EXTENSION_MISMATCH");
+  }
+}
 const KNOWN_CODES: readonly TransferFailureCode[] = [
   "INSUFFICIENT_FUNDS",
   "LIMIT_EXCEEDED",
@@ -481,6 +566,7 @@ export async function registerTransferDocument(
   },
 ): Promise<TransferDetailDto> {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  await validateTransferDocumentUpload(supabaseAdmin, userId, input);
   const { error } = await supabaseAdmin.rpc("submit_transfer_document", {
     _user_id: userId,
     _reference: input.reference,
@@ -490,7 +576,10 @@ export async function registerTransferDocument(
     _mime_type: input.mimeType,
     _size_bytes: input.sizeBytes,
   } as never);
-  if (error) throw toDomainError(error);
+  if (error) {
+    await supabaseAdmin.storage.from("transfer-documents").remove([input.storagePath]);
+    throw toDomainError(error);
+  }
 
   const detail = await getTransferDetail(client, userId, input.reference);
   if (!detail) throw new TransferError("TRANSFER_UNAVAILABLE");

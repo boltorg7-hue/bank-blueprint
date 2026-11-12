@@ -24,25 +24,49 @@ assert.match(profileRoute, /name="phone"/);
 assert.match(profileRoute, /defaultValue=\{profile\.phone \?\? ""\}/);
 assert.doesNotMatch(profileRoute, /\+1 868/);
 assert.doesNotMatch(profileRoute, /Trinidad and Tobago/);
-assert.match(onboardingServer, /phone: data\.phone/);
-assert.match(onboardingServer, /onboarding_step: data\.phone \? "CONTACT" : "ADDRESS"/);
+assert.match(onboardingServer, /customer_change_pending_phone/);
+assert.doesNotMatch(onboardingServer, /\bphone:\s*data\.phone/);
+assert.match(onboardingServer, /const onboardingStep = phoneUnchanged/);
 assert.match(contactServer, /profile\.phone/);
-assert.match(profileRoute, /navigate\(\{ to: "\/verify-contact" \}\)/);
+assert.match(profileRoute, /navigate\(\{ to: "\/onboarding", replace: true \}\)/);
 assert.match(verifyRoute, /Verification channel/);
 assert.match(verifyRoute, /Canal de vérification/);
-assert.match(verifyRoute, /SMS is currently the available channel/);
-assert.match(verifyRoute, /seul canal disponible/);
+assert.match(verifyRoute, /SMS is available for your international phone number/);
+assert.match(verifyRoute, /Le SMS est disponible pour votre numéro international/);
 assert.match(verifyRoute, /Send code by SMS/);
 assert.match(verifyRoute, /Recevoir le code par SMS/);
+assert.match(contactServer, /encryptOtpPayload/);
+assert.match(contactServer, /_payload: encryptedPayload/);
 
 for (const country of [
-  "Algeria", "Angola", "Benin", "Cameroon", "Chad", "Côte d'Ivoire",
-  "Democratic Republic of the Congo", "Egypt", "Gabon", "Ghana", "Kenya",
-  "Mali", "Morocco", "Mozambique", "Nigeria", "Rwanda", "Senegal",
-  "South Africa", "Tanzania", "Tunisia", "Uganda", "Zambia", "Zimbabwe",
+  "Algeria",
+  "Angola",
+  "Benin",
+  "Cameroon",
+  "Chad",
+  "Côte d'Ivoire",
+  "Democratic Republic of the Congo",
+  "Egypt",
+  "Gabon",
+  "Ghana",
+  "Kenya",
+  "Mali",
+  "Morocco",
+  "Mozambique",
+  "Nigeria",
+  "Rwanda",
+  "Senegal",
+  "South Africa",
+  "Tanzania",
+  "Tunisia",
+  "Uganda",
+  "Zambia",
+  "Zimbabwe",
 ]) {
-  assert.ok(choices.includes(\`value: "\${country}"\`));
+  assert.ok(choices.includes('value: "' + country + '"'));
 }
 
 console.log("STEP 09 INTERNATIONAL PHONE + OTP FLOW STATIC CERTIFICATION: PASS");
-console.log("Covered: single-source phone collection, international E.164-compatible validation and normalization, no country-specific phone default, explicit SMS channel, server persistence, OTP linkage, and African country coverage.");
+console.log(
+  "Covered: single-source phone collection, international E.164-compatible validation and normalization, no country-specific phone default, explicit SMS channel, server persistence, OTP linkage, and African country coverage.",
+);

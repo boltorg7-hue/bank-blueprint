@@ -32,11 +32,7 @@ export const profileStepSchema = z.object({
       const date = new Date(value);
       if (Number.isNaN(date.getTime())) return false;
       const now = new Date();
-      const eighteen = new Date(
-        now.getFullYear() - MIN_AGE,
-        now.getMonth(),
-        now.getDate(),
-      );
+      const eighteen = new Date(now.getFullYear() - MIN_AGE, now.getMonth(), now.getDate());
       return date <= eighteen && date > new Date("1900-01-01");
     }, `Vous devez avoir au moins ${MIN_AGE} ans pour ouvrir un compte.`),
   nationality: z.string().trim().min(2, "Indiquez votre nationalité.").max(60),
@@ -80,10 +76,23 @@ export const ALLOWED_DOCUMENT_MIME_TYPES = [
 
 export const MAX_DOCUMENT_BYTES = 10 * 1024 * 1024;
 
+function containsControlCharacter(value: string): boolean {
+  for (const character of value) {
+    const code = character.charCodeAt(0);
+    if (code < 32 || code === 127) return true;
+  }
+  return false;
+}
+
 export const documentUploadSchema = z.object({
   documentType: z.enum(DOCUMENT_TYPES),
-  storagePath: z.string().min(1),
-  originalFilename: z.string().max(255),
+  storagePath: z.string().min(1).max(256),
+  originalFilename: z
+    .string()
+    .trim()
+    .min(1)
+    .max(255)
+    .refine((value) => !containsControlCharacter(value), "Nom de fichier invalide."),
   mimeType: z.enum(ALLOWED_DOCUMENT_MIME_TYPES),
   sizeBytes: z.number().int().positive().max(MAX_DOCUMENT_BYTES),
 });
