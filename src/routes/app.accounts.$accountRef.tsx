@@ -39,28 +39,30 @@ function AccountDetailsPage() {
   const query = useAccountDetails(accountRef);
   const account = query.data ?? null;
   const activityQuery = useAccountActivity(account?.reference ?? null, 5);
-  const restriction = account ? accountRestrictionMessage(account.status) : null;
+  const restriction = account
+    ? accountRestrictionMessage(account.status, en ? "en" : "fr")
+    : null;
 
   return (
     <BankingContentContainer width="wide">
       <PageHeader
         title={account?.displayName ?? (en ? "Account" : "Compte")}
-        description={account ? (en ? "Bank account" : accountTypeLabel(account.accountType)) : undefined}
+        description={account ? (en ? account.accountType === "CURRENT" ? "Current account" : "Savings account" : accountTypeLabel(account.accountType)) : undefined}
         backTo="/app/accounts"
       />
 
       <PageSection>
-      {query.isError ? (
+        {query.isError ? (
         <ErrorState
-          title={en ? "This account could not be loaded" : "Ce compte n'a pas pu être chargé"}
+          title={en ? "Your account information is being refreshed" : "Actualisation de vos informations de compte en cours"}
           onRetry={() => query.refetch()}
         />
       ) : query.isPending ? (
         <LoadingState label={en ? "Loading account…" : "Chargement du compte…"} />
       ) : !account ? (
         <EmptyState
-          title={en ? "Account not found" : "Compte introuvable"}
-          description={en ? "This account does not exist or is not linked to your profile." : "Ce compte n'existe pas ou n'est pas rattaché à votre profil."}
+          title={en ? "This account is not linked to your banking space" : "Ce compte n'est pas rattaché à votre espace bancaire"}
+          description={en ? "Check the account reference or return to your account list." : "Vérifiez la référence du compte ou revenez à la liste de vos comptes."}
         />
       ) : (
         <div className="space-y-8">
@@ -91,7 +93,7 @@ function AccountDetailsPage() {
             </h2>
             {activityQuery.isError ? (
               <ErrorState
-                title={en ? "Recent activity could not be loaded" : "L’activité récente n’a pas pu être chargée"}
+                title={en ? "Your recent activity is being refreshed" : "Actualisation de votre activité récente en cours"}
                 onRetry={() => activityQuery.refetch()}
               />
             ) : activityQuery.isPending ? (
@@ -120,7 +122,7 @@ function AccountDetailsPage() {
             )}
           </dl>
         </div>
-      )}
+        )}
       </PageSection>
     </BankingContentContainer>
   );
