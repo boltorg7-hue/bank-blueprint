@@ -21,10 +21,14 @@ export function TransactionHistory({
   accountReference = null,
   pageSize = 25,
   showFilters = true,
+  emptyTitle,
+  emptyDescription,
 }: {
   accountReference?: string | null;
   pageSize?: number;
   showFilters?: boolean;
+  emptyTitle?: string;
+  emptyDescription?: string;
 }) {
   const [filters, setFilters] = useState<Filters>({ ...EMPTY_FILTERS });
   const { language } = useLanguage();
@@ -57,6 +61,11 @@ export function TransactionHistory({
   }
 
   const items = data?.items ?? [];
+  const resolvedEmptyTitle =
+    emptyTitle ?? (en ? "No transactions to show" : "Aucune opération à afficher");
+  const resolvedEmptyDescription =
+    emptyDescription ??
+    (en ? "No transactions match your filters." : "Aucune opération ne correspond à votre recherche pour le moment.");
 
   const goNext = () => {
     if (!data?.nextCursor) return;
@@ -83,16 +92,16 @@ export function TransactionHistory({
           <div className="lg:hidden">
             <TransactionList
               items={items}
-              emptyTitle={en ? "No transactions to show" : "Aucune opération à afficher"}
-              emptyDescription={en ? "No transactions match your filters." : "Aucune opération ne correspond à votre recherche pour le moment."}
+              emptyTitle={resolvedEmptyTitle}
+              emptyDescription={resolvedEmptyDescription}
             />
           </div>
           <div className="hidden lg:block">
             {items.length === 0 ? (
               <TransactionList
                 items={items}
-                emptyTitle={en ? "No transactions to show" : "Aucune opération à afficher"}
-                emptyDescription={en ? "No transactions match your filters." : "Aucune opération ne correspond à votre recherche pour le moment."}
+                emptyTitle={resolvedEmptyTitle}
+                emptyDescription={resolvedEmptyDescription}
               />
             ) : (
               <TransactionTable items={items} />
