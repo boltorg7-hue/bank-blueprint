@@ -1,7 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
-
-import { BankingContentContainer } from "@/components/layout/BankingAppLayout";
-import { ProfilePage } from "@/features/profile/components/ProfilePage";
+import { createFileRoute, Outlet } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/app/profile")({
   head: () => ({
@@ -11,9 +8,5 @@ export const Route = createFileRoute("/app/profile")({
       { name: "description", content: "Vos informations personnelles et vos coordonnées." },
     ],
   }),
-  component: AppProfileRoute,
+  component: () => <Outlet />,
 });
-
-function AppProfileRoute() {
-  return <BankingContentContainer width="wide"><ProfilePage /></BankingContentContainer>;
-}

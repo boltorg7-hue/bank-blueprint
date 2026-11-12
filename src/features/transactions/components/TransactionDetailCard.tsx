@@ -3,7 +3,6 @@ import { useLanguage } from "@/components/providers/LanguageProvider";
 
 import { OperationReceiptButton } from "@/features/documents/components/OperationReceiptButton";
 
-
 import { AmountText } from "@/components/data-display";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { formatDateTime } from "@/lib/format/date";
@@ -48,6 +47,7 @@ export function TransactionDetailCard({ transaction }: { transaction: Transactio
               transaction.currency,
               transaction.minorUnit,
               transaction.direction,
+              en ? "en" : "fr",
             )}
           >
             <AmountText
@@ -70,20 +70,46 @@ export function TransactionDetailCard({ transaction }: { transaction: Transactio
         </div>
         <div className="mt-3 flex justify-center">
           <StatusBadge
-            label={transactionStatusLabel(transaction.status)}
+            label={transactionStatusLabel(transaction.status, en ? "en" : "fr")}
             tone={transactionStatusTone(transaction.status)}
           />
         </div>
       </section>
 
-      <section aria-label={en ? "Transaction details" : "Détail de l'opération"} className="rounded-xl border border-border bg-surface p-5">
+      <section
+        aria-label={en ? "Transaction details" : "Détail de l'opération"}
+        className="rounded-xl border border-border bg-surface p-5"
+      >
         <dl className="divide-y divide-border">
-          <DetailRow label={en ? "Reference" : "Référence"} value={<span className="text-numeric">{transaction.reference}</span>} />
-          <DetailRow label="Type" value={transactionTypeLabel(transaction.type, transaction.direction, en ? "en" : "fr")} />
-          <DetailRow label={en ? "Direction" : "Sens"} value={en ? (transaction.direction === "INCOMING" ? "Incoming" : transaction.direction === "OUTGOING" ? "Outgoing" : "Neutral") : directionLabel(transaction.direction, en ? "en" : "fr")} />
-          <DetailRow label={en ? "Transaction date" : "Date de l'opération"} value={formatDateTime(transaction.occurredAt)} />
+          <DetailRow
+            label={en ? "Reference" : "Référence"}
+            value={<span className="text-numeric">{transaction.reference}</span>}
+          />
+          <DetailRow
+            label="Type"
+            value={transactionTypeLabel(transaction.type, transaction.direction, en ? "en" : "fr")}
+          />
+          <DetailRow
+            label={en ? "Direction" : "Sens"}
+            value={
+              en
+                ? transaction.direction === "INCOMING"
+                  ? "Incoming"
+                  : transaction.direction === "OUTGOING"
+                    ? "Outgoing"
+                    : "Neutral"
+                : directionLabel(transaction.direction, en ? "en" : "fr")
+            }
+          />
+          <DetailRow
+            label={en ? "Transaction date" : "Date de l'opération"}
+            value={formatDateTime(transaction.occurredAt)}
+          />
           {transaction.completedAt ? (
-            <DetailRow label={en ? "Value date" : "Date de valeur"} value={formatDateTime(transaction.completedAt)} />
+            <DetailRow
+              label={en ? "Value date" : "Date de valeur"}
+              value={formatDateTime(transaction.completedAt)}
+            />
           ) : null}
           <DetailRow
             label={en ? "Account" : "Compte concerné"}
@@ -98,10 +124,16 @@ export function TransactionDetailCard({ transaction }: { transaction: Transactio
             }
           />
           {transaction.counterpartyDisplay ? (
-            <DetailRow label={en ? "Counterparty" : "Contrepartie"} value={transaction.counterpartyDisplay} />
+            <DetailRow
+              label={en ? "Counterparty" : "Contrepartie"}
+              value={transaction.counterpartyDisplay}
+            />
           ) : null}
           {transaction.displayDescription ? (
-            <DetailRow label={en ? "Description" : "Libellé"} value={transaction.displayDescription} />
+            <DetailRow
+              label={en ? "Description" : "Libellé"}
+              value={transaction.displayDescription}
+            />
           ) : null}
           {transaction.reversedByReference ? (
             <DetailRow
@@ -124,9 +156,13 @@ export function TransactionDetailCard({ transaction }: { transaction: Transactio
         aria-label={en ? "Transaction receipt" : "Reçu de l'opération"}
         className="rounded-xl border border-border bg-surface p-5"
       >
-        <h2 className="text-sm font-semibold text-foreground">{en ? "Official receipt" : "Reçu officiel"}</h2>
+        <h2 className="text-sm font-semibold text-foreground">
+          {en ? "Official receipt" : "Reçu officiel"}
+        </h2>
         <p className="text-caption mt-1 mb-3 text-muted-foreground">
-          {en ? "The bank issues this receipt from the transaction record." : "Le reçu est édité par la banque à partir de la comptabilité de l'opération."}
+          {en
+            ? "The bank issues this receipt from the transaction record."
+            : "Le reçu est édité par la banque à partir de la comptabilité de l'opération."}
         </p>
         <OperationReceiptButton
           documentType="TRANSACTION_RECEIPT"

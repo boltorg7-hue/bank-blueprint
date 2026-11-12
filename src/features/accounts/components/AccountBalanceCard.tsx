@@ -65,28 +65,52 @@ export function AccountBalanceCard({
     >
       <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
         <div className="min-w-0">
-          <h2 id="balance-card-heading" className="text-heading-md truncate text-foreground sm:text-heading-lg">
+          <h2
+            id="balance-card-heading"
+            className="text-heading-md truncate text-foreground sm:text-heading-lg"
+          >
             {account.displayName}
           </h2>
           <p className="text-caption text-numeric mt-0.5 text-muted-foreground sm:text-body-sm">
-            {accountTypeLabel(account.accountType)} · ••••{account.maskedNumber.slice(-4)} ·{" "}
-            {account.currency}
+            {en
+              ? account.accountType === "CURRENT"
+                ? "Current account"
+                : "Savings account"
+              : accountTypeLabel(account.accountType)}
+            {" · "}
+            ••••{account.maskedNumber.slice(-4)} · {account.currency}
           </p>
         </div>
         <StatusBadge
-          label={accountStatusLabel(account.status)}
+          label={
+            en
+              ? {
+                  PENDING: "In preparation",
+                  ACTIVE: "Active",
+                  RESTRICTED: "Limited",
+                  SUSPENDED: "Suspended",
+                  FROZEN: "Blocked",
+                  CLOSING: "Closing",
+                  CLOSED: "Closed",
+                }[account.status]
+              : accountStatusLabel(account.status)
+          }
           tone={accountStatusTone(account.status)}
         />
       </div>
 
       <div className="mt-6 sm:mt-8">
-        <p className="text-overline text-muted-foreground">{en ? "Available balance" : "Solde disponible"}</p>
+        <p className="text-overline text-muted-foreground">
+          {en ? "Available balance" : "Solde disponible"}
+        </p>
         {balance ? (
           <p
             className="text-balance-value mt-1.5 text-foreground"
             aria-label={
               hidden
-                ? en ? "Balance hidden" : "Solde masqué"
+                ? en
+                  ? "Balance hidden"
+                  : "Solde masqué"
                 : `${en ? "Available balance" : "Solde disponible"} : ${formatAccountAmount(
                     balance.availableBalanceMinor,
                     account.currency,
@@ -98,11 +122,13 @@ export function AccountBalanceCard({
           </p>
         ) : (
           <div className="mt-1">
-            <p className="text-heading-sm text-muted-foreground">{en ? "Balance unavailable" : "Solde indisponible"}</p>
+            <p className="text-heading-sm text-muted-foreground">
+              {en ? "Balance details are being updated" : "Mise à jour des informations de solde"}
+            </p>
             <p className="text-caption mt-1 text-muted-foreground">
               {en
-                ? "We couldn't retrieve your balance. No approximate amount is shown."
-                : "Nous n'avons pas pu récupérer votre solde. Aucun montant approximatif n'est affiché."}
+                ? "Your balance will appear as soon as the latest account data is available. No estimated amount is displayed."
+                : "Votre solde sera affiché dès que les dernières données du compte seront disponibles. Aucun montant estimé n'est affiché."}
             </p>
             {onRetry && (
               <Button variant="outline" size="sm" className="mt-3" onClick={onRetry}>
@@ -117,13 +143,17 @@ export function AccountBalanceCard({
         <>
           <dl className="mt-6 grid gap-3 sm:mt-8 sm:grid-cols-2 sm:gap-4">
             <div className="rounded-md bg-surface-sunken p-3.5 transition-colors hover:bg-muted/50 motion-safe:duration-200 sm:p-4">
-              <dt className="text-caption text-muted-foreground sm:text-body-sm">{en ? "Ledger balance" : "Solde comptable"}</dt>
+              <dt className="text-caption text-muted-foreground sm:text-body-sm">
+                {en ? "Ledger balance" : "Solde comptable"}
+              </dt>
               <dd className="text-amount mt-1 text-foreground sm:text-heading-md">
                 {renderAmount(balance.ledgerBalanceMinor)}
               </dd>
             </div>
             <div className="rounded-md bg-surface-sunken p-3.5 transition-colors hover:bg-muted/50 sm:p-4">
-              <dt className="text-caption text-muted-foreground sm:text-body-sm">{en ? "Held amounts" : "Montants réservés"}</dt>
+              <dt className="text-caption text-muted-foreground sm:text-body-sm">
+                {en ? "Held amounts" : "Montants réservés"}
+              </dt>
               <dd className="text-amount mt-1 text-foreground sm:text-heading-md">
                 {renderAmount(balance.heldBalanceMinor)}
               </dd>
@@ -138,7 +168,9 @@ export function AccountBalanceCard({
                 : "Le solde disponible tient compte des montants réservés. Dernière mise à jour : "}
               {formatDateTime(balance.calculatedAt)}.
               {isRefreshing && (en ? " Refreshing…" : " Actualisation en cours…")}
-              {isStale && !isRefreshing && (en ? " This value may have changed." : " Cette valeur peut avoir changé.")}
+              {isStale &&
+                !isRefreshing &&
+                (en ? " This value may have changed." : " Cette valeur peut avoir changé.")}
             </span>
           </p>
         </>

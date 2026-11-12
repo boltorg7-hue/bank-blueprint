@@ -18,50 +18,49 @@ import {
 export const SECURITY_INTRO = {
   title: "La sécurité de votre compte",
   description:
-    "RFC protège l'accès à votre compte, vos opérations et vos documents. Voici ce que nous mettons en place et ce que vous pouvez contrôler.",
+    "Votre espace sécurité vous permet de mettre à jour votre mot de passe, de consulter les sessions enregistrées et de suivre les événements de sécurité.",
 } as const;
 
 export const SECURITY_PROTECTIONS: { title: string; description: string; icon: LucideIcon }[] = [
   {
-    title: "Authentification",
-    description:
-      "L'accès à votre espace nécessite vos identifiants personnels. Les tentatives échouées répétées entraînent des protections supplémentaires.",
+    title: "Accès personnel",
+    description: "L'accès à votre espace est personnel et s'effectue avec vos identifiants.",
     icon: KeyRound,
   },
   {
-    title: "Vérification en deux étapes",
+    title: "Vérification des coordonnées",
     description:
-      "Une seconde vérification peut être demandée à la connexion et avant les opérations sensibles.",
+      "Les étapes de vérification de votre adresse e-mail et de votre numéro de téléphone contribuent à sécuriser la création et le suivi de votre compte.",
     icon: ShieldCheck,
   },
   {
-    title: "Appareils et sessions",
+    title: "Sessions et appareils",
     description:
-      "Vous consultez les sessions actives sur votre compte et pouvez fermer celles que vous ne reconnaissez pas.",
+      "Votre espace sécurité présente les sessions enregistrées par l'application et vous permet de fermer les autres sessions.",
     icon: MonitorSmartphone,
   },
   {
-    title: "Confirmation des opérations sensibles",
+    title: "Gestion du mot de passe",
     description:
-      "Un virement ou une modification importante demande une confirmation explicite de votre part.",
+      "Vous pouvez modifier votre mot de passe après vérification de votre mot de passe actuel.",
     icon: UserCheck,
   },
   {
-    title: "Documents sécurisés",
+    title: "Documents du dossier",
     description:
-      "Les documents que vous transmettez sont conservés dans votre espace et accessibles uniquement aux traitements autorisés.",
+      "Les documents transmis accompagnent les étapes de vérification et le suivi de votre dossier.",
     icon: FileCheck2,
   },
   {
-    title: "Confidentialité des données",
+    title: "Confidentialité des informations",
     description:
-      "Vos données ne sont utilisées que pour la gestion de votre relation bancaire et les obligations qui s'y rattachent.",
+      "Les informations de votre dossier sont utilisées pour gérer votre relation avec RFC et assurer les vérifications liées aux services.",
     icon: Lock,
   },
   {
-    title: "Alertes d'activité",
+    title: "Historique de sécurité",
     description:
-      "Les événements importants — connexion, opération, changement de sécurité — vous sont signalés.",
+      "Les changements de mot de passe et les événements de sécurité enregistrés sont consultables dans votre espace.",
     icon: BellRing,
   },
 ];
@@ -71,7 +70,7 @@ export const CUSTOMER_RESPONSIBILITIES: string[] = [
   "Ne communiquez jamais votre mot de passe, votre code PIN ni un code de vérification.",
   "Vérifiez l'adresse du site avant de saisir vos identifiants.",
   "Maintenez votre téléphone et votre navigateur à jour.",
-  "Fermez les sessions ouvertes sur un appareil que vous n'utilisez plus.",
+  "Depuis votre espace sécurité, fermez les autres sessions si vous ne reconnaissez pas un appareil.",
 ];
 
 export const SUSPICIOUS_ACTIVITY_STEPS: string[] = [
@@ -80,3 +79,48 @@ export const SUSPICIOUS_ACTIVITY_STEPS: string[] = [
   "Signalez l'incident via la messagerie sécurisée de votre espace client.",
   "Si vous n'avez plus accès à votre compte, utilisez le formulaire de contact public.",
 ];
+
+export const SECURITY_CONTENT_EN = {
+  intro: {
+    title: "Your account security",
+    description:
+      "Your security area lets you update your password, review sessions recorded by the application and follow security events.",
+  },
+  protections: [
+    ["Personal access", "Access to your account is personal and uses your sign-in credentials."],
+    [
+      "Contact verification",
+      "Verification steps for your email address and phone number help secure account registration and follow-up.",
+    ],
+    [
+      "Sessions and devices",
+      "Your security area shows sessions recorded by the application and lets you close other sessions.",
+    ],
+    ["Password management", "You can change your password after verifying your current password."],
+    [
+      "Account documents",
+      "Submitted documents support the verification steps and the follow-up of your customer file.",
+    ],
+    [
+      "Information privacy",
+      "Your account information is used to manage your relationship with RFC and carry out service-related checks.",
+    ],
+    [
+      "Security history",
+      "Password changes and recorded security events can be reviewed in your account.",
+    ],
+  ],
+  responsibilities: [
+    "Choose a unique password used only for RFC.",
+    "Never share your password, PIN or verification code.",
+    "Check the website address before entering your credentials.",
+    "Keep your phone and browser up to date.",
+    "Use your security area to close other sessions if you do not recognize a device.",
+  ],
+  steps: [
+    "Change your password immediately from your customer account.",
+    "Close any active sessions you do not recognize.",
+    "Report the incident through your secure customer messaging.",
+    "If you can no longer access your account, use the public contact form.",
+  ],
+} as const;

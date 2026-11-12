@@ -87,9 +87,19 @@ function decodeNotificationCursor(v?: string | null): NotificationCursor | null 
   if (!v) return null;
   try {
     const p = JSON.parse(Buffer.from(v, "base64url").toString("utf8"));
-    return typeof p?.createdAt === "string" && typeof p?.id === "string"
-      ? { createdAt: p.createdAt, id: p.id }
-      : null;
+    const timestampPattern =
+      /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,6})?(?:Z|[+-]\d{2}:\d{2})$/;
+    const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (
+      typeof p?.createdAt !== "string" ||
+      !timestampPattern.test(p.createdAt) ||
+      !Number.isFinite(Date.parse(p.createdAt)) ||
+      typeof p?.id !== "string" ||
+      !uuidPattern.test(p.id)
+    ) {
+      return null;
+    }
+    return { createdAt: p.createdAt, id: p.id };
   } catch {
     return null;
   }

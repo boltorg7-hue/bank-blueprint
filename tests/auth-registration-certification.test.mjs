@@ -175,3 +175,27 @@ test("post-login resumes the first incomplete server-backed onboarding step", ()
   assert.ok(routing.includes('lifecycleRoute = "/verify-email"'));
   assert.ok(routing.includes('["ACTIVE", "RESTRICTED", "SUSPENDED", "CLOSED"]'));
 });
+
+test("email confirmation page resumes the saved profile step and never sends an active session to sign-in on context errors", () => {
+  const page = read("src/routes/email-verified.tsx");
+  const tasks = read("src/features/onboarding/lib/tasks.ts");
+  assert.ok(page.includes("useCustomerContext({ enabled: hasSession === true })"));
+  assert.ok(page.includes("query.isError && hasSession"));
+  assert.ok(page.includes("query.refetch()"));
+  assert.ok(page.includes("[context.profile.first_name, context.profile.last_name]"));
+  assert.ok(page.includes("<Link to={next}>"));
+  assert.ok(page.includes("nextOnboardingRoute(context)"));
+  assert.ok(tasks.includes('if (!isProfileComplete(context)) return "/onboarding/profile"'));
+  assert.ok(page.includes('<Link to="/login">'));
+});
+
+test("initial signup confirmation link is intentionally accepted without a resend nonce", () => {
+  const registration = read("src/features/auth/services/registration.server.ts");
+  const confirmation = read("src/features/auth/services/email-confirmation.server.ts");
+  const callback = read("src/routes/auth.callback.tsx");
+  assert.ok(registration.includes("return `${url.origin}/auth/callback?next=verified`"));
+  assert.ok(
+    confirmation.includes("if (!data) return true; // original sign-up link, never superseded"),
+  );
+  assert.ok(callback.includes("checkConfirmationLink({ data: { nonce: v } })"));
+});

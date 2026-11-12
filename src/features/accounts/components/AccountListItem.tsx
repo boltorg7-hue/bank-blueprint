@@ -1,5 +1,6 @@
 import { ChevronRight } from "lucide-react";
 import { Link } from "@tanstack/react-router";
+import { useLanguage } from "@/components/providers/LanguageProvider";
 
 import { StatusBadge } from "@/components/ui/status-badge";
 import { usePrivacyMode } from "@/components/providers/PrivacyModeProvider";
@@ -18,7 +19,24 @@ import {
  */
 export function AccountListItem({ account }: { account: CustomerAccountSummaryDto }) {
   const { privacyMode } = usePrivacyMode();
+  const en = useLanguage().language === "en";
   const balance = account.balance;
+  const statusLabel = en
+    ? {
+        PENDING: "In preparation",
+        ACTIVE: "Active",
+        RESTRICTED: "Limited",
+        SUSPENDED: "Suspended",
+        FROZEN: "Blocked",
+        CLOSING: "Closing",
+        CLOSED: "Closed",
+      }[account.status]
+    : accountStatusLabel(account.status);
+  const typeLabel = en
+    ? account.accountType === "CURRENT"
+      ? "Current account"
+      : "Savings account"
+    : accountTypeLabel(account.accountType);
 
   return (
     <li>
@@ -32,12 +50,12 @@ export function AccountListItem({ account }: { account: CustomerAccountSummaryDt
             <p className="text-heading-sm truncate text-foreground">{account.displayName}</p>
             {account.isPrimary && (
               <span className="text-caption rounded-full bg-surface-sunken px-2 py-0.5 text-muted-foreground">
-                Principal
+                {en ? "Primary" : "Principal"}
               </span>
             )}
           </div>
           <p className="text-caption text-numeric mt-0.5 text-muted-foreground">
-            {accountTypeLabel(account.accountType)} · ••••{account.maskedNumber.slice(-4)}
+            {typeLabel} · ••••{account.maskedNumber.slice(-4)}
           </p>
           <div className="mt-2">
             {balance ? (
@@ -51,15 +69,16 @@ export function AccountListItem({ account }: { account: CustomerAccountSummaryDt
                     )}
               </p>
             ) : (
-              <p className="text-body text-muted-foreground">Solde indisponible</p>
+              <p className="text-body text-muted-foreground">
+                {en
+                  ? "Balance details will appear when available."
+                  : "Les informations de solde seront affichées dès leur disponibilité."}
+              </p>
             )}
           </div>
         </div>
         <div className="flex shrink-0 flex-col items-end gap-2">
-          <StatusBadge
-            label={accountStatusLabel(account.status)}
-            tone={accountStatusTone(account.status)}
-          />
+          <StatusBadge label={statusLabel} tone={accountStatusTone(account.status)} />
           <ChevronRight className="size-4 text-muted-foreground" aria-hidden="true" />
         </div>
       </Link>

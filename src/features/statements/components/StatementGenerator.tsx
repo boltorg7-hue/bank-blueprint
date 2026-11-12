@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
-import { FileDown } from "lucide-react";
+import { FileDown, Landmark } from "lucide-react";
+import { useLanguage } from "@/components/providers/LanguageProvider";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -31,20 +32,20 @@ import {
  * Last 12 months, as UTC boundaries (period_end exclusive).
  * The running month is cut at the current instant (interim statement).
  */
-function monthlyOptions(count = 12) {
+function monthlyOptions(locale: string, count = 12) {
   const now = new Date();
   return Array.from({ length: count }, (_, index) => {
     const start = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - index, 1));
     const monthEnd = new Date(Date.UTC(start.getUTCFullYear(), start.getUTCMonth() + 1, 1));
     const isRunning = monthEnd.getTime() > now.getTime();
-    const label = new Intl.DateTimeFormat("fr-FR", {
+    const label = new Intl.DateTimeFormat(locale, {
       month: "long",
       year: "numeric",
       timeZone: "UTC",
     }).format(start);
     return {
       value: start.toISOString().slice(0, 10),
-      label: isRunning ? `${label} (en cours)` : label,
+      label: isRunning ? `${label} (${locale === "en-GB" ? "in progress" : "en cours"})` : label,
       start: start.toISOString(),
       end: (isRunning ? now : monthEnd).toISOString(),
     };
@@ -52,9 +53,11 @@ function monthlyOptions(count = 12) {
 }
 
 export function StatementGenerator() {
+  const { language } = useLanguage();
+  const en = language === "en";
   const accounts = useCustomerAccounts();
   const request = useRequestStatement();
-  const months = useMemo(() => monthlyOptions(), []);
+  const months = useMemo(() => monthlyOptions(en ? "en-GB" : "fr-FR"), [en]);
 
   const [accountReference, setAccountReference] = useState("");
   const [periodKind, setPeriodKind] = useState<StatementPeriodKind>("MONTHLY");
@@ -85,11 +88,17 @@ export function StatementGenerator() {
         : new Date(new Date(`${customEnd}T00:00:00.000Z`).getTime() + 86_400_000).toISOString();
 
     if (!periodStart || !periodEnd) {
-      toast.error("La période sélectionnée n'est pas valide.");
+      toast.error(
+        en ? "The selected period is not valid." : "La période sélectionnée n'est pas valide.",
+      );
       return;
     }
     if (new Date(periodEnd) <= new Date(periodStart)) {
-      toast.error("La date de fin doit être postérieure à la date de début.");
+      toast.error(
+        en
+          ? "The end date must be after the start date."
+          : "La date de fin doit être postérieure à la date de début.",
+      );
       return;
     }
 
@@ -97,10 +106,14 @@ export function StatementGenerator() {
       { accountReference: effectiveAccount, periodStart, periodEnd, periodKind },
       {
         onSuccess: (statement) => {
-          if (statement.status === "READY") toast.success("Relevé officiel disponible");
+          if (statement.status === "READY")
+            toast.success(en ? "Official statement available" : "Relevé officiel disponible");
           else if (statement.status === "FAILED")
             toast.error(statementErrorMessage(statement.failureCode));
-          else toast.info("Relevé en préparation.");
+          else
+            toast.info(
+              en ? "Your statement is being prepared." : "Votre relevé est en préparation.",
+            );
         },
         onError: (error) => toast.error(statementErrorMessage(error.message)),
       },
@@ -108,25 +121,33 @@ export function StatementGenerator() {
   };
 
   return (
-    <Card className="space-y-4 p-4 sm:p-5">
-      <div>
-        <h2 className="text-sm font-semibold text-foreground">Éditer un relevé</h2>
-        <p className="text-caption text-muted-foreground">
-          Les relevés sont figés à l'émission : les montants reflètent la comptabilité de la période
-          demandée.
-        </p>
+    <Card className="overflow-hidden border-primary/15 bg-gradient-to-br from-primary/[0.08] via-card to-card p-4 sm:p-6">
+      <div className="flex items-start gap-3">
+        <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+          <Landmark aria-hidden className="size-5" />
+        </span>
+        <div className="space-y-1">
+          <h2 className="text-base font-semibold text-foreground">
+            {en ? "Create an account statement" : "Éditer un relevé de compte"}
+          </h2>
+          <p className="max-w-2xl text-caption leading-relaxed text-muted-foreground">
+            {en
+              ? "Choose an account and a period. Your statement is prepared from the official accounting records and remains fixed once issued."
+              : "Choisissez un compte et une période. Votre relevé est préparé à partir des écritures comptables officielles et reste figé après son émission."}
+          </p>
+        </div>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">
-          <Label htmlFor="statement-account">Compte</Label>
+          <Label htmlFor="statement-account">{en ? "Account" : "Compte"}</Label>
           <Select
             value={effectiveAccount}
             onValueChange={setAccountReference}
             disabled={accounts.isPending || selectableAccounts.length === 0}
           >
             <SelectTrigger id="statement-account">
-              <SelectValue placeholder="Sélectionnez un compte" />
+              <SelectValue placeholder={en ? "Select an account" : "Sélectionnez un compte"} />
             </SelectTrigger>
             <SelectContent>
               {selectableAccounts.map((account) => (
@@ -139,7 +160,7 @@ export function StatementGenerator() {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="statement-period-kind">Type de période</Label>
+          <Label htmlFor="statement-period-kind">{en ? "Period type" : "Type de période"}</Label>
           <Select
             value={periodKind}
             onValueChange={(value) => setPeriodKind(value as StatementPeriodKind)}
@@ -148,18 +169,20 @@ export function StatementGenerator() {
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="MONTHLY">Relevé mensuel</SelectItem>
-              <SelectItem value="CUSTOM">Période personnalisée</SelectItem>
+              <SelectItem value="MONTHLY">{en ? "Monthly statement" : "Relevé mensuel"}</SelectItem>
+              <SelectItem value="CUSTOM">
+                {en ? "Custom period" : "Période personnalisée"}
+              </SelectItem>
             </SelectContent>
           </Select>
         </div>
 
         {periodKind === "MONTHLY" ? (
           <div className="space-y-2 sm:col-span-2">
-            <Label htmlFor="statement-month">Mois</Label>
+            <Label htmlFor="statement-month">{en ? "Month" : "Mois"}</Label>
             <Select value={month} onValueChange={setMonth}>
               <SelectTrigger id="statement-month">
-                <SelectValue placeholder="Sélectionnez un mois" />
+                <SelectValue placeholder={en ? "Select a month" : "Sélectionnez un mois"} />
               </SelectTrigger>
               <SelectContent>
                 {months.map((option) => (
@@ -173,7 +196,7 @@ export function StatementGenerator() {
         ) : (
           <>
             <div className="space-y-2">
-              <Label htmlFor="statement-start">Du</Label>
+              <Label htmlFor="statement-start">{en ? "From" : "Du"}</Label>
               <Input
                 id="statement-start"
                 type="date"
@@ -182,7 +205,7 @@ export function StatementGenerator() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="statement-end">Au (inclus)</Label>
+              <Label htmlFor="statement-end">{en ? "To (inclusive)" : "Au (inclus)"}</Label>
               <Input
                 id="statement-end"
                 type="date"
@@ -201,7 +224,13 @@ export function StatementGenerator() {
         onClick={submit}
       >
         <FileDown aria-hidden className="mr-2 size-4" />
-        {request.isPending ? "Édition en cours…" : "Éditer le relevé"}
+        {request.isPending
+          ? en
+            ? "Preparing statement…"
+            : "Édition en cours…"
+          : en
+            ? "Create statement"
+            : "Éditer le relevé"}
       </Button>
     </Card>
   );

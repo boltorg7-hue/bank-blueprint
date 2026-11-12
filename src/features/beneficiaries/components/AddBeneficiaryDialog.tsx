@@ -72,18 +72,39 @@ export function AddBeneficiaryDialog({
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="safe-pb max-w-md">
+      <DialogContent className="safe-pb max-w-lg rounded-2xl">
         <DialogHeader>
-          <DialogTitle>Ajouter un bénéficiaire</DialogTitle>
+          <DialogTitle>
+            {en ? "Add an internal beneficiary" : "Ajouter un bénéficiaire interne"}
+          </DialogTitle>
           <DialogDescription>
-            {en ? "Register an account held with us using its account number or IBAN." : "Enregistrez un compte détenu chez nous à partir de son numéro de compte ou de son IBAN."}
+            {en
+              ? "Register an account held with us using its account number or IBAN."
+              : "Enregistrez un compte détenu chez nous à partir de son numéro de compte ou de son IBAN."}
           </DialogDescription>
         </DialogHeader>
+
+        <div className="grid grid-cols-2 gap-2 rounded-xl bg-surface-sunken p-2">
+          <div
+            className={`rounded-lg px-3 py-2 text-center text-caption font-medium ${resolved === null ? "bg-background text-foreground shadow-sm" : "text-muted-foreground"}`}
+          >
+            <span className="block text-primary">01</span>
+            {en ? "Verify account" : "Vérifier le compte"}
+          </div>
+          <div
+            className={`rounded-lg px-3 py-2 text-center text-caption font-medium ${resolved !== null ? "bg-background text-foreground shadow-sm" : "text-muted-foreground"}`}
+          >
+            <span className="block text-primary">02</span>
+            {en ? "Save recipient" : "Enregistrer"}
+          </div>
+        </div>
 
         {resolved === null ? (
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="beneficiary-identifier">{en ? "Account number or IBAN" : "Numéro de compte ou IBAN"}</Label>
+              <Label htmlFor="beneficiary-identifier">
+                {en ? "Account number or IBAN" : "Numéro de compte ou IBAN"}
+              </Label>
               <Input
                 id="beneficiary-identifier"
                 autoComplete="off"
@@ -97,7 +118,9 @@ export function AddBeneficiaryDialog({
                 aria-invalid={error !== null || undefined}
               />
               <p className="text-caption text-muted-foreground">
-                {en ? "We verify the account before registering it. No transfer is initiated at this stage." : "Nous vérifions le compte avant tout enregistrement. Aucun virement n'est déclenché à cette étape."}
+                {en
+                  ? "We verify the account before registering it. No transfer is initiated at this stage."
+                  : "Nous vérifions le compte avant tout enregistrement. Aucun virement n'est déclenché à cette étape."}
               </p>
             </div>
 
@@ -121,14 +144,20 @@ export function AddBeneficiaryDialog({
                     onSuccess: (result) => {
                       if (!result) {
                         setError(
-                          en ? "No active account matches this identifier. Check the details with the beneficiary." : "Aucun compte actif ne correspond à cet identifiant.",
+                          en
+                            ? "No active account matches this identifier. Check the details with the beneficiary."
+                            : "Aucun compte actif ne correspond à cet identifiant.",
                         );
                         return;
                       }
                       setResolved(result);
                     },
                     onError: () =>
-                      setError(en ? "Verification failed. Please try again." : "La vérification n'a pas abouti. Vous pouvez réessayer."),
+                      setError(
+                        en
+                          ? "Verification failed. Please try again."
+                          : "La vérification n'a pas abouti. Vous pouvez réessayer.",
+                      ),
                   });
                 }}
               >
@@ -140,20 +169,26 @@ export function AddBeneficiaryDialog({
         ) : (
           <div className="space-y-4">
             <div className="rounded-lg border border-border bg-surface-sunken p-3">
-              <p className="text-caption text-muted-foreground">{en ? "Account verified" : "Compte vérifié"}</p>
+              <p className="text-caption text-muted-foreground">
+                {en ? "Account verified" : "Compte vérifié"}
+              </p>
               <p className="text-sm font-semibold text-foreground">{resolved.displayName}</p>
               <p className="text-caption text-muted-foreground">
                 {en ? "Account" : "Compte"} •••• {resolved.maskedNumber} · {resolved.currency}
               </p>
               {resolved.isOwnAccount ? (
                 <p className="text-caption mt-2 text-info">
-                  {en ? "This account belongs to you: it will appear as a transfer between your accounts." : "Ce compte vous appartient : il apparaîtra comme un virement entre vos comptes."}
+                  {en
+                    ? "This account belongs to you: it will appear as a transfer between your accounts."
+                    : "Ce compte vous appartient : il apparaîtra comme un virement entre vos comptes."}
                 </p>
               ) : null}
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="beneficiary-nickname">{en ? "Label (optional)" : "Libellé (optionnel)"}</Label>
+              <Label htmlFor="beneficiary-nickname">
+                {en ? "Label (optional)" : "Libellé (optionnel)"}
+              </Label>
               <Input
                 id="beneficiary-nickname"
                 value={nickname}
@@ -193,7 +228,9 @@ export function AddBeneficiaryDialog({
                       },
                       onError: () =>
                         setError(
-                          en ? "The beneficiary could not be saved. Check your account status and try again." : "L'enregistrement n'a pas abouti. Vérifiez le statut de votre compte, puis réessayez.",
+                          en
+                            ? "The beneficiary could not be saved. Check your account status and try again."
+                            : "L'enregistrement n'a pas abouti. Vérifiez le statut de votre compte, puis réessayez.",
                         ),
                     },
                   )

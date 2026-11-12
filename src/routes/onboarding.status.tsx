@@ -274,8 +274,8 @@ function OnboardingStatusPage() {
       title={en ? "Track your application" : "Suivi de votre dossier"}
       description={copy.description}
     >
-      <div className="space-y-5">
-        <div className="rounded-xl border border-border bg-surface px-4 py-4">
+      <div className="space-y-6">
+        <div className="rounded-2xl border border-border bg-card px-5 py-5 shadow-sm">
           <div className="flex items-start gap-3">
             {state === "ADDITIONAL_DOCUMENT_REQUIRED" ? (
               <FileWarning className="mt-0.5 size-5 shrink-0 text-warning" aria-hidden="true" />
@@ -308,7 +308,10 @@ function OnboardingStatusPage() {
           </div>
         </div>
 
-        <section aria-labelledby="lifecycle-progress" className="space-y-3">
+        <section
+          aria-labelledby="lifecycle-progress"
+          className="space-y-4 rounded-2xl border border-border bg-card px-5 py-5 shadow-sm"
+        >
           <div className="flex items-center justify-between gap-3">
             <h2 id="lifecycle-progress" className="text-label text-foreground">
               {en ? "Application progress" : "Progression du dossier"}
@@ -317,7 +320,7 @@ function OnboardingStatusPage() {
               {en ? `Stage ${currentStage} of 4` : `Étape ${currentStage} sur 4`}
             </span>
           </div>
-          <ol className="grid gap-2 sm:grid-cols-4">
+          <ol className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
             {(en
               ? ["Application", "Identity review", "Banking review", "Active"]
               : ["Dossier", "Vérification d'identité", "Examen bancaire", "Actif"]
@@ -328,7 +331,7 @@ function OnboardingStatusPage() {
               return (
                 <li
                   key={label}
-                  className={`rounded-xl border px-3 py-3 ${done ? "border-success/40 bg-success-muted" : current ? "border-brand/40 bg-brand/5" : "border-border bg-surface"}`}
+                  className={`min-h-20 rounded-2xl border px-4 py-4 transition-colors ${done ? "border-success/40 bg-success-muted" : current ? "border-brand/40 bg-brand/5" : "border-border bg-surface"}`}
                 >
                   <p className="text-caption font-medium text-foreground">
                     {done ? "✓ " : ""}
@@ -346,7 +349,7 @@ function OnboardingStatusPage() {
         </section>
 
         {requested && state === "ADDITIONAL_DOCUMENT_REQUIRED" ? (
-          <div className="rounded-xl border border-warning/30 bg-warning-muted px-4 py-4">
+          <div className="rounded-2xl border border-warning/30 bg-warning-muted px-5 py-5">
             <p className="text-label text-foreground">
               {en ? "What we need from you" : "Ce dont nous avons besoin"}
             </p>
@@ -355,7 +358,7 @@ function OnboardingStatusPage() {
         ) : null}
 
         {state === "IDENTITY_UNDER_REVIEW" || state === "BANKING_REVIEW" ? (
-          <div className="flex items-start gap-3 rounded-xl border border-border bg-surface px-4 py-4">
+          <div className="flex items-start gap-3 rounded-2xl border border-border bg-surface px-5 py-5">
             <Clock3 className="mt-0.5 size-5 shrink-0 text-muted-foreground" aria-hidden="true" />
             <p className="text-body-sm text-muted-foreground">
               {en
@@ -365,7 +368,7 @@ function OnboardingStatusPage() {
           </div>
         ) : null}
 
-        <div className="flex flex-col gap-2 sm:flex-row">
+        <div className="flex flex-col gap-3 border-t border-border pt-5 sm:flex-row">
           <Button asChild className="w-full touch-target sm:flex-1">
             <Link to={copy.primaryRoute}>{copy.primaryLabel}</Link>
           </Button>

@@ -1,4 +1,5 @@
 import { useLanguage } from "@/components/providers/LanguageProvider";
+import { Home, MapPinned, ShieldCheck } from "lucide-react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
@@ -10,7 +11,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Spinner } from "@/components/ui/spinner";
 import { OnboardingShell } from "@/features/onboarding/components/OnboardingShell";
-import { useCustomerContext, useInvalidateCustomerContext } from "@/features/onboarding/hooks/useCustomerContext";
+import {
+  useCustomerContext,
+  useInvalidateCustomerContext,
+} from "@/features/onboarding/hooks/useCustomerContext";
 import { addressStepSchema } from "@/features/onboarding/schemas/onboarding.schemas";
 import { fieldErrorsFrom } from "@/features/auth/schemas/auth.schemas";
 import { saveAddressStep } from "@/features/onboarding/services/onboarding.functions";
@@ -19,9 +23,15 @@ export const Route = createFileRoute("/onboarding/address")({
   head: () => ({
     meta: [
       { title: "Adresse de résidence — Ouverture de compte RFC" },
-      { name: "description", content: "Ajoutez votre adresse de résidence à votre dossier d’ouverture de compte RFC." },
+      {
+        name: "description",
+        content: "Ajoutez votre adresse de résidence à votre dossier d’ouverture de compte RFC.",
+      },
       { property: "og:title", content: "Adresse de résidence — RFC FINANCE Bank" },
-      { property: "og:description", content: "Deuxième étape sécurisée de l’ouverture de compte RFC." },
+      {
+        property: "og:description",
+        content: "Deuxième étape sécurisée de l’ouverture de compte RFC.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex,nofollow" },
@@ -69,7 +79,11 @@ function AddressStepPage() {
       setDirty(false);
       await navigate({ to: "/onboarding/documents" });
     } catch {
-      setFormError((en ? "We could not save your address. Please try again." : "Nous n'avons pas pu enregistrer votre adresse. Réessayez."));
+      setFormError(
+        en
+          ? "We could not save your address. Please try again."
+          : "Nous n'avons pas pu enregistrer votre adresse. Réessayez.",
+      );
     } finally {
       setPending(false);
     }
@@ -87,36 +101,174 @@ function AddressStepPage() {
   }
 
   const address = context.address;
-  const isTT = (country ?? address?.country ?? context.profile.country_of_residence ?? "Trinidad and Tobago") === "Trinidad and Tobago";
+  const isTT =
+    (country ??
+      address?.country ??
+      context.profile.country_of_residence ??
+      "Trinidad and Tobago") === "Trinidad and Tobago";
 
   return (
     <OnboardingShell
       stepId="address"
       title={en ? "Your residential address" : "Votre adresse de résidence"}
-      description={en ? "Enter the address where you usually live. Optional fields may be left blank if not used in your country." : "Renseignez l'adresse où vous résidez habituellement. Les champs facultatifs peuvent rester vides si votre pays ne les utilise pas."}
+      description={
+        en
+          ? "Enter the address where you usually live. Optional fields may be left blank if not used in your country."
+          : "Renseignez l'adresse où vous résidez habituellement. Les champs facultatifs peuvent rester vides si votre pays ne les utilise pas."
+      }
       hasUnsavedChanges={dirty}
-      why={en ? "Your address determines available services and must match your proof of address." : "Votre adresse détermine les services disponibles et doit correspondre à votre justificatif de domicile."}
+      why={
+        en
+          ? "Your address determines available services and must match your proof of address."
+          : "Votre adresse détermine les services disponibles et doit correspondre à votre justificatif de domicile."
+      }
     >
-      <form onSubmit={handleSubmit} onChange={() => setDirty(true)} noValidate className="space-y-5">
-        <ChoiceField id="address-country" name="country" label={en ? "Country" : "Pays"} options={COUNTRIES} en={en} defaultValue={address?.country ?? context.profile.country_of_residence ?? "Trinidad and Tobago"} error={errors["country"]} onChange={setCountry} />
-        <Field name="addressLine1" label={en ? "Address" : "Adresse"} autoComplete="address-line1" defaultValue={address?.address_line1} error={errors["addressLine1"]} />
-        <Field name="addressLine2" label={en ? "Address line 2 (optional)" : "Complément d'adresse (optionnel)"} autoComplete="address-line2" defaultValue={address?.address_line2} error={errors["addressLine2"]} />
-        {isTT ? (
-          <>
-            <Field name="city" label={en ? "City or town — choose or type" : "Ville ou localité — choisir ou saisir"} autoComplete="address-level2" defaultValue={address?.city} error={errors["city"]} list="tt-cities" />
-            <datalist id="tt-cities">{TT_CITIES.map((c) => <option key={c} value={c} />)}</datalist>
-            <ChoiceField id="address-region" name="region" label={en ? "Region" : "Région"} options={TT_REGIONS.map((r) => ({ value: r, fr: r, en: r }))} en={en} defaultValue={address?.region} error={errors["region"]} />
-          </>
-        ) : (
-          <>
-            <Field name="city" label={en ? "City" : "Ville"} autoComplete="address-level2" defaultValue={address?.city} error={errors["city"]} />
-            <Field name="region" label={en ? "Region, state or province (if applicable)" : "Région, état ou province (si applicable)"} autoComplete="address-level1" defaultValue={address?.region} error={errors["region"]} />
-          </>
-        )}
-        <Field name="postalCode" label={en ? "Postal code (if applicable)" : "Code postal (si applicable)"} autoComplete="postal-code" defaultValue={address?.postal_code} error={errors["postalCode"]} />
+      <form
+        onSubmit={handleSubmit}
+        onChange={() => setDirty(true)}
+        noValidate
+        className="space-y-5 rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-6"
+      >
+        <div className="flex items-start gap-3 border-b border-border pb-4">
+          <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-brand/10 text-brand">
+            <ShieldCheck className="size-5" aria-hidden="true" />
+          </div>
+          <div className="min-w-0">
+            <h2 className="text-label font-semibold text-foreground">
+              {en ? "Secure residential address" : "Adresse de résidence sécurisée"}
+            </h2>
+            <p className="mt-1 text-body-sm leading-relaxed text-muted-foreground">
+              {en
+                ? "Provide your usual residential address. It should match the proof of address you submit."
+                : "Indiquez votre adresse habituelle. Elle doit correspondre au justificatif de domicile que vous transmettrez."}
+            </p>
+          </div>
+        </div>
+
+        <section className="space-y-4">
+          <div className="flex items-center gap-2">
+            <MapPinned className="size-4 text-brand" aria-hidden="true" />
+            <h3 className="text-label font-semibold text-foreground">
+              {en ? "Country of residence" : "Pays de résidence"}
+            </h3>
+          </div>
+          <ChoiceField
+            id="address-country"
+            name="country"
+            label={en ? "Country" : "Pays"}
+            options={COUNTRIES}
+            en={en}
+            defaultValue={
+              address?.country ?? context.profile.country_of_residence ?? "Trinidad and Tobago"
+            }
+            error={errors["country"]}
+            onChange={setCountry}
+          />
+        </section>
+
+        <section className="space-y-4 border-t border-border pt-5">
+          <div className="flex items-center gap-2">
+            <Home className="size-4 text-brand" aria-hidden="true" />
+            <h3 className="text-label font-semibold text-foreground">
+              {en ? "Residential address" : "Adresse du domicile"}
+            </h3>
+          </div>
+          <div className="space-y-4">
+            <Field
+              name="addressLine1"
+              label={en ? "Street address" : "Adresse"}
+              autoComplete="address-line1"
+              defaultValue={address?.address_line1}
+              error={errors["addressLine1"]}
+            />
+            <Field
+              name="addressLine2"
+              label={
+                en
+                  ? "Apartment, suite or additional details (optional)"
+                  : "Appartement, résidence ou complément (optionnel)"
+              }
+              autoComplete="address-line2"
+              defaultValue={address?.address_line2}
+              error={errors["addressLine2"]}
+            />
+          </div>
+        </section>
+
+        <section className="space-y-4 border-t border-border pt-5">
+          <div className="flex items-center gap-2">
+            <MapPinned className="size-4 text-brand" aria-hidden="true" />
+            <h3 className="text-label font-semibold text-foreground">
+              {en ? "Locality details" : "Localisation"}
+            </h3>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2">
+            {isTT ? (
+              <>
+                <div className="space-y-2">
+                  <Field
+                    name="city"
+                    label={
+                      en ? "City or town — choose or type" : "Ville ou localité — choisir ou saisir"
+                    }
+                    autoComplete="address-level2"
+                    defaultValue={address?.city}
+                    error={errors["city"]}
+                    list="tt-cities"
+                  />
+                  <datalist id="tt-cities">
+                    {TT_CITIES.map((c) => (
+                      <option key={c} value={c} />
+                    ))}
+                  </datalist>
+                </div>
+                <ChoiceField
+                  id="address-region"
+                  name="region"
+                  label={en ? "Region" : "Région"}
+                  options={TT_REGIONS.map((r) => ({ value: r, fr: r, en: r }))}
+                  en={en}
+                  defaultValue={address?.region}
+                  error={errors["region"]}
+                />
+              </>
+            ) : (
+              <>
+                <Field
+                  name="city"
+                  label={en ? "City" : "Ville"}
+                  autoComplete="address-level2"
+                  defaultValue={address?.city}
+                  error={errors["city"]}
+                />
+                <Field
+                  name="region"
+                  label={
+                    en
+                      ? "Region, state or province (if applicable)"
+                      : "Région, état ou province (si applicable)"
+                  }
+                  autoComplete="address-level1"
+                  defaultValue={address?.region}
+                  error={errors["region"]}
+                />
+              </>
+            )}
+            <Field
+              name="postalCode"
+              label={en ? "Postal code (if applicable)" : "Code postal (si applicable)"}
+              autoComplete="postal-code"
+              defaultValue={address?.postal_code}
+              error={errors["postalCode"]}
+            />
+          </div>
+        </section>
 
         {formError ? (
-          <p role="alert" className="text-body-sm rounded-lg bg-destructive/10 px-3 py-2 text-destructive">
+          <p
+            role="alert"
+            className="text-body-sm rounded-lg bg-destructive/10 px-3 py-2 text-destructive"
+          >
             {formError}
           </p>
         ) : null}

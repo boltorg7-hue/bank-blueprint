@@ -68,9 +68,9 @@ export function isSubmitted(context: CustomerContext): boolean {
 }
 
 export function buildOnboardingTasks(context: CustomerContext): OnboardingTask[] {
-  const emailDone = context.emailVerified;
+  const emailDone = Boolean(context.email && context.emailVerified);
   const profileDone = isProfileComplete(context);
-  const contactDone = Boolean(context.profile.phone_verified_at);
+  const contactDone = Boolean(context.profile.phone && context.profile.phone_verified_at);
   const addressDone = Boolean(context.address);
   const documentsDone = hasIdentityDocument(context) && hasProofOfAddress(context);
   const documentsDeferred = hasDeferredDocuments(context);

@@ -1,3 +1,4 @@
+/* eslint-disable */
 export type Json =
   | string
   | number
@@ -1318,6 +1319,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          avatar_storage_path: string | null
           country_of_residence: string | null
           created_at: string
           date_of_birth: string | null
@@ -1337,6 +1339,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          avatar_storage_path?: string | null
           country_of_residence?: string | null
           created_at?: string
           date_of_birth?: string | null
@@ -1356,6 +1359,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          avatar_storage_path?: string | null
           country_of_residence?: string | null
           created_at?: string
           date_of_birth?: string | null

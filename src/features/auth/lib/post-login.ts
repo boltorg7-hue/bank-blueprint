@@ -7,7 +7,6 @@
 import { nextRouteForLifecycle } from "@/types/customer-lifecycle";
 import { getCustomerContext } from "@/features/onboarding/services/onboarding.functions";
 import { nextOnboardingRoute } from "@/features/onboarding/lib/tasks";
-import { getOAuthConsentStatus } from "@/features/auth/services/oauth-consent.functions";
 
 export function safeRedirectPath(value: string | null | undefined): string | null {
   if (!value) return null;
@@ -16,14 +15,6 @@ export function safeRedirectPath(value: string | null | undefined): string | nul
 }
 
 export async function resolvePostLoginRoute(redirectTo?: string | undefined): Promise<string> {
-  try {
-    const consent = await getOAuthConsentStatus();
-    if (consent.required) return "/auth/consent";
-  } catch {
-    // Fail closed: an OAuth consent status that cannot be verified must not enter onboarding.
-    return "/auth/consent";
-  }
-
   let lifecycleRoute = "/onboarding";
   try {
     const context = await getCustomerContext();

@@ -2,6 +2,7 @@ import { useLanguage } from "@/components/providers/LanguageProvider";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
+import { ClipboardCheck, FileText, MapPin, UserRound } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
@@ -111,11 +112,28 @@ function ReviewStepPage() {
           : "Une information exacte évite un délai supplémentaire lors de la vérification."
       }
     >
-      <div className="space-y-4">
+      <div className="flex items-start gap-3 rounded-2xl border border-brand/20 bg-gradient-to-br from-brand/10 via-card to-card p-4 shadow-sm sm:gap-4 sm:p-5">
+        <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-brand/10 text-brand">
+          <ClipboardCheck className="size-5" aria-hidden="true" />
+        </div>
+        <div className="min-w-0">
+          <h2 className="text-label font-semibold text-foreground">
+            {en ? "Final application check" : "Dernière vérification du dossier"}
+          </h2>
+          <p className="mt-1 text-body-sm leading-relaxed text-muted-foreground">
+            {en
+              ? "Review each section and use Edit to correct any information before sending your application."
+              : "Relisez chaque rubrique et utilisez Modifier pour corriger une information avant de transmettre votre dossier."}
+          </p>
+        </div>
+      </div>
+
+      <div className="grid gap-4">
         <Section
           title={en ? "Personal information" : "Informations personnelles"}
           editRoute="/onboarding/profile"
           editable={true}
+          icon={UserRound}
         >
           <Row label={en ? "First name" : "Prénom"} value={profile.first_name} />
           <Row label={en ? "Middle name" : "Deuxième prénom"} value={profile.middle_name} />
@@ -133,7 +151,12 @@ function ReviewStepPage() {
           <Row label={en ? "Phone" : "Téléphone"} value={profile.phone} />
         </Section>
 
-        <Section title={en ? "Address" : "Adresse"} editRoute="/onboarding/address" editable={true}>
+        <Section
+          title={en ? "Address" : "Adresse"}
+          editRoute="/onboarding/address"
+          editable={true}
+          icon={MapPin}
+        >
           <Row label={en ? "Country" : "Pays"} value={address?.country ?? null} />
           <Row label={en ? "Address" : "Adresse"} value={address?.address_line1 ?? null} />
           <Row
@@ -149,6 +172,7 @@ function ReviewStepPage() {
           title={en ? "Documents" : "Documents"}
           editRoute="/onboarding/documents"
           editable={true}
+          icon={FileText}
         >
           {context.documents.length === 0 ? (
             <p className="text-body-sm text-muted-foreground">
@@ -169,15 +193,15 @@ function ReviewStepPage() {
       {error ? (
         <p
           role="alert"
-          className="text-body-sm mt-6 rounded-lg bg-destructive/10 px-3 py-2 text-destructive"
+          className="mt-6 rounded-xl border border-destructive/25 bg-destructive/10 px-4 py-3 text-body-sm text-destructive"
         >
           {error}
         </p>
       ) : null}
 
-      <div className="mt-8 space-y-3">
+      <div className="mt-8 space-y-4 rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5">
         {!complete ? (
-          <p className="text-body-sm rounded-xl border border-warning/30 bg-warning-muted px-4 py-3 text-foreground">
+          <p className="rounded-xl border border-warning/30 bg-warning-muted px-4 py-3 text-body-sm leading-relaxed text-foreground">
             {en
               ? "Required profile information or your residential address is missing. Use the Edit buttons above to complete them."
               : "Des informations personnelles ou votre adresse de résidence manquent encore. Utilisez les boutons Modifier ci-dessus pour les compléter."}
@@ -192,7 +216,7 @@ function ReviewStepPage() {
         ) : null}
         <Button
           type="button"
-          className="w-full touch-target"
+          className="w-full touch-target shadow-sm"
           loading={pending}
           disabled={!complete}
           onClick={() => void handleSubmit()}
@@ -214,26 +238,35 @@ function Section({
   title,
   editRoute,
   editable,
+  icon: Icon,
   children,
 }: {
   title: string;
   editRoute: "/onboarding/profile" | "/onboarding/address" | "/onboarding/documents";
   editable: boolean;
+  icon: typeof UserRound;
   children: React.ReactNode;
 }) {
   const { language } = useLanguage();
   const en = language === "en";
   return (
-    <section className="rounded-xl border border-border bg-surface px-4 py-4">
-      <div className="mb-3 flex items-center justify-between gap-2">
-        <h2 className="text-label text-foreground">{title}</h2>
+    <section className="rounded-2xl border border-border/80 bg-card p-4 shadow-sm transition-shadow duration-200 hover:shadow-md sm:p-5">
+      <div className="mb-4 flex items-center justify-between gap-3 border-b border-border/70 pb-3">
+        <div className="flex min-w-0 items-center gap-3">
+          <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-brand/10 text-brand">
+            <Icon className="size-4" aria-hidden="true" />
+          </div>
+          <h2 className="text-label font-semibold text-foreground">{title}</h2>
+        </div>
         {editable ? (
           <Button asChild variant="ghost" size="sm" className="touch-target">
             <Link to={editRoute}>{en ? "Edit" : "Modifier"}</Link>
           </Button>
         ) : null}
       </div>
-      <dl className="space-y-2">{children}</dl>
+      <dl className="space-y-3 divide-y divide-border/70 [&>div]:pt-3 [&>div:first-child]:pt-0">
+        {children}
+      </dl>
     </section>
   );
 }
@@ -241,9 +274,11 @@ function Section({
 function Row({ label, value }: { label: string; value?: string | null }) {
   if (!value) return null;
   return (
-    <div className="flex flex-wrap items-baseline justify-between gap-2">
+    <div className="flex flex-col gap-1.5 rounded-lg px-2 py-1.5 -mx-2 sm:flex-row sm:items-baseline sm:justify-between sm:gap-4">
       <dt className="text-body-sm text-muted-foreground">{label}</dt>
-      <dd className="text-body-sm text-foreground">{value}</dd>
+      <dd className="break-words text-body-sm font-medium text-foreground sm:text-right">
+        {value}
+      </dd>
     </div>
   );
 }

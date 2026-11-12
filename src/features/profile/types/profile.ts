@@ -3,6 +3,7 @@ import type { CustomerLifecycleState } from "@/types/customer-lifecycle";
 export type ProfileOverviewDto = {
   email: string | null;
   emailVerified: boolean;
+  avatarUrl: string | null;
   firstName: string;
   middleName: string;
   lastName: string;
@@ -15,8 +16,21 @@ export type ProfileOverviewDto = {
   lifecycleState: CustomerLifecycleState;
   identityStatus: string;
   identityLocked: boolean;
-  address: { country: string; addressLine1: string; addressLine2: string; city: string; region: string; postalCode: string };
-  accounts: { reference: string; displayName: string; currency: string; status: string; maskedNumber: string; iban: string | null; bic: string | null }[];
+  address: {
+    country: string;
+    addressLine1: string;
+    addressLine2: string;
+    city: string;
+    region: string;
+    postalCode: string;
+  };
+  accounts: {
+    reference: string;
+    displayName: string;
+    currency: string;
+    status: string;
+    maskedNumber: string;
+  }[];
 };
 
 export type CustomerPreferencesDto = {

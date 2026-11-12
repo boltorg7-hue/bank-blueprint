@@ -1,9 +1,8 @@
 /**
  * LEGAL CONTENT STRUCTURE (PROMPT 02 §47-§50).
  *
- * These documents provide the correct STRUCTURE only. The published text must
- * be supplied by the legal owner — sections marked `pending` render an explicit
- * "en cours de rédaction" notice instead of invented legal statements.
+ * These documents provide the correct structure. Final legal wording must be
+ * supplied or approved by the legal owner before publication.
  */
 
 import type { AppPath } from "@/lib/routing";
@@ -11,7 +10,7 @@ import type { AppPath } from "@/lib/routing";
 export type LegalSection = {
   id: string;
   title: string;
-  /** Final legal text. Empty array => section pending publication. */
+  /** Final legal text. Empty array => topic awaiting its approved wording. */
   paragraphs: string[];
 };
 
@@ -19,23 +18,27 @@ export type LegalDocument = {
   slug: "terms" | "privacy";
   title: string;
   intro: string;
-  /** ISO date of the last published revision, null while unpublished. */
+  /** ISO date of the last published revision, null while awaiting publication. */
   lastUpdated: string | null;
   sections: LegalSection[];
 };
 
 export const PENDING_SECTION_NOTICE =
-  "Cette section est en cours de rédaction avec notre conseil juridique. Elle sera publiée avant l'ouverture commerciale.";
+  "La finalisation de cette rubrique est en cours. Nous préparons ses informations détaillées afin de vous présenter une documentation claire et cohérente.";
 
 export const TERMS_DOCUMENT: LegalDocument = {
   slug: "terms",
   title: "Conditions générales",
   intro:
-    "Ces conditions décriront la relation contractuelle entre le client et la banque : ouverture de compte, utilisation des services, obligations réciproques et fin de la relation.",
+    "Nous préparons une présentation claire du cadre contractuel qui encadrera la relation avec nos clients : ouverture de compte, utilisation des services, obligations réciproques et fin de la relation.",
   lastUpdated: null,
   sections: [
     { id: "scope", title: "1. Objet et champ d'application", paragraphs: [] },
-    { id: "account-opening", title: "2. Ouverture de compte et vérification d'identité", paragraphs: [] },
+    {
+      id: "account-opening",
+      title: "2. Ouverture de compte et vérification d'identité",
+      paragraphs: [],
+    },
     { id: "services", title: "3. Services fournis", paragraphs: [] },
     { id: "access", title: "4. Accès en ligne et sécurité des identifiants", paragraphs: [] },
     { id: "operations", title: "5. Opérations et virements", paragraphs: [] },
@@ -53,7 +56,7 @@ export const PRIVACY_DOCUMENT: LegalDocument = {
   slug: "privacy",
   title: "Politique de confidentialité",
   intro:
-    "Cette politique décrira les données que nous collectons, les raisons de cette collecte, leur durée de conservation et les droits dont vous disposez.",
+    "Nous préparons une politique qui expliquera de façon transparente les données concernées, les raisons de leur traitement, leur durée de conservation et les droits dont vous disposez.",
   lastUpdated: null,
   sections: [
     { id: "collected", title: "1. Données collectées", paragraphs: [] },
@@ -91,7 +94,8 @@ export const COOKIE_POSTURE = {
     {
       name: "Session d'authentification",
       purpose: "Maintenir votre connexion à l'espace client.",
-      storage: "Cookie / stockage sécurisé",
+      storage:
+        "Stockage local du navigateur sur le site publié ; stockage de session partagé dans l’aperçu Lovable.",
     },
   ],
 } as const;
@@ -124,3 +128,16 @@ export const ACCESSIBILITY_STATEMENT = {
   description:
     "Nous visons le niveau WCAG 2.2 AA : navigation au clavier, contrastes suffisants, focus visible, respect des préférences de mouvement réduit et compatibilité lecteur d'écran. Signalez-nous toute difficulté rencontrée via la page Contact.",
 } as const;
+
+/** OAuth consent is enabled only when both complete legal documents are published. */
+export function areOAuthConsentDocumentsPublished(): boolean {
+  return [TERMS_DOCUMENT, PRIVACY_DOCUMENT].every(
+    (document) =>
+      document.lastUpdated !== null &&
+      /^\d{4}-\d{2}-\d{2}$/.test(document.lastUpdated) &&
+      document.sections.length > 0 &&
+      document.sections.every((section) =>
+        section.paragraphs.some((paragraph) => paragraph.trim().length > 0),
+      ),
+  );
+}

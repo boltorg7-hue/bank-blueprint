@@ -1,11 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useLanguage } from "@/components/providers/LanguageProvider";
 
-
+import { PermissionDeniedState } from "@/components/feedback";
 import { BankingContentContainer } from "@/components/layout/BankingAppLayout";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { PageSection } from "@/components/ui/page-section";
-import { PermissionDeniedState } from "@/components/feedback";
 import { useCustomerSummary } from "@/features/customer-shell/hooks/useCustomerSummary";
 import { isAllowed } from "@/features/customer-shell/lib/route-access";
 import { TransactionHistory } from "@/features/transactions/components/TransactionHistory";
@@ -20,7 +19,10 @@ export const Route = createFileRoute("/app/transactions/")({
         content: "Consultez et filtrez l'historique détaillé de vos opérations bancaires.",
       },
       { property: "og:title", content: "Opérations — RFC Royal FINANCE Bank" },
-      { property: "og:description", content: "Consultez et filtrez l'historique détaillé de vos opérations bancaires." },
+      {
+        property: "og:description",
+        content: "Consultez et filtrez l'historique détaillé de vos opérations bancaires.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -38,14 +40,24 @@ function TransactionsIndexRoute() {
     <BankingContentContainer width="default">
       <PageHeader
         title={en ? "Transactions" : "Opérations"}
-        description={en ? "Your complete transaction history, newest first." : "L'historique complet de vos opérations, du plus récent au plus ancien."}
+        description={
+          en
+            ? "Your complete transaction history, newest first."
+            : "Retrouvez l'historique complet de vos opérations, du plus récent au plus ancien."
+        }
       />
       {allowed ? (
         <PageSection>
           <TransactionHistory />
         </PageSection>
       ) : (
-        <PermissionDeniedState description={en ? "Your transaction history will be available once your account is activated." : "L'historique de vos opérations sera disponible dès l'activation de votre compte."} />
+        <PermissionDeniedState
+          description={
+            en
+              ? "Your transaction history will appear here as soon as your account is activated."
+              : "Votre historique d'opérations apparaîtra ici dès l'activation de votre compte."
+          }
+        />
       )}
     </BankingContentContainer>
   );

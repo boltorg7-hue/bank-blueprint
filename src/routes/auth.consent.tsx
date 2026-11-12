@@ -1,12 +1,15 @@
 import { createFileRoute, Link, redirect, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
+import { FileCheck2, LockKeyhole, ShieldCheck, Sparkles, LogOut } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { useLanguage } from "@/components/providers/LanguageProvider";
 import { AuthShell } from "@/features/auth/components/AuthShell";
+import { areOAuthConsentDocumentsPublished } from "@/features/public/content/legal";
+import { supabase } from "@/integrations/supabase/client";
 import { resolvePostLoginRoute } from "@/features/auth/lib/post-login";
 import {
   getOAuthConsentStatus,
@@ -41,27 +44,49 @@ function OAuthConsentPage() {
   const [marketingConsent, setMarketingConsent] = useState(false);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const documentsPublished = areOAuthConsentDocumentsPublished();
 
   async function handleContinue() {
-    if (!termsAccepted || !privacyAccepted || pending) return;
+    if (pending) return;
 
     setPending(true);
     setError(null);
     try {
-      await saveConsent({
-        data: {
-          termsAccepted: true,
-          privacyAccepted: true,
-          marketingConsent,
-        },
-      });
+      if (documentsPublished && termsAccepted && privacyAccepted) {
+        await saveConsent({
+          data: {
+            termsAccepted: true,
+            privacyAccepted: true,
+            marketingConsent,
+          },
+        });
+      }
       const target = await resolvePostLoginRoute();
       await navigate({ to: target, replace: true });
     } catch {
       setError(
         en
-          ? "We could not securely record your consent. Please try again."
-          : "Nous n’avons pas pu enregistrer votre consentement de manière sécurisée. Réessayez.",
+          ? "We could not securely record your consent. Please try again, or continue without accepting for now."
+          : "Nous n’avons pas pu enregistrer votre consentement. Réessayez ou poursuivez votre inscription sans accepter pour le moment.",
+      );
+    } finally {
+      setPending(false);
+    }
+  }
+
+  async function handleLeave() {
+    if (pending) return;
+    setPending(true);
+    setError(null);
+    try {
+      const { error: signOutError } = await supabase.auth.signOut();
+      if (signOutError) throw signOutError;
+      await navigate({ to: "/login", replace: true });
+    } catch {
+      setError(
+        en
+          ? "We could not safely sign you out. Please try again."
+          : "La déconnexion sécurisée a échoué. Veuillez réessayer.",
       );
     } finally {
       setPending(false);
@@ -70,94 +95,222 @@ function OAuthConsentPage() {
 
   return (
     <AuthShell
+      eyebrow={en ? "A secure start" : "Un début en toute sécurité"}
       title={en ? "Before you continue" : "Avant de poursuivre"}
       description={
         en
-          ? "Please review and accept the terms and privacy policy before starting your account onboarding."
-          : "Veuillez lire et accepter les conditions et la politique de confidentialité avant de commencer votre parcours d’ouverture de compte."
+          ? "A few clear choices before we prepare your RF BANK account."
+          : "Quelques choix essentiels avant de préparer votre espace RF BANK."
       }
     >
       <div className="space-y-5">
-        <div className="rounded-xl border border-border bg-surface-sunken p-4">
-          <p className="text-body-sm text-muted-foreground">
+        <div className="relative overflow-hidden rounded-2xl border border-brand/15 bg-gradient-to-br from-brand/[0.09] via-surface to-surface-sunken p-4 sm:p-5">
+          <div className="flex items-start gap-3">
+            <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-brand/10 text-brand">
+              <ShieldCheck className="size-5" aria-hidden="true" />
+            </span>
+            <div className="min-w-0 space-y-1">
+              <p className="text-sm font-semibold text-foreground">
+                {en ? "Google or Apple sign-in completed" : "Connexion Google ou Apple réussie"}
+              </p>
+              <p className="text-sm leading-relaxed text-muted-foreground">
+                {en
+                  ? "This confirms access to your Google or Apple account only. It is not bank identity verification (KYC), does not approve your documents and does not activate banking services."
+                  : "Cette étape confirme uniquement l’accès à votre compte Google ou Apple. Elle ne constitue pas une vérification d’identité bancaire (KYC), ne valide pas vos documents et n’active aucun service bancaire."}
+              </p>
+            </div>
+          </div>
+          <div className="mt-4 flex items-center gap-2 border-t border-brand/10 pt-3 text-xs font-medium text-muted-foreground">
+            <LockKeyhole className="size-3.5 text-brand" aria-hidden="true" />
             {en
-              ? "Your Google or Apple identity has been authenticated. This does not activate a bank account or grant access to banking services. We will record your consent securely before allowing onboarding."
-              : "Votre identité Google ou Apple a été authentifiée. Cela n’active pas un compte bancaire et ne donne pas accès aux services bancaires. Votre consentement sera enregistré de manière sécurisée avant de poursuivre."}
-          </p>
+              ? "No consent is recorded until the official documents are published and you explicitly accept them."
+              : "Aucun consentement n’est enregistré tant que les documents officiels ne sont pas publiés et que vous ne les avez pas explicitement acceptés."}
+          </div>
         </div>
 
-        <div className="space-y-4 rounded-xl border border-border p-4">
-          <div className="flex items-start gap-3">
-            <Checkbox
-              id="oauth-terms"
-              checked={termsAccepted}
-              onCheckedChange={(value) => setTermsAccepted(value === true)}
-            />
-            <Label htmlFor="oauth-terms" className="text-body-sm leading-relaxed font-normal">
-              {en ? "I accept the" : "J’accepte les"}{" "}
-              <Link
-                to="/terms"
-                className="font-medium text-brand underline-offset-4 hover:underline"
-              >
-                {en ? "terms and conditions" : "conditions générales"}
-              </Link>
-              .
-            </Label>
-          </div>
-
-          <div className="flex items-start gap-3">
-            <Checkbox
-              id="oauth-privacy"
-              checked={privacyAccepted}
-              onCheckedChange={(value) => setPrivacyAccepted(value === true)}
-            />
-            <Label htmlFor="oauth-privacy" className="text-body-sm leading-relaxed font-normal">
-              {en ? "I have read and accept the" : "J’ai lu et j’accepte la"}{" "}
-              <Link
-                to="/privacy"
-                className="font-medium text-brand underline-offset-4 hover:underline"
-              >
-                {en ? "privacy policy" : "politique de confidentialité"}
-              </Link>
-              .
-            </Label>
-          </div>
-
-          <div className="flex items-start gap-3 border-t border-border pt-3">
-            <Checkbox
-              id="oauth-marketing"
-              checked={marketingConsent}
-              onCheckedChange={(value) => setMarketingConsent(value === true)}
-            />
-            <Label htmlFor="oauth-marketing" className="text-body-sm leading-relaxed font-normal">
+        {!documentsPublished ? (
+          <div
+            role="alert"
+            className="space-y-3 rounded-2xl border border-amber-500/30 bg-amber-500/5 p-4"
+          >
+            <div className="space-y-1">
+              <p className="text-sm font-semibold text-foreground">
+                {en
+                  ? "Consent is temporarily unavailable"
+                  : "Validation temporairement indisponible"}
+              </p>
+              <p className="text-sm leading-relaxed text-muted-foreground">
+                {en
+                  ? "The official Terms and Privacy Policy are not yet fully published. You can continue your registration and provide available information or documents. Your consent will remain pending until the final documents are published and accepted."
+                  : "Les Conditions générales et la Politique de confidentialité officielles ne sont pas encore intégralement publiées. Vous pouvez poursuivre votre inscription et renseigner les informations ou justificatifs disponibles. Votre consentement restera en attente jusqu’à la publication et à l’acceptation des documents définitifs."}
+              </p>
+            </div>
+            <p className="text-xs text-muted-foreground">
               {en
-                ? "I would like to receive RF BANK news and offers (optional)."
-                : "Je souhaite recevoir les actualités et offres de RF BANK (facultatif)."}
-            </Label>
+                ? "You may continue now; the pending legal step will remain visible in your application dashboard."
+                : "Vous pouvez continuer maintenant ; cette étape juridique en attente restera visible dans le suivi de votre dossier."}
+            </p>
           </div>
-        </div>
+        ) : null}
+
+        {documentsPublished ? (
+          <>
+            <section aria-labelledby="required-consents" className="space-y-3">
+              <div className="flex items-center justify-between gap-3">
+                <h2 id="required-consents" className="text-sm font-semibold text-foreground">
+                  {en ? "Required to continue" : "Nécessaire pour continuer"}
+                </h2>
+                <span className="rounded-full bg-secondary px-2.5 py-1 text-[11px] font-semibold text-muted-foreground">
+                  {en ? "2 choices" : "2 accords"}
+                </span>
+              </div>
+
+              <div className="divide-y divide-border overflow-hidden rounded-2xl border border-border bg-card">
+                <div className="flex items-start gap-3 p-4 transition-colors hover:bg-muted/30">
+                  <Checkbox
+                    id="oauth-terms"
+                    checked={termsAccepted}
+                    onCheckedChange={(value) => setTermsAccepted(value === true)}
+                    className="mt-0.5 size-5 rounded-md"
+                  />
+                  <div className="min-w-0 flex-1 space-y-1">
+                    <Label
+                      htmlFor="oauth-terms"
+                      className="cursor-pointer text-sm font-semibold leading-5"
+                    >
+                      {en ? "Terms and conditions" : "Conditions générales"}
+                    </Label>
+                    <p className="text-xs leading-relaxed text-muted-foreground">
+                      {en
+                        ? "I agree to the rules governing the use of RF BANK."
+                        : "J’accepte les règles qui encadrent l’utilisation de RF BANK."}{" "}
+                      <Link
+                        to="/terms"
+                        className="font-semibold text-brand underline underline-offset-4 hover:text-brand/80"
+                      >
+                        {en ? "Read the terms" : "Lire les conditions"}
+                      </Link>
+                    </p>
+                  </div>
+                  <FileCheck2
+                    className="mt-0.5 size-4 shrink-0 text-muted-foreground"
+                    aria-hidden="true"
+                  />
+                </div>
+
+                <div className="flex items-start gap-3 p-4 transition-colors hover:bg-muted/30">
+                  <Checkbox
+                    id="oauth-privacy"
+                    checked={privacyAccepted}
+                    onCheckedChange={(value) => setPrivacyAccepted(value === true)}
+                    className="mt-0.5 size-5 rounded-md"
+                  />
+                  <div className="min-w-0 flex-1 space-y-1">
+                    <Label
+                      htmlFor="oauth-privacy"
+                      className="cursor-pointer text-sm font-semibold leading-5"
+                    >
+                      {en ? "Privacy policy" : "Politique de confidentialité"}
+                    </Label>
+                    <p className="text-xs leading-relaxed text-muted-foreground">
+                      {en
+                        ? "I have read how my personal information is handled."
+                        : "J’ai pris connaissance de la manière dont mes données personnelles sont traitées."}{" "}
+                      <Link
+                        to="/privacy"
+                        className="font-semibold text-brand underline underline-offset-4 hover:text-brand/80"
+                      >
+                        {en ? "Read the policy" : "Lire la politique"}
+                      </Link>
+                    </p>
+                  </div>
+                  <LockKeyhole
+                    className="mt-0.5 size-4 shrink-0 text-muted-foreground"
+                    aria-hidden="true"
+                  />
+                </div>
+              </div>
+            </section>
+
+            <section className="rounded-2xl border border-border bg-surface-sunken/70 p-4">
+              <div className="flex items-start gap-3">
+                <Checkbox
+                  id="oauth-marketing"
+                  checked={marketingConsent}
+                  onCheckedChange={(value) => setMarketingConsent(value === true)}
+                  className="mt-0.5 size-5 rounded-md"
+                />
+                <div className="min-w-0 flex-1 space-y-1">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Label
+                      htmlFor="oauth-marketing"
+                      className="cursor-pointer text-sm font-semibold"
+                    >
+                      {en ? "News and offers" : "Actualités et offres"}
+                    </Label>
+                    <span className="rounded-full border border-border bg-background px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+                      {en ? "Optional" : "Facultatif"}
+                    </span>
+                  </div>
+                  <p className="text-xs leading-relaxed text-muted-foreground">
+                    {en
+                      ? "I would like to receive updates and offers from RF BANK. I can change this choice later."
+                      : "Je souhaite recevoir les actualités et offres de RF BANK. Je pourrai modifier ce choix ultérieurement."}
+                  </p>
+                </div>
+                <Sparkles
+                  className="mt-0.5 size-4 shrink-0 text-muted-foreground"
+                  aria-hidden="true"
+                />
+              </div>
+            </section>
+          </>
+        ) : null}
 
         {error ? (
-          <p role="alert" className="text-body-sm text-destructive">
+          <p
+            role="alert"
+            className="rounded-xl border border-destructive/20 bg-destructive/5 px-3 py-2.5 text-sm text-destructive"
+          >
             {error}
           </p>
         ) : null}
 
-        <Button
-          type="button"
-          className="w-full touch-target"
-          loading={pending}
-          disabled={!termsAccepted || !privacyAccepted || pending}
-          onClick={() => void handleContinue()}
-        >
-          {en ? "Accept and continue" : "Accepter et continuer"}
-        </Button>
-
-        <p className="text-caption text-center text-muted-foreground">
-          {en
-            ? "Marketing consent is optional and can be changed later."
-            : "Le consentement marketing est facultatif et pourra être modifié ultérieurement."}
-        </p>
+        <div className="space-y-3 pt-1">
+          <Button
+            type="button"
+            variant="brand"
+            size="block"
+            loading={pending}
+            disabled={pending}
+            onClick={() => void handleContinue()}
+            className="rounded-xl shadow-md shadow-brand/15"
+          >
+            {documentsPublished && termsAccepted && privacyAccepted
+              ? en
+                ? "Accept and continue"
+                : "Accepter et continuer"
+              : en
+                ? "Continue my registration"
+                : "Continuer mon inscription"}
+          </Button>
+          <p className="text-center text-xs leading-relaxed text-muted-foreground">
+            {en
+              ? "You can continue through your profile, contact, address and document steps now. Legal consent and identity checks may remain pending; banking services stay unavailable until all required approvals are complete."
+              : "Vous pouvez poursuivre les étapes du profil, des coordonnées, de l’adresse et des justificatifs. Le consentement juridique et les vérifications d’identité peuvent rester en attente ; les services bancaires resteront indisponibles jusqu’aux validations requises."}
+          </p>
+          <Button
+            type="button"
+            variant="outline"
+            size="block"
+            disabled={pending}
+            onClick={() => void handleLeave()}
+            className="rounded-xl"
+          >
+            <LogOut className="mr-2 size-4" aria-hidden="true" />
+            {en ? "Leave and sign out" : "Quitter et me déconnecter"}
+          </Button>
+        </div>
       </div>
     </AuthShell>
   );

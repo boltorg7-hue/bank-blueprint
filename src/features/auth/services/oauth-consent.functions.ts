@@ -2,9 +2,11 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-
-const TERMS_VERSION = "2026-11-11";
-const PRIVACY_VERSION = "2026-11-11";
+import {
+  areOAuthConsentDocumentsPublished,
+  PRIVACY_DOCUMENT,
+  TERMS_DOCUMENT,
+} from "@/features/public/content/legal";
 
 type AuthClaims = {
   sub?: string;
@@ -25,8 +27,10 @@ export const getOAuthConsentStatus = createServerFn({ method: "GET" })
 
     const provider = claims.app_metadata?.provider ?? null;
     if (provider !== "google" && provider !== "apple") {
-      return { required: false, provider };
+      return { required: false, provider, documentsPublished: areOAuthConsentDocumentsPublished() };
     }
+
+    const documentsPublished = areOAuthConsentDocumentsPublished();
 
     const { data, error } = await supabaseAdmin
       .from("profiles")
@@ -37,8 +41,9 @@ export const getOAuthConsentStatus = createServerFn({ method: "GET" })
     if (error) throw new Error("CONSENT_STATUS_UNAVAILABLE");
 
     return {
-      required: !data?.terms_accepted_at || !data.privacy_accepted_at,
+      required: !documentsPublished || !data?.terms_accepted_at || !data.privacy_accepted_at,
       provider,
+      documentsPublished,
     };
   });
 
@@ -66,14 +71,22 @@ export const recordOAuthConsent = createServerFn({ method: "POST" })
       throw new Error("UNSUPPORTED_OAUTH_PROVIDER");
     }
 
+    if (
+      !areOAuthConsentDocumentsPublished() ||
+      !TERMS_DOCUMENT.lastUpdated ||
+      !PRIVACY_DOCUMENT.lastUpdated
+    ) {
+      throw new Error("LEGAL_DOCUMENTS_NOT_PUBLISHED");
+    }
+
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error } = await supabaseAdmin.rpc(
       "record_oauth_registration_consent" as never,
       {
         _user_id: context.userId,
         _provider: provider,
-        _terms_version: TERMS_VERSION,
-        _privacy_version: PRIVACY_VERSION,
+        _terms_version: TERMS_DOCUMENT.lastUpdated,
+        _privacy_version: PRIVACY_DOCUMENT.lastUpdated,
         _marketing_consent: data.marketingConsent,
       } as never,
     );

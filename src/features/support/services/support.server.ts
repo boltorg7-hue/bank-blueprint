@@ -1,12 +1,43 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
-import type { SupportThreadDto, SupportThreadPageDto } from "@/features/support/types/support";
+import type {
+  SupportCategory,
+  SupportStatus,
+  SupportThreadDto,
+  SupportThreadPageDto,
+} from "@/features/support/types/support";
 
-type Client = SupabaseClient<any, any, any>;
+type Client = SupabaseClient;
 
 const SUPPORT_PAGE_SIZE = 25;
 
 type SupportCursor = { lastMessageAt: string; id: string };
+type SupportThreadRow = {
+  id: string;
+  public_reference: string;
+  customer_user_id: string;
+  subject: string;
+  category: SupportCategory;
+  status: SupportStatus;
+  last_message_at: string;
+};
+type SupportMessageRow = {
+  id: string;
+  thread_id: string;
+  author_kind: "CUSTOMER" | "STAFF";
+  body: string;
+  created_at: string;
+};
+type CustomerProfileRow = {
+  id: string;
+  first_name: string | null;
+  last_name: string | null;
+};
+
+const SUPPORT_CURSOR_UUID =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const SUPPORT_CURSOR_TIMESTAMP =
+  /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,6})?(?:Z|[+-]\d{2}:\d{2})$/;
 
 function encodeSupportCursor(value: SupportCursor): string {
   return Buffer.from(JSON.stringify(value), "utf8").toString("base64url");
@@ -14,35 +45,64 @@ function encodeSupportCursor(value: SupportCursor): string {
 
 function decodeSupportCursor(value?: string | null): SupportCursor | null {
   if (!value) return null;
-  try {
-    const parsed = JSON.parse(Buffer.from(value, "base64url").toString("utf8"));
-    if (typeof parsed?.lastMessageAt !== "string" || typeof parsed?.id !== "string") return null;
-    return { lastMessageAt: parsed.lastMessageAt, id: parsed.id };
-  } catch {
-    return null;
+  if (!/^[A-Za-z0-9_-]{1,512}$/.test(value)) {
+    throw new Error("INVALID_SUPPORT_CURSOR");
   }
+
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(Buffer.from(value, "base64url").toString("utf8"));
+  } catch {
+    throw new Error("INVALID_SUPPORT_CURSOR");
+  }
+
+  if (!parsed || typeof parsed !== "object") {
+    throw new Error("INVALID_SUPPORT_CURSOR");
+  }
+
+  const cursor = parsed as Record<string, unknown>;
+  const validTimestamp =
+    typeof cursor.lastMessageAt === "string" &&
+    SUPPORT_CURSOR_TIMESTAMP.test(cursor.lastMessageAt) &&
+    Number.isFinite(Date.parse(cursor.lastMessageAt));
+  const validId = typeof cursor.id === "string" && SUPPORT_CURSOR_UUID.test(cursor.id);
+
+  if (!validTimestamp || !validId) {
+    throw new Error("INVALID_SUPPORT_CURSOR");
+  }
+
+  return {
+    lastMessageAt: cursor.lastMessageAt as string,
+    id: cursor.id as string,
+  };
 }
 
-async function mapThreads(client: Client, rows: any[], customerNames?: Map<string, string>) {
-  const ids = rows.map((row) => String(row.id));
-  const { data: messages, error } = ids.length
+async function mapThreads(
+  client: Client,
+  rows: SupportThreadRow[],
+  customerNames?: Map<string, string>,
+): Promise<SupportThreadDto[]> {
+  const ids = rows.map((row) => row.id);
+  const { data, error } = ids.length
     ? await client
         .from("support_messages")
         .select("id,thread_id,author_kind,body,created_at")
         .in("thread_id", ids)
         .order("created_at")
     : { data: [], error: null };
+
   if (error) throw new Error("SUPPORT_MESSAGES_UNAVAILABLE");
 
-  const messagesByThread = new Map<string, any[]>();
-  for (const message of messages ?? []) {
-    const key = String(message.thread_id);
-    const bucket = messagesByThread.get(key) ?? [];
+  const messages = (data ?? []) as SupportMessageRow[];
+  const messagesByThread = new Map<string, SupportMessageRow[]>();
+
+  for (const message of messages) {
+    const bucket = messagesByThread.get(message.thread_id) ?? [];
     bucket.push(message);
-    messagesByThread.set(key, bucket);
+    messagesByThread.set(message.thread_id, bucket);
   }
 
-  return rows.map((row): SupportThreadDto => ({
+  return rows.map((row) => ({
     id: row.id,
     reference: row.public_reference,
     ...(customerNames ? { customerName: customerNames.get(row.customer_user_id) ?? "Client" } : {}),
@@ -50,13 +110,23 @@ async function mapThreads(client: Client, rows: any[], customerNames?: Map<strin
     category: row.category,
     status: row.status,
     lastMessageAt: row.last_message_at,
-    messages: (messagesByThread.get(String(row.id)) ?? []).map((message: any) => ({
+    messages: (messagesByThread.get(row.id) ?? []).map((message) => ({
       id: message.id,
       authorKind: message.author_kind,
       body: message.body,
       createdAt: message.created_at,
     })),
   }));
+}
+
+function nextCursor(pageRows: SupportThreadRow[], hasNext: boolean): string | null {
+  const lastRow = pageRows[pageRows.length - 1];
+  return hasNext && lastRow
+    ? encodeSupportCursor({
+        lastMessageAt: lastRow.last_message_at,
+        id: lastRow.id,
+      })
+    : null;
 }
 
 export async function loadCustomerSupport(
@@ -74,20 +144,22 @@ export async function loadCustomerSupport(
     .limit(SUPPORT_PAGE_SIZE + 1);
 
   if (cursorValue) {
-    query = query.or(`last_message_at.lt.${cursorValue.lastMessageAt},and(last_message_at.eq.${cursorValue.lastMessageAt},id.lt.${cursorValue.id})`);
+    query = query.or(
+      `last_message_at.lt.${cursorValue.lastMessageAt},and(last_message_at.eq.${cursorValue.lastMessageAt},id.lt.${cursorValue.id})`,
+    );
   }
 
   const { data, error } = await query;
   if (error) throw new Error("SUPPORT_UNAVAILABLE");
-  const rows = data ?? [];
+
+  const rows = (data ?? []) as SupportThreadRow[];
   const hasNext = rows.length > SUPPORT_PAGE_SIZE;
   const pageRows = rows.slice(0, SUPPORT_PAGE_SIZE);
+
   return {
     items: await mapThreads(client, pageRows),
     hasNext,
-    nextCursor: (() => { const lastRow = pageRows[pageRows.length - 1]; return hasNext && lastRow
-      ? encodeSupportCursor({ lastMessageAt: String(lastRow.last_message_at), id: String(lastRow.id) })
-      : null; })(),
+    nextCursor: nextCursor(pageRows, hasNext),
   };
 }
 
@@ -97,6 +169,7 @@ export async function loadAdminSupport(
 ): Promise<SupportThreadPageDto> {
   const adminService = await import("@/features/admin/services/admin.server");
   await adminService.requireAdminPermission(client, "support.read");
+
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const admin = supabaseAdmin as Client;
   const cursorValue = decodeSupportCursor(cursor);
@@ -109,29 +182,35 @@ export async function loadAdminSupport(
     .limit(SUPPORT_PAGE_SIZE + 1);
 
   if (cursorValue) {
-    query = query.or(`last_message_at.lt.${cursorValue.lastMessageAt},and(last_message_at.eq.${cursorValue.lastMessageAt},id.lt.${cursorValue.id})`);
+    query = query.or(
+      `last_message_at.lt.${cursorValue.lastMessageAt},and(last_message_at.eq.${cursorValue.lastMessageAt},id.lt.${cursorValue.id})`,
+    );
   }
 
   const { data, error } = await query;
   if (error) throw new Error("SUPPORT_UNAVAILABLE");
 
-  const rows = data ?? [];
+  const rows = (data ?? []) as SupportThreadRow[];
   const hasNext = rows.length > SUPPORT_PAGE_SIZE;
   const pageRows = rows.slice(0, SUPPORT_PAGE_SIZE);
-  const userIds = [...new Set(pageRows.map((row: any) => String(row.customer_user_id)))];
-  const { data: profiles } = userIds.length
+  const userIds = [...new Set(pageRows.map((row) => row.customer_user_id))];
+  const { data: profileData, error: profileError } = userIds.length
     ? await admin.from("profiles").select("id,first_name,last_name").in("id", userIds)
-    : { data: [] as any[] };
-  const names = new Map((profiles ?? []).map((profile: any) => [
-    String(profile.id),
-    [profile.first_name, profile.last_name].filter(Boolean).join(" ") || "Client",
-  ]));
+    : { data: [], error: null };
+
+  if (profileError) throw new Error("SUPPORT_CUSTOMERS_UNAVAILABLE");
+
+  const profiles = (profileData ?? []) as CustomerProfileRow[];
+  const names = new Map(
+    profiles.map((profile) => [
+      profile.id,
+      [profile.first_name, profile.last_name].filter(Boolean).join(" ") || "Client",
+    ]),
+  );
 
   return {
     items: await mapThreads(admin, pageRows, names),
     hasNext,
-    nextCursor: (() => { const lastRow = pageRows[pageRows.length - 1]; return hasNext && lastRow
-      ? encodeSupportCursor({ lastMessageAt: String(lastRow.last_message_at), id: String(lastRow.id) })
-      : null; })(),
+    nextCursor: nextCursor(pageRows, hasNext),
   };
 }
