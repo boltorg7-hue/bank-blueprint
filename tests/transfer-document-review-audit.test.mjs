@@ -23,7 +23,7 @@ test("Lot 1 — review history is durable and records the authenticated actor an
   assert.match(migration, /INSERT INTO public\.transfer_document_review_history/);
   assert.match(
     migration,
-    /actor_user_id,\\s*previous_status,\\s*new_status,\\s*decision,\\s*reason_code/,
+    /actor_user_id,\s*previous_status,\s*new_status,\s*decision,\s*reason_code/,
   );
   assert.doesNotMatch(migration, /public\.admin_audit_events/);
   assert.match(migration, /prevent_transfer_document_review_history_mutation/);
