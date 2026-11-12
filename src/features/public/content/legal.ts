@@ -94,7 +94,7 @@ export const COOKIE_POSTURE = {
     {
       name: "Session d'authentification",
       purpose: "Maintenir votre connexion à l'espace client.",
-      storage: "Cookie / stockage sécurisé",
+      storage: "Stockage local du navigateur sur le site publié ; stockage de session partagé dans l’aperçu Lovable.",
     },
   ],
 } as const;
