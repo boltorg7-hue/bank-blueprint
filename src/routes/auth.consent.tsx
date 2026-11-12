@@ -117,8 +117,8 @@ function OAuthConsentPage() {
           <div className="mt-4 flex items-center gap-2 border-t border-brand/10 pt-3 text-xs font-medium text-muted-foreground">
             <LockKeyhole className="size-3.5 text-brand" aria-hidden="true" />
             {en
-              ? "Your choices are recorded securely before onboarding."
-              : "Vos choix sont enregistrés de manière sécurisée avant l’ouverture du compte."}
+              ? "No consent is recorded until the official documents are published and you explicitly accept them."
+              : "Aucun consentement n’est enregistré tant que les documents officiels ne sont pas publiés et que vous ne les avez pas explicitement acceptés."}
           </div>
         </div>
 
@@ -140,6 +140,8 @@ function OAuthConsentPage() {
           </div>
         ) : null}
 
+        {documentsPublished ? (
+          <>
         <section aria-labelledby="required-consents" className="space-y-3">
           <div className="flex items-center justify-between gap-3">
             <h2 id="required-consents" className="text-sm font-semibold text-foreground">
@@ -229,6 +231,8 @@ function OAuthConsentPage() {
             <Sparkles className="mt-0.5 size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
           </div>
         </section>
+          </>
+        ) : null}
 
         {error ? (
           <p role="alert" className="rounded-xl border border-destructive/20 bg-destructive/5 px-3 py-2.5 text-sm text-destructive">
