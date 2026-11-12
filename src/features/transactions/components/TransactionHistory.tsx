@@ -37,10 +37,18 @@ export function TransactionHistory({
   const [cursorHistory, setCursorHistory] = useState<string[]>([]);
 
   const request = {
-    direction: filters.direction, status: filters.status, datePreset: filters.datePreset,
-    type: filters.type, search: filters.search, from: filters.from, to: filters.to,
-    minAmountMinor: amountToMinor(filters.minAmount), maxAmountMinor: amountToMinor(filters.maxAmount),
-    accountReference, cursor, pageSize,
+    direction: filters.direction,
+    status: filters.status,
+    datePreset: filters.datePreset,
+    type: filters.type,
+    search: filters.search,
+    from: filters.from,
+    to: filters.to,
+    minAmountMinor: amountToMinor(filters.minAmount),
+    maxAmountMinor: amountToMinor(filters.maxAmount),
+    accountReference,
+    cursor,
+    pageSize,
   };
   const { data, isPending, isFetching, isError, refetch } = useTransactionsPage(request);
 
@@ -54,7 +62,11 @@ export function TransactionHistory({
     return (
       <ErrorState
         title={en ? "History temporarily unavailable" : "Historique momentanément indisponible"}
-        description={en ? "We couldn't load your transactions. Your data is unaffected." : "Nous n'avons pas pu charger vos opérations. Vos données ne sont pas affectées."}
+        description={
+          en
+            ? "We couldn't load your transactions. Your data is unaffected."
+            : "Nous n'avons pas pu charger vos opérations. Vos données ne sont pas affectées."
+        }
         onRetry={() => void refetch()}
       />
     );
@@ -65,7 +77,9 @@ export function TransactionHistory({
     emptyTitle ?? (en ? "No transactions to show" : "Aucune opération à afficher");
   const resolvedEmptyDescription =
     emptyDescription ??
-    (en ? "No transactions match your filters." : "Aucune opération ne correspond à votre recherche pour le moment.");
+    (en
+      ? "No transactions match your filters."
+      : "Aucune opération ne correspond à votre recherche pour le moment.");
 
   const goNext = () => {
     if (!data?.nextCursor) return;
@@ -122,7 +136,9 @@ export function TransactionHistory({
                 {en ? "Previous" : "Précédent"}
               </Button>
               <p aria-live="polite" className="text-caption text-muted-foreground">
-                {en ? "Showing the latest transactions" : "Affichage des opérations les plus récentes"}
+                {en
+                  ? "Showing the latest transactions"
+                  : "Affichage des opérations les plus récentes"}
               </p>
               <Button
                 variant="outline"
@@ -135,7 +151,9 @@ export function TransactionHistory({
             </nav>
           ) : null}
 
-          {isFetching && !isPending ? <LoadingState label={en ? "Updating…" : "Actualisation…"} /> : null}
+          {isFetching && !isPending ? (
+            <LoadingState label={en ? "Updating…" : "Actualisation…"} />
+          ) : null}
         </>
       )}
     </div>
