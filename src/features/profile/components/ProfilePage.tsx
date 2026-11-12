@@ -570,11 +570,7 @@ function VerificationItem({
   verified: boolean;
   en: boolean;
 }) {
-  const statusLabel = verified
-    ? (en ? "Verified" : "Vérifié")
-    : en
-      ? "To verify"
-      : "À vérifier";
+  const statusLabel = verified ? (en ? "Verified" : "Vérifié") : en ? "To verify" : "À vérifier";
 
   return (
     <div className="rounded-xl border border-border/70 bg-muted/20 p-3">
@@ -603,11 +599,7 @@ function ProfileSummary({
   verified: boolean;
 }) {
   const Icon = icon === "email" ? Mail : Phone;
-  const statusLabel = verified
-    ? (en ? "Verified" : "Vérifiée")
-    : en
-      ? "To verify"
-      : "À vérifier";
+  const statusLabel = verified ? (en ? "Verified" : "Vérifiée") : en ? "To verify" : "À vérifier";
 
   return (
     <div className="flex min-w-0 items-center gap-3">
