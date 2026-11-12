@@ -92,7 +92,7 @@ export const documentUploadSchema = z.object({
     .trim()
     .min(1)
     .max(255)
-    .regex(/^[^\u0000-\u001f\u007f]+$/, "Nom de fichier invalide."),
+    .refine((value) => !containsControlCharacter(value), "Nom de fichier invalide."),
   mimeType: z.enum(ALLOWED_DOCUMENT_MIME_TYPES),
   sizeBytes: z.number().int().positive().max(MAX_DOCUMENT_BYTES),
 });
