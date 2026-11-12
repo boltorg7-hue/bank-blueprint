@@ -36,7 +36,16 @@ function PrivacyPage() {
         <div className="mx-auto max-w-7xl space-y-6">
           <div className="flex items-start gap-4 rounded-2xl border border-border/70 bg-surface-sunken p-5 sm:p-6">
             <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-card text-primary shadow-sm">
-              <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" className="size-5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 24 24"
+                fill="none"
+                className="size-5"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
                 <path d="M12 3 19 6v5c0 4.5-2.8 7.8-7 10-4.2-2.2-7-5.5-7-10V6l7-3Z" />
                 <path d="m9 12 2 2 4-4" />
               </svg>
