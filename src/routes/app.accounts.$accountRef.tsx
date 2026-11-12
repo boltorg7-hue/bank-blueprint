@@ -73,9 +73,7 @@ function AccountDetailsPage() {
             onRetry={() => query.refetch()}
           />
         ) : query.isPending ? (
-          <LoadingState
-            label={en ? "Loading account…" : "Chargement du compte…"}
-          />
+          <LoadingState label={en ? "Loading account…" : "Chargement du compte…"} />
         ) : !account ? (
           <EmptyState
             title={
@@ -112,14 +110,8 @@ function AccountDetailsPage() {
               holderName={account.holderName}
             />
 
-            <section
-              aria-labelledby="account-activity-heading"
-              className="space-y-3"
-            >
-              <h2
-                id="account-activity-heading"
-                className="text-heading-sm text-foreground"
-              >
+            <section aria-labelledby="account-activity-heading" className="space-y-3">
+              <h2 id="account-activity-heading" className="text-heading-sm text-foreground">
                 {en ? "Recent activity" : "Activité récente"}
               </h2>
               {activityQuery.isError ? (
@@ -133,40 +125,28 @@ function AccountDetailsPage() {
                 />
               ) : activityQuery.isPending ? (
                 <LoadingState
-                  label={
-                    en
-                      ? "Loading recent activity…"
-                      : "Chargement de l’activité récente…"
-                  }
+                  label={en ? "Loading recent activity…" : "Chargement de l’activité récente…"} 
                 />
               ) : (
-                <RecentActivityList
-                  items={mapRecentActivity(activityQuery.data ?? [])}
-                />
+                <RecentActivityList items={mapRecentActivity(activityQuery.data ?? [])} />
               )}
             </section>
 
             <dl className="text-caption grid gap-2 text-muted-foreground">
               <div className="flex justify-between gap-3">
                 <dt>{en ? "Account reference" : "Référence du compte"}</dt>
-                <dd className="text-numeric text-foreground">
-                  {account.reference}
-                </dd>
+                <dd className="text-numeric text-foreground">{account.reference}</dd>
               </div>
               {account.openedAt && (
                 <div className="flex justify-between gap-3">
                   <dt>{en ? "Opened" : "Ouvert le"}</dt>
-                  <dd className="text-foreground">
-                    {formatDate(account.openedAt)}
-                  </dd>
+                  <dd className="text-foreground">{formatDate(account.openedAt)}</dd>
                 </div>
               )}
               {account.closedAt && (
                 <div className="flex justify-between gap-3">
                   <dt>{en ? "Closed" : "Clôturé le"}</dt>
-                  <dd className="text-foreground">
-                    {formatDate(account.closedAt)}
-                  </dd>
+                  <dd className="text-foreground">{formatDate(account.closedAt)}</dd>
                 </div>
               )}
             </dl>
@@ -183,9 +163,7 @@ function mapRecentActivity(items: CustomerTransactionDto[]) {
     .map((item) => ({
       reference: item.reference,
       type: item.type,
-      direction: (item.direction === "INCOMING"
-        ? "credit"
-        : "debit") as "credit" | "debit",
+      direction: (item.direction === "INCOMING" ? "credit" : "debit") as "credit" | "debit",
       displayName: item.displayTitle,
       amountMinor: item.amountMinor,
       currency: item.currency,
