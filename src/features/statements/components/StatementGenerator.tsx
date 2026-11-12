@@ -111,11 +111,7 @@ export function StatementGenerator() {
           else if (statement.status === "FAILED")
             toast.error(statementErrorMessage(statement.failureCode));
           else
-            toast.info(
-              en
-                ? "Your statement is being prepared."
-                : "Votre relevé est en préparation.",
-            );
+            toast.info(en ? "Your statement is being prepared." : "Votre relevé est en préparation.");
         },
         onError: (error) => toast.error(statementErrorMessage(error.message)),
       },
