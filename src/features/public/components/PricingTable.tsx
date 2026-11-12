@@ -62,14 +62,19 @@ export function PricingTable({
           <header className="border-b border-border bg-surface-sunken/80 px-5 py-5 sm:px-6">
             <div className="flex items-start justify-between gap-4">
               <div className="min-w-0">
-                <h3 id={`pricing-${category.id}`} className="text-heading-sm text-foreground">
+                <h3
+                  id={`pricing-${category.id}`}
+                  className="text-heading-sm text-foreground"
+                >
                   {text(category.title)}
                 </h3>
                 <p className="text-body-sm mt-1.5 max-w-3xl text-muted-foreground">
                   {text(category.description)}
                 </p>
               </div>
-              <span className="hidden size-9 shrink-0 items-center justify-center rounded-xl bg-brand/10 text-caption font-semibold text-brand sm:inline-flex">
+              <span
+                className="hidden size-9 shrink-0 items-center justify-center rounded-xl bg-brand/10 text-caption font-semibold text-brand sm:inline-flex"
+              >
                 {String(category.lines.length).padStart(2, "0")}
               </span>
             </div>
@@ -81,7 +86,9 @@ export function PricingTable({
                 className="flex flex-col gap-2 px-5 py-4 transition-colors duration-150 hover:bg-surface-sunken/50 motion-reduce:transition-none sm:flex-row sm:items-center sm:justify-between sm:gap-6 sm:px-6"
               >
                 <div className="min-w-0">
-                  <dt className="text-body-sm font-medium text-foreground">{text(line.label)}</dt>
+                  <dt className="text-body-sm font-medium text-foreground">
+                    {text(line.label)}
+                  </dt>
                   {line.note && (
                     <p className="text-caption mt-1 text-muted-foreground">{text(line.note)}</p>
                   )}
