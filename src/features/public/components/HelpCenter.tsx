@@ -45,8 +45,8 @@ export function HelpCenter() {
   const activeCategoryLabel = categories.find((c) => c.id === category)?.label;
 
   return (
-    <div className="space-y-7">
-      <div className="rounded-2xl border border-border bg-surface-sunken/60 p-4 sm:p-5">
+    <div className="space-y-8">
+      <div className="rounded-2xl border border-border/80 bg-gradient-to-br from-surface-sunken/70 to-card p-4 shadow-sm sm:p-6">
         <div className="space-y-3">
           <label htmlFor="help-search" className="text-label block text-foreground">
             {en ? "Search the help center" : "Rechercher dans le centre d’aide"}
@@ -62,12 +62,12 @@ export function HelpCenter() {
               value={query}
               onChange={(event) => setQuery(event.target.value)}
               placeholder={en ? "Transfers, statements, sign-in…" : "Virement, relevé, connexion…"}
-              className="h-12 rounded-xl border-border bg-card pl-11 shadow-sm focus-visible:ring-2 focus-visible:ring-ring"
+              className="h-12 rounded-xl border-border/80 bg-card pl-11 shadow-sm transition-shadow focus-visible:ring-2 focus-visible:ring-ring focus-visible:shadow-md"
               autoComplete="off"
             />
           </div>
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <p className="text-caption text-muted-foreground" role="status">
+            <p className="text-caption font-medium text-muted-foreground" role="status">
               {results.length} {en ? "article" : "article"}
               {results.length === 1 ? "" : "s"}
               {activeCategoryLabel ? ` · ${activeCategoryLabel}` : ""}
@@ -75,7 +75,7 @@ export function HelpCenter() {
             {(query || category) && (
               <button
                 type="button"
-                className="text-caption rounded-md px-2 py-1 font-medium text-brand transition-colors hover:bg-brand/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                className="text-caption rounded-lg px-3 py-2 font-semibold text-brand transition-colors hover:bg-brand/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 onClick={() => {
                   setQuery("");
                   setCategory(null);
@@ -89,11 +89,11 @@ export function HelpCenter() {
       </div>
 
       <div className="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
-        <div className="flex w-max gap-2 sm:w-full sm:flex-wrap">
+        <div className="flex w-max gap-2 pb-1 sm:w-full sm:flex-wrap sm:pb-0">
           <Button
             variant={category === null ? "default" : "outline"}
             size="sm"
-            className="touch-target rounded-full"
+            className="touch-target rounded-full shadow-sm transition-all"
             aria-pressed={category === null}
             onClick={() => setCategory(null)}
           >
@@ -131,7 +131,7 @@ export function HelpCenter() {
           />
         </div>
       ) : (
-        <div className="overflow-hidden rounded-2xl border border-border bg-card px-4 shadow-sm sm:px-6">
+        <div className="overflow-hidden rounded-2xl border border-border/80 bg-card px-4 shadow-sm sm:px-6">
           <Accordion type="single" collapsible className={cn("w-full")}>
             {results.map((article) => (
               <FaqItem
