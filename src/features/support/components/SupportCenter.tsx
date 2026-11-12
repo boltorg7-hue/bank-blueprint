@@ -106,9 +106,7 @@ export function SupportCenter() {
     const cleanBody = body.trim();
     if (cleanSubject.length < 5 || !cleanBody) {
       toast.error(
-        en
-          ? "Add a clear subject and your message."
-          : "Ajoutez un sujet précis et votre message.",
+        en ? "Add a clear subject and your message." : "Ajoutez un sujet précis et votre message.",
       );
       return;
     }
@@ -275,9 +273,9 @@ export function SupportCenter() {
         <SummaryTile
           label={en ? "Awaiting your reply" : "Votre réponse attendue"}
           value={
-            (query.data?.items ?? [])
-              .filter((thread) => thread.status === "WAITING_CUSTOMER")
-              .length
+            (query.data?.items ?? []).filter(
+              (thread) => thread.status === "WAITING_CUSTOMER",
+            ).length
           }
           icon="reply"
         />
