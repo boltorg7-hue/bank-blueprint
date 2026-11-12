@@ -7,6 +7,7 @@ const supportUi = fs.readFileSync("src/features/support/components/SupportCenter
 const supportMigration = fs.readFileSync("supabase/migrations/20260924120000_customer_support_messaging.sql", "utf8");
 const profilePage = fs.readFileSync("src/features/profile/components/ProfilePage.tsx", "utf8");
 const moreRoute = fs.readFileSync("src/routes/app.more.tsx", "utf8");
+const sessionHook = fs.readFileSync("src/features/auth/hooks/useSessionUser.ts", "utf8");
 
 assert.match(supportServer, /SUPPORT_CURSOR_UUID/);
 assert.match(supportServer, /SUPPORT_CURSOR_TIMESTAMP/);
