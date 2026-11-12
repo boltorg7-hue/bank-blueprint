@@ -3,6 +3,83 @@ BEGIN;
 -- Replace the SQL-only queue with a server-orchestrated provider submission.
 -- The provider result must be simulated and remain pending; 100% is a separate
 -- decision made by a third, distinct staff member.
+CREATE OR REPLACE FUNCTION public.admin_approve_simulated_external(_reference text)
+RETURNS void
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = pg_catalog, public
+AS $
+DECLARE
+  _t public.transfers%ROWTYPE;
+  _simulated boolean;
+BEGIN
+  IF NOT public.has_permission(auth.uid(), 'compliance.review') THEN
+    RAISE EXCEPTION 'FORBIDDEN';
+  END IF;
+
+  SELECT tr, rail.is_simulation
+    INTO _t, _simulated
+    FROM public.transfers tr
+    JOIN public.external_settlement_rails rail ON rail.id = tr.settlement_rail_id
+   WHERE tr.public_reference = _reference
+   FOR UPDATE OF tr;
+
+  IF _t.id IS NULL
+     OR NOT COALESCE(_simulated, false)
+     OR _t.transfer_kind <> 'EXTERNAL_TRANSFER' THEN
+    RAISE EXCEPTION 'INVALID_SIMULATED_TRANSFER';
+  END IF;
+
+  IF _t.status = 'APPROVED'
+     AND _t.progress_percent = 95
+     AND _t.simulation_approved_by = auth.uid() THEN
+    RETURN;
+  END IF;
+
+  IF _t.status <> 'COMPLIANCE_REVIEW' OR _t.progress_percent <> 90 THEN
+    RAISE EXCEPTION 'INVALID_SIMULATED_TRANSFER_TRANSITION';
+  END IF;
+
+  IF _t.simulation_approved_by IS NOT NULL THEN
+    RAISE EXCEPTION 'SIMULATION_ALREADY_APPROVED';
+  END IF;
+
+  IF EXISTS (
+    SELECT 1
+      FROM public.transfer_requirements
+     WHERE transfer_id = _t.id
+       AND is_mandatory
+       AND status <> 'SATISFIED'
+  ) THEN
+    RAISE EXCEPTION 'DOCUMENTS_INCOMPLETE';
+  END IF;
+
+  PERFORM public.decide_transfer_compliance(auth.uid(), _reference, 'APPROVE', NULL);
+
+  UPDATE public.transfers
+     SET simulation_approved_by = auth.uid()
+   WHERE id = _t.id;
+
+  INSERT INTO public.admin_audit_events (
+    actor_user_id, action, resource_type, resource_reference,
+    permission_checked, result, context
+  ) VALUES (
+    auth.uid(),
+    'external_transfer.approved',
+    'transfer',
+    _reference,
+    'compliance.review',
+    'ALLOWED',
+    jsonb_build_object('progress_percent', 95, 'simulation', true)
+  );
+END;
+$;
+
+REVOKE ALL ON FUNCTION public.admin_approve_simulated_external(text)
+  FROM PUBLIC, anon;
+GRANT EXECUTE ON FUNCTION public.admin_approve_simulated_external(text)
+  TO authenticated;
+
 DROP FUNCTION IF EXISTS public.admin_queue_simulated_external(text);
 
 CREATE OR REPLACE FUNCTION public.admin_queue_simulated_external(
