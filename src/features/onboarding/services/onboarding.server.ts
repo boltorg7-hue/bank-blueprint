@@ -20,20 +20,31 @@ const PROFILE_COLUMNS =
 export class OnboardingError extends Error {}
 
 function detectDocumentMimeType(bytes: Uint8Array): string | null {
-  const ascii = (start: number, end: number) =>
-    String.fromCharCode(...bytes.subarray(start, end));
+  const ascii = (start: number, end: number) => String.fromCharCode(...bytes.subarray(start, end));
 
   if (ascii(0, 5) === "%PDF-") return "application/pdf";
   if (bytes.length >= 3 && bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff) {
     return "image/jpeg";
   }
-  if (bytes.length >= 8 && bytes[0] === 0x89 && ascii(1, 4) === "PNG" && bytes[4] === 0x0d && bytes[5] === 0x0a && bytes[6] === 0x1a && bytes[7] === 0x0a) {
+  if (
+    bytes.length >= 8 &&
+    bytes[0] === 0x89 &&
+    ascii(1, 4) === "PNG" &&
+    bytes[4] === 0x0d &&
+    bytes[5] === 0x0a &&
+    bytes[6] === 0x1a &&
+    bytes[7] === 0x0a
+  ) {
     return "image/png";
   }
   if (bytes.length >= 12 && ascii(0, 4) === "RIFF" && ascii(8, 12) === "WEBP") {
     return "image/webp";
   }
-  if (bytes.length >= 12 && ascii(4, 8) === "ftyp" && ["heic", "heix", "hevc", "hevx", "mif1", "msf1"].includes(ascii(8, 12))) {
+  if (
+    bytes.length >= 12 &&
+    ascii(4, 8) === "ftyp" &&
+    ["heic", "heix", "hevc", "hevx", "mif1", "msf1"].includes(ascii(8, 12))
+  ) {
     return "image/heic";
   }
   return null;
@@ -47,7 +58,9 @@ async function validateUploadedDocument(
     throw new OnboardingError("INVALID_DOCUMENT_PATH");
   }
   const pathPattern = new RegExp(
-    "^" + userId + "/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\\.(jpg|jpeg|png|heic|webp|pdf)$",
+    "^" +
+      userId +
+      "/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\\.(jpg|jpeg|png|heic|webp|pdf)$",
     "i",
   );
   if (!pathPattern.test(data.storagePath)) {
@@ -308,7 +321,9 @@ export async function saveProfileStep(userId: string, input: unknown) {
       nationality: data.nationality,
       country_of_residence: data.countryOfResidence,
       occupation: data.occupation,
-      ...(phoneUnchanged ? { lifecycle_state: lifecycleState, onboarding_step: onboardingStep } : {}),
+      ...(phoneUnchanged
+        ? { lifecycle_state: lifecycleState, onboarding_step: onboardingStep }
+        : {}),
     })
     .eq("id", userId)
     .in("lifecycle_state", PROFILE_EDITABLE_LIFECYCLE_STATES)
@@ -417,7 +432,15 @@ export async function submitForVerification(userId: string) {
   if (error) throw new OnboardingError(error.message);
   const result = (
     data as unknown as Array<{
-      status: "NOT_STARTED" | "IN_PROGRESS" | "SUBMITTED" | "UNDER_REVIEW" | "ADDITIONAL_INFORMATION_REQUIRED" | "VERIFIED" | "REJECTED" | "EXPIRED";
+      status:
+        | "NOT_STARTED"
+        | "IN_PROGRESS"
+        | "SUBMITTED"
+        | "UNDER_REVIEW"
+        | "ADDITIONAL_INFORMATION_REQUIRED"
+        | "VERIFIED"
+        | "REJECTED"
+        | "EXPIRED";
       already_submitted: boolean;
     }> | null
   )?.[0];

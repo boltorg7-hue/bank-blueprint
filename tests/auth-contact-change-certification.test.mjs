@@ -70,7 +70,9 @@ test("SMS outbox dispatch claims jobs atomically and prevents duplicate concurre
 });
 
 test("OTP limits, encrypted outbox, provider acceptance and lifecycle progression are consistent", () => {
-  const migration = read("supabase/migrations/20261111140000_otp_security_and_lifecycle_consistency.sql");
+  const migration = read(
+    "supabase/migrations/20261111140000_otp_security_and_lifecycle_consistency.sql",
+  );
   const provider = read("src/features/notifications/services/sms/africastalking-provider.ts");
   const service = read("src/features/onboarding/services/contact-verification.server.ts");
   assert.match(migration, /OTP_USER_DAILY_LIMIT/);
@@ -86,14 +88,19 @@ test("OTP limits, encrypted outbox, provider acceptance and lifecycle progressio
   assert.match(provider, /createDecipheriv/);
   assert.match(provider, /state: "ACCEPTED"/);
   assert.match(provider, /AbortSignal.timeout/);
-  assert.match(read("src/features/notifications/services/notifications.server.ts"), /payload: \{\}/);
+  assert.match(
+    read("src/features/notifications/services/notifications.server.ts"),
+    /payload: \{\}/,
+  );
   assert.match(service, /OTP_USER_DAILY_LIMIT/);
   assert.match(service, /OTP_PHONE_DAILY_LIMIT/);
 });
 
 test("profile editing cannot bypass the atomic phone-change and OTP invalidation path", () => {
   const onboarding = read("src/features/onboarding/services/onboarding.server.ts");
-  const migration = read("supabase/migrations/20261111140000_otp_security_and_lifecycle_consistency.sql");
+  const migration = read(
+    "supabase/migrations/20261111140000_otp_security_and_lifecycle_consistency.sql",
+  );
   assert.match(onboarding, /customer_change_pending_phone/);
   assert.doesNotMatch(onboarding, /\bphone:\s*data\.phone/);
   assert.match(migration, /pg_advisory_xact_lock\(hashtextextended\(_phone, 0\)\)/);

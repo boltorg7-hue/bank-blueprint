@@ -1,8 +1,7 @@
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
 export async function assertCustomerConsent(userId: string): Promise<void> {
-  const { data: authData, error: authError } =
-    await supabaseAdmin.auth.admin.getUserById(userId);
+  const { data: authData, error: authError } = await supabaseAdmin.auth.admin.getUserById(userId);
 
   if (authError || !authData.user) {
     throw new Error("CUSTOMER_AUTH_UNAVAILABLE");

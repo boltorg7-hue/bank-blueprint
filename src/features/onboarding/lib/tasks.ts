@@ -29,34 +29,38 @@ export function isProfileComplete(context: CustomerContext): boolean {
   const profile = context.profile;
   return Boolean(
     profile.first_name &&
-      profile.last_name &&
-      profile.date_of_birth &&
-      profile.nationality &&
-      profile.country_of_residence &&
-      profile.occupation,
+    profile.last_name &&
+    profile.date_of_birth &&
+    profile.nationality &&
+    profile.country_of_residence &&
+    profile.occupation,
   );
 }
 
 const REVIEWABLE_DOCUMENT_STATUSES = ["UPLOADED", "UNDER_REVIEW", "ACCEPTED"];
 
 export function hasIdentityDocument(context: CustomerContext): boolean {
-  return context.documents.some((document) =>
-    ["IDENTITY_CARD", "PASSPORT", "RESIDENCE_PERMIT"].includes(document.document_type) &&
-    REVIEWABLE_DOCUMENT_STATUSES.includes(document.status),
+  return context.documents.some(
+    (document) =>
+      ["IDENTITY_CARD", "PASSPORT", "RESIDENCE_PERMIT"].includes(document.document_type) &&
+      REVIEWABLE_DOCUMENT_STATUSES.includes(document.status),
   );
 }
 
 export function hasProofOfAddress(context: CustomerContext): boolean {
-  return context.documents.some((document) =>
-    document.document_type === "PROOF_OF_ADDRESS" &&
-    REVIEWABLE_DOCUMENT_STATUSES.includes(document.status),
+  return context.documents.some(
+    (document) =>
+      document.document_type === "PROOF_OF_ADDRESS" &&
+      REVIEWABLE_DOCUMENT_STATUSES.includes(document.status),
   );
 }
 
 export function hasDeferredDocuments(context: CustomerContext): boolean {
-  return context.profile.lifecycle_state === "IDENTITY_REQUIRED" &&
+  return (
+    context.profile.lifecycle_state === "IDENTITY_REQUIRED" &&
     context.profile.onboarding_step === "COMPLETED" &&
-    context.verification.status === "NOT_STARTED";
+    context.verification.status === "NOT_STARTED"
+  );
 }
 
 export function isSubmitted(context: CustomerContext): boolean {
@@ -113,7 +117,13 @@ export function buildOnboardingTasks(context: CustomerContext): OnboardingTask[]
       description: documentsDeferred
         ? "Vous pourrez transmettre vos justificatifs plus tard. La vérification d'identité reste en attente."
         : "Une pièce d'identité et un justificatif de domicile à transmettre maintenant ou ultérieurement.",
-      status: documentsDone ? "done" : documentsDeferred ? "blocked" : addressDone ? "current" : "todo",
+      status: documentsDone
+        ? "done"
+        : documentsDeferred
+          ? "blocked"
+          : addressDone
+            ? "current"
+            : "todo",
       required: false,
       route: "/onboarding/documents",
     },
@@ -132,7 +142,8 @@ export function buildOnboardingTasks(context: CustomerContext): OnboardingTask[]
       title: "Ouverture du compte",
       description:
         "Après la vérification d'identité, l'ouverture du compte fait l'objet d'un examen distinct.",
-      status: context.profile.lifecycle_state === "ACTIVE" ? "done" : submitted ? "current" : "todo",
+      status:
+        context.profile.lifecycle_state === "ACTIVE" ? "done" : submitted ? "current" : "todo",
       required: true,
       route: "/onboarding/status",
     },

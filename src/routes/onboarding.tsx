@@ -1,18 +1,11 @@
 import { useLanguage } from "@/components/providers/LanguageProvider";
 import { LanguageSwitch } from "@/components/navigation/LanguageSwitch";
-import {
-  createFileRoute,
-  Outlet,
-  redirect,
-  useRouter,
-} from "@tanstack/react-router";
+import { createFileRoute, Outlet, redirect, useRouter } from "@tanstack/react-router";
 
 import { Button } from "@/components/ui/button";
 import { BrandMark } from "@/components/navigation/BrandMark";
 import { useSignOut } from "@/features/auth/hooks/useSessionUser";
-import {
-  getOAuthConsentStatus,
-} from "@/features/auth/services/oauth-consent.functions";
+import { getOAuthConsentStatus } from "@/features/auth/services/oauth-consent.functions";
 import { supabase } from "@/integrations/supabase/client";
 
 /**
@@ -96,19 +89,14 @@ function OnboardingError() {
     <OnboardingChrome>
       <div className="mx-auto w-full max-w-2xl px-4 py-16 sm:px-6">
         <h1 className="text-heading-lg text-foreground">
-          {en
-            ? "This step could not be displayed"
-            : "Cette étape n’a pas pu s’afficher"}
+          {en ? "This step could not be displayed" : "Cette étape n’a pas pu s’afficher"}
         </h1>
         <p className="text-body mt-3 text-muted-foreground">
           {en
             ? "We could not load your information. Please try again shortly."
             : "Nous n’avons pas pu charger vos informations pour le moment. Réessayez dans un instant."}
         </p>
-        <Button
-          className="mt-6 touch-target"
-          onClick={() => void router.invalidate()}
-        >
+        <Button className="mt-6 touch-target" onClick={() => void router.invalidate()}>
           {en ? "Try again" : "Réessayer"}
         </Button>
       </div>

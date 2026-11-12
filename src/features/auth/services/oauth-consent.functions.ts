@@ -16,9 +16,7 @@ type AuthClaims = {
 export const getOAuthConsentStatus = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { supabaseAdmin } = await import(
-      "@/integrations/supabase/client.server"
-    );
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const claims = context.claims as AuthClaims | null;
 
     if (!claims?.sub || claims.sub !== context.userId) {
@@ -68,9 +66,7 @@ export const recordOAuthConsent = createServerFn({ method: "POST" })
       throw new Error("UNSUPPORTED_OAUTH_PROVIDER");
     }
 
-    const { supabaseAdmin } = await import(
-      "@/integrations/supabase/client.server"
-    );
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error } = await supabaseAdmin.rpc(
       "record_oauth_registration_consent" as never,
       {

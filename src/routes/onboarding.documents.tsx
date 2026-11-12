@@ -7,7 +7,11 @@ import { Spinner } from "@/components/ui/spinner";
 import { OnboardingShell } from "@/features/onboarding/components/OnboardingShell";
 import { DocumentUploader } from "@/features/onboarding/components/DocumentUploader";
 import { useCustomerContext } from "@/features/onboarding/hooks/useCustomerContext";
-import { hasIdentityDocument, hasProofOfAddress, isSubmitted } from "@/features/onboarding/lib/tasks";
+import {
+  hasIdentityDocument,
+  hasProofOfAddress,
+  isSubmitted,
+} from "@/features/onboarding/lib/tasks";
 
 export const Route = createFileRoute("/onboarding/documents")({
   head: () => ({
@@ -15,7 +19,10 @@ export const Route = createFileRoute("/onboarding/documents")({
       { title: "Vérification d’identité — Ouverture de compte RFC" },
       { name: "description", content: "Transmettez vos justificatifs dans l’espace sécurisé RFC." },
       { property: "og:title", content: "Vérification d’identité — RFC FINANCE Bank" },
-      { property: "og:description", content: "Troisième étape sécurisée de l’ouverture de compte RFC." },
+      {
+        property: "og:description",
+        content: "Troisième étape sécurisée de l’ouverture de compte RFC.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex,nofollow" },
@@ -31,7 +38,10 @@ function DocumentsStepPage() {
 
   if (isPending || !context) {
     return (
-      <OnboardingShell stepId="documents" title={en ? "Verify your identity" : "Vérification de votre identité"}>
+      <OnboardingShell
+        stepId="documents"
+        title={en ? "Verify your identity" : "Vérification de votre identité"}
+      >
         <div className="flex items-center gap-3 text-muted-foreground">
           <Spinner className="size-5" />
           <span className="text-body-sm">{en ? "Loading…" : "Chargement…"}</span>
@@ -48,39 +58,69 @@ function DocumentsStepPage() {
     <OnboardingShell
       stepId="documents"
       title={en ? "Verify your identity" : "Vérification de votre identité"}
-      description={en ? "You can upload your documents now or continue and provide them later." : "Vous pouvez transmettre vos justificatifs maintenant ou poursuivre votre inscription et les fournir plus tard."}
-      why={en ? "Identity verification is required before banking access. Skipping this step does not verify your identity or activate an account." : "La vérification d'identité reste obligatoire avant tout accès bancaire. Passer cette étape ne valide pas votre identité et n'active aucun compte."}
+      description={
+        en
+          ? "You can upload your documents now or continue and provide them later."
+          : "Vous pouvez transmettre vos justificatifs maintenant ou poursuivre votre inscription et les fournir plus tard."
+      }
+      why={
+        en
+          ? "Identity verification is required before banking access. Skipping this step does not verify your identity or activate an account."
+          : "La vérification d'identité reste obligatoire avant tout accès bancaire. Passer cette étape ne valide pas votre identité et n'active aucun compte."
+      }
     >
       <DocumentUploader context={context} editable={editable} />
 
       <div className="mt-8 space-y-3">
         {ready ? (
-          <div role="status" className="flex items-start gap-3 rounded-2xl border border-success/40 bg-success-muted px-4 py-4 animate-in fade-in slide-in-from-bottom-2 duration-500">
-            <CheckCircle2 className="mt-0.5 size-6 shrink-0 text-success animate-in zoom-in-50 duration-700" aria-hidden="true" />
+          <div
+            role="status"
+            className="flex items-start gap-3 rounded-2xl border border-success/40 bg-success-muted px-4 py-4 animate-in fade-in slide-in-from-bottom-2 duration-500"
+          >
+            <CheckCircle2
+              className="mt-0.5 size-6 shrink-0 text-success animate-in zoom-in-50 duration-700"
+              aria-hidden="true"
+            />
             <div>
-              <p className="text-label text-foreground">{en ? "Step 3 of 4 completed" : "Étape 3 sur 4 terminée"}</p>
+              <p className="text-label text-foreground">
+                {en ? "Step 3 of 4 completed" : "Étape 3 sur 4 terminée"}
+              </p>
               <p className="text-body-sm text-muted-foreground">
-                {en ? "Your identity documents are provided. One last check and you're done." : "Vos documents d'identité sont bien renseignés. Une dernière relecture et c'est terminé."}
+                {en
+                  ? "Your identity documents are provided. One last check and you're done."
+                  : "Vos documents d'identité sont bien renseignés. Une dernière relecture et c'est terminé."}
               </p>
             </div>
           </div>
         ) : (
           <p className="text-body-sm text-muted-foreground">
-            {en ? "You can add an identity document and proof of address now, or continue without them for the moment." : "Vous pouvez ajouter une pièce d'identité et un justificatif de domicile maintenant, ou continuer sans les fournir pour le moment."}
+            {en
+              ? "You can add an identity document and proof of address now, or continue without them for the moment."
+              : "Vous pouvez ajouter une pièce d'identité et un justificatif de domicile maintenant, ou continuer sans les fournir pour le moment."}
           </p>
         )}
         {ready || !editable ? (
           <Button asChild className="w-full touch-target">
-            <Link to={editable ? "/onboarding/review" : "/onboarding/status"}>{en ? "Continue to review" : "Continuer vers la relecture"}</Link>
+            <Link to={editable ? "/onboarding/review" : "/onboarding/status"}>
+              {en ? "Continue to review" : "Continuer vers la relecture"}
+            </Link>
           </Button>
         ) : null}
         {!ready && canDefer ? (
           <Button asChild variant="outline" className="w-full touch-target">
-            <Link to="/onboarding/review">{en ? "Continue without documents for now" : "Continuer sans fournir les documents pour le moment"}</Link>
+            <Link to="/onboarding/review">
+              {en
+                ? "Continue without documents for now"
+                : "Continuer sans fournir les documents pour le moment"}
+            </Link>
           </Button>
         ) : null}
         {!ready && editable && !canDefer ? (
-          <Button className="w-full touch-target" disabled>{en ? "The requested documents are required" : "Les documents demandés sont obligatoires"}</Button>
+          <Button className="w-full touch-target" disabled>
+            {en
+              ? "The requested documents are required"
+              : "Les documents demandés sont obligatoires"}
+          </Button>
         ) : null}
       </div>
     </OnboardingShell>

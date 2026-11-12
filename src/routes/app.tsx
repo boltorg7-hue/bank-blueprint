@@ -1,10 +1,5 @@
 import { useLanguage } from "@/components/providers/LanguageProvider";
-import {
-  createFileRoute,
-  Outlet,
-  redirect,
-  useNavigate,
-} from "@tanstack/react-router";
+import { createFileRoute, Outlet, redirect, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
 
 import { BankingAppLayout } from "@/components/layout/BankingAppLayout";
@@ -12,9 +7,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { LimitedAccessBanner } from "@/features/customer-shell/components/LimitedAccessBanner";
 import { canEnterBankingShell } from "@/features/customer-shell/lib/route-access";
 import { useCustomerContext } from "@/features/onboarding/hooks/useCustomerContext";
-import {
-  getOAuthConsentStatus,
-} from "@/features/auth/services/oauth-consent.functions";
+import { getOAuthConsentStatus } from "@/features/auth/services/oauth-consent.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { nextRouteForLifecycle } from "@/types/customer-lifecycle";
 
@@ -69,9 +62,7 @@ function CustomerAppLayoutRoute() {
         >
           <Spinner className="size-5" />
           <span className="text-body-sm">
-            {language === "en"
-              ? "Preparing your account…"
-              : "Préparation de votre espace…"}
+            {language === "en" ? "Preparing your account…" : "Préparation de votre espace…"}
           </span>
         </div>
       </BankingAppLayout>

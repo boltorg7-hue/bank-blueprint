@@ -33,7 +33,8 @@ function decryptOtpPayload(payload: Record<string, unknown>) {
   const iv = Buffer.from(String(payload["iv"] ?? ""), "base64");
   const tag = Buffer.from(String(payload["tag"] ?? ""), "base64");
   const ciphertext = Buffer.from(String(payload["ciphertext"] ?? ""), "base64");
-  if (iv.length !== 12 || tag.length !== 16 || ciphertext.length === 0) throw new Error("SMS_PAYLOAD_INVALID");
+  if (iv.length !== 12 || tag.length !== 16 || ciphertext.length === 0)
+    throw new Error("SMS_PAYLOAD_INVALID");
   const decipher = createDecipheriv("aes-256-gcm", key, iv);
   decipher.setAuthTag(tag);
   const plaintext = Buffer.concat([decipher.update(ciphertext), decipher.final()]);
@@ -62,7 +63,8 @@ export const africaTalkingSmsProvider: SmsProvider = {
       if (!["sandbox", "production", "live"].includes(environment)) {
         throw new Error("SMS_PROVIDER_ENV_UNSUPPORTED");
       }
-      const endpoint = environment === "production" || environment === "live" ? LIVE_URL : SANDBOX_URL;
+      const endpoint =
+        environment === "production" || environment === "live" ? LIVE_URL : SANDBOX_URL;
       const text = renderMessage(message);
 
       const body = new URLSearchParams({

@@ -1,9 +1,4 @@
-import {
-  createFileRoute,
-  Link,
-  redirect,
-  useNavigate,
-} from "@tanstack/react-router";
+import { createFileRoute, Link, redirect, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 
@@ -98,10 +93,7 @@ function OAuthConsentPage() {
               checked={termsAccepted}
               onCheckedChange={(value) => setTermsAccepted(value === true)}
             />
-            <Label
-              htmlFor="oauth-terms"
-              className="text-body-sm leading-relaxed font-normal"
-            >
+            <Label htmlFor="oauth-terms" className="text-body-sm leading-relaxed font-normal">
               {en ? "I accept the" : "J’accepte les"}{" "}
               <Link
                 to="/terms"
@@ -119,10 +111,7 @@ function OAuthConsentPage() {
               checked={privacyAccepted}
               onCheckedChange={(value) => setPrivacyAccepted(value === true)}
             />
-            <Label
-              htmlFor="oauth-privacy"
-              className="text-body-sm leading-relaxed font-normal"
-            >
+            <Label htmlFor="oauth-privacy" className="text-body-sm leading-relaxed font-normal">
               {en ? "I have read and accept the" : "J’ai lu et j’accepte la"}{" "}
               <Link
                 to="/privacy"
@@ -140,10 +129,7 @@ function OAuthConsentPage() {
               checked={marketingConsent}
               onCheckedChange={(value) => setMarketingConsent(value === true)}
             />
-            <Label
-              htmlFor="oauth-marketing"
-              className="text-body-sm leading-relaxed font-normal"
-            >
+            <Label htmlFor="oauth-marketing" className="text-body-sm leading-relaxed font-normal">
               {en
                 ? "I would like to receive RF BANK news and offers (optional)."
                 : "Je souhaite recevoir les actualités et offres de RF BANK (facultatif)."}

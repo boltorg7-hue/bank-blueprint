@@ -86,8 +86,12 @@ function VerifyEmailPage() {
   function rateMessage(seconds?: number) {
     const wait = seconds && seconds > 90 ? Math.ceil(seconds / 60) : null;
     return en
-      ? wait ? `Too many requests. Try again in ${wait} min.` : "Too many requests. Please wait a minute and try again."
-      : wait ? `Trop de demandes. Réessayez dans ${wait} min.` : "Trop de demandes. Patientez une minute puis réessayez.";
+      ? wait
+        ? `Too many requests. Try again in ${wait} min.`
+        : "Too many requests. Please wait a minute and try again."
+      : wait
+        ? `Trop de demandes. Réessayez dans ${wait} min.`
+        : "Trop de demandes. Patientez une minute puis réessayez.";
   }
 
   async function handleResend() {
@@ -97,19 +101,37 @@ function VerifyEmailPage() {
       const result = await resendFn({ data: { email: target } });
       if (result.ok) {
         setCooldown(result.retryAfter);
-        setNotice({ tone: "ok", text: en
-          ? "If this address can receive a confirmation link, an email will arrive shortly. Check your inbox and spam folder."
-          : "Si cette adresse peut recevoir un lien de confirmation, un e-mail arrivera sous peu. Vérifiez votre boîte de réception et vos courriers indésirables." });
+        setNotice({
+          tone: "ok",
+          text: en
+            ? "If this address can receive a confirmation link, an email will arrive shortly. Check your inbox and spam folder."
+            : "Si cette adresse peut recevoir un lien de confirmation, un e-mail arrivera sous peu. Vérifiez votre boîte de réception et vos courriers indésirables.",
+        });
       } else if (result.code === "RATE_LIMITED") {
         setCooldown(result.retryAfter ?? RESEND_COOLDOWN_SECONDS);
         setNotice({ tone: "error", text: rateMessage(result.retryAfter) });
       } else if (result.code === "ALREADY_VERIFIED") {
-        setNotice({ tone: "ok", text: en ? "This address is already verified. Sign in to continue." : "Cette adresse est déjà vérifiée. Connectez-vous pour continuer." });
+        setNotice({
+          tone: "ok",
+          text: en
+            ? "This address is already verified. Sign in to continue."
+            : "Cette adresse est déjà vérifiée. Connectez-vous pour continuer.",
+        });
       } else {
-        setNotice({ tone: "error", text: en ? "The email could not be sent. Try again later." : "L’e-mail n’a pas pu être envoyé. Réessayez plus tard." });
+        setNotice({
+          tone: "error",
+          text: en
+            ? "The email could not be sent. Try again later."
+            : "L’e-mail n’a pas pu être envoyé. Réessayez plus tard.",
+        });
       }
     } catch {
-      setNotice({ tone: "error", text: en ? "The email could not be sent. Try again later." : "L’e-mail n’a pas pu être envoyé. Réessayez plus tard." });
+      setNotice({
+        tone: "error",
+        text: en
+          ? "The email could not be sent. Try again later."
+          : "L’e-mail n’a pas pu être envoyé. Réessayez plus tard.",
+      });
     } finally {
       setPending(false);
     }
@@ -119,11 +141,17 @@ function VerifyEmailPage() {
     event.preventDefault();
     const value = newEmail.trim().toLowerCase();
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(value)) {
-      setNotice({ tone: "error", text: en ? "Please enter a valid email address." : "Saisissez une adresse e-mail valide." });
+      setNotice({
+        tone: "error",
+        text: en ? "Please enter a valid email address." : "Saisissez une adresse e-mail valide.",
+      });
       return;
     }
     if (target && value === target.toLowerCase()) {
-      setNotice({ tone: "error", text: en ? "This is already your current address." : "C’est déjà votre adresse actuelle." });
+      setNotice({
+        tone: "error",
+        text: en ? "This is already your current address." : "C’est déjà votre adresse actuelle.",
+      });
       return;
     }
     if (!target) {
@@ -142,11 +170,20 @@ function VerifyEmailPage() {
       const messages: Record<string, [string, string]> = {
         AUTH_FAILED: ["Mot de passe incorrect.", "Incorrect password."],
         EMAIL_TAKEN: ["Cette adresse est déjà utilisée.", "This address is already in use."],
-        ALREADY_VERIFIED: ["Votre adresse est déjà vérifiée : modifiez-la depuis votre espace sécurité.", "Your address is already verified: change it from your security settings."],
+        ALREADY_VERIFIED: [
+          "Votre adresse est déjà vérifiée : modifiez-la depuis votre espace sécurité.",
+          "Your address is already verified: change it from your security settings.",
+        ],
         INVALID: ["C’est déjà votre adresse actuelle.", "This is already your current address."],
-        SEND_FAILED: ["La modification a échoué. Réessayez plus tard.", "The change failed. Try again later."],
+        SEND_FAILED: [
+          "La modification a échoué. Réessayez plus tard.",
+          "The change failed. Try again later.",
+        ],
       };
-      const text = result.code === "RATE_LIMITED" ? rateMessage(result.retryAfter) : (messages[result.code] ?? messages["SEND_FAILED"])![en ? 1 : 0];
+      const text =
+        result.code === "RATE_LIMITED"
+          ? rateMessage(result.retryAfter)
+          : (messages[result.code] ?? messages["SEND_FAILED"])![en ? 1 : 0];
       setNotice({ tone: "error", text });
       return;
     }
@@ -166,22 +203,38 @@ function VerifyEmailPage() {
 
   const statusCard =
     verified === true ? (
-      <div role="status" className="flex items-start gap-3 rounded-xl border border-success/40 bg-success-muted px-4 py-3">
+      <div
+        role="status"
+        className="flex items-start gap-3 rounded-xl border border-success/40 bg-success-muted px-4 py-3"
+      >
         <CheckCircle2 className="mt-0.5 size-5 shrink-0 text-success" aria-hidden="true" />
         <div>
           <p className="text-label text-foreground">{en ? "Email verified" : "E-mail vérifié"}</p>
-          <p className="text-body-sm text-muted-foreground">{en ? "You can continue opening your account." : "Vous pouvez poursuivre l’ouverture de votre compte."}</p>
+          <p className="text-body-sm text-muted-foreground">
+            {en
+              ? "You can continue opening your account."
+              : "Vous pouvez poursuivre l’ouverture de votre compte."}
+          </p>
         </div>
       </div>
     ) : (
-      <div role="status" className="flex items-start gap-3 rounded-xl border border-border bg-surface px-4 py-3">
+      <div
+        role="status"
+        className="flex items-start gap-3 rounded-xl border border-border bg-surface px-4 py-3"
+      >
         <Clock className="mt-0.5 size-5 shrink-0 text-muted-foreground" aria-hidden="true" />
         <div className="min-w-0 flex-1">
-          <p className="text-label text-foreground">{en ? "Awaiting confirmation" : "En attente de confirmation"}</p>
+          <p className="text-label text-foreground">
+            {en ? "Awaiting confirmation" : "En attente de confirmation"}
+          </p>
           <p className="text-body-sm text-muted-foreground">
             {verified === null
-              ? en ? "Sign in after clicking the link to see your status." : "Connectez-vous après avoir cliqué sur le lien pour voir votre statut."
-              : en ? "Click the link in the email, then come back here." : "Cliquez sur le lien reçu, puis revenez ici."}
+              ? en
+                ? "Sign in after clicking the link to see your status."
+                : "Connectez-vous après avoir cliqué sur le lien pour voir votre statut."
+              : en
+                ? "Click the link in the email, then come back here."
+                : "Cliquez sur le lien reçu, puis revenez ici."}
           </p>
         </div>
       </div>
@@ -189,11 +242,21 @@ function VerifyEmailPage() {
 
   return (
     <AuthShell
-      title={verified ? (en ? "Your email is confirmed" : "Votre e-mail est confirmé") : en ? "Check your inbox" : "Vérifiez votre messagerie"}
+      title={
+        verified
+          ? en
+            ? "Your email is confirmed"
+            : "Votre e-mail est confirmé"
+          : en
+            ? "Check your inbox"
+            : "Vérifiez votre messagerie"
+      }
       description={
         target
           ? `${en ? "Confirmation link sent to" : "Lien de confirmation envoyé à"} ${maskEmail(target)}.`
-          : en ? "We sent a confirmation link to your email address." : "Nous avons envoyé un lien de confirmation à votre adresse e-mail."
+          : en
+            ? "We sent a confirmation link to your email address."
+            : "Nous avons envoyé un lien de confirmation à votre adresse e-mail."
       }
     >
       <div className="space-y-4">
@@ -201,17 +264,24 @@ function VerifyEmailPage() {
 
         {verified ? (
           <Button asChild className="w-full touch-target">
-            <Link to="/email-verified">{en ? "Continue my account opening" : "Continuer mon ouverture de compte"}</Link>
+            <Link to="/email-verified">
+              {en ? "Continue my account opening" : "Continuer mon ouverture de compte"}
+            </Link>
           </Button>
         ) : (
           <>
             <p className="text-body-sm flex items-start gap-2 rounded-xl border border-border bg-surface px-4 py-3 text-muted-foreground">
               <MailCheck className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
-              {en ? "Open the link on this device if possible and check your spam folder." : "Ouvrez le lien depuis cet appareil si possible. Pensez à consulter vos courriers indésirables."}
+              {en
+                ? "Open the link on this device if possible and check your spam folder."
+                : "Ouvrez le lien depuis cet appareil si possible. Pensez à consulter vos courriers indésirables."}
             </p>
 
             {notice ? (
-              <p role="status" className={`text-body-sm ${notice.tone === "error" ? "text-destructive" : "text-foreground"}`}>
+              <p
+                role="status"
+                className={`text-body-sm ${notice.tone === "error" ? "text-destructive" : "text-foreground"}`}
+              >
                 {notice.text}
               </p>
             ) : null}
@@ -224,10 +294,20 @@ function VerifyEmailPage() {
               onClick={() => void handleResend()}
             >
               {cooldown > 0
-                ? en ? `Resend available in ${cooldown} s` : `Nouvel envoi possible dans ${cooldown} s`
-                : en ? "Resend confirmation email" : "Renvoyer l'e-mail de confirmation"}
+                ? en
+                  ? `Resend available in ${cooldown} s`
+                  : `Nouvel envoi possible dans ${cooldown} s`
+                : en
+                  ? "Resend confirmation email"
+                  : "Renvoyer l'e-mail de confirmation"}
             </Button>
-            <Button type="button" variant="outline" className="w-full touch-target" loading={checking} onClick={() => void checkStatus()}>
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full touch-target"
+              loading={checking}
+              onClick={() => void checkStatus()}
+            >
               <RefreshCw className="size-4" aria-hidden="true" />
               {en ? "I've confirmed — check my status" : "J’ai confirmé — vérifier mon statut"}
             </Button>
@@ -236,8 +316,13 @@ function VerifyEmailPage() {
 
         {!verified ? (
           editing ? (
-            <form onSubmit={(event) => void handleChangeEmail(event)} className="space-y-3 rounded-xl border border-border bg-surface p-4">
-              <Label htmlFor="new-email">{en ? "New email address" : "Nouvelle adresse e-mail"}</Label>
+            <form
+              onSubmit={(event) => void handleChangeEmail(event)}
+              className="space-y-3 rounded-xl border border-border bg-surface p-4"
+            >
+              <Label htmlFor="new-email">
+                {en ? "New email address" : "Nouvelle adresse e-mail"}
+              </Label>
               <Input
                 id="new-email"
                 type="email"
@@ -251,7 +336,9 @@ function VerifyEmailPage() {
                 value={newEmail}
                 onChange={(event) => setNewEmail(event.target.value)}
               />
-              <Label htmlFor="confirm-password">{en ? "Your password" : "Votre mot de passe"}</Label>
+              <Label htmlFor="confirm-password">
+                {en ? "Your password" : "Votre mot de passe"}
+              </Label>
               <Input
                 id="confirm-password"
                 type="password"

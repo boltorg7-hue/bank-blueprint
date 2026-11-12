@@ -29,7 +29,9 @@ export async function resolvePostLoginRoute(redirectTo?: string | undefined): Pr
     const context = await getCustomerContext();
     if (!context.emailVerified) {
       lifecycleRoute = "/verify-email";
-    } else if (["ACTIVE", "RESTRICTED", "SUSPENDED", "CLOSED"].includes(context.profile.lifecycle_state)) {
+    } else if (
+      ["ACTIVE", "RESTRICTED", "SUSPENDED", "CLOSED"].includes(context.profile.lifecycle_state)
+    ) {
       lifecycleRoute = nextRouteForLifecycle(context.profile.lifecycle_state);
     } else {
       lifecycleRoute = nextOnboardingRoute(context);

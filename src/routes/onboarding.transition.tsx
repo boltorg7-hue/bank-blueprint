@@ -1,11 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import {
-  CheckCircle2,
-  Loader2,
-  Lock,
-  ShieldCheck,
-} from "lucide-react";
+import { CheckCircle2, Loader2, Lock, ShieldCheck } from "lucide-react";
 
 import { useLanguage } from "@/components/providers/LanguageProvider";
 import { Button } from "@/components/ui/button";
@@ -49,9 +44,9 @@ function TransitionPage() {
   const [done, setDone] = useState(0);
   const documentsDeferred = Boolean(
     context &&
-      context.profile.lifecycle_state === "IDENTITY_REQUIRED" &&
-      context.profile.onboarding_step === "COMPLETED" &&
-      context.verification.status === "NOT_STARTED",
+    context.profile.lifecycle_state === "IDENTITY_REQUIRED" &&
+    context.profile.onboarding_step === "COMPLETED" &&
+    context.verification.status === "NOT_STARTED",
   );
 
   const steps = documentsDeferred
@@ -96,9 +91,7 @@ function TransitionPage() {
     }
 
     if (done >= steps.length) {
-      const destination = nextRouteForLifecycle(
-        context.profile.lifecycle_state,
-      );
+      const destination = nextRouteForLifecycle(context.profile.lifecycle_state);
 
       const timer = window.setTimeout(() => {
         void navigate({
@@ -115,23 +108,14 @@ function TransitionPage() {
     }, 800);
 
     return () => window.clearTimeout(timer);
-  }, [
-    context,
-    done,
-    isError,
-    isPending,
-    navigate,
-    steps.length,
-  ]);
+  }, [context, done, isError, isPending, navigate, steps.length]);
 
   if (isPending) {
     return (
       <div className="mx-auto flex min-h-[80vh] w-full max-w-md flex-col items-center justify-center px-6 py-12">
         <Spinner className="size-7 text-primary" />
         <p className="mt-4 text-body-sm text-muted-foreground">
-          {en
-            ? "Preparing your application…"
-            : "Préparation de votre dossier…"}
+          {en ? "Preparing your application…" : "Préparation de votre dossier…"}
         </p>
       </div>
     );
@@ -166,24 +150,22 @@ function TransitionPage() {
   }
 
   const lifecycle = context.profile.lifecycle_state;
-  const progress =
-    lifecycle === "ACTIVE"
-      ? 100
-      : Math.round((done / steps.length) * 100);
+  const progress = lifecycle === "ACTIVE" ? 100 : Math.round((done / steps.length) * 100);
 
   return (
     <div className="mx-auto flex min-h-[80vh] w-full max-w-md flex-col justify-center px-6 py-12">
       <div className="mx-auto mb-8 grid size-20 place-items-center rounded-full bg-primary/10 animate-in zoom-in-75 duration-700">
-        <ShieldCheck
-          className="size-10 text-primary"
-          aria-hidden="true"
-        />
+        <ShieldCheck className="size-10 text-primary" aria-hidden="true" />
       </div>
 
       <h1 className="text-center text-h2 text-foreground">
         {documentsDeferred
-          ? en ? "Your registration is saved" : "Votre inscription est enregistrée"
-          : en ? "Your application has been submitted" : "Votre dossier a été transmis"}
+          ? en
+            ? "Your registration is saved"
+            : "Votre inscription est enregistrée"
+          : en
+            ? "Your application has been submitted"
+            : "Votre dossier a été transmis"}
       </h1>
 
       <p className="mt-2 text-center text-body-sm text-muted-foreground">
@@ -211,12 +193,7 @@ function TransitionPage() {
 
       <ol className="mt-6 space-y-3" aria-live="polite">
         {steps.map(([Icon, label], index) => {
-          const state =
-            index < done
-              ? "done"
-              : index === done
-                ? "active"
-                : "todo";
+          const state = index < done ? "done" : index === done ? "active" : "todo";
 
           const StepIcon = Icon as typeof ShieldCheck;
 
@@ -228,39 +205,28 @@ function TransitionPage() {
                   ? "translate-y-1 border-border opacity-40"
                   : "translate-y-0 opacity-100"
               } ${
-                state === "done"
-                  ? "border-success/40 bg-success-muted"
-                  : "border-border bg-surface"
+                state === "done" ? "border-success/40 bg-success-muted" : "border-border bg-surface"
               }`}
             >
               {state === "active" ? (
-                <Loader2
-                  className="size-5 shrink-0 animate-spin text-primary"
-                  aria-hidden="true"
-                />
+                <Loader2 className="size-5 shrink-0 animate-spin text-primary" aria-hidden="true" />
               ) : (
                 <StepIcon
                   className={`size-5 shrink-0 ${
-                    state === "done"
-                      ? "text-success"
-                      : "text-muted-foreground"
+                    state === "done" ? "text-success" : "text-muted-foreground"
                   }`}
                   aria-hidden="true"
                 />
               )}
 
-              <span className="text-body-sm text-foreground">
-                {label as string}
-              </span>
+              <span className="text-body-sm text-foreground">{label as string}</span>
             </li>
           );
         })}
       </ol>
 
       <div className="mt-8 rounded-xl border border-border bg-surface px-4 py-4">
-        <p className="text-label text-foreground">
-          {en ? "Current status" : "Statut actuel"}
-        </p>
+        <p className="text-label text-foreground">{en ? "Current status" : "Statut actuel"}</p>
 
         <p className="mt-1 text-body-sm text-muted-foreground">
           {en
@@ -279,9 +245,7 @@ function TransitionPage() {
           })
         }
       >
-        {en
-          ? "View application status"
-          : "Voir le statut de mon dossier"}
+        {en ? "View application status" : "Voir le statut de mon dossier"}
       </Button>
     </div>
   );

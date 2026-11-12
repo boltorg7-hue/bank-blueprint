@@ -29,7 +29,10 @@ test("Lot 1 — review history is durable and records the authenticated actor an
   assert.match(migration, /prevent_transfer_document_review_history_mutation/);
   assert.match(migration, /BEFORE UPDATE OR DELETE ON public\.transfer_document_review_history/);
   assert.match(migration, /BEFORE TRUNCATE ON public\.transfer_document_review_history/);
-  assert.match(migration, /REVOKE INSERT, UPDATE, DELETE, TRUNCATE ON public\.transfer_document_review_history/);
+  assert.match(
+    migration,
+    /REVOKE INSERT, UPDATE, DELETE, TRUNCATE ON public\.transfer_document_review_history/,
+  );
 });
 
 test("Lot 1 — replacement requests require a meaningful reason and valid review state", () => {

@@ -8,7 +8,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Spinner } from "@/components/ui/spinner";
 import { OnboardingShell } from "@/features/onboarding/components/OnboardingShell";
-import { useCustomerContext, useInvalidateCustomerContext } from "@/features/onboarding/hooks/useCustomerContext";
+import {
+  useCustomerContext,
+  useInvalidateCustomerContext,
+} from "@/features/onboarding/hooks/useCustomerContext";
 import { profileStepSchema } from "@/features/onboarding/schemas/onboarding.schemas";
 import { fieldErrorsFrom } from "@/features/auth/schemas/auth.schemas";
 import { ChoiceField } from "@/features/onboarding/components/ChoiceField";
@@ -19,9 +22,15 @@ export const Route = createFileRoute("/onboarding/profile")({
   head: () => ({
     meta: [
       { title: "Informations personnelles — Ouverture de compte RFC" },
-      { name: "description", content: "Renseignez vos informations personnelles pour ouvrir votre compte RFC." },
+      {
+        name: "description",
+        content: "Renseignez vos informations personnelles pour ouvrir votre compte RFC.",
+      },
       { property: "og:title", content: "Informations personnelles — RFC FINANCE Bank" },
-      { property: "og:description", content: "Première étape sécurisée de l’ouverture de compte RFC." },
+      {
+        property: "og:description",
+        content: "Première étape sécurisée de l’ouverture de compte RFC.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex,nofollow" },
@@ -71,9 +80,15 @@ function ProfileStepPage() {
       await navigate({ to: "/onboarding", replace: true });
     } catch (error) {
       const code = error instanceof Error ? error.message : "";
-      setFormError(code.includes("PHONE_ALREADY_IN_USE")
-        ? (en ? "This phone number is already associated with another customer account." : "Ce numéro est déjà associé à un autre compte client.")
-        : (en ? "We could not save your details. Please try again." : "Nous n'avons pas pu enregistrer vos informations. Réessayez."));
+      setFormError(
+        code.includes("PHONE_ALREADY_IN_USE")
+          ? en
+            ? "This phone number is already associated with another customer account."
+            : "Ce numéro est déjà associé à un autre compte client."
+          : en
+            ? "We could not save your details. Please try again."
+            : "Nous n'avons pas pu enregistrer vos informations. Réessayez.",
+      );
     } finally {
       setPending(false);
     }
@@ -81,7 +96,10 @@ function ProfileStepPage() {
 
   if (isPending || !context) {
     return (
-      <OnboardingShell stepId="profile" title={en ? "Your personal information" : "Vos informations personnelles"}>
+      <OnboardingShell
+        stepId="profile"
+        title={en ? "Your personal information" : "Vos informations personnelles"}
+      >
         <div className="flex items-center gap-3 text-muted-foreground">
           <Spinner className="size-5" />
           <span className="text-body-sm">{en ? "Loading…" : "Chargement…"}</span>
@@ -96,22 +114,96 @@ function ProfileStepPage() {
     <OnboardingShell
       stepId="profile"
       title={en ? "Your personal information" : "Vos informations personnelles"}
-      description={en ? "This information appears on your application and must match your identity document." : "Ces informations figurent sur votre dossier bancaire et doivent correspondre à votre pièce d'identité."}
+      description={
+        en
+          ? "This information appears on your application and must match your identity document."
+          : "Ces informations figurent sur votre dossier bancaire et doivent correspondre à votre pièce d'identité."
+      }
       hasUnsavedChanges={dirty}
-      why={en ? "Banking regulations require us to verify the identity of every account holder." : "La réglementation bancaire nous impose de connaître l'identité de chaque titulaire de compte."}
+      why={
+        en
+          ? "Banking regulations require us to verify the identity of every account holder."
+          : "La réglementation bancaire nous impose de connaître l'identité de chaque titulaire de compte."
+      }
     >
-      <form onSubmit={handleSubmit} onChange={() => setDirty(true)} noValidate className="space-y-5">
-        <Field name="firstName" label={en ? "First name" : "Prénom"} autoComplete="given-name" defaultValue={profile.first_name} error={errors["firstName"]} />
-        <Field name="middleName" label={en ? "Middle name (optional)" : "Deuxième prénom (optionnel)"} autoComplete="additional-name" defaultValue={profile.middle_name} error={errors["middleName"]} />
-        <Field name="lastName" label={en ? "Last name" : "Nom"} autoComplete="family-name" defaultValue={profile.last_name} error={errors["lastName"]} />
-        <Field name="dateOfBirth" label={en ? "Date of birth" : "Date de naissance"} type="date" autoComplete="bday" defaultValue={profile.date_of_birth} error={errors["dateOfBirth"]} />
-        <ChoiceField id="profile-nationality" name="nationality" label={en ? "Nationality" : "Nationalité"} options={COUNTRIES} en={en} defaultValue={profile.nationality ?? ""} error={errors["nationality"]} />
-        <ChoiceField id="profile-countryOfResidence" name="countryOfResidence" label={en ? "Country of residence" : "Pays de résidence"} options={COUNTRIES} en={en} defaultValue={profile.country_of_residence ?? ""} error={errors["countryOfResidence"]} />
-        <ChoiceField id="profile-occupation" name="occupation" label={en ? "Occupation" : "Profession"} options={OCCUPATIONS} en={en} allowOther defaultValue={profile.occupation} error={errors["occupation"]} />
-        <Field name="phone" label={en ? "Phone number (required)" : "Numéro de téléphone (obligatoire)"} type="tel" autoComplete="tel" defaultValue={profile.phone ?? ""} error={errors["phone"]} required />
+      <form
+        onSubmit={handleSubmit}
+        onChange={() => setDirty(true)}
+        noValidate
+        className="space-y-5"
+      >
+        <Field
+          name="firstName"
+          label={en ? "First name" : "Prénom"}
+          autoComplete="given-name"
+          defaultValue={profile.first_name}
+          error={errors["firstName"]}
+        />
+        <Field
+          name="middleName"
+          label={en ? "Middle name (optional)" : "Deuxième prénom (optionnel)"}
+          autoComplete="additional-name"
+          defaultValue={profile.middle_name}
+          error={errors["middleName"]}
+        />
+        <Field
+          name="lastName"
+          label={en ? "Last name" : "Nom"}
+          autoComplete="family-name"
+          defaultValue={profile.last_name}
+          error={errors["lastName"]}
+        />
+        <Field
+          name="dateOfBirth"
+          label={en ? "Date of birth" : "Date de naissance"}
+          type="date"
+          autoComplete="bday"
+          defaultValue={profile.date_of_birth}
+          error={errors["dateOfBirth"]}
+        />
+        <ChoiceField
+          id="profile-nationality"
+          name="nationality"
+          label={en ? "Nationality" : "Nationalité"}
+          options={COUNTRIES}
+          en={en}
+          defaultValue={profile.nationality ?? ""}
+          error={errors["nationality"]}
+        />
+        <ChoiceField
+          id="profile-countryOfResidence"
+          name="countryOfResidence"
+          label={en ? "Country of residence" : "Pays de résidence"}
+          options={COUNTRIES}
+          en={en}
+          defaultValue={profile.country_of_residence ?? ""}
+          error={errors["countryOfResidence"]}
+        />
+        <ChoiceField
+          id="profile-occupation"
+          name="occupation"
+          label={en ? "Occupation" : "Profession"}
+          options={OCCUPATIONS}
+          en={en}
+          allowOther
+          defaultValue={profile.occupation}
+          error={errors["occupation"]}
+        />
+        <Field
+          name="phone"
+          label={en ? "Phone number (required)" : "Numéro de téléphone (obligatoire)"}
+          type="tel"
+          autoComplete="tel"
+          defaultValue={profile.phone ?? ""}
+          error={errors["phone"]}
+          required
+        />
 
         {formError ? (
-          <p role="alert" className="text-body-sm rounded-lg bg-destructive/10 px-3 py-2 text-destructive">
+          <p
+            role="alert"
+            className="text-body-sm rounded-lg bg-destructive/10 px-3 py-2 text-destructive"
+          >
             {formError}
           </p>
         ) : null}

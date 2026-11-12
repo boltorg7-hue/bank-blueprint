@@ -14,7 +14,8 @@ export const getCustomerContext = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<CustomerContext> => {
     await assertConsent(context.userId);
-    const { loadCustomerContext } = await import("@/features/onboarding/services/onboarding.server");
+    const { loadCustomerContext } =
+      await import("@/features/onboarding/services/onboarding.server");
     const claims = context.claims as { email?: string; email_verified?: boolean } | null;
     const { data } = await context.supabase.auth.getUser();
     if (!data.user) throw new Error("CUSTOMER_AUTH_UNAVAILABLE");

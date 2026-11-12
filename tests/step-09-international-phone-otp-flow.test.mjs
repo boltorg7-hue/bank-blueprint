@@ -39,13 +39,34 @@ assert.match(contactServer, /encryptOtpPayload/);
 assert.match(contactServer, /_payload: encryptedPayload/);
 
 for (const country of [
-  "Algeria", "Angola", "Benin", "Cameroon", "Chad", "Côte d'Ivoire",
-  "Democratic Republic of the Congo", "Egypt", "Gabon", "Ghana", "Kenya",
-  "Mali", "Morocco", "Mozambique", "Nigeria", "Rwanda", "Senegal",
-  "South Africa", "Tanzania", "Tunisia", "Uganda", "Zambia", "Zimbabwe",
+  "Algeria",
+  "Angola",
+  "Benin",
+  "Cameroon",
+  "Chad",
+  "Côte d'Ivoire",
+  "Democratic Republic of the Congo",
+  "Egypt",
+  "Gabon",
+  "Ghana",
+  "Kenya",
+  "Mali",
+  "Morocco",
+  "Mozambique",
+  "Nigeria",
+  "Rwanda",
+  "Senegal",
+  "South Africa",
+  "Tanzania",
+  "Tunisia",
+  "Uganda",
+  "Zambia",
+  "Zimbabwe",
 ]) {
   assert.ok(choices.includes('value: "' + country + '"'));
 }
 
 console.log("STEP 09 INTERNATIONAL PHONE + OTP FLOW STATIC CERTIFICATION: PASS");
-console.log("Covered: single-source phone collection, international E.164-compatible validation and normalization, no country-specific phone default, explicit SMS channel, server persistence, OTP linkage, and African country coverage.");
+console.log(
+  "Covered: single-source phone collection, international E.164-compatible validation and normalization, no country-specific phone default, explicit SMS channel, server persistence, OTP linkage, and African country coverage.",
+);

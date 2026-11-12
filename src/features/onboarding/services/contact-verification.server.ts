@@ -16,11 +16,17 @@ function encryptOtpPayload(code: string) {
     cipher.update(JSON.stringify({ code, expires_in_minutes: OTP_TTL_MINUTES }), "utf8"),
     cipher.final(),
   ]);
-  return { v: "1", iv: iv.toString("base64"), tag: cipher.getAuthTag().toString("base64"), ciphertext: ciphertext.toString("base64") };
+  return {
+    v: "1",
+    iv: iv.toString("base64"),
+    tag: cipher.getAuthTag().toString("base64"),
+    ciphertext: ciphertext.toString("base64"),
+  };
 }
 
 function otpHash(userId: string, phone: string, code: string) {
-  const secret = process.env["PHONE_OTP_SECRET"]?.trim() || process.env["SUPABASE_SERVICE_ROLE_KEY"]?.trim();
+  const secret =
+    process.env["PHONE_OTP_SECRET"]?.trim() || process.env["SUPABASE_SERVICE_ROLE_KEY"]?.trim();
   if (!secret || secret.length < 32) throw new Error("OTP_SECRET_NOT_CONFIGURED");
   return createHmac("sha256", secret).update(`${userId}:${phone}:${code}`).digest("hex");
 }
@@ -28,9 +34,16 @@ function otpHash(userId: string, phone: string, code: string) {
 function rpcError(error: { message?: string } | null, fallback: string): never {
   const message = error?.message ?? "";
   for (const code of [
-    "OTP_COOLDOWN", "PHONE_REQUIRED", "PHONE_ALREADY_VERIFIED",
-    "CUSTOMER_PROFILE_NOT_FOUND", "ONBOARDING_STATE_LOCKED", "PHONE_UNCHANGED",
-    "INVALID_PHONE", "PHONE_ALREADY_IN_USE", "OTP_USER_DAILY_LIMIT", "OTP_PHONE_DAILY_LIMIT",
+    "OTP_COOLDOWN",
+    "PHONE_REQUIRED",
+    "PHONE_ALREADY_VERIFIED",
+    "CUSTOMER_PROFILE_NOT_FOUND",
+    "ONBOARDING_STATE_LOCKED",
+    "PHONE_UNCHANGED",
+    "INVALID_PHONE",
+    "PHONE_ALREADY_IN_USE",
+    "OTP_USER_DAILY_LIMIT",
+    "OTP_PHONE_DAILY_LIMIT",
   ]) {
     if (message.includes(code)) throw new Error(code);
   }
@@ -48,7 +61,8 @@ export async function changePendingPhone(userId: string, phoneInput: unknown) {
 }
 
 export async function sendContactVerificationCode(userId: string) {
-  const secret = process.env["PHONE_OTP_SECRET"]?.trim() || process.env["SUPABASE_SERVICE_ROLE_KEY"]?.trim();
+  const secret =
+    process.env["PHONE_OTP_SECRET"]?.trim() || process.env["SUPABASE_SERVICE_ROLE_KEY"]?.trim();
   if (!secret || secret.length < 32) throw new Error("OTP_SECRET_NOT_CONFIGURED");
 
   const { data: profile, error: profileError } = await supabaseAdmin
@@ -85,7 +99,12 @@ export async function sendContactVerificationCode(userId: string) {
         .is("consumed_at", null),
       supabaseAdmin
         .from("notification_outbox")
-        .update({ status: "FAILED", processed_at: now, payload: {}, last_error_code: "SMS_DELIVERY_FAILED" })
+        .update({
+          status: "FAILED",
+          processed_at: now,
+          payload: {},
+          last_error_code: "SMS_DELIVERY_FAILED",
+        })
         .eq("id", challenge.notification_id)
         .eq("user_id", userId)
         .eq("status", "PENDING"),
@@ -93,7 +112,8 @@ export async function sendContactVerificationCode(userId: string) {
     if (challengeError || outboxError) throw new Error("SMS_FAILURE_CLEANUP_FAILED");
   };
 
-  const { dispatchPendingSms } = await import("@/features/notifications/services/notifications.server");
+  const { dispatchPendingSms } =
+    await import("@/features/notifications/services/notifications.server");
   try {
     await dispatchPendingSms(userId);
   } catch {
@@ -113,7 +133,11 @@ export async function sendContactVerificationCode(userId: string) {
   }
   if (notification?.status !== "ACCEPTED") {
     await invalidateFailedChallenge();
-    throw new Error(notification?.status === "SIMULATED" ? "SMS_SIMULATED_NOT_DELIVERED" : "SMS_PROVIDER_NOT_ACCEPTED");
+    throw new Error(
+      notification?.status === "SIMULATED"
+        ? "SMS_SIMULATED_NOT_DELIVERED"
+        : "SMS_PROVIDER_NOT_ACCEPTED",
+    );
   }
 
   return { alreadyVerified: false as const, phone: profile.phone, expiresAt };
