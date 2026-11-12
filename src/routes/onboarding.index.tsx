@@ -12,8 +12,12 @@ import { LIFECYCLE_LABELS } from "@/types/customer-lifecycle";
 
 export const Route = createFileRoute("/onboarding/")({
   beforeLoad: async () => {
-    const consent = await getOAuthConsentStatus();
-    return { consentRequired: consent.required };
+    try {
+      const consent = await getOAuthConsentStatus();
+      return { consentRequired: consent.required };
+    } catch {
+      return { consentRequired: true };
+    }
   },
   component: OnboardingHome,
 });
