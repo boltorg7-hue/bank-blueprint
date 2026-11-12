@@ -41,4 +41,8 @@ test("Lot 1 — admin UI supports accept, replacement requests and history", () 
   assert.match(migration, /transfer_document_review_history/);
   assert.match(migration, /BEFORE UPDATE OR DELETE/);
   assert.match(migration, /BEFORE TRUNCATE/);
+  assert.match(migration, /_t\.transfer_kind <> 'EXTERNAL_TRANSFER'/);
+  assert.match(migration, /_t\.sender_user_id <> _doc\.user_id/);
+  assert.match(migration, /INSERT INTO public\.admin_audit_events/);
+  assert.match(migration, /DOCUMENTS_ACCEPTED/);
 });

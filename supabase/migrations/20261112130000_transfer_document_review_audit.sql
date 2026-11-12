@@ -46,11 +46,11 @@ RETURNS trigger
 LANGUAGE plpgsql
 SECURITY DEFINER
 SET search_path = pg_catalog, public
-AS $
+AS $$
 BEGIN
   RAISE EXCEPTION 'TRANSFER_DOCUMENT_REVIEW_HISTORY_IMMUTABLE';
 END;
-$;
+$$;
 REVOKE ALL ON FUNCTION public.prevent_transfer_document_review_history_mutation()
   FROM PUBLIC, anon, authenticated, service_role;
 
@@ -87,6 +87,7 @@ DECLARE
   _new_status public.transfer_document_status;
   _decision text;
   _reason text;
+  _requirement_rows integer;
 BEGIN
   IF _staff_id IS NULL
      OR NOT public.has_permission(_staff_id, 'compliance.review') THEN
@@ -113,9 +114,19 @@ BEGIN
   END IF;
 
   -- Exact retries remain idempotent, while contradictory retries are rejected.
+  _decision := CASE WHEN _accept THEN 'ACCEPT' ELSE 'REQUEST_REPLACEMENT' END;
+
   IF _doc.status IN ('ACCEPTED', 'REJECTED') THEN
-    IF (_doc.status = 'ACCEPTED' AND _accept)
-       OR (_doc.status = 'REJECTED' AND NOT _accept) THEN
+    IF ((_doc.status = 'ACCEPTED' AND _accept)
+        OR (_doc.status = 'REJECTED' AND NOT _accept))
+       AND EXISTS (
+         SELECT 1
+           FROM public.transfer_document_review_history
+          WHERE document_id = _doc.id
+            AND actor_user_id = _staff_id
+            AND decision = _decision
+            AND reason_code IS NOT DISTINCT FROM _reason
+       ) THEN
       RETURN;
     END IF;
     RAISE EXCEPTION 'DOCUMENT_ALREADY_FINALIZED';
@@ -136,13 +147,16 @@ BEGIN
     RAISE EXCEPTION 'TRANSFER_UNAVAILABLE';
   END IF;
 
+  IF _t.transfer_kind <> 'EXTERNAL_TRANSFER'
+     OR _t.sender_user_id <> _doc.user_id THEN
+    RAISE EXCEPTION 'TRANSFER_DOCUMENT_UNAVAILABLE';
+  END IF;
+
   _previous_status := _doc.status;
   _new_status := CASE
     WHEN _accept THEN 'ACCEPTED'::public.transfer_document_status
     ELSE 'REJECTED'::public.transfer_document_status
   END;
-  _decision := CASE WHEN _accept THEN 'ACCEPT' ELSE 'REQUEST_REPLACEMENT' END;
-
   UPDATE public.transfer_documents
      SET status = _new_status,
          rejection_reason_code = CASE WHEN _accept THEN NULL ELSE _reason END,
@@ -158,7 +172,13 @@ BEGIN
            rejection_reason_code = CASE WHEN _accept THEN NULL ELSE _reason END,
            reviewed_at = now()
      WHERE id = _doc.requirement_id
-       AND transfer_id = _doc.transfer_id;
+       AND transfer_id = _doc.transfer_id
+       AND user_id = _doc.user_id;
+
+    GET DIAGNOSTICS _requirement_rows = ROW_COUNT;
+    IF _requirement_rows <> 1 THEN
+      RAISE EXCEPTION 'DOCUMENT_REQUIREMENT_UNAVAILABLE';
+    END IF;
   END IF;
 
   INSERT INTO public.transfer_document_review_history (
@@ -169,8 +189,27 @@ BEGIN
     _previous_status, _new_status, _decision, _reason
   );
 
-  -- The dedicated immutable review-history row above is the authoritative
-  -- audit record for this decision; do not depend on the legacy admin audit schema.
+  -- The dedicated immutable history is authoritative; the general admin audit
+  -- event supplements it without storing document contents or personal data.
+  INSERT INTO public.admin_audit_events (
+    actor_user_id, action, resource_type, resource_reference,
+    permission_checked, result, context
+  ) VALUES (
+    _staff_id,
+    CASE WHEN _accept THEN 'transfer.document.accepted'
+         ELSE 'transfer.document.replacement_requested' END,
+    'transfer_document',
+    _doc.id::text,
+    'compliance.review',
+    'ALLOWED',
+    jsonb_build_object(
+      'transfer_reference', _t.public_reference,
+      'document_type', _doc.document_type,
+      'decision', _decision,
+      'previous_status', _previous_status::text,
+      'new_status', _new_status::text
+    )
+  );
 
   IF _accept THEN
     IF NOT EXISTS (
@@ -183,6 +222,23 @@ BEGIN
       UPDATE public.transfers
          SET status = 'COMPLIANCE_REVIEW'
        WHERE id = _t.id;
+
+      UPDATE public.transfer_compliance_cases
+         SET status = 'UNDER_REVIEW',
+             reviewed_at = now()
+       WHERE transfer_id = _t.id;
+
+      IF _t.status <> 'COMPLIANCE_REVIEW' THEN
+        PERFORM public.record_transfer_status(
+          _t.id,
+          _t.status,
+          'COMPLIANCE_REVIEW',
+          'DOCUMENTS_ACCEPTED',
+          'COMPLIANCE',
+          _staff_id
+        );
+      END IF;
+
       PERFORM public.set_transfer_progress(_t.id, 'FINAL_REVIEW');
     END IF;
   ELSE
