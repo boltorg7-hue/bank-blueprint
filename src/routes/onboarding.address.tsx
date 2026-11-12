@@ -159,11 +159,7 @@ function AddressStepPage() {
             label={en ? "Country" : "Pays"}
             options={COUNTRIES}
             en={en}
-            defaultValue={
-              address?.country ??
-              context.profile.country_of_residence ??
-              "Trinidad and Tobago"
-            }
+            defaultValue={address?.country ?? context.profile.country_of_residence ?? "Trinidad and Tobago"}
             error={errors["country"]}
             onChange={setCountry}
           />
