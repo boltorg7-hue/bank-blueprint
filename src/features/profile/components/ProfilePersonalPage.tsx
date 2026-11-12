@@ -59,7 +59,15 @@ export function ProfilePersonalPage() {
   }, [query.data]);
 
   if (query.isPending) {
-    return <LoadingState label={en ? "Loading personal information…" : "Chargement des informations personnelles…"} />;
+    return (
+      <LoadingState
+        label={
+          en
+            ? "Loading personal information…"
+            : "Chargement des informations personnelles…"
+        }
+      />
+    );
   }
 
   if (query.isError || !query.data) {
@@ -77,7 +85,12 @@ export function ProfilePersonalPage() {
     event.preventDefault();
     const validation = profileStepSchema.safeParse(form);
     if (!validation.success) {
-      toast.error(validation.error.issues[0]?.message ?? (en ? "Check the entered information." : "Vérifiez les informations saisies."));
+      toast.error(
+        validation.error.issues[0]?.message ??
+          (en
+            ? "Check the entered information."
+            : "Vérifiez les informations saisies."),
+      );
       return;
     }
 
@@ -101,12 +114,7 @@ export function ProfilePersonalPage() {
     }
   }
 
-  function field(
-    key: keyof PersonalForm,
-    label: string,
-    type = "text",
-    disabled = false,
-  ) {
+  function field(key: keyof PersonalForm, label: string, type = "text", disabled = false) {
     return (
       <div className={FIELD_CLASS}>
         <Label htmlFor={key}>{label}</Label>
@@ -117,11 +125,17 @@ export function ProfilePersonalPage() {
           disabled={disabled}
           onChange={(event) => updateField(key, event.target.value)}
           autoComplete={
-            key === "firstName" ? "given-name" :
-            key === "middleName" ? "additional-name" :
-            key === "lastName" ? "family-name" :
-            key === "dateOfBirth" ? "bday" :
-            key === "phone" ? "tel" : "off"
+            key === "firstName"
+              ? "given-name"
+              : key === "middleName"
+                ? "additional-name"
+                : key === "lastName"
+                  ? "family-name"
+                  : key === "dateOfBirth"
+                    ? "bday"
+                    : key === "phone"
+                      ? "tel"
+                      : "off"
           }
         />
       </div>
@@ -187,7 +201,15 @@ export function ProfilePersonalPage() {
                         ? "Phone not verified"
                         : "Téléphone non vérifié"}
                     <StatusBadge
-                      label={data.phoneVerified ? (en ? "Verified" : "Vérifié") : (en ? "To verify" : "À vérifier")}
+                      label={
+                        data.phoneVerified
+                          ? en
+                            ? "Verified"
+                            : "Vérifié"
+                          : en
+                            ? "To verify"
+                            : "À vérifier"
+                      }
                       tone={data.phoneVerified ? "success" : "pending"}
                     />
                   </div>
