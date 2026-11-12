@@ -85,13 +85,13 @@ export function AccountBalanceCard({
           label={
             en
               ? {
-                PENDING: "In preparation",
-                ACTIVE: "Active",
-                RESTRICTED: "Limited",
-                SUSPENDED: "Suspended",
-                FROZEN: "Blocked",
-                CLOSING: "Closing",
-                CLOSED: "Closed",
+                  PENDING: "In preparation",
+                  ACTIVE: "Active",
+                  RESTRICTED: "Limited",
+                  SUSPENDED: "Suspended",
+                  FROZEN: "Blocked",
+                  CLOSING: "Closing",
+                  CLOSED: "Closed",
                 }[account.status]
               : accountStatusLabel(account.status)
           }
@@ -168,9 +168,9 @@ export function AccountBalanceCard({
                 : "Le solde disponible tient compte des montants réservés. Dernière mise à jour : "}
               {formatDateTime(balance.calculatedAt)}.
               {isRefreshing && (en ? " Refreshing…" : " Actualisation en cours…")}
-              {isStale && !isRefreshing && (
-                en ? " This value may have changed." : " Cette valeur peut avoir changé."
-              )}
+              {isStale &&
+                !isRefreshing &&
+                (en ? " This value may have changed." : " Cette valeur peut avoir changé.")}
             </span>
           </p>
         </>
