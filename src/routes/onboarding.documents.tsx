@@ -1,6 +1,6 @@
 import { useLanguage } from "@/components/providers/LanguageProvider";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle2, FileCheck2, ShieldCheck } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
@@ -69,7 +69,35 @@ function DocumentsStepPage() {
           : "La vérification d'identité reste obligatoire avant tout accès bancaire. Passer cette étape ne valide pas votre identité et n'active aucun compte."
       }
     >
-      <DocumentUploader context={context} editable={editable} />
+      <section className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
+        <div className="flex items-start gap-3 border-b border-border bg-surface/70 p-4 sm:p-5">
+          <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-brand/10 text-brand">
+            <FileCheck2 className="size-5" aria-hidden="true" />
+          </div>
+          <div className="min-w-0">
+            <h2 className="text-label font-semibold text-foreground">
+              {en ? "Documents to provide" : "Justificatifs à transmettre"}
+            </h2>
+            <p className="mt-1 text-body-sm leading-relaxed text-muted-foreground">
+              {en
+                ? "Add a valid identity document and a recent proof of address. You can track each document review status below."
+                : "Ajoutez une pièce d’identité valide et un justificatif de domicile récent. Vous pourrez suivre ci-dessous le statut de vérification de chaque document."}
+            </p>
+          </div>
+        </div>
+        <div className="p-4 sm:p-6">
+          <DocumentUploader context={context} editable={editable} />
+        </div>
+      </section>
+
+      <div className="flex items-start gap-3 rounded-xl border border-border bg-surface px-4 py-3">
+        <ShieldCheck className="mt-0.5 size-5 shrink-0 text-brand" aria-hidden="true" />
+        <p className="text-body-sm leading-relaxed text-muted-foreground">
+          {en
+            ? "Your files are handled through a private, access-controlled area. Only authorized verification workflows can review them."
+            : "Vos fichiers sont traités dans un espace privé à accès contrôlé. Seuls les processus de vérification autorisés peuvent les consulter."}
+        </p>
+      </div>
 
       <div className="mt-8 space-y-3">
         {ready ? (
