@@ -97,7 +97,9 @@ function TermsPage() {
               </span>
               <div className="min-w-0 space-y-2">
                 <p className="text-overline font-semibold text-brand">
-                  {en ? "Contractual document in preparation" : "Document contractuel en préparation"}
+                  {en
+                    ? "Contractual document in preparation"
+                    : "Document contractuel en préparation"}
                 </p>
                 <h2 className="text-heading-md text-foreground">
                   {en
