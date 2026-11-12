@@ -1,7 +1,4 @@
-import {
-  PRICE_UNDEFINED_LABEL,
-  type PricingCategory,
-} from "@/features/public/content/pricing";
+import { PRICE_UNDEFINED_LABEL, type PricingCategory } from "@/features/public/content/pricing";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/components/providers/LanguageProvider";
 
@@ -20,15 +17,18 @@ export function PricingTable({
   const en = language === "en";
   const translate: Record<string, string> = {
     "Tenue de compte": "Account maintenance",
-    "Frais liés à l'ouverture et à la gestion du compte courant.": "Charges for opening and maintaining a current account.",
+    "Frais liés à l'ouverture et à la gestion du compte courant.":
+      "Charges for opening and maintaining a current account.",
     Virements: "Transfers",
-    "Opérations de virement depuis votre compte. Le montant applicable vous est affiché avant confirmation, dans la devise du compte débité.": "Transfers from your account. Applicable charges are shown before confirmation in the account currency.",
+    "Opérations de virement depuis votre compte. Le montant applicable vous est affiché avant confirmation, dans la devise du compte débité.":
+      "Transfers from your account. Applicable charges are shown before confirmation in the account currency.",
     "Relevés et documents": "Statements and documents",
     "Documents générés depuis votre espace client.": "Documents generated in your customer account.",
     Assistance: "Support",
     "Canaux d'assistance mis à disposition.": "Available support channels.",
     "Services additionnels": "Additional services",
-    "Services optionnels, ajoutés au fur et à mesure de l'ouverture du produit.": "Optional services added as they become available.",
+    "Services optionnels, ajoutés au fur et à mesure de l'ouverture du produit.":
+      "Optional services added as they become available.",
     "Messagerie sécurisée": "Secure messaging",
     "Assistance sur demande particulière": "Special requests",
     "Services optionnels": "Optional services",
@@ -37,17 +37,19 @@ export function PricingTable({
     "Clôture de compte": "Account closure",
     "Virement interne entre comptes RFC": "Internal transfer between RFC accounts",
     "Virement vers une autre banque": "Transfer to another bank",
-    "Virement nécessitant une vérification complémentaire": "Transfer requiring additional review",
+    "Virement nécessitant une vérification complémentaire":
+      "Transfer requiring additional review",
     "Relevé numérique (PDF)": "Digital statement (PDF)",
     "Duplicata de relevé": "Duplicate statement",
     "Prélevée le premier jour ouvré du mois.": "Charged on the first business day of the month.",
-    "Exécution immédiate entre comptes tenus par la banque.": "Immediate execution between accounts held with the bank.",
+    "Exécution immédiate entre comptes tenus par la banque.":
+      "Immediate execution between accounts held with the bank.",
     "Frais de règlement interbancaire, par virement sortant.": "Interbank settlement fee per outgoing transfer.",
     "Les contrôles de conformité ne sont jamais facturés.": "Compliance reviews are never charged.",
     "Sans frais": "No fee",
     "À définir": "To be confirmed",
   };
-  const text = (value: string) => (en ? translate[value] ?? value : value);
+  const text = (value: string) => (en ? (translate[value] ?? value) : value);
 
   return (
     <div className={cn("space-y-5 sm:space-y-6", className)}>
