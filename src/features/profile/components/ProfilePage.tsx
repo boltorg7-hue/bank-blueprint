@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Mail, MapPin, Phone, ShieldCheck, WalletCards } from "lucide-react";
+import { Mail, MapPin, Phone, ShieldCheck, UserRound, WalletCards } from "lucide-react";
 import { toast } from "sonner";
 
 import { useLanguage } from "@/components/providers/LanguageProvider";
