@@ -57,13 +57,19 @@ export function accountRestrictionMessage(
 ): string | null {
   if (language === "en") {
     switch (status) {
-      case "ACTIVE": return null;
-      case "PENDING": return "Your account is being prepared. Account operations will appear as soon as setup is complete.";
-      case "RESTRICTED": return "Some account operations are currently limited. You can continue to view your account information.";
+      case "ACTIVE":
+        return null;
+      case "PENDING":
+        return "Your account is being prepared. Account operations will appear as soon as setup is complete.";
+      case "RESTRICTED":
+        return "Some account operations are currently limited. You can continue to view your account information.";
       case "SUSPENDED":
-      case "FROZEN": return "Our support team can guide you regarding the current account restrictions.";
-      case "CLOSING": return "Your account closure is in progress. New operations are no longer being accepted.";
-      case "CLOSED": return "This account is closed. You can still access its history and statements.";
+      case "FROZEN":
+        return "Our support team can guide you regarding the current account restrictions.";
+      case "CLOSING":
+        return "Your account closure is in progress. New operations are no longer being accepted.";
+      case "CLOSED":
+        return "This account is closed. You can still access its history and statements.";
     }
   }
   switch (status) {
