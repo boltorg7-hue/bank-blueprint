@@ -24,7 +24,7 @@ test("Lot 1 — document review is server-authorized and limited to external tra
   assert.match(service, /transfer_kind !== "EXTERNAL_TRANSFER"/);
   assert.match(functions, /\.middleware\(\[requireSupabaseAuth\]\)/);
   assert.match(functions, /context\.userId/);
-  assert.match(functions, /review_transfer_document/);
+  assert.match(service, /review_transfer_document/);
 });
 
 test("Lot 1 — private files are exposed only through short-lived signed URLs", () => {
