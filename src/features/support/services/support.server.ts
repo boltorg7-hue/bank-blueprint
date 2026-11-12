@@ -105,9 +105,7 @@ async function mapThreads(
   return rows.map((row) => ({
     id: row.id,
     reference: row.public_reference,
-    ...(customerNames
-      ? { customerName: customerNames.get(row.customer_user_id) ?? "Client" }
-      : {}),
+    ...(customerNames ? { customerName: customerNames.get(row.customer_user_id) ?? "Client" } : {}),
     subject: row.subject,
     category: row.category,
     status: row.status,
@@ -121,10 +119,7 @@ async function mapThreads(
   }));
 }
 
-function nextCursor(
-  pageRows: SupportThreadRow[],
-  hasNext: boolean,
-): string | null {
+function nextCursor(pageRows: SupportThreadRow[], hasNext: boolean): string | null {
   const lastRow = pageRows[pageRows.length - 1];
   return hasNext && lastRow
     ? encodeSupportCursor({
