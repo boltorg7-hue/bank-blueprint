@@ -1,9 +1,8 @@
 /**
  * LEGAL CONTENT STRUCTURE (PROMPT 02 §47-§50).
  *
- * These documents provide the correct STRUCTURE only. The published text must
- * be supplied by the legal owner — sections marked `pending` render an explicit
- * "en cours de rédaction" notice instead of invented legal statements.
+ * These documents provide the correct structure. Final legal wording must be
+ * supplied or approved by the legal owner before publication.
  */
 
 import type { AppPath } from "@/lib/routing";
@@ -11,7 +10,7 @@ import type { AppPath } from "@/lib/routing";
 export type LegalSection = {
   id: string;
   title: string;
-  /** Final legal text. Empty array => section pending publication. */
+  /** Final legal text. Empty array => topic awaiting its approved wording. */
   paragraphs: string[];
 };
 
@@ -19,19 +18,19 @@ export type LegalDocument = {
   slug: "terms" | "privacy";
   title: string;
   intro: string;
-  /** ISO date of the last published revision, null while unpublished. */
+  /** ISO date of the last published revision, null while awaiting publication. */
   lastUpdated: string | null;
   sections: LegalSection[];
 };
 
 export const PENDING_SECTION_NOTICE =
-  "Cette section est en cours de rédaction avec notre conseil juridique. Elle sera publiée avant l'ouverture commerciale.";
+  "Cette rubrique fait partie de la mise à jour de notre documentation juridique. Son contenu détaillé sera ajouté à la version consolidée après relecture et validation.";
 
 export const TERMS_DOCUMENT: LegalDocument = {
   slug: "terms",
   title: "Conditions générales",
   intro:
-    "Ces conditions décriront la relation contractuelle entre le client et la banque : ouverture de compte, utilisation des services, obligations réciproques et fin de la relation.",
+    "Nous préparons une présentation claire du cadre contractuel qui encadrera la relation avec nos clients : ouverture de compte, utilisation des services, obligations réciproques et fin de la relation.",
   lastUpdated: null,
   sections: [
     { id: "scope", title: "1. Objet et champ d'application", paragraphs: [] },
@@ -57,7 +56,7 @@ export const PRIVACY_DOCUMENT: LegalDocument = {
   slug: "privacy",
   title: "Politique de confidentialité",
   intro:
-    "Cette politique décrira les données que nous collectons, les raisons de cette collecte, leur durée de conservation et les droits dont vous disposez.",
+    "Nous préparons une politique qui expliquera de façon transparente les données concernées, les raisons de leur traitement, leur durée de conservation et les droits dont vous disposez.",
   lastUpdated: null,
   sections: [
     { id: "collected", title: "1. Données collectées", paragraphs: [] },
