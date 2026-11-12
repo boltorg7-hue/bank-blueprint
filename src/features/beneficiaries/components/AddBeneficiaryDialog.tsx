@@ -72,13 +72,24 @@ export function AddBeneficiaryDialog({
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="safe-pb max-w-md">
+      <DialogContent className="safe-pb max-w-lg rounded-2xl">
         <DialogHeader>
-          <DialogTitle>Ajouter un bénéficiaire</DialogTitle>
+          <DialogTitle>{en ? "Add an internal beneficiary" : "Ajouter un bénéficiaire interne"}</DialogTitle>
           <DialogDescription>
             {en ? "Register an account held with us using its account number or IBAN." : "Enregistrez un compte détenu chez nous à partir de son numéro de compte ou de son IBAN."}
           </DialogDescription>
         </DialogHeader>
+
+        <div className="grid grid-cols-2 gap-2 rounded-xl bg-surface-sunken p-2">
+          <div className={`rounded-lg px-3 py-2 text-center text-caption font-medium ${resolved === null ? "bg-background text-foreground shadow-sm" : "text-muted-foreground"}`}>
+            <span className="block text-primary">01</span>
+            {en ? "Verify account" : "Vérifier le compte"}
+          </div>
+          <div className={`rounded-lg px-3 py-2 text-center text-caption font-medium ${resolved !== null ? "bg-background text-foreground shadow-sm" : "text-muted-foreground"}`}>
+            <span className="block text-primary">02</span>
+            {en ? "Save recipient" : "Enregistrer"}
+          </div>
+        </div>
 
         {resolved === null ? (
           <div className="space-y-4">
