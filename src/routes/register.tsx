@@ -116,7 +116,10 @@ function RegisterPage() {
       footer={
         <p className="text-body-sm text-muted-foreground">
           {en ? "Already have an account?" : "Vous avez déjà un compte ?"}{" "}
-          <Link to="/login" className="rounded-sm font-semibold text-brand underline-offset-4 transition-colors hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 motion-reduce:transition-none">
+          <Link
+            to="/login"
+            className="rounded-sm font-semibold text-brand underline-offset-4 transition-colors hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 motion-reduce:transition-none"
+          >
             {en ? "Sign in" : "Se connecter"}
           </Link>
         </p>
@@ -124,7 +127,9 @@ function RegisterPage() {
     >
       <div className="mb-6 space-y-4 rounded-2xl border border-border bg-surface-sunken/70 p-4 sm:p-5">
         <div className="flex items-center justify-between gap-3">
-          <span className="text-overline font-semibold tracking-[0.12em] text-brand">{en ? "STEP 1 OF 3" : "ÉTAPE 1 SUR 3"}</span>
+          <span className="text-overline font-semibold tracking-[0.12em] text-brand">
+            {en ? "STEP 1 OF 3" : "ÉTAPE 1 SUR 3"}
+          </span>
           <span className="text-caption text-muted-foreground">
             {en ? "3 secure steps" : "3 étapes sécurisées"}
           </span>
