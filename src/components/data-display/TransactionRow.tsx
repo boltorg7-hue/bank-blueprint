@@ -90,13 +90,7 @@ export function TransactionRow({
           direction={direction}
           {...(currency ? { currency } : {})}
         />
-        {statusLabel && (
-          <StatusBadge
-            label={statusLabel}
-            tone={statusTone}
-            className="h-5 px-2 text-[0.625rem]"
-          />
-        )}
+        {statusLabel && <StatusBadge label={statusLabel} tone={statusTone} className="h-5 px-2 text-[0.625rem]" />}
       </span>
     </Wrapper>
   );

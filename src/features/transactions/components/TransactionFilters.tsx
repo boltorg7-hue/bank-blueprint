@@ -61,6 +61,32 @@ const CATEGORIES = [
   { value: "ACCOUNT_OPENING", fr: "Ouvertures de compte", en: "Account openings" },
 ];
 
+const DIRECTION_LABELS: Record<string, string> = {
+  ALL: "All transactions",
+  INCOMING: "Money in",
+  OUTGOING: "Money out",
+  NEUTRAL: "Other transactions",
+};
+
+const STATUS_LABELS: Record<string, string> = {
+  ALL: "All statuses",
+  COMPLETED: "Completed",
+  PENDING: "Pending",
+  PROCESSING: "Processing",
+  REVERSED: "Reversed",
+  FAILED: "Failed",
+  CANCELLED: "Cancelled",
+};
+
+const DATE_PRESET_LABELS: Record<string, string> = {
+  ALL: "Any date",
+  TODAY: "Today",
+  LAST_7_DAYS: "Last 7 days",
+  THIS_MONTH: "This month",
+  LAST_MONTH: "Last month",
+  CUSTOM: "Custom dates",
+};
+
 export function amountToMinor(value: string): number | null {
   if (!value.trim()) return null;
   const normalized = value.trim().replace(",", ".");
@@ -195,14 +221,7 @@ function FilterFields({
           <SelectContent>
             {DIRECTIONS.map((option) => (
               <SelectItem key={option.value} value={option.value}>
-                {en
-                  ? ({
-                      ALL: "All transactions",
-                      INCOMING: "Money in",
-                      OUTGOING: "Money out",
-                      NEUTRAL: "Other transactions",
-                    } as Record<string, string>)[option.value]
-                  : option.label}
+                {en ? DIRECTION_LABELS[option.value] : option.label}
               </SelectItem>
             ))}
           </SelectContent>
@@ -223,17 +242,7 @@ function FilterFields({
           <SelectContent>
             {STATUSES.map((option) => (
               <SelectItem key={option.value} value={option.value}>
-                {en
-                  ? ({
-                      ALL: "All statuses",
-                      COMPLETED: "Completed",
-                      PENDING: "Pending",
-                      PROCESSING: "Processing",
-                      REVERSED: "Reversed",
-                      FAILED: "Failed",
-                      CANCELLED: "Cancelled",
-                    } as Record<string, string>)[option.value]
-                  : option.label}
+                {en ? STATUS_LABELS[option.value] : option.label}
               </SelectItem>
             ))}
           </SelectContent>
@@ -254,16 +263,7 @@ function FilterFields({
           <SelectContent>
             {PRESETS.map((option) => (
               <SelectItem key={option.value} value={option.value}>
-                {en
-                  ? ({
-                      ALL: "Any date",
-                      TODAY: "Today",
-                      LAST_7_DAYS: "Last 7 days",
-                      THIS_MONTH: "This month",
-                      LAST_MONTH: "Last month",
-                      CUSTOM: "Custom dates",
-                    } as Record<string, string>)[option.value]
-                  : option.label}
+                {en ? DATE_PRESET_LABELS[option.value] : option.label}
               </SelectItem>
             ))}
           </SelectContent>
