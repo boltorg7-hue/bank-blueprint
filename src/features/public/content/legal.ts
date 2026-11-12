@@ -24,7 +24,7 @@ export type LegalDocument = {
 };
 
 export const PENDING_SECTION_NOTICE =
-  "Cette rubrique fait partie de la mise à jour de notre documentation juridique. Son contenu détaillé sera ajouté à la version consolidée après relecture et validation.";
+  "La finalisation de cette rubrique est en cours. Nous préparons ses informations détaillées afin de vous présenter une documentation claire et cohérente.";
 
 export const TERMS_DOCUMENT: LegalDocument = {
   slug: "terms",
