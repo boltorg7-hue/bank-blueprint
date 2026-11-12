@@ -37,8 +37,8 @@ export function LegalDocumentView({ document }: { document: LegalDocument }) {
           {document.lastUpdated
             ? `${en ? "Last updated" : "Dernière mise à jour"}: ${formatDate(document.lastUpdated)}`
             : en
-              ? "Publication update in preparation"
-              : "Mise à jour avant publication"}
+              ? "Document review in progress"
+              : "Relecture et mise à jour en cours"}
         </div>
 
         {document.sections.map((section) => (
@@ -68,7 +68,7 @@ export function LegalDocumentView({ document }: { document: LegalDocument }) {
                 </span>
                 <p className="text-body-sm text-muted-foreground">
                   {en
-                    ? "This topic is included in the current document update. Its detailed information will be added to the consolidated version after review."
+                    ? "This section is being finalized as part of our document review. We are preparing clear and consistent information for you."
                     : PENDING_SECTION_NOTICE}
                 </p>
               </div>
