@@ -26,7 +26,7 @@ import { LIFECYCLE_LABELS } from "@/types/customer-lifecycle";
 const SECTION_ICON_CLASS =
   "flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary";
 const SHORTCUT_CLASS =
-  "group flex min-h-14 items-center justify-between gap-3 rounded-xl border border-border/70 bg-muted/20 p-3 transition-colors hover:border-primary/30 hover:bg-muted/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
+  "group flex min-h-16 touch-manipulation items-center justify-between gap-3 rounded-2xl border border-border/70 bg-muted/20 p-4 transition-colors hover:border-primary/30 hover:bg-muted/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
 
 export function ProfilePage() {
   const { language } = useLanguage();
@@ -51,7 +51,7 @@ export function ProfilePage() {
     .toUpperCase();
 
   return (
-    <div className="mx-auto w-full max-w-5xl space-y-5">
+    <div className="mx-auto w-full max-w-5xl space-y-6">
       <PageHeader
         title={en ? "My profile" : "Mon profil"}
         description={
@@ -67,9 +67,9 @@ export function ProfilePage() {
         }
       />
 
-      <PageSection className="space-y-5">
+      <PageSection className="space-y-6">
         <Card className="overflow-hidden border-primary/20 bg-gradient-to-br from-primary/[0.09] via-card to-card">
-          <CardContent className="flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:p-6">
+          <CardContent className="flex flex-col gap-5 p-4 sm:flex-row sm:items-center sm:p-6">
             <div className="flex size-20 shrink-0 items-center justify-center self-start overflow-hidden rounded-full border-4 border-background bg-primary/10 text-xl font-semibold text-primary shadow-sm sm:size-24">
               {data.avatarUrl ? (
                 <img
@@ -153,7 +153,7 @@ export function ProfilePage() {
               </div>
             </div>
           </CardHeader>
-          <CardContent className="grid gap-3 sm:grid-cols-2">
+          <CardContent className="grid gap-3 sm:grid-cols-2 sm:gap-4">
             <Link to="/app/profile/personal" className={SHORTCUT_CLASS}>
               <span className="flex min-w-0 items-center gap-3">
                 <UserRound aria-hidden className="size-5 shrink-0 text-primary" />
@@ -367,7 +367,7 @@ export function ProfilePage() {
             </div>
           </CardHeader>
 
-          <CardContent className="grid gap-3 sm:grid-cols-2">
+          <CardContent className="grid gap-3 sm:grid-cols-2 sm:gap-4">
             <Link to="/app/messages" className={SHORTCUT_CLASS}>
               <span className="flex min-w-0 items-center gap-3">
                 <MessageCircle aria-hidden className="size-5 shrink-0 text-primary" />
