@@ -175,15 +175,15 @@ function OAuthConsentPage() {
                   />
                   <div className="min-w-0 flex-1 space-y-1">
                     <Label
-                    htmlFor="oauth-terms"
-                    className="cursor-pointer text-sm font-semibold leading-5"
-                  >
+                      htmlFor="oauth-terms"
+                      className="cursor-pointer text-sm font-semibold leading-5"
+                    >
                       {en ? "Terms and conditions" : "Conditions générales"}
                     </Label>
                     <p className="text-xs leading-relaxed text-muted-foreground">
                       {en
-                      ? "I agree to the rules governing the use of RF BANK."
-                      : "J’accepte les règles qui encadrent l’utilisation de RF BANK."}{" "}
+                        ? "I agree to the rules governing the use of RF BANK."
+                        : "J’accepte les règles qui encadrent l’utilisation de RF BANK."}{" "}
                       <Link
                         to="/terms"
                         className="font-semibold text-brand underline underline-offset-4 hover:text-brand/80"
@@ -193,9 +193,9 @@ function OAuthConsentPage() {
                     </p>
                   </div>
                   <FileCheck2
-                  className="mt-0.5 size-4 shrink-0 text-muted-foreground"
-                  aria-hidden="true"
-                />
+                    className="mt-0.5 size-4 shrink-0 text-muted-foreground"
+                    aria-hidden="true"
+                  />
                 </div>
 
                 <div className="flex items-start gap-3 p-4 transition-colors hover:bg-muted/30">
@@ -207,9 +207,9 @@ function OAuthConsentPage() {
                   />
                   <div className="min-w-0 flex-1 space-y-1">
                     <Label
-                    htmlFor="oauth-privacy"
-                    className="cursor-pointer text-sm font-semibold leading-5"
-                  >
+                      htmlFor="oauth-privacy"
+                      className="cursor-pointer text-sm font-semibold leading-5"
+                    >
                       {en ? "Privacy policy" : "Politique de confidentialité"}
                     </Label>
                     <p className="text-xs leading-relaxed text-muted-foreground">
@@ -225,9 +225,9 @@ function OAuthConsentPage() {
                     </p>
                   </div>
                   <LockKeyhole
-                  className="mt-0.5 size-4 shrink-0 text-muted-foreground"
-                  aria-hidden="true"
-                />
+                    className="mt-0.5 size-4 shrink-0 text-muted-foreground"
+                    aria-hidden="true"
+                  />
                 </div>
               </div>
             </section>
@@ -243,9 +243,9 @@ function OAuthConsentPage() {
                 <div className="min-w-0 flex-1 space-y-1">
                   <div className="flex flex-wrap items-center gap-2">
                     <Label
-                    htmlFor="oauth-marketing"
-                    className="cursor-pointer text-sm font-semibold"
-                  >
+                      htmlFor="oauth-marketing"
+                      className="cursor-pointer text-sm font-semibold"
+                    >
                       {en ? "News and offers" : "Actualités et offres"}
                     </Label>
                     <span className="rounded-full border border-border bg-background px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">

@@ -279,16 +279,16 @@ export async function saveProfileStep(userId: string, input: unknown) {
     // Phone changes must use the same atomic path as the dedicated contact page:
     // invalidate old challenges, preserve lifecycle progression and check ownership.
     const changePendingPhone = supabaseAdmin.rpc as unknown as (
-    functionName: string,
-    args: Record<string, string>,
-  ) => Promise<{ error: { message?: string } | null }>;
-  const { error: phoneChangeError } = await changePendingPhone(
-    "customer_change_pending_phone",
-    {
-      _user_id: userId,
-      _phone: data.phone,
-    },
-  );
+      functionName: string,
+      args: Record<string, string>,
+    ) => Promise<{ error: { message?: string } | null }>;
+    const { error: phoneChangeError } = await changePendingPhone(
+      "customer_change_pending_phone",
+      {
+        _user_id: userId,
+        _phone: data.phone,
+      },
+    );
     if (phoneChangeError) {
       throw new OnboardingError(
         phoneChangeError.message?.includes("PHONE_ALREADY_IN_USE")
