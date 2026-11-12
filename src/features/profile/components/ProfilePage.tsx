@@ -151,11 +151,16 @@ export function ProfilePage() {
       <PageSection className="space-y-5">
         <Card className="overflow-hidden border-primary/20 bg-gradient-to-br from-primary/[0.09] via-card to-card">
           <CardContent className="flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:p-6">
-            <div
-              className="flex size-20 shrink-0 items-center justify-center self-start rounded-full border-4 border-background bg-primary/10 text-xl font-semibold text-primary shadow-sm sm:size-24"
-              aria-label={en ? "Profile photo placeholder" : "Emplacement de la photo de profil"}
-            >
-              {initials || <UserRound aria-hidden className="size-9" />}
+            <div className="flex size-20 shrink-0 items-center justify-center self-start overflow-hidden rounded-full border-4 border-background bg-primary/10 text-xl font-semibold text-primary shadow-sm sm:size-24">
+              {data.avatarUrl ? (
+                <img
+                  src={data.avatarUrl}
+                  alt={en ? "Profile photo" : "Photo de profil"}
+                  className="size-full object-cover"
+                />
+              ) : (
+                initials || <UserRound aria-hidden className="size-9" />
+              )}
             </div>
 
             <div className="min-w-0 flex-1">
@@ -186,11 +191,12 @@ export function ProfilePage() {
                   tone={data.identityStatus === "VERIFIED" ? "success" : "pending"}
                 />
               </div>
-              <p className="mt-3 text-xs text-muted-foreground">
-                {en
-                  ? "Profile photo upload will be enabled after private storage and access controls are deployed."
-                  : "L’ajout de photo sera activé après le déploiement du stockage privé et de ses contrôles d’accès."}
-              </p>
+              <Button asChild size="sm" variant="outline" className="mt-3 w-fit">
+                <Link to="/app/profile/identity">
+                  {en ? "Manage identity and photo" : "Gérer l’identité et la photo"}
+                  <ArrowUpRight aria-hidden className="ml-2 size-4" />
+                </Link>
+              </Button>
             </div>
 
             <div className="grid w-full gap-2 sm:w-auto sm:min-w-44">
