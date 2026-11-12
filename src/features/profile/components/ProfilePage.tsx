@@ -237,14 +237,7 @@ export function ProfilePage() {
                     {en ? "View account details" : "Consulter les détails du compte"}
                     <ArrowUpRight aria-hidden className="size-4" />
                   </Link>
-                      {account.bic ? (
-                        <div className="min-w-0">
-                          <p className="text-xs text-muted-foreground">BIC</p>
-                          <p className="break-all font-mono text-xs text-foreground">
-                            {account.bic}
-                          </p>
-                        </div>
-                      ) : null}
+
                     </div>
                   ) : null}
                 </div>
