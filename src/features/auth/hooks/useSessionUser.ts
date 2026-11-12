@@ -4,6 +4,8 @@ import { useQueryClient } from "@tanstack/react-query";
 import type { User } from "@supabase/supabase-js";
 import { toast } from "sonner";
 
+import { useLanguage } from "@/components/providers/LanguageProvider";
+
 import { supabase } from "@/integrations/supabase/client";
 
 export type SessionState = { loading: boolean; user: User | null };
@@ -37,6 +39,7 @@ export function useSessionUser(): SessionState {
 
 /** Sign-out hygiene: cancel in-flight queries, clear cache, then replace history. */
 export function useSignOut() {
+  const { language } = useLanguage();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
@@ -46,7 +49,11 @@ export function useSignOut() {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
     } catch {
-      toast.error("La déconnexion n’a pas abouti. Réessayez.");
+      toast.error(
+        language === "en"
+          ? "Sign-out could not be completed. Please try again."
+          : "La déconnexion n’a pas abouti. Réessayez.",
+      );
       return false;
     }
 
