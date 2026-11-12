@@ -13,6 +13,13 @@ import {
 } from "@/features/onboarding/schemas/onboarding.schemas";
 import type { CustomerContext } from "@/domain/onboarding/types";
 
+type PendingPhoneRpc = (
+  functionName: string,
+  args: { _user_id: string; _phone: string },
+) => PromiseLike<{ error: { message?: string } | null }>;
+
+const customerChangePendingPhone = supabaseAdmin.rpc as unknown as PendingPhoneRpc;
+
 const PROFILE_COLUMNS =
   "id, first_name, middle_name, last_name, date_of_birth, nationality, country_of_residence, occupation, phone, phone_verified_at, lifecycle_state, onboarding_step";
 
@@ -278,16 +285,9 @@ export async function saveProfileStep(userId: string, input: unknown) {
   if (!phoneUnchanged) {
     // Phone changes must use the same atomic path as the dedicated contact page:
     // invalidate old challenges, preserve lifecycle progression and check ownership.
-    const changePendingPhone = supabaseAdmin.rpc as unknown as (
-      functionName: string,
-      args: Record<string, string>,
-    ) => Promise<{ error: { message?: string } | null }>;
-    const { error: phoneChangeError } = await changePendingPhone(
+    const { error: phoneChangeError } = await customerChangePendingPhone(
       "customer_change_pending_phone",
-      {
-        _user_id: userId,
-        _phone: data.phone,
-      },
+      { _user_id: userId, _phone: data.phone },
     );
     if (phoneChangeError) {
       throw new OnboardingError(
