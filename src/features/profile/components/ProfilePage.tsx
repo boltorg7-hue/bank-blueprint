@@ -97,9 +97,7 @@ export function ProfilePage() {
       toast.success(en ? "Address saved." : "Adresse enregistrée.");
     } catch {
       toast.error(
-        en
-          ? "Your address could not be saved."
-          : "L’adresse n’a pas pu être enregistrée.",
+        en ? "Your address could not be saved." : "L’adresse n’a pas pu être enregistrée.",
       );
     }
   }
@@ -264,9 +262,7 @@ export function ProfilePage() {
             <form onSubmit={submitAddress} className="grid gap-4 sm:grid-cols-2">
               {ADDRESS_FIELDS.map(([key, label, labelEn]) => (
                 <div className="grid min-w-0 gap-2" key={key}>
-                  <Label htmlFor={`profile-address-${key}`}>
-                    {en ? labelEn : label}
-                  </Label>
+                  <Label htmlFor={`profile-address-${key}`}>{en ? labelEn : label}</Label>
                   <Input
                     id={`profile-address-${key}`}
                     value={address[key] ?? ""}
