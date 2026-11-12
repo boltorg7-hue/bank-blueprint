@@ -1,4 +1,5 @@
 import { useLanguage } from "@/components/providers/LanguageProvider";
+import { BriefcaseBusiness, ContactRound, MapPinned, ShieldCheck } from "lucide-react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
@@ -130,74 +131,122 @@ function ProfileStepPage() {
         onSubmit={handleSubmit}
         onChange={() => setDirty(true)}
         noValidate
-        className="space-y-5"
+        className="space-y-5 rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-6"
       >
-        <Field
-          name="firstName"
-          label={en ? "First name" : "Prénom"}
-          autoComplete="given-name"
-          defaultValue={profile.first_name}
-          error={errors["firstName"]}
-        />
-        <Field
-          name="middleName"
-          label={en ? "Middle name (optional)" : "Deuxième prénom (optionnel)"}
-          autoComplete="additional-name"
-          defaultValue={profile.middle_name}
-          error={errors["middleName"]}
-        />
-        <Field
-          name="lastName"
-          label={en ? "Last name" : "Nom"}
-          autoComplete="family-name"
-          defaultValue={profile.last_name}
-          error={errors["lastName"]}
-        />
-        <Field
-          name="dateOfBirth"
-          label={en ? "Date of birth" : "Date de naissance"}
-          type="date"
-          autoComplete="bday"
-          defaultValue={profile.date_of_birth}
-          error={errors["dateOfBirth"]}
-        />
-        <ChoiceField
-          id="profile-nationality"
-          name="nationality"
-          label={en ? "Nationality" : "Nationalité"}
-          options={COUNTRIES}
-          en={en}
-          defaultValue={profile.nationality ?? ""}
-          error={errors["nationality"]}
-        />
-        <ChoiceField
-          id="profile-countryOfResidence"
-          name="countryOfResidence"
-          label={en ? "Country of residence" : "Pays de résidence"}
-          options={COUNTRIES}
-          en={en}
-          defaultValue={profile.country_of_residence ?? ""}
-          error={errors["countryOfResidence"]}
-        />
-        <ChoiceField
-          id="profile-occupation"
-          name="occupation"
-          label={en ? "Occupation" : "Profession"}
-          options={OCCUPATIONS}
-          en={en}
-          allowOther
-          defaultValue={profile.occupation}
-          error={errors["occupation"]}
-        />
-        <Field
-          name="phone"
-          label={en ? "Phone number (required)" : "Numéro de téléphone (obligatoire)"}
-          type="tel"
-          autoComplete="tel"
-          defaultValue={profile.phone ?? ""}
-          error={errors["phone"]}
-          required
-        />
+        <div className="flex items-start gap-3 border-b border-border pb-4">
+          <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-brand/10 text-brand">
+            <ShieldCheck className="size-5" aria-hidden="true" />
+          </div>
+          <div className="min-w-0">
+            <h2 className="text-label font-semibold text-foreground">
+              {en ? "Secure identity details" : "Informations d’identité sécurisées"}
+            </h2>
+            <p className="mt-1 text-body-sm leading-relaxed text-muted-foreground">
+              {en
+                ? "Use the exact spelling and details shown on your official documents."
+                : "Utilisez l’orthographe et les informations exactes figurant sur vos documents officiels."}
+            </p>
+          </div>
+        </div>
+
+        <section className="space-y-4">
+          <div className="flex items-center gap-2">
+            <ContactRound className="size-4 text-brand" aria-hidden="true" />
+            <h3 className="text-label font-semibold text-foreground">
+              {en ? "Personal details" : "Identité personnelle"}
+            </h3>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Field
+              name="firstName"
+              label={en ? "First name" : "Prénom"}
+              autoComplete="given-name"
+              defaultValue={profile.first_name}
+              error={errors["firstName"]}
+            />
+            <Field
+              name="middleName"
+              label={en ? "Middle name (optional)" : "Deuxième prénom (optionnel)"}
+              autoComplete="additional-name"
+              defaultValue={profile.middle_name}
+              error={errors["middleName"]}
+            />
+            <Field
+              name="lastName"
+              label={en ? "Last name" : "Nom"}
+              autoComplete="family-name"
+              defaultValue={profile.last_name}
+              error={errors["lastName"]}
+            />
+            <Field
+              name="dateOfBirth"
+              label={en ? "Date of birth" : "Date de naissance"}
+              type="date"
+              autoComplete="bday"
+              defaultValue={profile.date_of_birth}
+              error={errors["dateOfBirth"]}
+            />
+          </div>
+        </section>
+
+        <section className="space-y-4 border-t border-border pt-5">
+          <div className="flex items-center gap-2">
+            <MapPinned className="size-4 text-brand" aria-hidden="true" />
+            <h3 className="text-label font-semibold text-foreground">
+              {en ? "Nationality and residence" : "Nationalité et résidence"}
+            </h3>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <ChoiceField
+              id="profile-nationality"
+              name="nationality"
+              label={en ? "Nationality" : "Nationalité"}
+              options={COUNTRIES}
+              en={en}
+              defaultValue={profile.nationality ?? ""}
+              error={errors["nationality"]}
+            />
+            <ChoiceField
+              id="profile-countryOfResidence"
+              name="countryOfResidence"
+              label={en ? "Country of residence" : "Pays de résidence"}
+              options={COUNTRIES}
+              en={en}
+              defaultValue={profile.country_of_residence ?? ""}
+              error={errors["countryOfResidence"]}
+            />
+          </div>
+        </section>
+
+        <section className="space-y-4 border-t border-border pt-5">
+          <div className="flex items-center gap-2">
+            <BriefcaseBusiness className="size-4 text-brand" aria-hidden="true" />
+            <h3 className="text-label font-semibold text-foreground">
+              {en ? "Professional and contact details" : "Profession et coordonnées"}
+            </h3>
+          </div>
+          <div className="space-y-4">
+            <ChoiceField
+              id="profile-occupation"
+              name="occupation"
+              label={en ? "Occupation" : "Profession"}
+              options={OCCUPATIONS}
+              en={en}
+              allowOther
+              defaultValue={profile.occupation}
+              error={errors["occupation"]}
+            />
+            <Field
+              name="phone"
+              label={en ? "Phone number (required)" : "Numéro de téléphone (obligatoire)"}
+              type="tel"
+              autoComplete="tel"
+              defaultValue={profile.phone ?? ""}
+              error={errors["phone"]}
+              required
+            />
+          </div>
+        </section>
 
         {formError ? (
           <p
