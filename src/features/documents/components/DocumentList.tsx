@@ -1,4 +1,4 @@
-import { memo, useMemo, useState } from "react";
+import { memo, useState } from "react";
 import {
   FileCheck2,
   FileText,
@@ -133,7 +133,9 @@ const DocumentRow = memo(function DocumentRow({ document }: { document: Customer
           <DocumentActions reference={document.reference} />
         ) : document.status === "GENERATING" ? (
           <p className="text-caption text-muted-foreground">
-            {en ? "Your document is being prepared." : "Votre document est en cours de préparation."}
+            {en
+              ? "Your document is being prepared."
+              : "Votre document est en cours de préparation."}
           </p>
         ) : null}
       </div>
@@ -149,23 +151,20 @@ export function DocumentList() {
   const [cursor, setCursor] = useState<string | null>(null);
   const [history, setHistory] = useState<string[]>([]);
   const { data, isPending, isError, refetch } = useDocuments(filter, cursor);
-  const visibleDocuments = useMemo(() => {
-    const query = search.trim().toLocaleLowerCase();
-    if (!query) return data?.items ?? [];
-    return (data?.items ?? []).filter((document) =>
-      [
-        document.title,
-        document.reference,
-        document.accountReference ?? "",
-        en
-          ? DOCUMENT_TYPE_LABELS_EN[document.documentType]
-          : DOCUMENT_TYPE_LABELS[document.documentType],
-      ]
-        .join(" ")
-        .toLocaleLowerCase()
-        .includes(query),
-    );
-  }, [data?.items, en, search]);
+  const query = search.trim().toLocaleLowerCase();
+  const visibleDocuments = (data?.items ?? []).filter((document) =>
+    [
+      document.title,
+      document.reference,
+      document.accountReference ?? "",
+      en
+        ? DOCUMENT_TYPE_LABELS_EN[document.documentType]
+        : DOCUMENT_TYPE_LABELS[document.documentType],
+    ]
+      .join(" ")
+      .toLocaleLowerCase()
+      .includes(query),
+  );
 
   return (
     <div className="space-y-5">
@@ -205,7 +204,11 @@ export function DocumentList() {
           <Input
             value={search}
             onChange={(event) => setSearch(event.target.value)}
-            placeholder={en ? "Search by title, reference or account" : "Rechercher par titre, référence ou compte"}
+            placeholder={
+              en
+                ? "Search by title, reference or account"
+                : "Rechercher par titre, référence ou compte"
+            }
             aria-label={en ? "Search documents" : "Rechercher des documents"}
             className="pl-9"
           />
