@@ -237,9 +237,8 @@ export function ProfilePage() {
                     {en ? "View account details" : "Consulter les détails du compte"}
                     <ArrowUpRight aria-hidden className="size-4" />
                   </Link>
-
-                    </div>
-                  ) : null}
+                </div>
+              ) : null}
                 </div>
               ))
             ) : (
