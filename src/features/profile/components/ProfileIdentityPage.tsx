@@ -46,7 +46,11 @@ export function ProfileIdentityPage() {
     event.currentTarget.value = "";
     if (!file) return;
 
-    if (!ALLOWED_AVATAR_TYPES.includes(file.type) || file.size < 1 || file.size > MAX_AVATAR_BYTES) {
+    if (
+      !ALLOWED_AVATAR_TYPES.includes(file.type) ||
+      file.size < 1 ||
+      file.size > MAX_AVATAR_BYTES
+    ) {
       toast.error(
         en
           ? "Choose a JPG, PNG or WebP image up to 3 MB."
@@ -134,7 +138,9 @@ export function ProfileIdentityPage() {
               )}
             </div>
             <div className="min-w-0 flex-1">
-              <p className="font-semibold">{fullName || (en ? "Name not provided" : "Nom non renseigné")}</p>
+              <p className="font-semibold">
+                {fullName || (en ? "Name not provided" : "Nom non renseigné")}
+              </p>
               <p className="mt-1 text-sm text-muted-foreground">
                 {en ? "JPG, PNG or WebP · 3 MB maximum" : "JPG, PNG ou WebP · 3 Mo maximum"}
               </p>
@@ -182,12 +188,28 @@ export function ProfileIdentityPage() {
             />
             <IdentityRow
               label={en ? "Email address" : "Adresse e-mail"}
-              value={data.emailVerified ? (en ? "Verified" : "Vérifiée") : en ? "To verify" : "À vérifier"}
+              value={
+                data.emailVerified
+                  ? en
+                    ? "Verified"
+                    : "Vérifiée"
+                  : en
+                    ? "To verify"
+                    : "À vérifier"
+              }
               verified={data.emailVerified}
             />
             <IdentityRow
               label={en ? "Phone number" : "Numéro de téléphone"}
-              value={data.phoneVerified ? (en ? "Verified" : "Vérifié") : en ? "To verify" : "À vérifier"}
+              value={
+                data.phoneVerified
+                  ? en
+                    ? "Verified"
+                    : "Vérifié"
+                  : en
+                    ? "To verify"
+                    : "À vérifier"
+              }
               verified={data.phoneVerified}
             />
             <p className="flex items-start gap-2 border-t border-border/70 pt-3 text-xs text-muted-foreground">
