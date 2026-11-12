@@ -41,9 +41,9 @@ function TermsPage() {
           icon: "balance",
         },
         {
-          title: "Reviewed before publication",
+          title: "Careful review in progress",
           description:
-            "The final terms and their effective date will be published after review and approval.",
+            "The terms are being carefully reviewed, and their publication and effective dates will be clearly displayed when finalized.",
           icon: "review",
         },
       ]
@@ -61,9 +61,9 @@ function TermsPage() {
           icon: "balance",
         },
         {
-          title: "Une publication après relecture",
+          title: "Une relecture attentive en cours",
           description:
-            "Les conditions définitives et leur date d’entrée en vigueur seront publiées après relecture et validation.",
+            "Les conditions font l’objet d’une relecture attentive ; leurs dates de publication et d’entrée en vigueur seront clairement affichées une fois la finalisation terminée.",
           icon: "review",
         },
       ];
@@ -98,8 +98,8 @@ function TermsPage() {
               <div className="min-w-0 space-y-2">
                 <p className="text-overline font-semibold text-brand">
                   {en
-                    ? "Contractual document in preparation"
-                    : "Document contractuel en préparation"}
+                    ? "Legal document review in progress"
+                    : "Relecture et validation en cours"}
                 </p>
                 <h2 className="text-heading-md text-foreground">
                   {en
@@ -184,7 +184,7 @@ function TermsPage() {
                 </p>
               </div>
               <span className="inline-flex items-center rounded-full border border-border bg-surface-sunken px-3 py-1 text-caption font-medium text-muted-foreground">
-                {en ? "In preparation" : "En préparation"}
+                {en ? "Review in progress" : "Finalisation en cours"}
               </span>
             </div>
             <LegalDocumentView document={document} />
