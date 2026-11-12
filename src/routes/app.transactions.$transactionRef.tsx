@@ -45,7 +45,11 @@ function TransactionDetailRoute() {
           <SkeletonBlock lines={6} />
         ) : isError ? (
           <ErrorState
-            title={en ? "Transaction temporarily unavailable" : "Opération momentanément indisponible"}
+            title={
+              en
+                ? "Transaction temporarily unavailable"
+                : "Opération momentanément indisponible"
+            }
             description={
               en
                 ? "We could not load this transaction. Please try again shortly."
