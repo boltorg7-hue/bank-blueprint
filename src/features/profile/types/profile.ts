@@ -30,8 +30,6 @@ export type ProfileOverviewDto = {
     currency: string;
     status: string;
     maskedNumber: string;
-    iban: string | null;
-    bic: string | null;
   }[];
 };
 
