@@ -80,3 +80,48 @@ export const SUSPICIOUS_ACTIVITY_STEPS: string[] = [
   "Signalez l'incident via la messagerie sécurisée de votre espace client.",
   "Si vous n'avez plus accès à votre compte, utilisez le formulaire de contact public.",
 ];
+
+export const SECURITY_CONTENT_EN = {
+  intro: {
+    title: "Your account security",
+    description:
+      "Your security area lets you update your password, review sessions recorded by the application and follow security events.",
+  },
+  protections: [
+    ["Personal access", "Access to your account is personal and uses your sign-in credentials."],
+    [
+      "Contact verification",
+      "Verification steps for your email address and phone number help secure account registration and follow-up.",
+    ],
+    [
+      "Sessions and devices",
+      "Your security area shows sessions recorded by the application and lets you close other sessions.",
+    ],
+    ["Password management", "You can change your password after verifying your current password."],
+    [
+      "Account documents",
+      "Submitted documents support the verification steps and the follow-up of your customer file.",
+    ],
+    [
+      "Information privacy",
+      "Your account information is used to manage your relationship with RFC and carry out service-related checks.",
+    ],
+    [
+      "Security history",
+      "Password changes and recorded security events can be reviewed in your account.",
+    ],
+  ],
+  responsibilities: [
+    "Choose a unique password used only for RFC.",
+    "Never share your password, PIN or verification code.",
+    "Check the website address before entering your credentials.",
+    "Keep your phone and browser up to date.",
+    "Use your security area to close other sessions if you do not recognize a device.",
+  ],
+  steps: [
+    "Change your password immediately from your customer account.",
+    "Close any active sessions you do not recognize.",
+    "Report the incident through your secure customer messaging.",
+    "If you can no longer access your account, use the public contact form.",
+  ],
+} as const;
