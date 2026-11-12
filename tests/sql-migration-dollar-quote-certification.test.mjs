@@ -43,6 +43,20 @@ test("SQL migrations do not contain malformed single-dollar function delimiters"
   }
 
   assert.deepEqual(malformed, []);
+  const customerStateFix = fs.readFileSync(
+    path.join(directory, "20261002110000_fix_customer_notification_signature.sql"),
+    "utf8",
+  );
+  assert.equal(
+    (customerStateFix.match(/CREATE OR REPLACE FUNCTION public\.admin_set_customer_state/g) ?? [])
+      .length,
+    1,
+  );
+  const notificationCall = customerStateFix.match(
+    /PERFORM public\.emit_customer_notification\(([\s\S]*?)\);/,
+  );
+  assert.ok(notificationCall);
+  assert.equal(notificationCall[1].split(",").length, 7);
   for (const [tableName, count] of tableCreateCounts) {
     assert.equal(count, 1, tableName + " must have one authoritative table creation");
   }
