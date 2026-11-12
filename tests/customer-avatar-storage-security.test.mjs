@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 
 const migration = fs.readFileSync(
-  "supabase/migrations/20261112100000_customer_avatar_storage_hardening.sql",
+  "supabase/migrations/20261112120000_customer_avatar_storage_hardening.sql",
   "utf8",
 );
 const profileService = fs.readFileSync("src/features/profile/services/profile.server.ts", "utf8");
