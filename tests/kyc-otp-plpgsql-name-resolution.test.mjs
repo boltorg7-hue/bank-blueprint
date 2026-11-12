@@ -19,10 +19,7 @@ assert.match(
   migration,
   /RETURNS TABLE\(status public\.identity_verification_status, already_submitted boolean\)/,
 );
-assert.match(
-  migration,
-  /FROM public\.verification_documents AS vd[\s\S]*vd\.status = 'UPLOADED'/,
-);
+assert.match(migration, /FROM public\.verification_documents AS vd[\s\S]*vd\.status = 'UPLOADED'/);
 assert.match(
   migration,
   /RETURNS TABLE\(notification_id uuid, phone text, expires_at timestamptz\)/,
