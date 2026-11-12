@@ -124,3 +124,16 @@ export const ACCESSIBILITY_STATEMENT = {
   description:
     "Nous visons le niveau WCAG 2.2 AA : navigation au clavier, contrastes suffisants, focus visible, respect des préférences de mouvement réduit et compatibilité lecteur d'écran. Signalez-nous toute difficulté rencontrée via la page Contact.",
 } as const;
+
+/** OAuth consent is enabled only when both complete legal documents are published. */
+export function areOAuthConsentDocumentsPublished(): boolean {
+  return [TERMS_DOCUMENT, PRIVACY_DOCUMENT].every(
+    (document) =>
+      document.lastUpdated !== null &&
+      /^\d{4}-\d{2}-\d{2}$/.test(document.lastUpdated) &&
+      document.sections.length > 0 &&
+      document.sections.every((section) =>
+        section.paragraphs.some((paragraph) => paragraph.trim().length > 0),
+      ),
+  );
+}
