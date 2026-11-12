@@ -16,15 +16,19 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   useCreateSupportThread,
   useCustomerSupport,
   useReplySupportThread,
 } from "@/features/support/hooks/useSupport";
-import type { SupportCategory, SupportStatus, SupportThreadDto } from "@/features/support/types/support";
+import type {
+  SupportCategory,
+  SupportStatus,
+  SupportThreadDto,
+} from "@/features/support/types/support";
 import { formatDateTime } from "@/lib/format";
 
 type ThreadFilter = "ALL" | SupportStatus;
@@ -45,7 +49,10 @@ const STATUS_LABELS: Record<SupportStatus, { fr: string; en: string }> = {
   CLOSED: { fr: "Clôturée", en: "Closed" },
 };
 
-const STATUS_TONES: Record<SupportStatus, "success" | "pending" | "neutral" | "info"> = {
+const STATUS_TONES: Record<
+  SupportStatus,
+  "success" | "pending" | "neutral" | "info"
+> = {
   OPEN: "pending",
   WAITING_SUPPORT: "pending",
   WAITING_CUSTOMER: "info",
@@ -55,7 +62,6 @@ const STATUS_TONES: Record<SupportStatus, "success" | "pending" | "neutral" | "i
 
 const FILTERS: ThreadFilter[] = [
   "ALL",
-  "OPEN",
   "WAITING_SUPPORT",
   "WAITING_CUSTOMER",
   "RESOLVED",
@@ -85,19 +91,19 @@ export function SupportCenter() {
 
   const query = useCustomerSupport(cursor);
   const create = useCreateSupportThread();
-
   const term = search.trim().toLocaleLowerCase();
   const threads = (query.data?.items ?? []).filter((thread) => {
     const matchesFilter = filter === "ALL" || thread.status === filter;
-    const matchesSearch =
-      !term ||
-      [thread.subject, thread.reference, CATEGORY_LABELS[thread.category][en ? "en" : "fr"], messagePreview(thread)]
-        .join(" ")
-        .toLocaleLowerCase()
-        .includes(term);
-    return matchesFilter && matchesSearch;
+    const searchable = [
+      thread.subject,
+      thread.reference,
+      CATEGORY_LABELS[thread.category][en ? "en" : "fr"],
+      messagePreview(thread),
+    ]
+      .join(" ")
+      .toLocaleLowerCase();
+    return matchesFilter && (!term || searchable.includes(term));
   });
-
   const selectedThread =
     threads.find((thread) => thread.id === selectedId) ?? threads[0] ?? null;
 
@@ -105,11 +111,20 @@ export function SupportCenter() {
     const cleanSubject = subject.trim();
     const cleanBody = body.trim();
     if (cleanSubject.length < 5 || !cleanBody) {
-      toast.error(en ? "Add a clear subject and your message." : "Ajoutez un sujet précis et votre message.");
+      toast.error(
+        en
+          ? "Add a clear subject and your message."
+          : "Ajoutez un sujet précis et votre message.",
+      );
       return;
     }
+
     try {
-      await create.mutateAsync({ subject: cleanSubject, category, body: cleanBody });
+      await create.mutateAsync({
+        subject: cleanSubject,
+        category,
+        body: cleanBody,
+      });
       setSubject("");
       setBody("");
       setShowComposer(false);
@@ -117,9 +132,17 @@ export function SupportCenter() {
       setSearch("");
       setCursor(null);
       setHistory([]);
-      toast.success(en ? "Your request was sent securely." : "Votre demande a été envoyée de manière sécurisée.");
+      toast.success(
+        en
+          ? "Your request was sent securely."
+          : "Votre demande a été envoyée de manière sécurisée.",
+      );
     } catch {
-      toast.error(en ? "The request could not be sent. Please try again." : "La demande n’a pas pu être envoyée. Réessayez.");
+      toast.error(
+        en
+          ? "The request could not be sent. Please try again."
+          : "La demande n’a pas pu être envoyée. Réessayez.",
+      );
     }
   }
 
@@ -150,11 +173,18 @@ export function SupportCenter() {
               </div>
             </div>
           </div>
-          <Button className="w-full shrink-0 sm:w-auto" onClick={() => setShowComposer((value) => !value)}>
+          <Button
+            className="w-full shrink-0 sm:w-auto"
+            onClick={() => setShowComposer((value) => !value)}
+          >
             <Plus aria-hidden className="mr-2 size-4" />
             {showComposer
-              ? en ? "Close form" : "Fermer le formulaire"
-              : en ? "New request" : "Nouvelle demande"}
+              ? en
+                ? "Close form"
+                : "Fermer le formulaire"
+              : en
+                ? "New request"
+                : "Nouvelle demande"}
           </Button>
         </CardContent>
       </Card>
@@ -173,12 +203,21 @@ export function SupportCenter() {
               </p>
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="support-category">{en ? "Request category" : "Catégorie de la demande"}</Label>
-              <Select value={category} onValueChange={(value) => setCategory(value as SupportCategory)}>
-                <SelectTrigger id="support-category"><SelectValue /></SelectTrigger>
+              <Label htmlFor="support-category">
+                {en ? "Request category" : "Catégorie de la demande"}
+              </Label>
+              <Select
+                value={category}
+                onValueChange={(value) => setCategory(value as SupportCategory)}
+              >
+                <SelectTrigger id="support-category">
+                  <SelectValue />
+                </SelectTrigger>
                 <SelectContent>
                   {Object.entries(CATEGORY_LABELS).map(([value, labels]) => (
-                    <SelectItem key={value} value={value}>{labels[en ? "en" : "fr"]}</SelectItem>
+                    <SelectItem key={value} value={value}>
+                      {labels[en ? "en" : "fr"]}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -190,12 +229,20 @@ export function SupportCenter() {
                 maxLength={120}
                 value={subject}
                 onChange={(event) => setSubject(event.target.value)}
-                placeholder={en ? "Example: Question about my account" : "Exemple : Question concernant mon compte"}
+                placeholder={
+                  en
+                    ? "Example: Question about my account"
+                    : "Exemple : Question concernant mon compte"
+                }
               />
-              <p className="text-right text-xs text-muted-foreground">{subject.length}/120</p>
+              <p className="text-right text-xs text-muted-foreground">
+                {subject.length}/120
+              </p>
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="support-body">{en ? "Your message" : "Votre message"}</Label>
+              <Label htmlFor="support-body">
+                {en ? "Your message" : "Votre message"}
+              </Label>
               <Textarea
                 id="support-body"
                 rows={5}
@@ -208,13 +255,21 @@ export function SupportCenter() {
                     : "Expliquez votre besoin. Ne communiquez jamais votre mot de passe, code PIN ou code de vérification."
                 }
               />
-              <p className="text-right text-xs text-muted-foreground">{body.length}/4000</p>
+              <p className="text-right text-xs text-muted-foreground">
+                {body.length}/4000
+              </p>
             </div>
             <div className="flex flex-col gap-2 sm:flex-row sm:justify-end">
               <Button variant="outline" onClick={() => setShowComposer(false)}>
                 {en ? "Cancel" : "Annuler"}
               </Button>
-              <Button className="w-full sm:w-auto" loading={create.isPending} loadingLabel={en ? "Sending…" : "Envoi…"} disabled={subject.trim().length < 5 || !body.trim()} onClick={() => void submit()}>
+              <Button
+                className="w-full sm:w-auto"
+                loading={create.isPending}
+                loadingLabel={en ? "Sending…" : "Envoi…"}
+                disabled={subject.trim().length < 5 || !body.trim()}
+                onClick={() => void submit()}
+              >
                 <Send aria-hidden className="mr-2 size-4" />
                 {en ? "Send securely" : "Envoyer en toute sécurité"}
               </Button>
@@ -224,40 +279,70 @@ export function SupportCenter() {
       ) : null}
 
       <div className="grid gap-2 sm:grid-cols-3">
-        <SummaryTile label={en ? "Conversations" : "Conversations"} value={query.data?.items.length ?? 0} icon="inbox" />
+        <SummaryTile
+          label={en ? "Conversations" : "Conversations"}
+          value={query.data?.items.length ?? 0}
+          icon="inbox"
+        />
         <SummaryTile
           label={en ? "Awaiting your reply" : "Votre réponse attendue"}
-          value={(query.data?.items ?? []).filter((thread) => thread.status === "WAITING_CUSTOMER").length}
+          value={
+            (query.data?.items ?? []).filter(
+              (thread) => thread.status === "WAITING_CUSTOMER",
+            ).length
+          }
           icon="reply"
         />
         <SummaryTile
           label={en ? "In progress" : "En cours"}
-          value={(query.data?.items ?? []).filter((thread) => ["OPEN", "WAITING_SUPPORT"].includes(thread.status)).length}
+          value={
+            (query.data?.items ?? []).filter((thread) =>
+              ["OPEN", "WAITING_SUPPORT"].includes(thread.status),
+            ).length
+          }
           icon="clock"
         />
       </div>
 
-      <section className="space-y-3" aria-label={en ? "Support conversations" : "Conversations avec le service client"}>
+      <section
+        className="space-y-3"
+        aria-label={en ? "Support conversations" : "Conversations avec le service client"}
+      >
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h3 className="font-semibold text-foreground">{en ? "Conversation history" : "Historique des conversations"}</h3>
+            <h3 className="font-semibold text-foreground">
+              {en ? "Conversation history" : "Historique des conversations"}
+            </h3>
             <p className="text-xs text-muted-foreground">
-              {en ? "Select a conversation to read and reply." : "Sélectionnez une conversation pour la lire et y répondre."}
+              {en
+                ? "Select a conversation to read and reply."
+                : "Sélectionnez une conversation pour la lire et y répondre."}
             </p>
           </div>
           <div className="relative w-full sm:max-w-xs">
-            <Search aria-hidden className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+            <Search
+              aria-hidden
+              className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
+            />
             <Input
               value={search}
               onChange={(event) => setSearch(event.target.value)}
-              placeholder={en ? "Search by subject or reference" : "Rechercher par sujet ou référence"}
+              placeholder={
+                en
+                  ? "Search by subject or reference"
+                  : "Rechercher par sujet ou référence"
+              }
               aria-label={en ? "Search conversations" : "Rechercher des conversations"}
               className="pl-9"
             />
           </div>
         </div>
 
-        <div className="flex gap-2 overflow-x-auto pb-1" role="group" aria-label={en ? "Filter conversations" : "Filtrer les conversations"}>
+        <div
+          className="flex gap-2 overflow-x-auto pb-1"
+          role="group"
+          aria-label={en ? "Filter conversations" : "Filtrer les conversations"}
+        >
           {FILTERS.map((value) => (
             <Button
               key={value}
@@ -268,24 +353,43 @@ export function SupportCenter() {
               aria-pressed={filter === value}
               onClick={() => setFilter(value)}
             >
-              {value === "ALL" ? en ? "All" : "Toutes" : statusLabel(value, en)}
+              {value === "ALL"
+                ? en
+                  ? "All"
+                  : "Toutes"
+                : statusLabel(value, en)}
             </Button>
           ))}
         </div>
 
-        {query.isPending ? <LoadingState /> : query.isError ? <ErrorState onRetry={() => void query.refetch()} /> : !query.data?.items.length ? (
+        {query.isPending ? (
+          <LoadingState />
+        ) : query.isError ? (
+          <ErrorState onRetry={() => void query.refetch()} />
+        ) : !query.data?.items.length ? (
           <EmptyState
             title={en ? "No conversation yet" : "Aucune conversation pour le moment"}
-            description={en ? "Start a secure request to contact your bank. Your replies will be grouped here." : "Créez une demande sécurisée pour contacter votre banque. Vos réponses seront regroupées ici."}
+            description={
+              en
+                ? "Start a secure request to contact your bank. Your replies will be grouped here."
+                : "Créez une demande sécurisée pour contacter votre banque. Vos réponses seront regroupées ici."
+            }
           />
         ) : threads.length === 0 ? (
           <EmptyState
             title={en ? "No matching conversation" : "Aucune conversation correspondante"}
-            description={en ? "Change the search or select another status filter." : "Modifiez votre recherche ou choisissez un autre filtre de statut."}
+            description={
+              en
+                ? "Change the search or select another status filter."
+                : "Modifiez votre recherche ou choisissez un autre filtre de statut."
+            }
           />
         ) : (
           <div className="grid min-w-0 gap-3 lg:grid-cols-[minmax(260px,0.85fr)_minmax(0,1.5fr)]">
-            <div className="min-w-0 space-y-2" aria-label={en ? "Conversation list" : "Liste des conversations"}>
+            <div
+              className="min-w-0 space-y-2"
+              aria-label={en ? "Conversation list" : "Liste des conversations"}
+            >
               {threads.map((thread) => (
                 <ThreadListItem
                   key={thread.id}
@@ -296,20 +400,30 @@ export function SupportCenter() {
                 />
               ))}
             </div>
-            {selectedThread ? <ThreadConversation key={selectedThread.id} thread={selectedThread} en={en} /> : null}
+            {selectedThread ? (
+              <CustomerThread
+                key={selectedThread.id}
+                thread={selectedThread}
+                en={en}
+              />
+            ) : null}
           </div>
         )}
 
-        {(history.length > 0 || query.data?.hasNext) && !query.isPending && !query.isError ? (
+        {(history.length > 0 || query.data?.hasNext) &&
+        !query.isPending &&
+        !query.isError ? (
           <div className="flex justify-between gap-2 border-t border-border/70 pt-3">
             <Button
               variant="outline"
               disabled={!history.length || query.isFetching}
-              onClick={() => setHistory((items) => {
-                const next = [...items];
-                setCursor(next.pop() || null);
-                return next;
-              })}
+              onClick={() =>
+                setHistory((items) => {
+                  const next = [...items];
+                  setCursor(next.pop() || null);
+                  return next;
+                })
+              }
             >
               {en ? "Previous" : "Précédent"}
             </Button>
@@ -342,6 +456,7 @@ function SummaryTile({
   icon: "inbox" | "reply" | "clock";
 }) {
   const Icon = icon === "inbox" ? Inbox : icon === "reply" ? MessageSquareText : Clock3;
+
   return (
     <Card>
       <CardContent className="flex items-center gap-3 p-3 sm:p-4">
@@ -369,6 +484,7 @@ const ThreadListItem = memo(function ThreadListItem({
   onSelect: () => void;
 }) {
   const latest = thread.messages[thread.messages.length - 1];
+
   return (
     <button
       type="button"
@@ -377,20 +493,29 @@ const ThreadListItem = memo(function ThreadListItem({
       className={`w-full rounded-xl border p-3 text-left motion-safe:transition-colors motion-safe:duration-150 ${selected ? "border-primary/40 bg-primary/[0.06] shadow-sm" : "border-border/70 bg-card hover:border-primary/25 hover:bg-muted/30"}`}
     >
       <div className="flex items-start justify-between gap-2">
-        <span className="min-w-0 truncate text-sm font-semibold text-foreground">{thread.subject}</span>
-        <StatusBadge label={statusLabel(thread.status, en)} tone={STATUS_TONES[thread.status]} />
+        <span className="min-w-0 truncate text-sm font-semibold text-foreground">
+          {thread.subject}
+        </span>
+        <StatusBadge
+          label={statusLabel(thread.status, en)}
+          tone={STATUS_TONES[thread.status]}
+        />
       </div>
-      <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-muted-foreground">{messagePreview(thread)}</p>
+      <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-muted-foreground">
+        {messagePreview(thread)}
+      </p>
       <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-[11px] text-muted-foreground">
         <span className="font-mono">{thread.reference}</span>
         <span>{formatDateTime(latest?.createdAt ?? thread.lastMessageAt)}</span>
       </div>
-      <p className="mt-1 text-[11px] text-muted-foreground">{CATEGORY_LABELS[thread.category][en ? "en" : "fr"]}</p>
+      <p className="mt-1 text-[11px] text-muted-foreground">
+        {CATEGORY_LABELS[thread.category][en ? "en" : "fr"]}
+      </p>
     </button>
   );
 });
 
-const ThreadConversation = memo(function ThreadConversation({
+const CustomerThread = memo(function CustomerThread({
   thread,
   en,
 }: {
@@ -404,12 +529,17 @@ const ThreadConversation = memo(function ThreadConversation({
   async function send() {
     const cleanBody = body.trim();
     if (!cleanBody) return;
+
     try {
       await reply.mutateAsync({ threadId: thread.id, body: cleanBody });
       setBody("");
       toast.success(en ? "Reply sent." : "Votre réponse a été envoyée.");
     } catch {
-      toast.error(en ? "Your reply could not be sent." : "Votre réponse n’a pas pu être envoyée.");
+      toast.error(
+        en
+          ? "Your reply could not be sent."
+          : "Votre réponse n’a pas pu être envoyée.",
+      );
     }
   }
 
@@ -418,25 +548,46 @@ const ThreadConversation = memo(function ThreadConversation({
       <div className="border-b border-border/70 bg-muted/20 p-4">
         <div className="flex flex-wrap items-start justify-between gap-2">
           <div className="min-w-0">
-            <h4 className="break-words font-semibold text-foreground">{thread.subject}</h4>
-            <p className="mt-1 font-mono text-[11px] text-muted-foreground">{thread.reference}</p>
+            <h4 className="break-words font-semibold text-foreground">
+              {thread.subject}
+            </h4>
+            <p className="mt-1 font-mono text-[11px] text-muted-foreground">
+              {thread.reference}
+            </p>
           </div>
-          <StatusBadge label={statusLabel(thread.status, en)} tone={STATUS_TONES[thread.status]} />
+          <StatusBadge
+            label={statusLabel(thread.status, en)}
+            tone={STATUS_TONES[thread.status]}
+          />
         </div>
         <p className="mt-2 text-xs text-muted-foreground">
-          {CATEGORY_LABELS[thread.category][en ? "en" : "fr"]} · {en ? "Last activity" : "Dernière activité"} {formatDateTime(thread.lastMessageAt)}
+          {CATEGORY_LABELS[thread.category][en ? "en" : "fr"]} ·{" "}
+          {en ? "Last activity" : "Dernière activité"}{" "}
+          {formatDateTime(thread.lastMessageAt)}
         </p>
       </div>
       <CardContent className="space-y-4 p-3 sm:p-4">
-        <div className="max-h-[520px] min-h-36 space-y-3 overflow-y-auto pr-1" aria-label={en ? "Messages" : "Messages"}>
+        <div
+          className="max-h-[520px] min-h-36 space-y-3 overflow-y-auto pr-1"
+          aria-label={en ? "Messages" : "Messages"}
+        >
           {thread.messages.map((message) => {
             const customer = message.authorKind === "CUSTOMER";
+
             return (
-              <div key={message.id} className={`flex ${customer ? "justify-end" : "justify-start"}`}>
-                <div className={`max-w-[92%] space-y-1 rounded-2xl px-3 py-2.5 text-sm sm:max-w-[85%] ${customer ? "rounded-br-md bg-primary text-primary-foreground" : "rounded-bl-md bg-muted text-foreground"}`}>
+              <div
+                key={message.id}
+                className={`flex ${customer ? "justify-end" : "justify-start"}`}
+              >
+                <div
+                  className={`max-w-[92%] space-y-1 rounded-2xl px-3 py-2.5 text-sm sm:max-w-[85%] ${customer ? "rounded-br-md bg-primary text-primary-foreground" : "rounded-bl-md bg-muted text-foreground"}`}
+                >
                   <p className="whitespace-pre-wrap break-words">{message.body}</p>
-                  <p className={`text-[10px] ${customer ? "text-primary-foreground/75" : "text-muted-foreground"}`}>
-                    {customer ? en ? "You" : "Vous" : en ? "Customer support" : "Service client"} · {formatDateTime(message.createdAt)}
+                  <p
+                    className={`text-[10px] ${customer ? "text-primary-foreground/75" : "text-muted-foreground"}`}
+                  >
+                    {customer ? (en ? "You" : "Vous") : en ? "Customer support" : "Service client"}{" "}
+                    · {formatDateTime(message.createdAt)}
                   </p>
                 </div>
               </div>
@@ -451,20 +602,34 @@ const ThreadConversation = memo(function ThreadConversation({
           </div>
         ) : (
           <div className="space-y-2 border-t border-border/70 pt-3">
-            <Label htmlFor={`support-reply-${thread.id}`}>{en ? "Your reply" : "Votre réponse"}</Label>
+            <Label htmlFor={`support-reply-${thread.id}`}>
+              {en ? "Your reply" : "Votre réponse"}
+            </Label>
             <Textarea
               id={`support-reply-${thread.id}`}
               rows={3}
               maxLength={4000}
               value={body}
               onChange={(event) => setBody(event.target.value)}
-              placeholder={en ? "Write a message to customer support…" : "Écrivez un message au service client…"}
+              placeholder={
+                en
+                  ? "Write a message to customer support…"
+                  : "Écrivez un message au service client…"
+              }
             />
-            <div className="flex flex-col-reverse gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <p className="text-xs text-muted-foreground">
-                {en ? "Do not share your password or verification codes." : "Ne partagez pas votre mot de passe ni vos codes de vérification."}
+                {en
+                  ? "Do not share your password or verification codes."
+                  : "Ne partagez pas votre mot de passe ni vos codes de vérification."}
               </p>
-              <Button className="w-full sm:w-auto" disabled={!body.trim() || reply.isPending} loading={reply.isPending} loadingLabel={en ? "Sending…" : "Envoi…"} onClick={() => void send()}>
+              <Button
+                className="w-full sm:w-auto"
+                disabled={!body.trim() || reply.isPending}
+                loading={reply.isPending}
+                loadingLabel={en ? "Sending…" : "Envoi…"}
+                onClick={() => void send()}
+              >
                 <Send aria-hidden className="mr-2 size-4" />
                 {en ? "Send reply" : "Envoyer la réponse"}
               </Button>
