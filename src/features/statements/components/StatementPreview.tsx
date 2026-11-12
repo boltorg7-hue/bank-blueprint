@@ -148,7 +148,10 @@ export function StatementPreview({ reference }: { reference: string }) {
           ) : null}
 
           {data.failureCode ? (
-            <p role="alert" className="rounded-lg border border-danger/20 bg-danger-muted/40 px-3 py-2 text-caption text-danger">
+            <p
+              role="alert"
+              className="rounded-lg border border-danger/20 bg-danger-muted/40 px-3 py-2 text-caption text-danger"
+            >
               {statementErrorMessage(data.failureCode)}
             </p>
           ) : null}
