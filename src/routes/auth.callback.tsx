@@ -25,10 +25,7 @@ export const Route = createFileRoute("/auth/callback")({
     ...(typeof search["v"] === "string" ? { v: search["v"] } : {}),
   }),
   head: () => ({
-    meta: [
-      { title: "Connexion en cours — RFC" },
-      { name: "robots", content: "noindex,nofollow" },
-    ],
+    meta: [{ title: "Connexion en cours — RFC" }, { name: "robots", content: "noindex,nofollow" }],
   }),
   component: AuthCallbackPage,
 });
@@ -151,10 +148,7 @@ function AuthCallbackPage() {
               </p>
             </div>
           </div>
-          <Button
-            className="w-full touch-target"
-            onClick={() => void navigate({ to: "/login" })}
-          >
+          <Button className="w-full touch-target" onClick={() => void navigate({ to: "/login" })}>
             {en ? "Back to sign-in" : "Retour à la connexion"}
           </Button>
         </div>
