@@ -43,7 +43,7 @@ type FieldErrors = Partial<Record<"name" | "email" | "topic" | "message", string
 export function PublicContactForm() {
   const { language } = useLanguage();
   const en = language === "en";
-  const copy = (fr: string, english: string) => en ? english : fr;
+  const copy = (fr: string, english: string) => (en ? english : fr);
   const [topic, setTopic] = useState("");
   const [errors, setErrors] = useState<FieldErrors>({});
   const [notice, setNotice] = useState<string | null>(null);
@@ -62,7 +62,16 @@ export function PublicContactForm() {
       const next: FieldErrors = {};
       for (const issue of result.error.issues) {
         const key = issue.path[0] as keyof FieldErrors;
-        if (key && !next[key]) next[key] = en ? ({ name: "Enter your name (2–80 characters).", email: "Enter a valid email address.", topic: "Choose a topic.", message: "Write a message of 20–1500 characters." }[key]) : issue.message;
+        if (key && !next[key]) {
+          next[key] = en
+            ? {
+                name: "Enter your name (2–80 characters).",
+                email: "Enter a valid email address.",
+                topic: "Choose a topic.",
+                message: "Write a message of 20–1500 characters.",
+              }[key]
+            : issue.message;
+        }
       }
       setErrors(next);
       setNotice(null);
@@ -71,7 +80,10 @@ export function PublicContactForm() {
 
     setErrors({});
     setNotice(
-      copy("Votre demande est complète, mais l’envoi n’est pas encore activé sur ce site. La messagerie sécurisée sera disponible avec l’ouverture des comptes.", "Your request is complete, but this form is not connected yet. Secure messaging is available to customers in their account."),
+      copy(
+        "Votre demande est complète, mais l’envoi n’est pas encore activé sur ce site. La messagerie sécurisée sera disponible avec l’ouverture des comptes.",
+        "Your request is complete, but this form is not connected yet. Secure messaging is available to customers in their account.",
+      ),
     );
   }
 
@@ -82,7 +94,9 @@ export function PublicContactForm() {
         role="note"
       >
         <ShieldAlert className="mt-0.5 size-5 shrink-0 text-warning" aria-hidden="true" />
-        <p className="text-body-sm text-foreground">{copy(SECURITY_WARNING, "Never share your password or a verification code.")}</p>
+        <p className="text-body-sm text-foreground">
+          {copy(SECURITY_WARNING, "Never share your password or a verification code.")}
+        </p>
       </div>
 
       <div className="space-y-2">
@@ -145,7 +159,10 @@ export function PublicContactForm() {
           name="message"
           rows={6}
           className="min-h-36 rounded-xl bg-background transition-colors focus-visible:ring-2"
-          placeholder={copy("Décrivez votre demande. N’indiquez jamais de mot de passe ni de code de vérification.", "Describe your request. Never include a password or verification code.")}
+          placeholder={copy(
+            "Décrivez votre demande. N’indiquez jamais de mot de passe ni de code de vérification.",
+            "Describe your request. Never include a password or verification code.",
+          )}
           aria-invalid={Boolean(errors.message)}
           {...(errors.message ? { "aria-describedby": "contact-message-error" } : {})}
         />
@@ -156,7 +173,11 @@ export function PublicContactForm() {
         )}
       </div>
 
-      <Button type="submit" size="lg" className="h-12 w-full rounded-xl shadow-sm transition-all hover:shadow-md sm:w-auto">
+      <Button
+        type="submit"
+        size="lg"
+        className="h-12 w-full rounded-xl shadow-sm transition-all hover:shadow-md sm:w-auto"
+      >
         {copy("Envoyer la demande", "Send request")}
       </Button>
 
