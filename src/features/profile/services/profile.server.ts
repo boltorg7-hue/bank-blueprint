@@ -94,6 +94,13 @@ export async function updateProfileAvatar(userId: string, storagePath: unknown) 
     throw new ProfileError("AVATAR_INVALID_CONTENT");
   }
 
+  const { data: signedAvatar, error: signedError } = await admin.storage
+    .from("customer-avatars")
+    .createSignedUrl(storagePath, 900);
+  if (signedError || !signedAvatar?.signedUrl) {
+    throw new ProfileError("AVATAR_URL_UNAVAILABLE");
+  }
+
   const { data: current } = await admin
     .from("profiles")
     .select("avatar_storage_path")
@@ -108,13 +115,6 @@ export async function updateProfileAvatar(userId: string, storagePath: unknown) 
   const previousPath = current?.avatar_storage_path;
   if (previousPath && previousPath !== storagePath) {
     await admin.storage.from("customer-avatars").remove([previousPath]);
-  }
-
-  const { data: signedAvatar, error: signedError } = await admin.storage
-    .from("customer-avatars")
-    .createSignedUrl(storagePath, 900);
-  if (signedError || !signedAvatar?.signedUrl) {
-    throw new ProfileError("AVATAR_URL_UNAVAILABLE");
   }
   return { avatarUrl: signedAvatar.signedUrl };
 }
