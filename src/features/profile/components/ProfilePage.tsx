@@ -238,7 +238,6 @@ export function ProfilePage() {
                     <ArrowUpRight aria-hidden className="size-4" />
                   </Link>
                 </div>
-              ) : null}
                 </div>
               ))
             ) : (
