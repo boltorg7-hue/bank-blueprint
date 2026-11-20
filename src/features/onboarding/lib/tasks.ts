@@ -19,7 +19,6 @@ export type OnboardingTask = {
 
 export const ONBOARDING_FLOW: { id: string; label: string; route: AppPath }[] = [
   { id: "profile", label: "Informations", route: "/onboarding/profile" },
-  { id: "contact", label: "Téléphone", route: "/verify-contact" },
   { id: "address", label: "Adresse", route: "/onboarding/address" },
   { id: "documents", label: "Identité", route: "/onboarding/documents" },
   { id: "review", label: "Vérification", route: "/onboarding/review" },
@@ -98,16 +97,16 @@ export function buildOnboardingTasks(context: CustomerContext): OnboardingTask[]
     {
       id: "contact",
       title: "Téléphone vérifié",
-      description: "Confirmez votre numéro de téléphone avant de transmettre votre dossier.",
-      status: contactDone ? "done" : profileDone ? "current" : "todo",
-      required: true,
+      description: contactDone ? "Votre numéro est vérifié." : "Vous pourrez vérifier votre numéro depuis votre espace client.",
+      status: contactDone ? "done" : "todo",
+      required: false,
       route: "/verify-contact",
     },
     {
       id: "address",
       title: "Adresse de résidence",
       description: "Adresse complète, adaptée au format de votre pays.",
-      status: addressDone ? "done" : contactDone ? "current" : "todo",
+      status: addressDone ? "done" : profileDone ? "current" : "todo",
       required: true,
       route: "/onboarding/address",
     },
@@ -156,7 +155,6 @@ export function buildOnboardingTasks(context: CustomerContext): OnboardingTask[]
 export function nextOnboardingRoute(context: CustomerContext): AppPath {
   if (isSubmitted(context) || hasDeferredDocuments(context)) return "/onboarding/status";
   if (!isProfileComplete(context)) return "/onboarding/profile";
-  if (!context.profile.phone_verified_at) return "/verify-contact";
   if (!context.address) return "/onboarding/address";
   if (!hasIdentityDocument(context) || !hasProofOfAddress(context)) return "/onboarding/documents";
   return "/onboarding/review";
