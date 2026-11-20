@@ -153,7 +153,7 @@ function VerifyContactPage() {
         </div>
       </div>
 
-      {!context.profile.phone || editing ? null : <form onSubmit={handleVerify} className="space-y-5">
+      {!context.profile.phone || editing ? null : (\n        <form onSubmit={handleVerify} className="space-y-5">
         <div className="space-y-2">
           <Label htmlFor="contact-code">{en ? "6-digit code" : "Code à 6 chiffres"}</Label>
           <Input
