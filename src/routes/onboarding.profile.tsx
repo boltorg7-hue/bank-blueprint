@@ -81,14 +81,29 @@ function ProfileStepPage() {
       await navigate({ to: "/onboarding", replace: true });
     } catch (error) {
       const code = error instanceof Error ? error.message : "";
+      const messages: Record<string, { fr: string; en: string }> = {
+        PHONE_ALREADY_IN_USE: {
+          fr: "Ce numéro est déjà associé à un autre compte client.",
+          en: "This phone number is already associated with another customer account.",
+        },
+        ONBOARDING_STATE_LOCKED: {
+          fr: "Votre dossier a changé d'état. Rechargez la page avant de modifier vos informations.",
+          en: "Your application status changed. Reload the page before editing.",
+        },
+        CUSTOMER_PROFILE_UNAVAILABLE: {
+          fr: "Vos informations ne sont temporairement pas accessibles. Réessayez.",
+          en: "Your profile is temporarily unavailable. Please try again.",
+        },
+        PHONE_CHANGE_FAILED: {
+          fr: "Le changement de téléphone n'a pas abouti. Vérifiez le numéro et réessayez.",
+          en: "The phone change failed. Check the number and try again.",
+        },
+      };
       setFormError(
-        code.includes("PHONE_ALREADY_IN_USE")
-          ? en
-            ? "This phone number is already associated with another customer account."
-            : "Ce numéro est déjà associé à un autre compte client."
-          : en
-            ? "We could not save your details. Please try again."
-            : "Nous n'avons pas pu enregistrer vos informations. Réessayez.",
+        (messages[code] ?? {
+          fr: "Nous n'avons pas pu enregistrer vos informations. Réessayez.",
+          en: "We could not save your details. Please try again.",
+        })[en ? "en" : "fr"],
       );
     } finally {
       setPending(false);
