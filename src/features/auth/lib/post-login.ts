@@ -26,7 +26,9 @@ export async function resolvePostLoginRoute(redirectTo?: string | undefined): Pr
       lifecycleRoute = "/app/dashboard";
     }
   } catch {
-    lifecycleRoute = "/onboarding";
+    // Do not force customers into onboarding when trusted context is temporarily unavailable.
+    // The customer shell presents a retry state and does not grant transactions.
+    lifecycleRoute = "/app/dashboard";
   }
 
   const requested = safeRedirectPath(redirectTo);
