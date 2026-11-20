@@ -213,7 +213,7 @@ test("step 2 profile uses calendar-valid adult dates and separate phone verifica
   assert.ok(schema.includes("MIN_AGE"));
   assert.ok(!schema.includes("phone: internationalPhoneSchema"));
   assert.ok(!page.includes('name="phone"'));
-  assert.ok(\n    !tasks\n      .slice(tasks.indexOf("export function isProfileComplete"), tasks.indexOf("const REVIEWABLE"))\n      .includes("profile.phone"),\n  );
+  assert.ok(!tasks.slice(tasks.indexOf("export function isProfileComplete"), tasks.indexOf("const REVIEWABLE")).includes("profile.phone"));
   assert.ok(contact.includes("changePendingPhone"));
   assert.ok(contact.includes("sendContactVerificationCode"));
   assert.ok(contact.includes("verifyContactCode"));
