@@ -279,12 +279,15 @@ export async function createDocumentDownload(
     throw new Error("DOCUMENT_FILE_UNAVAILABLE");
   }
 
-  await supabaseAdmin.rpc("record_document_event", {
+  const audit = await supabaseAdmin.rpc("record_document_event", {
     _user_id: userId,
     _document_reference: reference,
     _event_type: intent === "download" ? "document_downloaded" : "document_previewed",
     _context: {},
   } as never);
+  if (audit.error) {
+    throw new Error("DOCUMENT_AUDIT_FAILED");
+  }
 
   return {
     url: signed.data.signedUrl,
