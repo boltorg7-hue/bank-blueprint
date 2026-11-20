@@ -48,7 +48,6 @@ export const profileStepSchema = z.object({
   nationality: z.string().trim().min(2, "Indiquez votre nationalité.").max(60),
   countryOfResidence: z.string().trim().min(2, "Indiquez votre pays de résidence.").max(60),
   occupation: z.string().trim().min(2, "Indiquez votre profession.").max(80),
-  phone: internationalPhoneSchema,
 });
 
 export const addressStepSchema = z.object({
