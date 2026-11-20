@@ -69,7 +69,6 @@ export function isSubmitted(context: CustomerContext): boolean {
 export function buildOnboardingTasks(context: CustomerContext): OnboardingTask[] {
   const emailDone = Boolean(context.email && context.emailVerified);
   const profileDone = isProfileComplete(context);
-  const contactDone = Boolean(context.profile.phone && context.profile.phone_verified_at);
   const addressDone = Boolean(context.address);
   const documentsDone = hasIdentityDocument(context) && hasProofOfAddress(context);
   const documentsDeferred = hasDeferredDocuments(context);
@@ -93,14 +92,6 @@ export function buildOnboardingTasks(context: CustomerContext): OnboardingTask[]
       status: profileDone ? "done" : emailDone ? "current" : "todo",
       required: true,
       route: "/onboarding/profile",
-    },
-    {
-      id: "contact",
-      title: "Téléphone vérifié",
-      description: contactDone ? "Votre numéro est vérifié." : "Vous pourrez vérifier votre numéro depuis votre espace client.",
-      status: contactDone ? "done" : "todo",
-      required: false,
-      route: "/verify-contact",
     },
     {
       id: "address",
