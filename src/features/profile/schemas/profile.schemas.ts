@@ -1,7 +1,9 @@
 import { z } from "zod";
 import { addressStepSchema, internationalPhoneSchema, profileStepSchema } from "@/features/onboarding/schemas/onboarding.schemas";
 
-export const permanentProfileSchema = profileStepSchema.extend({\n  phone: internationalPhoneSchema.or(z.literal("")),\n});
+export const permanentProfileSchema = profileStepSchema.extend({
+  phone: internationalPhoneSchema.or(z.literal("")),
+});
 export const permanentAddressSchema = addressStepSchema;
 export const preferencesSchema = z.object({
   language: z.enum(["fr", "en"]),
