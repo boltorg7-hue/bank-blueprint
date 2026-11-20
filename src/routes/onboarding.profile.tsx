@@ -64,7 +64,6 @@ function ProfileStepPage() {
       nationality: String(formData.get("nationality") ?? ""),
       countryOfResidence: String(formData.get("countryOfResidence") ?? ""),
       occupation: String(formData.get("occupation") ?? ""),
-      phone: String(formData.get("phone") ?? ""),
     });
 
     if (!parsed.success) {
@@ -237,7 +236,7 @@ function ProfileStepPage() {
           <div className="flex items-center gap-2">
             <BriefcaseBusiness className="size-4 text-brand" aria-hidden="true" />
             <h3 className="text-label font-semibold text-foreground">
-              {en ? "Professional and contact details" : "Profession et coordonnées"}
+              {en ? "Professional details" : "Informations professionnelles"}
             </h3>
           </div>
           <div className="space-y-4">
@@ -250,15 +249,6 @@ function ProfileStepPage() {
               allowOther
               defaultValue={profile.occupation}
               error={errors["occupation"]}
-            />
-            <Field
-              name="phone"
-              label={en ? "Phone number (required)" : "Numéro de téléphone (obligatoire)"}
-              type="tel"
-              autoComplete="tel"
-              defaultValue={profile.phone ?? ""}
-              error={errors["phone"]}
-              required
             />
           </div>
         </section>
