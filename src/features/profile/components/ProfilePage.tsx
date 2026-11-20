@@ -82,11 +82,11 @@ export function ProfilePage() {
             </div>
           </CardHeader>
           <CardContent className="space-y-3">
-            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
               <VerificationItem label={en ? "Email" : "E-mail"} verified={data.emailVerified} en={en} />
               <VerificationItem label={en ? "Phone" : "Téléphone"} verified={data.phoneVerified} en={en} />
               <VerificationItem label={en ? "Personal profile" : "Profil personnel"} verified={Boolean(data.firstName && data.lastName && data.dateOfBirth && data.nationality && data.occupation && data.countryOfResidence)} en={en} />
-              <VerificationItem label={en ? "Address" : "Adresse"} verified={Boolean(data.address.addressLine1 && data.address.city && data.address.country)} en={en} />
+              <VerificationItem label={en ? "Address" : "Adresse"} verified={Boolean(data.address.addressLine1 && data.address.city && data.address.country)} en={en} />\n              <VerificationItem label={en ? "Identity" : "Identité"} verified={data.identityStatus === "VERIFIED"} en={en} />
             </div>
             <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
               {!data.phoneVerified ? <Button asChild className="w-full sm:w-auto"><Link to="/verify-contact">{en ? "Verify phone" : "Vérifier le téléphone"}<ArrowUpRight className="ml-2 size-4" /></Link></Button> : null}
