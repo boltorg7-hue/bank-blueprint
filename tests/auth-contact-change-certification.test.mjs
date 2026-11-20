@@ -102,7 +102,7 @@ test("profile step excludes phone and dedicated contact service uses atomic chan
   const migration = read(
     "supabase/migrations/20261111140000_otp_security_and_lifecycle_consistency.sql",
   );
-  assert.doesNotMatch(onboarding, /\\bphone:\\s*data\\.phone/);
+  assert.ok(!onboarding.includes("phone: data.phone"));
   assert.match(contact, /customer_change_pending_phone/);
   assert.match(migration, /pg_advisory_xact_lock\\(hashtextextended\(_phone, 0\)\)/);
   assert.match(migration, /WHERE phone = _phone AND id <> _user_id/);
