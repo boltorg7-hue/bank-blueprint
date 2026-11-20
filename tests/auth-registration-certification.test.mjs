@@ -118,21 +118,22 @@ test("email confirmation sends use a strict HTTPS application origin", () => {
   assert.ok(functions.includes("url.hash"));
 });
 
-test("profile onboarding preserves progress and reuses verified contact across all sign-in providers", () => {
+test("profile onboarding preserves provider-prefilled names and separates phone verification", () => {
   const server = read("src/features/onboarding/services/onboarding.server.ts");
   const functions = read("src/features/onboarding/services/onboarding.functions.ts");
   const page = read("src/routes/onboarding.profile.tsx");
+  const contact = read("src/routes/verify-contact.tsx");
+  const contactServer = read("src/features/onboarding/services/contact-verification.server.ts");
   assert.ok(functions.includes("data.user.user_metadata"));
   assert.ok(server.includes("profileNameHints(authMetadata)"));
   assert.ok(server.includes("Provider names are suggestions only"));
-  assert.ok(server.includes("const phoneUnchanged = currentProfile.phone === data.phone"));
-  assert.ok(server.includes("customer_change_pending_phone"));
-  assert.ok(server.includes("const contactVerified = phoneUnchanged"));
-  assert.ok(server.includes("const onboardingStep = phoneUnchanged"));
+  assert.ok(server.includes('onboarding_step: "CONTACT"'));
+  assert.ok(server.includes('lifecycle_state: "CONTACT_VERIFICATION_REQUIRED"'));
   assert.doesNotMatch(server, /\bphone:\s*data\.phone/);
   assert.ok(server.includes("CUSTOMER_DOCUMENTS_UNAVAILABLE"));
   assert.ok(page.includes('navigate({ to: "/onboarding", replace: true })'));
   assert.ok(page.includes("required={required}"));
+  assert.ok(contactServer.includes("customer_change_pending_phone"));
 });
 
 test("profile context fails closed instead of treating database read failures as missing onboarding steps", () => {
@@ -198,4 +199,23 @@ test("initial signup confirmation link is intentionally accepted without a resen
     confirmation.includes("if (!data) return true; // original sign-up link, never superseded"),
   );
   assert.ok(callback.includes("checkConfirmationLink({ data: { nonce: v } })"));
+});
+
+test("step 2 profile uses calendar-valid adult dates and separate phone verification", () => {
+  const schema = read("src/features/onboarding/schemas/onboarding.schemas.ts");
+  const tasks = read("src/features/onboarding/lib/tasks.ts");
+  const page = read("src/routes/onboarding.profile.tsx");
+  const contact = read("src/routes/verify-contact.tsx");
+  const server = read("src/features/onboarding/services/onboarding.server.ts");
+  assert.ok(schema.includes("date.getUTCFullYear() !== year"));
+  assert.ok(schema.includes("date.getUTCMonth() !== month - 1"));
+  assert.ok(schema.includes("date.getUTCDate() !== day"));
+  assert.ok(schema.includes("MIN_AGE"));
+  assert.ok(!schema.includes("phone: internationalPhoneSchema"));
+  assert.ok(!page.includes('name="phone"'));
+  assert.ok(!tasks.slice(tasks.indexOf("export function isProfileComplete"), tasks.indexOf("const REVIEWABLE")).includes("profile.phone"));
+  assert.ok(contact.includes("changePendingPhone"));
+  assert.ok(contact.includes("sendContactVerificationCode"));
+  assert.ok(contact.includes("verifyContactCode"));
+  assert.ok(server.includes('onboarding_step: "CONTACT"'));
 });

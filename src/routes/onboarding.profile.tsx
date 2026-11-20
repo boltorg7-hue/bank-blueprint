@@ -64,7 +64,6 @@ function ProfileStepPage() {
       nationality: String(formData.get("nationality") ?? ""),
       countryOfResidence: String(formData.get("countryOfResidence") ?? ""),
       occupation: String(formData.get("occupation") ?? ""),
-      phone: String(formData.get("phone") ?? ""),
     });
 
     if (!parsed.success) {
@@ -81,14 +80,29 @@ function ProfileStepPage() {
       await navigate({ to: "/onboarding", replace: true });
     } catch (error) {
       const code = error instanceof Error ? error.message : "";
+      const messages: Record<string, { fr: string; en: string }> = {
+        PHONE_ALREADY_IN_USE: {
+          fr: "Ce numéro est déjà associé à un autre compte client.",
+          en: "This phone number is already associated with another customer account.",
+        },
+        ONBOARDING_STATE_LOCKED: {
+          fr: "Votre dossier a changé d'état. Rechargez la page avant de modifier vos informations.",
+          en: "Your application status changed. Reload the page before editing.",
+        },
+        CUSTOMER_PROFILE_UNAVAILABLE: {
+          fr: "Vos informations ne sont temporairement pas accessibles. Réessayez.",
+          en: "Your profile is temporarily unavailable. Please try again.",
+        },
+        PHONE_CHANGE_FAILED: {
+          fr: "Le changement de téléphone n'a pas abouti. Vérifiez le numéro et réessayez.",
+          en: "The phone change failed. Check the number and try again.",
+        },
+      };
       setFormError(
-        code.includes("PHONE_ALREADY_IN_USE")
-          ? en
-            ? "This phone number is already associated with another customer account."
-            : "Ce numéro est déjà associé à un autre compte client."
-          : en
-            ? "We could not save your details. Please try again."
-            : "Nous n'avons pas pu enregistrer vos informations. Réessayez.",
+        (messages[code] ?? {
+          fr: "Nous n'avons pas pu enregistrer vos informations. Réessayez.",
+          en: "We could not save your details. Please try again.",
+        })[en ? "en" : "fr"],
       );
     } finally {
       setPending(false);
@@ -222,7 +236,7 @@ function ProfileStepPage() {
           <div className="flex items-center gap-2">
             <BriefcaseBusiness className="size-4 text-brand" aria-hidden="true" />
             <h3 className="text-label font-semibold text-foreground">
-              {en ? "Professional and contact details" : "Profession et coordonnées"}
+              {en ? "Professional details" : "Informations professionnelles"}
             </h3>
           </div>
           <div className="space-y-4">
@@ -235,15 +249,6 @@ function ProfileStepPage() {
               allowOther
               defaultValue={profile.occupation}
               error={errors["occupation"]}
-            />
-            <Field
-              name="phone"
-              label={en ? "Phone number (required)" : "Numéro de téléphone (obligatoire)"}
-              type="tel"
-              autoComplete="tel"
-              defaultValue={profile.phone ?? ""}
-              error={errors["phone"]}
-              required
             />
           </div>
         </section>

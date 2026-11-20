@@ -1,4 +1,5 @@
 import { useEffect, useState, type FormEvent } from "react";
+import { z } from "zod";
 import { ArrowLeft, LockKeyhole, ShieldCheck } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { toast } from "sonner";
@@ -13,7 +14,11 @@ import { Label } from "@/components/ui/label";
 import { PageSection } from "@/components/ui/page-section";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { useProfileOverview, useSaveProfile } from "@/features/profile/hooks/useProfile";
-import { profileStepSchema } from "@/features/onboarding/schemas/onboarding.schemas";
+import { internationalPhoneSchema, profileStepSchema } from "@/features/onboarding/schemas/onboarding.schemas";
+
+const personalFormSchema = profileStepSchema.extend({
+  phone: internationalPhoneSchema.or(z.literal("")),
+});
 
 type PersonalForm = {
   firstName: string;
@@ -79,7 +84,7 @@ export function ProfilePersonalPage() {
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const validation = profileStepSchema.safeParse(form);
+    const validation = personalFormSchema.safeParse(form);
     if (!validation.success) {
       toast.error(
         validation.error.issues[0]?.message ??

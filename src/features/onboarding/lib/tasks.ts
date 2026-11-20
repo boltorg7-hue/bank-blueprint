@@ -18,8 +18,7 @@ export type OnboardingTask = {
 };
 
 export const ONBOARDING_FLOW: { id: string; label: string; route: AppPath }[] = [
-  { id: "profile", label: "Informations", route: "/onboarding/profile" },
-  { id: "contact", label: "Téléphone", route: "/verify-contact" },
+  { id: "profile", label: "Informations", route: "/app/profile/personal" },
   { id: "address", label: "Adresse", route: "/onboarding/address" },
   { id: "documents", label: "Identité", route: "/onboarding/documents" },
   { id: "review", label: "Vérification", route: "/onboarding/review" },
@@ -70,7 +69,6 @@ export function isSubmitted(context: CustomerContext): boolean {
 export function buildOnboardingTasks(context: CustomerContext): OnboardingTask[] {
   const emailDone = Boolean(context.email && context.emailVerified);
   const profileDone = isProfileComplete(context);
-  const contactDone = Boolean(context.profile.phone && context.profile.phone_verified_at);
   const addressDone = Boolean(context.address);
   const documentsDone = hasIdentityDocument(context) && hasProofOfAddress(context);
   const documentsDeferred = hasDeferredDocuments(context);
@@ -93,21 +91,13 @@ export function buildOnboardingTasks(context: CustomerContext): OnboardingTask[]
       description: "Nom, date de naissance, nationalité, pays de résidence et profession.",
       status: profileDone ? "done" : emailDone ? "current" : "todo",
       required: true,
-      route: "/onboarding/profile",
-    },
-    {
-      id: "contact",
-      title: "Téléphone vérifié",
-      description: "Confirmez votre numéro de téléphone avant de transmettre votre dossier.",
-      status: contactDone ? "done" : profileDone ? "current" : "todo",
-      required: true,
-      route: "/verify-contact",
+      route: "/app/profile/personal",
     },
     {
       id: "address",
       title: "Adresse de résidence",
       description: "Adresse complète, adaptée au format de votre pays.",
-      status: addressDone ? "done" : contactDone ? "current" : "todo",
+      status: addressDone ? "done" : profileDone ? "current" : "todo",
       required: true,
       route: "/onboarding/address",
     },
@@ -155,8 +145,7 @@ export function buildOnboardingTasks(context: CustomerContext): OnboardingTask[]
 /** Next incomplete step, used to resume onboarding where the customer left off (§29). */
 export function nextOnboardingRoute(context: CustomerContext): AppPath {
   if (isSubmitted(context) || hasDeferredDocuments(context)) return "/onboarding/status";
-  if (!isProfileComplete(context)) return "/onboarding/profile";
-  if (!context.profile.phone_verified_at) return "/verify-contact";
+  if (!isProfileComplete(context)) return "/app/profile/personal";
   if (!context.address) return "/onboarding/address";
   if (!hasIdentityDocument(context) || !hasProofOfAddress(context)) return "/onboarding/documents";
   return "/onboarding/review";
