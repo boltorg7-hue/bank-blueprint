@@ -132,7 +132,7 @@ test("profile onboarding preserves provider-prefilled names and separates phone 
   assert.ok(server.includes("CUSTOMER_DOCUMENTS_UNAVAILABLE"));
   assert.ok(page.includes('navigate({ to: "/onboarding", replace: true })'));
   assert.ok(page.includes("required={required}"));
-  assert.ok(contact.includes("customer_change_pending_phone"));
+  assert.ok(contactServer.includes("customer_change_pending_phone"));
 });
 
 test("profile context fails closed instead of treating database read failures as missing onboarding steps", () => {
@@ -212,7 +212,7 @@ test("step 2 profile uses calendar-valid adult dates and separate phone verifica
   assert.ok(schema.includes("MIN_AGE"));
   assert.ok(!schema.includes("phone: internationalPhoneSchema"));
   assert.ok(!page.includes('name="phone"'));
-  assert.ok(!tasks.slice(tasks.indexOf("export function isProfileComplete"), tasks.indexOf("const REVIEWABLE")).includes("profile.phone"));
+  assert.ok(\n    !tasks\n      .slice(tasks.indexOf("export function isProfileComplete"), tasks.indexOf("const REVIEWABLE"))\n      .includes("profile.phone"),\n  );
   assert.ok(contact.includes("changePendingPhone"));
   assert.ok(contact.includes("sendContactVerificationCode"));
   assert.ok(contact.includes("verifyContactCode"));
