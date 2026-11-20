@@ -200,15 +200,21 @@ test("initial signup confirmation link is intentionally accepted without a resen
   assert.ok(callback.includes("checkConfirmationLink({ data: { nonce: v } })"));
 });
 
-test("step 2 profile uses calendar-valid adult dates and phone in completion criteria", () => {
+test("step 2 profile uses calendar-valid adult dates and separate phone verification", () => {
   const schema = read("src/features/onboarding/schemas/onboarding.schemas.ts");
   const tasks = read("src/features/onboarding/lib/tasks.ts");
   const page = read("src/routes/onboarding.profile.tsx");
+  const contact = read("src/routes/verify-contact.tsx");
+  const server = read("src/features/onboarding/services/onboarding.server.ts");
   assert.ok(schema.includes("date.getUTCFullYear() !== year"));
   assert.ok(schema.includes("date.getUTCMonth() !== month - 1"));
   assert.ok(schema.includes("date.getUTCDate() !== day"));
   assert.ok(schema.includes("MIN_AGE"));
-  assert.ok(tasks.includes("profile.phone"));
-  assert.ok(page.includes("PHONE_CHANGE_FAILED"));
-  assert.ok(page.includes("ONBOARDING_STATE_LOCKED"));
+  assert.ok(!schema.includes("phone: internationalPhoneSchema"));
+  assert.ok(!page.includes('name="phone"'));
+  assert.ok(!tasks.slice(tasks.indexOf("export function isProfileComplete"), tasks.indexOf("const REVIEWABLE")).includes("profile.phone"));
+  assert.ok(contact.includes("changePendingPhone"));
+  assert.ok(contact.includes("sendContactVerificationCode"));
+  assert.ok(contact.includes("verifyContactCode"));
+  assert.ok(server.includes('onboarding_step: "CONTACT"'));
 });
