@@ -64,7 +64,7 @@ function EmailVerifiedPage() {
         </div>
 
         <Button asChild className="w-full touch-target">
-          <Link to="/app">
+          <Link to="/app/dashboard">
             {en ? "Go to my customer space" : "Accéder à mon espace client"}
             <ArrowRight className="size-4" aria-hidden="true" />
           </Link>
