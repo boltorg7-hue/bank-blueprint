@@ -6,7 +6,6 @@
  */
 import { nextRouteForLifecycle } from "@/types/customer-lifecycle";
 import { getCustomerContext } from "@/features/onboarding/services/onboarding.functions";
-import { nextOnboardingRoute } from "@/features/onboarding/lib/tasks";
 
 export function safeRedirectPath(value: string | null | undefined): string | null {
   if (!value) return null;
@@ -15,17 +14,16 @@ export function safeRedirectPath(value: string | null | undefined): string | nul
 }
 
 export async function resolvePostLoginRoute(redirectTo?: string | undefined): Promise<string> {
-  let lifecycleRoute = "/onboarding";
+  let lifecycleRoute = "/app/dashboard";
   try {
     const context = await getCustomerContext();
     if (!context.emailVerified) {
       lifecycleRoute = "/verify-email";
-    } else if (
-      ["ACTIVE", "RESTRICTED", "SUSPENDED", "CLOSED"].includes(context.profile.lifecycle_state)
-    ) {
+    } else if (context.profile.lifecycle_state === "CLOSED") {
       lifecycleRoute = nextRouteForLifecycle(context.profile.lifecycle_state);
     } else {
-      lifecycleRoute = nextOnboardingRoute(context);
+      // Verified customers enter the dashboard; outstanding onboarding is surfaced there.
+      lifecycleRoute = "/app/dashboard";
     }
   } catch {
     lifecycleRoute = "/onboarding";
