@@ -68,6 +68,35 @@ export function ProfilePage() {
       />
 
       <PageSection className="space-y-6">
+        <Card className="overflow-hidden border-primary/25 bg-gradient-to-br from-primary/[0.07] via-card to-card">
+          <CardHeader className="pb-3">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <span className={SECTION_ICON_CLASS}><ShieldCheck aria-hidden className="size-5" /></span>
+                <div>
+                  <CardTitle>{en ? "Activate and verify your account" : "Activer et vérifier votre compte"}</CardTitle>
+                  <CardDescription className="mt-1">{en ? "Complete the remaining checks from your banking space. Your account features remain visible." : "Complétez les vérifications depuis votre espace bancaire. Vos services restent visibles."}</CardDescription>
+                </div>
+              </div>
+              <StatusBadge label={data.lifecycleState === "ACTIVE" ? (en ? "Account active" : "Compte actif") : (en ? "Activation pending" : "Activation en attente")} tone={data.lifecycleState === "ACTIVE" ? "success" : "pending"} />
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+              <VerificationItem label={en ? "Email" : "E-mail"} verified={data.emailVerified} en={en} />
+              <VerificationItem label={en ? "Phone" : "Téléphone"} verified={data.phoneVerified} en={en} />
+              <VerificationItem label={en ? "Personal profile" : "Profil personnel"} verified={Boolean(data.firstName && data.lastName && data.dateOfBirth && data.nationality && data.occupation && data.countryOfResidence)} en={en} />
+              <VerificationItem label={en ? "Address" : "Adresse"} verified={Boolean(data.address.addressLine1 && data.address.city && data.address.country)} en={en} />
+            </div>
+            <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+              {!data.phoneVerified ? <Button asChild className="w-full sm:w-auto"><Link to="/verify-contact">{en ? "Verify phone" : "Vérifier le téléphone"}<ArrowUpRight className="ml-2 size-4" /></Link></Button> : null}
+              {!(data.firstName && data.lastName && data.dateOfBirth && data.nationality && data.occupation && data.countryOfResidence) ? <Button asChild variant="outline" className="w-full sm:w-auto"><Link to="/app/profile/personal">{en ? "Complete profile" : "Compléter le profil"}<ArrowUpRight className="ml-2 size-4" /></Link></Button> : null}
+              {!(data.address.addressLine1 && data.address.city && data.address.country) ? <Button asChild variant="outline" className="w-full sm:w-auto"><Link to="/app/profile/address">{en ? "Add address" : "Ajouter l’adresse"}<ArrowUpRight className="ml-2 size-4" /></Link></Button> : null}
+              {data.identityStatus !== "VERIFIED" ? <Button asChild variant="outline" className="w-full sm:w-auto"><Link to="/app/profile/identity">{en ? "Identity verification" : "Vérifier mon identité"}<ArrowUpRight className="ml-2 size-4" /></Link></Button> : null}
+            </div>
+            <p className="text-xs leading-relaxed text-muted-foreground">{en ? "Verification results and activation status are based on your saved account information. Banking operations may remain restricted until required checks are completed." : "Les statuts reposent sur les informations enregistrées. Certaines opérations bancaires restent limitées jusqu’à la réalisation des vérifications requises."}</p>
+          </CardContent>
+        </Card>
         <Card className="overflow-hidden border-primary/20 bg-gradient-to-br from-primary/[0.09] via-card to-card">
           <CardContent className="flex flex-col gap-5 p-4 sm:flex-row sm:items-center sm:p-6">
             <div className="flex size-20 shrink-0 items-center justify-center self-start overflow-hidden rounded-full border-4 border-background bg-primary/10 text-xl font-semibold text-primary shadow-sm sm:size-24">
