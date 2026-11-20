@@ -41,7 +41,7 @@ export function canEnterBankingShell(state: CustomerLifecycleState): boolean {
 
 /** Read access to account information, statements, documents and messages. */
 export function canReadBanking(state: CustomerLifecycleState): boolean {
-  return SHELL_STATES.includes(state);
+  return BANKING_READ_STATES.includes(state);
 }
 
 /** Money movement requires a fully active banking status — never verified-only. */
