@@ -40,7 +40,9 @@ export const profileStepSchema = z.object({
       }
       const now = new Date();
       const today = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
-      const cutoff = new Date(Date.UTC(today.getUTCFullYear() - MIN_AGE, today.getUTCMonth(), today.getUTCDate()));
+      const cutoff = new Date(
+        Date.UTC(today.getUTCFullYear() - MIN_AGE, today.getUTCMonth(), today.getUTCDate()),
+      );
       return date <= cutoff && date > new Date(Date.UTC(1900, 0, 1));
     }, `Vous devez avoir au moins ${MIN_AGE} ans pour ouvrir un compte.`),
   nationality: z.string().trim().min(2, "Indiquez votre nationalité.").max(60),
