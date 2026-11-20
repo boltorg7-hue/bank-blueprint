@@ -77,6 +77,16 @@ function DashboardPage() {
         }
       />
 
+      <Link to="/app/profile" className="mb-5 block rounded-2xl border border-brand/20 bg-gradient-to-br from-brand/[0.08] via-surface to-surface p-4 transition-colors hover:border-brand/40 sm:mb-7 sm:p-5">
+        <div className="flex items-start gap-3">
+          <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-brand/10 text-brand"><ShieldCheck className="size-5" aria-hidden="true" /></span>
+          <div className="min-w-0 flex-1">
+            <p className="font-semibold text-foreground">{en ? "Account activation and verification" : "Activation et vérification du compte"}</p>
+            <p className="mt-1 text-body-sm leading-relaxed text-muted-foreground">{en ? "Review your verification steps and continue your account activation from your Account space." : "Consultez vos vérifications et poursuivez l’activation depuis votre espace Compte."}</p>
+            <span className="mt-2 inline-flex min-h-10 items-center gap-2 text-sm font-semibold text-brand">{en ? "Open my Account space" : "Ouvrir mon espace Compte"}<ArrowUpRight className="size-4" aria-hidden="true" /></span>
+          </div>
+        </div>
+      </Link>
       <div className="mb-5 flex items-center justify-between gap-4 overflow-hidden rounded-2xl border border-brand/10 bg-gradient-to-r from-brand/5 via-surface to-surface p-4 sm:mb-7 sm:p-5">
         <div className="min-w-0">
           <p className="text-overline font-semibold tracking-wide text-brand">
