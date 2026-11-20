@@ -196,7 +196,7 @@ function VerifyContactPage() {
         >
           {en ? "Send code by SMS" : "Recevoir le code par SMS"}
         </Button>
-      </form>}
+      </form>) }
 
       {editing ? (
         <form
