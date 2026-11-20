@@ -33,7 +33,8 @@ export function isProfileComplete(context: CustomerContext): boolean {
     profile.date_of_birth &&
     profile.nationality &&
     profile.country_of_residence &&
-    profile.occupation,
+    profile.occupation &&
+    profile.phone,
   );
 }
 
