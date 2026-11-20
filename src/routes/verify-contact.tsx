@@ -48,6 +48,15 @@ function VerifyContactPage() {
   const [savingPhone, setSavingPhone] = useState(false);
 
   useEffect(() => {
+    if (context && !context.profile.phone) {
+      setEditing(true);
+      setNewPhone("");
+    } else if (context?.profile.phone) {
+      setNewPhone(context.profile.phone);
+    }
+  }, [context?.profile.phone]);
+
+  useEffect(() => {
     if (context?.profile.phone_verified_at) void navigate({ to: "/onboarding", replace: true });
   }, [context?.profile.phone_verified_at, navigate]);
 
@@ -190,7 +199,7 @@ function VerifyContactPage() {
         >
           {en ? "Send code by SMS" : "Recevoir le code par SMS"}
         </Button>
-      </form>
+      </form>}
 
       {editing ? (
         <form
