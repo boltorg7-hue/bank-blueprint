@@ -121,7 +121,7 @@ function VerifyContactPage() {
 
   return (
     <OnboardingShell
-      title={en ? "Verify your phone number" : "Vérifiez votre numéro de téléphone"}
+      title={en ? "Enter and verify your phone number" : "Saisissez et vérifiez votre numéro de téléphone"}
       description={
         en
           ? `We use ${context.profile.phone ?? "your phone"} to secure your customer account.`
@@ -144,7 +144,7 @@ function VerifyContactPage() {
         </div>
       </div>
 
-      <form onSubmit={handleVerify} className="space-y-5">
+      {!context.profile.phone || editing ? null : <form onSubmit={handleVerify} className="space-y-5">
         <div className="space-y-2">
           <Label htmlFor="contact-code">{en ? "6-digit code" : "Code à 6 chiffres"}</Label>
           <Input
@@ -217,7 +217,7 @@ function VerifyContactPage() {
           </p>
           <div className="flex flex-col gap-2 sm:flex-row">
             <Button type="submit" className="w-full touch-target" loading={savingPhone}>
-              {en ? "Save new number" : "Enregistrer le nouveau numéro"}
+              {en ? "Save phone number" : "Enregistrer le numéro"}
             </Button>
             <Button
               type="button"
@@ -245,7 +245,7 @@ function VerifyContactPage() {
           }}
         >
           <PencilLine className="size-4" aria-hidden="true" />
-          {en ? "Wrong number? Change my phone" : "Numéro incorrect ? Modifier mon numéro"}
+          {en ? "Change my phone number" : "Modifier mon numéro"}
         </Button>
       )}
 
