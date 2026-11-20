@@ -282,8 +282,8 @@ export async function saveProfileStep(userId: string, input: unknown) {
       nationality: data.nationality,
       country_of_residence: data.countryOfResidence,
       occupation: data.occupation,
-      onboarding_step: "CONTACT",
-      lifecycle_state: "CONTACT_VERIFICATION_REQUIRED",
+      onboarding_step: "PROFILE",
+      lifecycle_state: "PROFILE_INCOMPLETE",
     })
     .eq("id", userId)
     .in("lifecycle_state", PROFILE_EDITABLE_LIFECYCLE_STATES)
