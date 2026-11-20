@@ -29,11 +29,19 @@ export const profileStepSchema = z.object({
     .string()
     .regex(/^\d{4}-\d{2}-\d{2}$/, "Utilisez le format AAAA-MM-JJ.")
     .refine((value) => {
-      const date = new Date(value);
-      if (Number.isNaN(date.getTime())) return false;
+      const [year, month, day] = value.split("-").map(Number);
+      const date = new Date(Date.UTC(year, month - 1, day));
+      if (
+        date.getUTCFullYear() !== year ||
+        date.getUTCMonth() !== month - 1 ||
+        date.getUTCDate() !== day
+      ) {
+        return false;
+      }
       const now = new Date();
-      const eighteen = new Date(now.getFullYear() - MIN_AGE, now.getMonth(), now.getDate());
-      return date <= eighteen && date > new Date("1900-01-01");
+      const today = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
+      const cutoff = new Date(Date.UTC(today.getUTCFullYear() - MIN_AGE, today.getUTCMonth(), today.getUTCDate()));
+      return date <= cutoff && date > new Date(Date.UTC(1900, 0, 1));
     }, `Vous devez avoir au moins ${MIN_AGE} ans pour ouvrir un compte.`),
   nationality: z.string().trim().min(2, "Indiquez votre nationalité.").max(60),
   countryOfResidence: z.string().trim().min(2, "Indiquez votre pays de résidence.").max(60),
