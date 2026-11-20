@@ -56,10 +56,6 @@ function VerifyContactPage() {
     }
   }, [context?.profile.phone]);
 
-  useEffect(() => {
-    if (context?.profile.phone_verified_at) void navigate({ to: "/onboarding", replace: true });
-  }, [context?.profile.phone_verified_at, navigate]);
-
   async function handleSend() {
     setError(null);
     setMessage(null);
