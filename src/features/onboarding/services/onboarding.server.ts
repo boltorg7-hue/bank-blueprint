@@ -272,51 +272,6 @@ export async function saveProfileStep(userId: string, input: unknown) {
   const data = profileStepSchema.parse(input);
   await requireEditableLifecycle(userId, PROFILE_EDITABLE_LIFECYCLE_STATES);
 
-  const { data: currentProfile, error: currentProfileError } = await supabaseAdmin
-    .from("profiles")
-    .select("phone, phone_verified_at, lifecycle_state, onboarding_step")
-    .eq("id", userId)
-    .maybeSingle();
-
-  if (currentProfileError) throw new OnboardingError("CUSTOMER_PROFILE_UNAVAILABLE");
-  if (!currentProfile) throw new OnboardingError("CUSTOMER_PROFILE_NOT_FOUND");
-
-  const phoneUnchanged = currentProfile.phone === data.phone;
-  if (!phoneUnchanged) {
-    // Phone changes must use the same atomic path as the dedicated contact page:
-    // invalidate old challenges, preserve lifecycle progression and check ownership.
-    const { error: phoneChangeError } = await customerChangePendingPhone(
-      "customer_change_pending_phone",
-      { _user_id: userId, _phone: data.phone },
-    );
-    if (phoneChangeError) {
-      throw new OnboardingError(
-        phoneChangeError.message?.includes("PHONE_ALREADY_IN_USE")
-          ? "PHONE_ALREADY_IN_USE"
-          : phoneChangeError.message?.includes("ONBOARDING_STATE_LOCKED")
-            ? "ONBOARDING_STATE_LOCKED"
-            : "PHONE_CHANGE_FAILED",
-      );
-    }
-  }
-
-  const contactVerified = phoneUnchanged && Boolean(currentProfile.phone_verified_at);
-  // Preserve later review states when a customer edits personal details.
-  const lifecycleState = contactVerified
-    ? currentProfile.lifecycle_state === "CONTACT_VERIFICATION_REQUIRED"
-      ? "PROFILE_INCOMPLETE"
-      : currentProfile.lifecycle_state
-    : currentProfile.lifecycle_state === "CONTACT_VERIFICATION_REQUIRED"
-      ? "CONTACT_VERIFICATION_REQUIRED"
-      : currentProfile.lifecycle_state;
-  const onboardingStep = phoneUnchanged
-    ? contactVerified
-      ? ["CONTACT", "PERSONAL_DETAILS"].includes(currentProfile.onboarding_step)
-        ? "ADDRESS"
-        : currentProfile.onboarding_step
-      : "CONTACT"
-    : currentProfile.onboarding_step;
-
   const { data: updatedProfile, error } = await supabaseAdmin
     .from("profiles")
     .update({
@@ -327,9 +282,8 @@ export async function saveProfileStep(userId: string, input: unknown) {
       nationality: data.nationality,
       country_of_residence: data.countryOfResidence,
       occupation: data.occupation,
-      ...(phoneUnchanged
-        ? { lifecycle_state: lifecycleState, onboarding_step: onboardingStep }
-        : {}),
+      onboarding_step: "CONTACT",
+      lifecycle_state: "CONTACT_VERIFICATION_REQUIRED",
     })
     .eq("id", userId)
     .in("lifecycle_state", PROFILE_EDITABLE_LIFECYCLE_STATES)
