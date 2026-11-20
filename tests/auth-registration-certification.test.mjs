@@ -118,21 +118,21 @@ test("email confirmation sends use a strict HTTPS application origin", () => {
   assert.ok(functions.includes("url.hash"));
 });
 
-test("profile onboarding preserves progress and reuses verified contact across all sign-in providers", () => {
+test("profile onboarding preserves provider-prefilled names and separates phone verification", () => {
   const server = read("src/features/onboarding/services/onboarding.server.ts");
   const functions = read("src/features/onboarding/services/onboarding.functions.ts");
   const page = read("src/routes/onboarding.profile.tsx");
+  const contact = read("src/routes/verify-contact.tsx");
   assert.ok(functions.includes("data.user.user_metadata"));
   assert.ok(server.includes("profileNameHints(authMetadata)"));
   assert.ok(server.includes("Provider names are suggestions only"));
-  assert.ok(server.includes("const phoneUnchanged = currentProfile.phone === data.phone"));
-  assert.ok(server.includes("customer_change_pending_phone"));
-  assert.ok(server.includes("const contactVerified = phoneUnchanged"));
-  assert.ok(server.includes("const onboardingStep = phoneUnchanged"));
+  assert.ok(server.includes('onboarding_step: "CONTACT"'));
+  assert.ok(server.includes('lifecycle_state: "CONTACT_VERIFICATION_REQUIRED"'));
   assert.doesNotMatch(server, /\bphone:\s*data\.phone/);
   assert.ok(server.includes("CUSTOMER_DOCUMENTS_UNAVAILABLE"));
   assert.ok(page.includes('navigate({ to: "/onboarding", replace: true })'));
   assert.ok(page.includes("required={required}"));
+  assert.ok(contact.includes("customer_change_pending_phone"));
 });
 
 test("profile context fails closed instead of treating database read failures as missing onboarding steps", () => {
