@@ -123,6 +123,7 @@ test("profile onboarding preserves provider-prefilled names and separates phone 
   const functions = read("src/features/onboarding/services/onboarding.functions.ts");
   const page = read("src/routes/onboarding.profile.tsx");
   const contact = read("src/routes/verify-contact.tsx");
+  const contactServer = read("src/features/onboarding/services/contact-verification.server.ts");
   assert.ok(functions.includes("data.user.user_metadata"));
   assert.ok(server.includes("profileNameHints(authMetadata)"));
   assert.ok(server.includes("Provider names are suggestions only"));
