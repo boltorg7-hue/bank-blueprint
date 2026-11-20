@@ -37,8 +37,8 @@ export function FeatureShellPage({
   action?: ReactNode;
   children?: ReactNode;
 }) {
-  const { summary } = useCustomerSummary();
-  const allowed = summary ? isAllowed(summary.lifecycleState, access) : true;
+  const { summary, isPending, isError } = useCustomerSummary();
+  const allowed = summary !== null && isAllowed(summary.lifecycleState, access);
 
   return (
     <BankingContentContainer width={width}>
@@ -48,7 +48,14 @@ export function FeatureShellPage({
         {...(backTo ? { backTo } : {})}
         {...(action ? { action } : {})}
       />
-      {!allowed ? (
+      {!summary ? (
+        <PageSection>
+          <EmptyState
+            title={isPending ? "Vérification de votre accès" : "Accès non vérifié"}
+            description={isPending ? "Nous vérifions votre statut avant d’afficher cette section." : isError ? "Votre statut n’a pas pu être vérifié. Réessayez plus tard." : "Les informations de votre compte sont momentanément indisponibles."}
+          />
+        </PageSection>
+      ) : !allowed ? (
         <PermissionDeniedState description="Cette section n'est pas disponible avec le statut actuel de votre compte." />
       ) : (
         <PageSection>
