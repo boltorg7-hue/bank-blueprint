@@ -30,6 +30,9 @@ export const profileStepSchema = z.object({
     .regex(/^\d{4}-\d{2}-\d{2}$/, "Utilisez le format AAAA-MM-JJ.")
     .refine((value) => {
       const [year, month, day] = value.split("-").map(Number);
+      if (year === undefined || month === undefined || day === undefined) {
+        return false;
+      }
       const date = new Date(Date.UTC(year, month - 1, day));
       if (
         date.getUTCFullYear() !== year ||
