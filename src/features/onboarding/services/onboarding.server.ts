@@ -282,7 +282,7 @@ export async function saveProfileStep(userId: string, input: unknown) {
       nationality: data.nationality,
       country_of_residence: data.countryOfResidence,
       occupation: data.occupation,
-      onboarding_step: "PROFILE",
+      onboarding_step: "PERSONAL_DETAILS",
       lifecycle_state: "PROFILE_INCOMPLETE",
     })
     .eq("id", userId)
