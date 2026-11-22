@@ -191,29 +191,6 @@ function DashboardPage() {
               </p>
             )}
 
-            <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
-              <p className="text-body-sm text-muted-foreground">
-                {en ? "Access your transfer journey." : "Accédez à votre parcours de virement."}
-              </p>
-              {canTransact ? (
-                <Link
-                  to="/app/transfers"
-                  className="press-feedback inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-brand px-5 py-2.5 text-sm font-semibold text-brand-foreground shadow-sm transition-[filter,transform] duration-150 hover:brightness-95 active:scale-[0.99] motion-reduce:transition-none sm:w-auto"
-                >
-                  <Send className="size-4" aria-hidden="true" />
-                  {en ? "Make a transfer" : "Faire un virement"}
-                </Link>
-              ) : (
-                <span
-                  aria-disabled="true"
-                  className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-brand px-5 py-2.5 text-sm font-semibold text-brand-foreground opacity-50 sm:w-auto"
-                >
-                  <Send className="size-4" aria-hidden="true" />
-                  {en ? "Make a transfer" : "Faire un virement"}
-                </span>
-              )}
-            </div>
-
             <section aria-labelledby="accounts-heading" className="space-y-3.5 sm:space-y-4">
               <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
                 <h2
