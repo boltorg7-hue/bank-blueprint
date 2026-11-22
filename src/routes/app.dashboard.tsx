@@ -8,7 +8,6 @@ import {
   Send,
   ShieldCheck,
   Users,
-  Wallet,
   Clock,
 } from "lucide-react";
 
@@ -77,13 +76,27 @@ function DashboardPage() {
         }
       />
 
-      <Link to="/app/profile" className="mb-5 block rounded-2xl border border-brand/20 bg-gradient-to-br from-brand/[0.08] via-surface to-surface p-4 transition-colors hover:border-brand/40 sm:mb-7 sm:p-5">
+      <Link
+        to="/app/profile"
+        className="mb-5 block rounded-2xl border border-brand/20 bg-gradient-to-br from-brand/[0.08] via-surface to-surface p-4 transition-colors hover:border-brand/40 sm:mb-7 sm:p-5"
+      >
         <div className="flex items-start gap-3">
-          <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-brand/10 text-brand"><ShieldCheck className="size-5" aria-hidden="true" /></span>
+          <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-brand/10 text-brand">
+            <ShieldCheck className="size-5" aria-hidden="true" />
+          </span>
           <div className="min-w-0 flex-1">
-            <p className="font-semibold text-foreground">{en ? "Account activation and verification" : "Activation et vérification du compte"}</p>
-            <p className="mt-1 text-body-sm leading-relaxed text-muted-foreground">{en ? "Review your verification steps and continue your account activation from your Account space." : "Consultez vos vérifications et poursuivez l’activation depuis votre espace Compte."}</p>
-            <span className="mt-2 inline-flex min-h-10 items-center gap-2 text-sm font-semibold text-brand">{en ? "Open my Account space" : "Ouvrir mon espace Compte"}<ArrowUpRight className="size-4" aria-hidden="true" /></span>
+            <p className="font-semibold text-foreground">
+              {en ? "Account activation and verification" : "Activation et vérification du compte"}
+            </p>
+            <p className="mt-1 text-body-sm leading-relaxed text-muted-foreground">
+              {en
+                ? "Review your verification steps and continue your account activation from your Account space."
+                : "Consultez vos vérifications et poursuivez l’activation depuis votre espace Compte."}
+            </p>
+            <span className="mt-2 inline-flex min-h-10 items-center gap-2 text-sm font-semibold text-brand">
+              {en ? "Open my Account space" : "Ouvrir mon espace Compte"}
+              <ArrowUpRight className="size-4" aria-hidden="true" />
+            </span>
           </div>
         </div>
       </Link>
@@ -156,29 +169,67 @@ function DashboardPage() {
             />
 
             {/* Rail d'actions rapides tactile */}
-            <nav aria-label={en ? "Quick actions" : "Actions rapides"} className="scroll-snap-x flex items-center gap-3 overflow-x-auto pb-2 pt-1 scrollbar-none -mx-4 px-4 sm:mx-0 sm:px-0">
+            <nav
+              aria-label={en ? "Quick actions" : "Actions rapides"}
+              className="scroll-snap-x flex items-center gap-3 overflow-x-auto pb-2 pt-1 scrollbar-none -mx-4 px-4 sm:mx-0 sm:px-0"
+            >
               {canTransact ? (
-                <Link to="/app/transfers" className="scroll-snap-item touch-press flex flex-col items-center gap-1.5 rounded-2xl bg-surface border border-border/70 p-3 min-w-[5.25rem] shadow-sm select-none">
-                  <div className="flex size-11 items-center justify-center rounded-xl bg-brand text-brand-foreground shadow-sm"><Send className="size-5" aria-hidden="true" /></div>
-                  <span className="text-[11px] font-semibold text-foreground">{en ? "Transfer" : "Virement"}</span>
+                <Link
+                  to="/app/transfers"
+                  className="scroll-snap-item touch-press flex flex-col items-center gap-1.5 rounded-2xl bg-surface border border-border/70 p-3 min-w-[5.25rem] shadow-sm select-none"
+                >
+                  <div className="flex size-11 items-center justify-center rounded-xl bg-brand text-brand-foreground shadow-sm">
+                    <Send className="size-5" aria-hidden="true" />
+                  </div>
+                  <span className="text-[11px] font-semibold text-foreground">
+                    {en ? "Transfer" : "Virement"}
+                  </span>
                 </Link>
               ) : (
-                <span aria-disabled="true" className="scroll-snap-item flex flex-col items-center gap-1.5 rounded-2xl bg-surface border border-border/70 p-3 min-w-[5.25rem] opacity-50 select-none">
-                  <div className="flex size-11 items-center justify-center rounded-xl bg-muted text-muted-foreground"><Send className="size-5" aria-hidden="true" /></div>
-                  <span className="text-[11px] font-semibold text-foreground">{en ? "Transfer" : "Virement"}</span>
+                <span
+                  aria-disabled="true"
+                  className="scroll-snap-item flex flex-col items-center gap-1.5 rounded-2xl bg-surface border border-border/70 p-3 min-w-[5.25rem] opacity-50 select-none"
+                >
+                  <div className="flex size-11 items-center justify-center rounded-xl bg-muted text-muted-foreground">
+                    <Send className="size-5" aria-hidden="true" />
+                  </div>
+                  <span className="text-[11px] font-semibold text-foreground">
+                    {en ? "Transfer" : "Virement"}
+                  </span>
                 </span>
               )}
-              <Link to="/app/statements" className="scroll-snap-item touch-press flex flex-col items-center gap-1.5 rounded-2xl bg-surface border border-border/70 p-3 min-w-[5.25rem] shadow-sm select-none">
-                <div className="flex size-11 items-center justify-center rounded-xl bg-brand/10 text-brand"><FileText className="size-5" aria-hidden="true" /></div>
-                <span className="text-[11px] font-semibold text-foreground">{en ? "Statements" : "Relevés"}</span>
+              <Link
+                to="/app/statements"
+                className="scroll-snap-item touch-press flex flex-col items-center gap-1.5 rounded-2xl bg-surface border border-border/70 p-3 min-w-[5.25rem] shadow-sm select-none"
+              >
+                <div className="flex size-11 items-center justify-center rounded-xl bg-brand/10 text-brand">
+                  <FileText className="size-5" aria-hidden="true" />
+                </div>
+                <span className="text-[11px] font-semibold text-foreground">
+                  {en ? "Statements" : "Relevés"}
+                </span>
               </Link>
-              <Link to="/app/beneficiaries" className="scroll-snap-item touch-press flex flex-col items-center gap-1.5 rounded-2xl bg-surface border border-border/70 p-3 min-w-[5.25rem] shadow-sm select-none">
-                <div className="flex size-11 items-center justify-center rounded-xl bg-brand/10 text-brand"><Users className="size-5" aria-hidden="true" /></div>
-                <span className="text-[11px] font-semibold text-foreground">{en ? "Beneficiaries" : "Contacts"}</span>
+              <Link
+                to="/app/beneficiaries"
+                className="scroll-snap-item touch-press flex flex-col items-center gap-1.5 rounded-2xl bg-surface border border-border/70 p-3 min-w-[5.25rem] shadow-sm select-none"
+              >
+                <div className="flex size-11 items-center justify-center rounded-xl bg-brand/10 text-brand">
+                  <Users className="size-5" aria-hidden="true" />
+                </div>
+                <span className="text-[11px] font-semibold text-foreground">
+                  {en ? "Beneficiaries" : "Contacts"}
+                </span>
               </Link>
-              <Link to="/app/security" className="scroll-snap-item touch-press flex flex-col items-center gap-1.5 rounded-2xl bg-surface border border-border/70 p-3 min-w-[5.25rem] shadow-sm select-none">
-                <div className="flex size-11 items-center justify-center rounded-xl bg-brand/10 text-brand"><ShieldCheck className="size-5" aria-hidden="true" /></div>
-                <span className="text-[11px] font-semibold text-foreground">{en ? "Security" : "Sécurité"}</span>
+              <Link
+                to="/app/security"
+                className="scroll-snap-item touch-press flex flex-col items-center gap-1.5 rounded-2xl bg-surface border border-border/70 p-3 min-w-[5.25rem] shadow-sm select-none"
+              >
+                <div className="flex size-11 items-center justify-center rounded-xl bg-brand/10 text-brand">
+                  <ShieldCheck className="size-5" aria-hidden="true" />
+                </div>
+                <span className="text-[11px] font-semibold text-foreground">
+                  {en ? "Security" : "Sécurité"}
+                </span>
               </Link>
             </nav>
 
@@ -190,29 +241,6 @@ function DashboardPage() {
                 {restriction}
               </p>
             )}
-
-            <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
-              <p className="text-body-sm text-muted-foreground">
-                {en ? "Access your transfer journey." : "Accédez à votre parcours de virement."}
-              </p>
-              {canTransact ? (
-                <Link
-                  to="/app/transfers"
-                  className="press-feedback inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-brand px-5 py-2.5 text-sm font-semibold text-brand-foreground shadow-sm transition-[filter,transform] duration-150 hover:brightness-95 active:scale-[0.99] motion-reduce:transition-none sm:w-auto"
-                >
-                  <Send className="size-4" aria-hidden="true" />
-                  {en ? "Make a transfer" : "Faire un virement"}
-                </Link>
-              ) : (
-                <span
-                  aria-disabled="true"
-                  className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-brand px-5 py-2.5 text-sm font-semibold text-brand-foreground opacity-50 sm:w-auto"
-                >
-                  <Send className="size-4" aria-hidden="true" />
-                  {en ? "Make a transfer" : "Faire un virement"}
-                </span>
-              )}
-            </div>
 
             <section aria-labelledby="accounts-heading" className="space-y-3.5 sm:space-y-4">
               <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
@@ -292,7 +320,7 @@ function DashboardPage() {
                     id="quick-actions-heading"
                     className="text-heading-sm font-semibold text-foreground md:text-heading-md"
                   >
-                    {en ? "Your banking services" : "Vos services bancaires"}
+                    {en ? "More useful services" : "Autres accès utiles"}
                   </h2>
                   <p className="mt-1 text-body-sm text-muted-foreground">
                     {en
@@ -301,57 +329,7 @@ function DashboardPage() {
                   </p>
                 </div>
               </div>
-              <ul className="grid grid-cols-2 gap-2.5 sm:grid-cols-2 sm:gap-3 xl:grid-cols-3">
-                <QuickAction
-                  to="/app/transfers/new"
-                  label={en ? "Make a transfer" : "Effectuer un virement"}
-                  description={
-                    en
-                      ? "Send money to an internal or external beneficiary."
-                      : "Envoyez de l'argent vers un bénéficiaire interne ou externe."
-                  }
-                  icon={Send}
-                  disabled={!canTransact}
-                />
-                <QuickAction
-                  to="/app/beneficiaries"
-                  label={en ? "Beneficiaries" : "Bénéficiaires"}
-                  description={
-                    en ? "Add and manage your recipients." : "Ajoutez et gérez vos destinataires."
-                  }
-                  icon={Users}
-                  disabled={!canTransact}
-                />
-                <QuickAction
-                  to="/app/accounts"
-                  label={en ? "My accounts" : "Mes comptes"}
-                  description={
-                    en
-                      ? "View your accounts and balances."
-                      : "Consultez vos comptes et leurs soldes."
-                  }
-                  icon={Wallet}
-                />
-                <QuickAction
-                  to="/app/statements"
-                  label={en ? "Statements" : "Relevés bancaires"}
-                  description={
-                    en
-                      ? "View and download available statements."
-                      : "Consultez et téléchargez vos relevés disponibles."
-                  }
-                  icon={FileText}
-                />
-                <QuickAction
-                  to="/app/transactions"
-                  label={en ? "Transaction history" : "Historique des opérations"}
-                  description={
-                    en
-                      ? "Review your recent account activity."
-                      : "Retrouvez le détail de vos opérations."
-                  }
-                  icon={History}
-                />
+              <ul className="grid grid-cols-2 gap-2.5 sm:gap-3">
                 <QuickAction
                   to="/app/accounts/$accountRef"
                   params={{ accountRef: account.reference }}
