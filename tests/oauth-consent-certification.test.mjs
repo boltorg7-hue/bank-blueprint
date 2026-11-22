@@ -74,7 +74,8 @@ test("onboarding dashboard reports legal consent still pending without blocking 
     tasks.includes("if (!isProfileComplete(context)) return \"/app/profile/personal\""),
   );
   assert.ok(tasks.includes('id: "email"'));
-  assert.ok(tasks.includes('id: "contact"'));
+  assert.ok(tasks.includes('id: "profile"'));
+  assert.ok(tasks.includes('id: "address"'));
 });
 
 test("OAuth consent distinguishes provider sign-in from bank KYC", () => {
