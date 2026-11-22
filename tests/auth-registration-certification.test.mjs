@@ -14,8 +14,7 @@ test("registration handles rejected signup requests without exposing backend err
   assert.ok(form.includes("signUpErrorMessage({ code: result.code }"));
   assert.ok(form.includes("setPending(false)"));
   assert.ok(server.includes("authClient.auth.signUp"));
-  assert.doesNotMatch(form, /setFormError\([^
-]*\.message/);
+  assert.doesNotMatch(form, /setFormError\([^)]*\.message/);
 });
 
 test("registration prevents duplicate submission and requires accessible identity fields", () => {
