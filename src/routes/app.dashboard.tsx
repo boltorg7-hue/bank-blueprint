@@ -28,10 +28,7 @@ import {
 } from "@/features/accounts/utils/account-display";
 import { useLanguage } from "@/components/providers/LanguageProvider";
 import { cn } from "@/lib/utils";
-import {
-  formatAccountAmount,
-  accountStatusLabel,
-} from "@/features/accounts/utils/account-display";
+import { formatAccountAmount, accountStatusLabel } from "@/features/accounts/utils/account-display";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { usePrivacyMode } from "@/components/providers/PrivacyModeProvider";
 import { PRIVACY_PLACEHOLDER } from "@/lib/format/mask";
@@ -196,7 +193,9 @@ function DashboardPage() {
                   <div className="flex size-11 items-center justify-center rounded-xl bg-muted text-muted-foreground">
                     <Send className="size-5" aria-hidden="true" />
                   </div>
-                  <span className="text-[11px] font-semibold text-foreground">{en ? "Transfer" : "Virement"}</span>
+                  <span className="text-[11px] font-semibold text-foreground">
+                    {en ? "Transfer" : "Virement"}
+                  </span>
                 </span>
               )}
               <Link
@@ -336,10 +335,10 @@ function DashboardPage() {
                   params={{ accountRef: account.reference }}
                   label={en ? "Receive a payment" : "Recevoir un paiement"}
                   description={
-                  en
-                    ? "Find your account details to receive funds."
-                    : "Retrouvez vos coordonnées pour recevoir des fonds."
-                }
+                    en
+                      ? "Find your account details to receive funds."
+                      : "Retrouvez vos coordonnées pour recevoir des fonds."
+                  }
                   icon={ArrowDownToLine}
                 />
               </ul>
