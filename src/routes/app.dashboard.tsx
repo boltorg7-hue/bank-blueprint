@@ -279,12 +279,6 @@ function DashboardPage() {
               </div>
               <ul className="grid grid-cols-2 gap-2.5 sm:gap-3">
                 <QuickAction
-                  to="/app/transactions"
-                  label={en ? "Transaction history" : "Historique des opérations"}
-                  description={en ? "Review your recent account activity." : "Retrouvez le détail de vos opérations."}
-                  icon={History}
-                />
-                <QuickAction
                   to="/app/accounts/$accountRef"
                   params={{ accountRef: account.reference }}
                   label={en ? "Receive a payment" : "Recevoir un paiement"}
