@@ -8,7 +8,6 @@ import {
   Send,
   ShieldCheck,
   Users,
-  Wallet,
   Clock,
 } from "lucide-react";
 
