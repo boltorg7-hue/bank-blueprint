@@ -1,4 +1,5 @@
-import { Info, WalletCards } from "lucide-react";
+import { useState } from "react";
+import { Info, Wifi, Eye, EyeOff, Copy, Check } from "lucide-react";
 
 import { StatusBadge } from "@/components/ui/status-badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -16,13 +17,6 @@ import {
   formatAccountAmount,
 } from "@/features/accounts/utils/account-display";
 
-/**
- * Primary balance surface (§48 – §59).
- *
- * The AVAILABLE balance is the headline figure; the ledger balance and held
- * amount are shown as secondary context so the customer can reconcile them.
- * A missing balance renders as unavailable — never as 0.00.
- */
 export function AccountBalanceCard({
   account,
   isRefreshing = false,
@@ -36,7 +30,8 @@ export function AccountBalanceCard({
   onRetry?: () => void;
   className?: string;
 }) {
-  const { privacyMode } = usePrivacyMode();
+  const { privacyMode, togglePrivacyMode } = usePrivacyMode();
+  const [copied, setCopied] = useState(false);
   const en = useLanguage().language === "en";
 
   if (!account) {
@@ -51,135 +46,126 @@ export function AccountBalanceCard({
 
   const balance = account.balance;
   const hidden = privacyMode;
-
   const renderAmount = (minor: number) =>
     hidden ? PRIVACY_PLACEHOLDER : formatAccountAmount(minor, account.currency, account.minorUnit);
 
-  return (
-    <section
-      aria-labelledby="balance-card-heading"
-      className={cn(
-        "native-surface overflow-hidden rounded-2xl border-t-2 border-t-brand p-4 sm:p-6 motion-safe:transition-shadow motion-safe:duration-200",
-        className,
-      )}
-    >
-      <div className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-start gap-2.5 sm:gap-3">
-        <span
-          className="mt-0.5 flex size-10 shrink-0 items-center justify-center rounded-xl bg-brand/5 text-brand ring-1 ring-inset ring-brand/10"
-          aria-hidden="true"
-        >
-          <WalletCards className="size-5" strokeWidth={1.8} />
-        </span>
-        <div className="min-w-0">
-          <h2
-            id="balance-card-heading"
-            className="text-heading-md truncate text-foreground sm:text-heading-lg"
-          >
-            {account.displayName}
-          </h2>
-          <p className="text-caption text-numeric mt-0.5 text-muted-foreground sm:text-body-sm">
-            {en
-              ? account.accountType === "CURRENT"
-                ? "Current account"
-                : "Savings account"
-              : accountTypeLabel(account.accountType)}
-            {" · "}
-            ••••{account.maskedNumber.slice(-4)} · {account.currency}
-          </p>
-        </div>
-        <StatusBadge
-          label={
-            en
-              ? {
-                  PENDING: "In preparation",
-                  ACTIVE: "Active",
-                  RESTRICTED: "Limited",
-                  SUSPENDED: "Suspended",
-                  FROZEN: "Blocked",
-                  CLOSING: "Closing",
-                  CLOSED: "Closed",
-                }[account.status]
-              : accountStatusLabel(account.status)
-          }
-          tone={accountStatusTone(account.status)}
-        />
-      </div>
+  const copyAccountRef = async () => {
+    try {
+      if (typeof navigator === "undefined" || !navigator.clipboard?.writeText) return;
+      await navigator.clipboard.writeText(account.accountNumber);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 2000);
+    } catch {
+      setCopied(false);
+    }
+  };
 
-      <div className="mt-6 sm:mt-8">
-        <p className="text-overline text-muted-foreground">
-          {en ? "Available balance" : "Solde disponible"}
-        </p>
-        {balance ? (
-          <p
-            className="text-balance-value mt-1.5 text-foreground"
-            aria-label={
-              hidden
-                ? en
-                  ? "Balance hidden"
-                  : "Solde masqué"
-                : `${en ? "Available balance" : "Solde disponible"} : ${formatAccountAmount(
-                    balance.availableBalanceMinor,
-                    account.currency,
-                    account.minorUnit,
-                  )}`
-            }
-          >
-            {renderAmount(balance.availableBalanceMinor)}
-          </p>
-        ) : (
-          <div className="mt-1">
-            <p className="text-heading-sm text-muted-foreground">
-              {en ? "Balance details are being updated" : "Mise à jour des informations de solde"}
-            </p>
-            <p className="text-caption mt-1 text-muted-foreground">
-              {en
-                ? "Your balance will appear as soon as the latest account data is available. No estimated amount is displayed."
-                : "Votre solde sera affiché dès que les dernières données du compte seront disponibles. Aucun montant estimé n'est affiché."}
-            </p>
-            {onRetry && (
-              <Button variant="outline" size="sm" className="mt-3" onClick={onRetry}>
-                {en ? "Retry" : "Réessayer"}
-              </Button>
-            )}
+  return (
+    <section aria-labelledby="balance-card-heading" className={cn("space-y-4", className)}>
+      <div className="bank-card-container rounded-3xl p-5 sm:p-6 text-white border border-white/10 select-none">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="font-serif tracking-widest text-xs uppercase font-bold text-amber-200/90">
+              RFC BANK
+            </span>
+            <span className="text-[10px] uppercase tracking-wider text-white/50">· 1972</span>
           </div>
-        )}
+          <div className="flex items-center gap-2">
+            <Wifi className="size-4 rotate-90 text-white/70" aria-hidden="true" />
+            <StatusBadge
+              label={
+                en
+                  ? {
+                      PENDING: "Pending",
+                      ACTIVE: "Active",
+                      RESTRICTED: "Limited",
+                      SUSPENDED: "Suspended",
+                      FROZEN: "Blocked",
+                      CLOSING: "Closing",
+                      CLOSED: "Closed",
+                    }[account.status]
+                  : accountStatusLabel(account.status)
+              }
+              tone={accountStatusTone(account.status)}
+              className="border-white/20 bg-white/10 text-white font-medium text-[11px]"
+            />
+          </div>
+        </div>
+
+        <div className="mt-4 flex items-center justify-between">
+          <div aria-hidden="true" className="h-7 w-9 rounded-md bg-gradient-to-tr from-amber-400 via-amber-200 to-amber-300 p-0.5 shadow-inner">
+            <div className="h-full w-full rounded-[4px] border border-amber-600/30 grid grid-cols-2 gap-0.5 opacity-80" />
+          </div>
+          <button
+            type="button"
+            onClick={togglePrivacyMode}
+            className="touch-press flex items-center gap-1.5 rounded-full bg-white/10 px-2.5 py-1 text-xs text-white/80 hover:bg-white/15"
+            title={hidden ? (en ? "Show balance" : "Afficher le solde") : (en ? "Hide balance" : "Masquer le solde")}
+            aria-label={hidden ? (en ? "Show balance" : "Afficher le solde") : (en ? "Hide balance" : "Masquer le solde")}
+          >
+            {hidden ? <Eye className="size-3.5" aria-hidden="true" /> : <EyeOff className="size-3.5" aria-hidden="true" />}
+            <span className="text-[10px] font-medium tracking-wide">{hidden ? (en ? "Show" : "Afficher") : (en ? "Hide" : "Masquer")}</span>
+          </button>
+        </div>
+
+        <div className="mt-4">
+          <h2 id="balance-card-heading" className="text-[11px] font-medium uppercase tracking-wider text-white/60">
+            {en ? "Available Balance" : "Solde Disponible"}
+          </h2>
+          {balance ? (
+            <p className="tabular-nums font-mono text-2xl sm:text-3xl font-semibold tracking-tight text-white mt-0.5" aria-label={hidden ? (en ? "Balance hidden" : "Solde masqué") : undefined}>
+              {renderAmount(balance.availableBalanceMinor)}
+            </p>
+          ) : (
+            <div className="mt-1">
+              <p className="text-sm text-white/70">{en ? "Updating balance…" : "Actualisation du solde…"}</p>
+              {onRetry && <Button variant="outline" size="sm" className="mt-2" onClick={onRetry}>{en ? "Retry" : "Réessayer"}</Button>}
+            </div>
+          )}
+        </div>
+
+        <div className="mt-4 flex items-end justify-between border-t border-white/10 pt-3">
+          <div>
+            <p className="text-[10px] text-white/50 uppercase tracking-wider">
+              {en ? (account.accountType === "CURRENT" ? "Checking Account" : "Savings Account") : accountTypeLabel(account.accountType)}
+            </p>
+            <p className="font-mono text-xs text-white/90 tracking-wider">•••• {account.maskedNumber.slice(-4)}</p>
+          </div>
+          <button
+            type="button"
+            onClick={copyAccountRef}
+            className="touch-press flex items-center gap-1 text-[11px] text-white/70 hover:text-white"
+            aria-label={en ? "Copy account reference" : "Copier la référence du compte"}
+          >
+            {copied ? <Check className="size-3.5 text-emerald-400" aria-hidden="true" /> : <Copy className="size-3.5" aria-hidden="true" />}
+            <span className="text-[10px]">{copied ? (en ? "Copied" : "Copié") : (en ? "Copy" : "Copier")}</span>
+          </button>
+        </div>
       </div>
 
       {balance && (
-        <>
-          <dl className="mt-6 grid gap-3 sm:mt-8 sm:grid-cols-2 sm:gap-4">
-            <div className="rounded-md bg-surface-sunken p-3.5 transition-colors hover:bg-muted/50 motion-safe:duration-200 sm:p-4">
-              <dt className="text-caption text-muted-foreground sm:text-body-sm">
-                {en ? "Ledger balance" : "Solde comptable"}
-              </dt>
-              <dd className="text-amount mt-1 text-foreground sm:text-heading-md">
-                {renderAmount(balance.ledgerBalanceMinor)}
-              </dd>
-            </div>
-            <div className="rounded-md bg-surface-sunken p-3.5 transition-colors hover:bg-muted/50 sm:p-4">
-              <dt className="text-caption text-muted-foreground sm:text-body-sm">
-                {en ? "Held amounts" : "Montants réservés"}
-              </dt>
-              <dd className="text-amount mt-1 text-foreground sm:text-heading-md">
-                {renderAmount(balance.heldBalanceMinor)}
-              </dd>
-            </div>
-          </dl>
+        <dl className="grid grid-cols-2 gap-2.5 sm:gap-3">
+          <div className="native-surface rounded-2xl p-3.5 sm:p-4">
+            <dt className="text-xs text-muted-foreground font-medium">{en ? "Ledger balance" : "Solde comptable"}</dt>
+            <dd className="tabular-nums font-mono text-sm sm:text-base font-semibold text-foreground mt-1">{renderAmount(balance.ledgerBalanceMinor)}</dd>
+          </div>
+          <div className="native-surface rounded-2xl p-3.5 sm:p-4">
+            <dt className="text-xs text-muted-foreground font-medium">{en ? "Held amounts" : "Montants réservés"}</dt>
+            <dd className="tabular-nums font-mono text-sm sm:text-base font-semibold text-foreground mt-1">{renderAmount(balance.heldBalanceMinor)}</dd>
+          </div>
+        </dl>
+      )}
 
-          <p className="text-caption mt-5 flex items-start gap-1.5 text-muted-foreground sm:mt-6">
-            <Info className="mt-0.5 size-3.5 shrink-0" aria-hidden="true" />
-            <span className="leading-normal">
-              {en
-                ? "The available balance accounts for held amounts. Last updated: "
-                : "Le solde disponible tient compte des montants réservés. Dernière mise à jour : "}
-              {formatDateTime(balance.calculatedAt)}.
-              {isRefreshing && (en ? " Refreshing…" : " Actualisation en cours…")}
-              {isStale &&
-                !isRefreshing &&
-                (en ? " This value may have changed." : " Cette valeur peut avoir changé.")}
-            </span>
-          </p>
-        </>
+      {balance && (
+        <p className="text-[11px] flex items-center gap-1.5 text-muted-foreground px-1">
+          <Info className="size-3 shrink-0" aria-hidden="true" />
+          <span>
+            {en ? "Updated: " : "Mis à jour : "}
+            {formatDateTime(balance.calculatedAt)}
+            {isRefreshing && (en ? " · Refreshing…" : " · Actualisation…")}
+            {isStale && !isRefreshing && (en ? " · This value may have changed." : " · Cette valeur peut avoir changé.")}
+          </span>
+        </p>
       )}
     </section>
   );
