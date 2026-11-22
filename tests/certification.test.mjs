@@ -411,7 +411,7 @@ test("les écrans métier principaux conservent une composition mobile-first", (
   const support = read("src/features/support/components/SupportCenter.tsx");
   const stepper = read("src/components/ui/stepper.tsx");
 
-  assert.match(dashboard, /grid gap-3 sm:grid-cols-\[minmax\(0,1fr\)_auto\]/);
+  assert.match(dashboard, /grid gap-3 md:grid-cols-2/);
   assert.match(dashboard, /grid gap-3 md:grid-cols-2/);
   assert.match(history, /lg:hidden/);
   assert.match(history, /hidden lg:block/);
@@ -656,7 +656,7 @@ test("lexperience mobile native conserve navigation, safe area et feuilles tacti
   const styles = read("src/styles.css");
 
   assert.match(nav, /safe-pb/);
-  assert.match(nav, /backdrop-blur-xl/);
+  assert.match(nav, /backdrop-blur-2xl/);
   assert.match(layout, /pb-mobile-nav/);
   assert.match(layout, /overscroll-x-none/);
   assert.match(sheet, /max-h-\[92dvh\]/);
