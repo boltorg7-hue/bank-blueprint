@@ -269,7 +269,7 @@ function DashboardPage() {
                     id="quick-actions-heading"
                     className="text-heading-sm font-semibold text-foreground md:text-heading-md"
                   >
-                    {en ? "Your banking services" : "Vos services bancaires"}
+                    {en ? "More useful services" : "Autres accès utiles"}
                   </h2>
                   <p className="mt-1 text-body-sm text-muted-foreground">
                     {en
@@ -278,66 +278,18 @@ function DashboardPage() {
                   </p>
                 </div>
               </div>
-              <ul className="grid grid-cols-2 gap-2.5 sm:grid-cols-2 sm:gap-3 xl:grid-cols-3">
-                <QuickAction
-                  to="/app/transfers/new"
-                  label={en ? "Make a transfer" : "Effectuer un virement"}
-                  description={
-                    en
-                      ? "Send money to an internal or external beneficiary."
-                      : "Envoyez de l'argent vers un bénéficiaire interne ou externe."
-                  }
-                  icon={Send}
-                  disabled={!canTransact}
-                />
-                <QuickAction
-                  to="/app/beneficiaries"
-                  label={en ? "Beneficiaries" : "Bénéficiaires"}
-                  description={
-                    en ? "Add and manage your recipients." : "Ajoutez et gérez vos destinataires."
-                  }
-                  icon={Users}
-                  disabled={!canTransact}
-                />
-                <QuickAction
-                  to="/app/accounts"
-                  label={en ? "My accounts" : "Mes comptes"}
-                  description={
-                    en
-                      ? "View your accounts and balances."
-                      : "Consultez vos comptes et leurs soldes."
-                  }
-                  icon={Wallet}
-                />
-                <QuickAction
-                  to="/app/statements"
-                  label={en ? "Statements" : "Relevés bancaires"}
-                  description={
-                    en
-                      ? "View and download available statements."
-                      : "Consultez et téléchargez vos relevés disponibles."
-                  }
-                  icon={FileText}
-                />
+              <ul className="grid grid-cols-2 gap-2.5 sm:gap-3">
                 <QuickAction
                   to="/app/transactions"
                   label={en ? "Transaction history" : "Historique des opérations"}
-                  description={
-                    en
-                      ? "Review your recent account activity."
-                      : "Retrouvez le détail de vos opérations."
-                  }
+                  description={en ? "Review your recent account activity." : "Retrouvez le détail de vos opérations."}
                   icon={History}
                 />
                 <QuickAction
                   to="/app/accounts/$accountRef"
                   params={{ accountRef: account.reference }}
                   label={en ? "Receive a payment" : "Recevoir un paiement"}
-                  description={
-                    en
-                      ? "Find your account details to receive funds."
-                      : "Retrouvez vos coordonnées pour recevoir des fonds."
-                  }
+                  description={en ? "Find your account details to receive funds." : "Retrouvez vos coordonnées pour recevoir des fonds."}
                   icon={ArrowDownToLine}
                 />
               </ul>
