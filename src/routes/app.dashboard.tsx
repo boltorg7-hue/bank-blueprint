@@ -155,6 +155,33 @@ function DashboardPage() {
               onRetry={() => query.refetch()}
             />
 
+            {/* Rail d'actions rapides tactile */}
+            <nav aria-label={en ? "Quick actions" : "Actions rapides"} className="scroll-snap-x flex items-center gap-3 overflow-x-auto pb-2 pt-1 scrollbar-none -mx-4 px-4 sm:mx-0 sm:px-0">
+              {canTransact ? (
+                <Link to="/app/transfers" className="scroll-snap-item touch-press flex flex-col items-center gap-1.5 rounded-2xl bg-surface border border-border/70 p-3 min-w-[5.25rem] shadow-sm select-none">
+                  <div className="flex size-11 items-center justify-center rounded-xl bg-brand text-brand-foreground shadow-sm"><Send className="size-5" aria-hidden="true" /></div>
+                  <span className="text-[11px] font-semibold text-foreground">{en ? "Transfer" : "Virement"}</span>
+                </Link>
+              ) : (
+                <span aria-disabled="true" className="scroll-snap-item flex flex-col items-center gap-1.5 rounded-2xl bg-surface border border-border/70 p-3 min-w-[5.25rem] opacity-50 select-none">
+                  <div className="flex size-11 items-center justify-center rounded-xl bg-muted text-muted-foreground"><Send className="size-5" aria-hidden="true" /></div>
+                  <span className="text-[11px] font-semibold text-foreground">{en ? "Transfer" : "Virement"}</span>
+                </span>
+              )}
+              <Link to="/app/statements" className="scroll-snap-item touch-press flex flex-col items-center gap-1.5 rounded-2xl bg-surface border border-border/70 p-3 min-w-[5.25rem] shadow-sm select-none">
+                <div className="flex size-11 items-center justify-center rounded-xl bg-brand/10 text-brand"><FileText className="size-5" aria-hidden="true" /></div>
+                <span className="text-[11px] font-semibold text-foreground">{en ? "Statements" : "Relevés"}</span>
+              </Link>
+              <Link to="/app/beneficiaries" className="scroll-snap-item touch-press flex flex-col items-center gap-1.5 rounded-2xl bg-surface border border-border/70 p-3 min-w-[5.25rem] shadow-sm select-none">
+                <div className="flex size-11 items-center justify-center rounded-xl bg-brand/10 text-brand"><Users className="size-5" aria-hidden="true" /></div>
+                <span className="text-[11px] font-semibold text-foreground">{en ? "Beneficiaries" : "Contacts"}</span>
+              </Link>
+              <Link to="/app/security" className="scroll-snap-item touch-press flex flex-col items-center gap-1.5 rounded-2xl bg-surface border border-border/70 p-3 min-w-[5.25rem] shadow-sm select-none">
+                <div className="flex size-11 items-center justify-center rounded-xl bg-brand/10 text-brand"><ShieldCheck className="size-5" aria-hidden="true" /></div>
+                <span className="text-[11px] font-semibold text-foreground">{en ? "Security" : "Sécurité"}</span>
+              </Link>
+            </nav>
+
             {restriction && (
               <p
                 role="status"
