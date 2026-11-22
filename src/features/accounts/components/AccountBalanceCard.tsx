@@ -52,7 +52,7 @@ export function AccountBalanceCard({
   const copyAccountRef = async () => {
     try {
       if (typeof navigator === "undefined" || !navigator.clipboard?.writeText) return;
-      await navigator.clipboard.writeText(account.accountNumber);
+      await navigator.clipboard.writeText(account.reference);
       setCopied(true);
       window.setTimeout(() => setCopied(false), 2000);
     } catch {
