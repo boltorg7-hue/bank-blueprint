@@ -555,3 +555,46 @@
     content: "";
   }
 }
+
+
+/* ---------------------------------------------------------------------------
+ * TACTILE MOBILE FOUNDATIONS — Step 1
+ * Complements the existing touch-action and tabular-number rules above.
+ * ------------------------------------------------------------------------- */
+
+/* Native-feeling vertical scrolling and iOS momentum in explicitly scrollable areas. */
+html {
+  scroll-behavior: smooth;
+  overscroll-behavior-y: auto;
+}
+
+[data-scroll-native],
+.native-scroll {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+/* Reusable subtle surface texture for card previews; apply only to card surfaces. */
+.bank-card-texture {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background-image:
+    radial-gradient(circle at 18% 22%, rgb(255 255 255 / 10%) 0 1px, transparent 1.5px),
+    radial-gradient(circle at 78% 68%, rgb(255 255 255 / 8%) 0 1px, transparent 1.5px),
+    linear-gradient(135deg, rgb(255 255 255 / 5%), transparent 55%);
+  background-size: 14px 14px, 18px 18px, 100% 100%;
+}
+
+/* Align amounts consistently wherever a component has not opted into text-numeric. */
+.money-value,
+[data-money-value] {
+  font-variant-numeric: tabular-nums lining-nums;
+  font-feature-settings: "tnum", "lnum";
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
