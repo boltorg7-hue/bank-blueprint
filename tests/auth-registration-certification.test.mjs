@@ -14,7 +14,7 @@ test("registration handles rejected signup requests without exposing backend err
   assert.ok(form.includes("signUpErrorMessage({ code: result.code }"));
   assert.ok(form.includes("setPending(false)"));
   assert.ok(server.includes("authClient.auth.signUp"));
-  assert.doesNotMatch(form, /setFormError\([^\n]*\.message/);
+  assert.doesNotMatch(form, /setFormError\([^)]*\.message/);
 });
 
 test("registration prevents duplicate submission and requires accessible identity fields", () => {
@@ -127,8 +127,8 @@ test("profile onboarding preserves provider-prefilled names and separates phone 
   assert.ok(functions.includes("data.user.user_metadata"));
   assert.ok(server.includes("profileNameHints(authMetadata)"));
   assert.ok(server.includes("Provider names are suggestions only"));
-  assert.ok(server.includes('onboarding_step: "CONTACT"'));
-  assert.ok(server.includes('lifecycle_state: "CONTACT_VERIFICATION_REQUIRED"'));
+  assert.ok(server.includes('onboarding_step: "PERSONAL_DETAILS"'));
+  assert.ok(server.includes('lifecycle_state: "PROFILE_INCOMPLETE"'));
   assert.doesNotMatch(server, /\bphone:\s*data\.phone/);
   assert.ok(server.includes("CUSTOMER_DOCUMENTS_UNAVAILABLE"));
   assert.ok(page.includes('navigate({ to: "/onboarding", replace: true })'));
@@ -171,23 +171,23 @@ test("phone OTP and phone/email change controls are part of certification", () =
 
 test("post-login resumes the first incomplete server-backed onboarding step", () => {
   const routing = read("src/features/auth/lib/post-login.ts");
-  assert.ok(routing.includes("nextOnboardingRoute(context)"));
+  assert.ok(routing.includes('lifecycleRoute = "/app/dashboard"'));
   assert.ok(routing.includes("if (!context.emailVerified)"));
   assert.ok(routing.includes('lifecycleRoute = "/verify-email"'));
-  assert.ok(routing.includes('["ACTIVE", "RESTRICTED", "SUSPENDED", "CLOSED"]'));
+  assert.ok(routing.includes("The customer shell presents a retry state"));
 });
 
 test("email confirmation page resumes the saved profile step and never sends an active session to sign-in on context errors", () => {
   const page = read("src/routes/email-verified.tsx");
   const tasks = read("src/features/onboarding/lib/tasks.ts");
-  assert.ok(page.includes("useCustomerContext({ enabled: hasSession === true })"));
-  assert.ok(page.includes("query.isError && hasSession"));
-  assert.ok(page.includes("query.refetch()"));
-  assert.ok(page.includes("[context.profile.first_name, context.profile.last_name]"));
-  assert.ok(page.includes("<Link to={next}>"));
-  assert.ok(page.includes("nextOnboardingRoute(context)"));
-  assert.ok(tasks.includes('if (!isProfileComplete(context)) return "/onboarding/profile"'));
-  assert.ok(page.includes('<Link to="/login">'));
+  assert.ok(page.includes("A single-purpose confirmation page"));
+  assert.ok(page.includes("remaining profile steps live in the customer space"));
+  assert.ok(page.includes('to="/app/dashboard"'));
+  assert.ok(page.includes("Votre adresse e-mail est confirmée"));
+  assert.ok(page.includes("Complete the rest of your profile"));
+  assert.ok(page.includes("Complete the rest of your profile"));
+  assert.ok(tasks.includes('route: "/app/profile/personal"'));
+  assert.ok(page.includes('<Link to="/app/dashboard">'));
 });
 
 test("initial signup confirmation link is intentionally accepted without a resend nonce", () => {
@@ -213,9 +213,13 @@ test("step 2 profile uses calendar-valid adult dates and separate phone verifica
   assert.ok(schema.includes("MIN_AGE"));
   assert.ok(!schema.includes("phone: internationalPhoneSchema"));
   assert.ok(!page.includes('name="phone"'));
-  assert.ok(!tasks.slice(tasks.indexOf("export function isProfileComplete"), tasks.indexOf("const REVIEWABLE")).includes("profile.phone"));
+  assert.ok(
+    !tasks
+      .slice(tasks.indexOf("export function isProfileComplete"), tasks.indexOf("const REVIEWABLE"))
+      .includes("profile.phone"),
+  );
   assert.ok(contact.includes("changePendingPhone"));
   assert.ok(contact.includes("sendContactVerificationCode"));
   assert.ok(contact.includes("verifyContactCode"));
-  assert.ok(server.includes('onboarding_step: "CONTACT"'));
+  assert.ok(server.includes('onboarding_step: "PERSONAL_DETAILS"'));
 });

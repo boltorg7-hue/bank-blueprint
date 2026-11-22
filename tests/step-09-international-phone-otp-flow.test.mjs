@@ -26,7 +26,7 @@ assert.doesNotMatch(profileRoute, /\+1 868/);
 assert.doesNotMatch(profileRoute, /Trinidad and Tobago/);
 assert.doesNotMatch(onboardingServer, /customer_change_pending_phone/);
 assert.doesNotMatch(onboardingServer, /\bphone:\s*data\.phone/);
-assert.match(onboardingServer, /onboarding_step: "CONTACT"/);
+assert.match(onboardingServer, /onboarding_step: "PERSONAL_DETAILS"/);
 assert.match(contactServer, /profile\.phone/);
 assert.match(profileRoute, /navigate\(\{ to: "\/onboarding", replace: true \}\)/);
 assert.match(verifyRoute, /Verification channel/);

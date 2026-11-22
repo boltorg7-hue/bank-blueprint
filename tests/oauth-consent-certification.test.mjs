@@ -70,13 +70,10 @@ test("onboarding dashboard reports legal consent still pending without blocking 
   assert.ok(dashboard.includes('id: "legal-consent"'));
   assert.ok(dashboard.includes('route: "/auth/consent"'));
   assert.ok(tasks.includes("const emailDone = Boolean(context.email && context.emailVerified)"));
-  assert.ok(
-    tasks.includes(
-      "const contactDone = Boolean(context.profile.phone && context.profile.phone_verified_at)",
-    ),
-  );
+  assert.ok(tasks.includes('if (!isProfileComplete(context)) return "/app/profile/personal"'));
   assert.ok(tasks.includes('id: "email"'));
-  assert.ok(tasks.includes('id: "contact"'));
+  assert.ok(tasks.includes('id: "profile"'));
+  assert.ok(tasks.includes('id: "address"'));
 });
 
 test("OAuth consent distinguishes provider sign-in from bank KYC", () => {

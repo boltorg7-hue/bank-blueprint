@@ -19,7 +19,7 @@ const onboardingSchemas = fs.readFileSync(
 assert.match(profilePage, /to="\/app\/profile\/personal"/);
 assert.match(profilePage, /to="\/app\/profile\/address"/);
 assert.doesNotMatch(profilePage, /useSaveProfile|useSaveAddress/);
-assert.match(personalPage, /profileStepSchema\.safeParse\(form\)/);
+assert.match(personalPage, /personalFormSchema\.safeParse\(form\)/);
 assert.match(personalPage, /data\.identityLocked/);
 assert.match(personalPage, /useSaveProfile/);
 assert.match(addressPage, /addressStepSchema\.safeParse\(form\)/);

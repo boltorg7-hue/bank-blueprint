@@ -104,6 +104,6 @@ test("profile step excludes phone and dedicated contact service uses atomic chan
   );
   assert.ok(!onboarding.includes("phone: data.phone"));
   assert.match(contact, /customer_change_pending_phone/);
-  assert.match(migration, /pg_advisory_xact_lock\\(hashtextextended\(_phone, 0\)\)/);
+  assert.ok(migration.includes("pg_advisory_xact_lock(hashtextextended(_phone, 0))"));
   assert.match(migration, /WHERE phone = _phone AND id <> _user_id/);
 });
